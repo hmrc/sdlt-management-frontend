@@ -14,8 +14,14 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukSummaryList
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Card
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.CardTitle
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+
 @this(
-    layout: templates.Layout
+    layout: templates.Layout,
+    govukSummaryList: GovukSummaryList
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -24,6 +30,69 @@
     pageTitle    = titleNoForm(messages("index.title")),
     showBackLink = false
 ) {
+
+    <div class="govuk-grid-row card-grid">
+        <div class="govuk-grid-column-one-half">
+            <div class="card-equal-height">
+            @govukSummaryList(SummaryList(
+                classes = "govuk-summary-list",
+                card = Some(Card(
+                    title = Some(CardTitle(Text("Returns management"), Some(2)))
+                )),
+                rows = Seq(
+                    SummaryListRow(Key(Text("In-progress returns")), Value(HtmlContent("<a href='#'>In-progress returns</a>"))),
+                    SummaryListRow(Key(Text("Submitted returns")), Value(HtmlContent("<a href='#'>Submitted returns</a>"))),
+                    SummaryListRow(Key(Text("Returns due for deletion")), Value(HtmlContent("<a href='#'>Returns due for deletion</a>"))),
+                    SummaryListRow(Key(Text("Start a new return")), Value(HtmlContent("<a href='#'>Start a new return</a>")))
+                )
+            ))
+            </div>
+        </div>
+
+        <div class="govuk-grid-column-one-half">
+            <div class="card-equal-height">
+            @govukSummaryList(SummaryList(
+                classes = "govuk-summary-list",
+                card = Some(Card(
+                    title = Some(CardTitle(Text("Agent details"), Some(2)))
+                )),
+                rows = Seq(
+                    SummaryListRow(Key(Text("Manage agents")), Value(HtmlContent("<a href='#'>Manage agents</a>"))),
+                    SummaryListRow(Key(Text("Add a new agent")), Value(HtmlContent("<a href='#'>Add a new agent</a>")))
+                )
+            ))
+            </div>
+        </div>
+
+        <div class="govuk-grid-column-one-half">
+            <div class="card-equal-height">
+            @govukSummaryList(SummaryList(
+                classes = "govuk-summary-list",
+                card = Some(Card(
+                    title = Some(CardTitle(Text("Introduction"), Some(2)))
+                )),
+                rows = Seq(
+                    SummaryListRow(Key(Text("Introduction #1")), Value(HtmlContent("<a href='#'>Introduction #1</a>"))),
+                    SummaryListRow(Key(Text("Introduction #2")), Value(HtmlContent("<a href='#'>Introduction #2</a>")))
+                )
+            ))
+            </div>
+        </div>
+
+        <div class="govuk-grid-column-one-half">
+            <div class="card-equal-height">
+            @govukSummaryList(SummaryList(
+                classes = "govuk-summary-list",
+                card = Some(Card(
+                    title = Some(CardTitle(Text("Feedback"), Some(2)))
+                )),
+                rows = Seq(
+                    SummaryListRow(Key(Text("Leave Feedback")), Value(HtmlContent("<a href='#'>Leave Feedback</a>")))
+                )
+            ))
+            </div>
+        </div>
+    </div>
 
     <h1 class="govuk-heading-xl">@messages("index.heading")</h1>
 
