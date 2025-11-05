@@ -73,8 +73,7 @@ manage.unauthorised.agent.title = Sorry, you are unable to use this service
 manage.unauthorised.agent.heading = Sorry, you are unable to use this service
 manage.unauthorised.agent.p1 = You are signed in with an agent account. You need an organisation account to use this service.
 
-manageReturns.inProgressReturns.title      = Returns in progress
+manageReturns.inProgressReturns.title      = Manage returns – Returns in progress – Stamp Taxes Online
 manageReturns.inProgressReturns.heading    = Returns in progress
 manageReturns.inProgressReturns.noReturns  = You have no returns in progress.
 manageReturns.inProgressReturns.startNewReturn = Start a new return
-manageReturns.inProgressReturns.returnToHomePage = Return to home page
