@@ -20,21 +20,59 @@ import base.SpecBase
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject.bind
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.Retrieval
+import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import controllers.actions.TestAuthRetrievals.Ops
+import base.SpecBase
+import com.google.inject.Inject
+import config.FrontendAppConfig
+import controllers.routes
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject.bind
+import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
+import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
+import uk.gov.hmrc.http.HeaderCarrier
+
+import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
+
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionSpec extends SpecBase {
 
+  private val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  private val application                      = applicationBuilder(userAnswers = None)
+    .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
+    .build()
+  private val bodyParsers                      = application.injector.instanceOf[BodyParsers.Default]
+  private val appConfig                        = application.injector.instanceOf[FrontendAppConfig]
+  private val emptyEnrolments                  = Enrolments(Set.empty)
+  private val id: String                       = UUID.randomUUID().toString
+  private val testStorn: String                = "STN001"
+
+  type RetrievalsType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ Option[CredentialRole]
+
   class Harness(authAction: IdentifierAction) {
-    def onPageLoad(): Action[AnyContent] = authAction { _ => Results.Ok }
+    def onPageLoad(): Action[AnyContent] = authAction(_ => Results.Ok)
   }
 
   "Auth Action" - {
@@ -175,6 +213,162 @@ class AuthActionSpec extends SpecBase {
 
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+        }
+      }
+    }
+
+    "when the user is an agent" - {
+      "must redirect the user to unauthorised agent affinity screen" in {
+        when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+          .thenReturn(Future.successful(Some(id) ~ emptyEnrolments ~ Some(Agent) ~ None))
+        running(application) {
+          val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe controllers.manage.routes.UnauthorisedAgentAffinityController
+            .onPageLoad()
+            .url
+        }
+      }
+    }
+
+    "the user is logged in as an individual" - {
+      "fail and redirect to unauthorised individual affinity screen" in {
+        when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+          .thenReturn(
+            Future.successful(Some(id) ~ emptyEnrolments ~ Some(Individual) ~ Some(Assistant))
+          )
+        running(application) {
+          val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(
+            result
+          ).value mustBe controllers.manage.routes.UnauthorisedIndividualAffinityController.onPageLoad().url
+        }
+      }
+    }
+
+    "the user is logged in as an organisation assistant" - {
+      "fail and redirect to unauthorised wrong role screen" in {
+        when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+          .thenReturn(
+            Future.successful(Some(id) ~ emptyEnrolments ~ Some(Organisation) ~ Some(Assistant))
+          )
+        running(application) {
+          val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe controllers.manage.routes.UnauthorisedWrongRoleController
+            .onPageLoad()
+            .url
+        }
+      }
+    }
+
+    "the user is logged in as an organisation User" - {
+      "and is allowed into the service" - {
+        "must succeed" - {
+          "when the user has a IR-SDLT-ORG enrolment with the correct activated identifiers" in {
+            val enrolments = Enrolments(
+              Set(
+                Enrolment(
+                  "IR-SDLT-ORG",
+                  Seq(
+                    EnrolmentIdentifier("STORN", testStorn)
+                  ),
+                  "activated",
+                  None
+                )
+              )
+            )
+            when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+              .thenReturn(
+                Future.successful(Some(id) ~ enrolments ~ Some(Organisation) ~ Some(User))
+              )
+            running(application) {
+              val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+              val controller = new Harness(authAction)
+              val result = controller.onPageLoad()(FakeRequest())
+
+              status(result) mustBe OK
+            }
+          }
+        }
+      }
+
+      "and is not allowed into the service" - {
+        "when there is no IR-SDLT-ORG enrolment" - {
+          "must redirect to unauthorised organisation affinity screen" in {
+            when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+              .thenReturn(
+                Future.successful(Some(id) ~ emptyEnrolments ~ Some(Organisation) ~ Some(User))
+              )
+            running(application) {
+              val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+              val controller = new Harness(authAction)
+              val result = controller.onPageLoad()(FakeRequest())
+
+              status(result) mustBe SEE_OTHER
+              redirectLocation(
+                result
+              ).value mustBe controllers.manage.routes.UnauthorisedOrganisationAffinityController
+                .onPageLoad()
+                .url
+            }
+          }
+        }
+        "when there is an inactive IR-SDLT-ORG enrolment" - {
+          "must redirect to unauthorised organisation affinity screen" in {
+            val enrolments = Enrolments(
+              Set(
+                Enrolment(
+                  "IR-SDLT-ORG",
+                  Seq(
+                    EnrolmentIdentifier("STORN", testStorn)
+                  ),
+                  "inactivated",
+                  None
+                )
+              )
+            )
+            when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+              .thenReturn(
+                Future.successful(Some(id) ~ enrolments ~ Some(Organisation) ~ Some(User))
+              )
+            running(application) {
+              val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+              val controller = new Harness(authAction)
+              val result = controller.onPageLoad()(FakeRequest())
+              status(result) mustBe SEE_OTHER
+              redirectLocation(
+                result
+              ).value mustBe controllers.manage.routes.UnauthorisedOrganisationAffinityController
+                .onPageLoad()
+                .url
+            }
+          }
+        }
+      }
+    }
+
+    "Unable to retrieve internal id or affinity group" - {
+      "fail and redirect to Unauthorised screen" in {
+        when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+          .thenReturn(Future.successful(None ~ emptyEnrolments ~ None ~ None))
+        running(application) {
+          val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe controllers.routes.UnauthorisedController.onPageLoad().url
         }
       }
     }

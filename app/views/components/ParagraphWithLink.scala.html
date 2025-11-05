@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models.requests
+@this()
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
+@(message: String, classes: String = "govuk-body", id: Option[String] = None, isBold: Boolean = false)
 
-case class OptionalDataRequest[A] (request: Request[A], userId: String, storn: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+<p class="@classes" @id.map{id => id="@id" }>
+    @{ if(isBold) { <strong> {Html(message)} </strong>} else Html(message)}
+</p>
 
-case class DataRequest[A] (request: Request[A], userId: String, storn: String, userAnswers: UserAnswers) extends WrappedRequest[A](request)

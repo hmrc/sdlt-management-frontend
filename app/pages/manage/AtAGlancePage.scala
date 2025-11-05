@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package models.requests
+package pages.manage
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
+import pages.Page
 
-case class OptionalDataRequest[A] (request: Request[A], userId: String, storn: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
-
-case class DataRequest[A] (request: Request[A], userId: String, storn: String, userAnswers: UserAnswers) extends WrappedRequest[A](request)
+case object AtAGlancePage extends Page

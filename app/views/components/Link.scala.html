@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models.requests
+@this()
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
+@(
+        linkTextKey: String,
+        linkUrl: String,
+        isNewTab: Boolean = false,
+        prefixTextKey: String = "",
+        extraClasses: String = ""
+)(implicit messages: Messages)
 
-case class OptionalDataRequest[A] (request: Request[A], userId: String, storn: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
 
-case class DataRequest[A] (request: Request[A], userId: String, storn: String, userAnswers: UserAnswers) extends WrappedRequest[A](request)
+<p class="govuk-body @if(extraClasses.nonEmpty){@extraClasses}">
+    @if(prefixTextKey.nonEmpty) {
+        @{Html(messages(prefixTextKey))}
+    }
+    <a href="@linkUrl" class="govuk-link" @if(isNewTab){rel="noreferrer noopener" target="_blank"}>@{Html(messages(linkTextKey))}</a>
+</p>
