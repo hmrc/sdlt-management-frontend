@@ -72,3 +72,6 @@ manage.unauthorised.individual.p1 = You are signed in with an individual account
 manage.unauthorised.agent.title = Sorry, you are unable to use this service
 manage.unauthorised.agent.heading = Sorry, you are unable to use this service
 manage.unauthorised.agent.p1 = You are signed in with an agent account. You need an organisation account to use this service.
+
+manageReturns.inProgressReturns.title     = Returns in progress
+manageReturns.inProgressReturns.heading    = Returns in progress
