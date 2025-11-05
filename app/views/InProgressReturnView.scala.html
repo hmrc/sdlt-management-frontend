@@ -17,15 +17,21 @@
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
-        govukErrorSummary: GovukErrorSummary,
-        govukInput: GovukInput,
-        govukButton: GovukButton
+        h1: components.H1,
+        link: components.Link,
+        p: components.Paragraph,
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("manageReturns.inProgressReturns.title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("manageReturns.inProgressReturns.heading")</h1>
+    @h1("manageReturns.inProgressReturns.heading")
+
+    @p("manageReturns.inProgressReturns.noReturns")
+
+    @link("manageReturns.inProgressReturns.startNewReturn", "")
+
+    @link("manageReturns.inProgressReturns.returnToHomePage", "")
 
 }
