@@ -23,7 +23,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import jakarta.inject.Singleton
+import javax.inject.Singleton
 import pages.manage.{AtAGlancePage, StornPage}
 
 import javax.inject.Inject
