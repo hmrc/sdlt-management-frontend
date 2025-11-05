@@ -28,20 +28,20 @@ The project uses domain-based organisation. Each new page should be placed in th
 
 ```
 app/
-├── controllers/[domain]/               # e.g. controllers/manageAgents
-├── models/[domain]/                    # e.g. models/manageAgents
-├── views/[domain]/                     # e.g. views/manageAgents
-├── forms/[domain]/                     # e.g. forms/manageAgents
-├── pages/[domain]/                     # e.g. pages/manageAgents
-└── viewmodels/checkAnswers/[domain]/   # e.g. viewmodels/checkAnswers/manageAgents
+├── controllers/[domain]/               # e.g. controllers/manage
+├── models/[domain]/                    # e.g. models/manage
+├── views/[domain]/                     # e.g. views/manage
+├── forms/[domain]/                     # e.g. forms/manage
+├── pages/[domain]/                     # e.g. pages/manage
+└── viewmodels/checkAnswers/[domain]/   # e.g. viewmodels/checkAnswers/manage
 ```
 
 ```
 test/
-├── controllers/[domain]/   # e.g. controllers/manageAgents
-├── models/[domain]/        # e.g. models/manageAgents
-├── forms/[domain]/         # e.g. forms/manageAgents
-└── views/[domain]/         # e.g. views/manageAgents
+├── controllers/[domain]/   # e.g. controllers/manage
+├── models/[domain]/        # e.g. models/manage
+├── forms/[domain]/         # e.g. forms/manage
+└── views/[domain]/         # e.g. views/manage
 ```
 
 ### License
