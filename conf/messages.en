@@ -50,3 +50,25 @@ unauthorised.heading = You can’t access this service with this account
 
 manage.unauthorised.org.title                 = Sorry, you’re unable to use this service
 manage.unauthorised.org.heading               = Sorry, you’re unable to use this service
+
+unauthorised.title = You can’t access this service with this account
+unauthorised.heading = You can’t access this service with this account
+
+manage.unauthorised.org.title = Sorry, you’re unable to use this service
+manage.unauthorised.org.heading = Sorry, you’re unable to use this service
+manage.unauthorised.org.guidance = To access this page
+manage.unauthorised.org.guidance.link = register with the Construction Industry Scheme
+
+manage.unauthorised.org.standard.title = Sorry, you’re unable to use this service
+manage.unauthorised.org.standard.heading = Sorry, you’re unable to use this service
+manage.unauthorised.org.standard.p1 = You’ve signed in with a standard organisation account.
+manage.unauthorised.org.standard.p2 = Only Government Gateway accounts with an administrator role can register to use this service.
+manage.unauthorised.org.standard.guidance.link = Find out more about who can use this service
+
+manage.unauthorised.individual.title = Sorry, you are unable to use this service
+manage.unauthorised.individual.heading = Sorry, you are unable to use this service
+manage.unauthorised.individual.p1 = You are signed in with an individual account. You need an organisation account to use this service.
+
+manage.unauthorised.agent.title = Sorry, you are unable to use this service
+manage.unauthorised.agent.heading = Sorry, you are unable to use this service
+manage.unauthorised.agent.p1 = You are signed in with an agent account. You need an organisation account to use this service.

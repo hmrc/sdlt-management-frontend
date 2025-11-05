@@ -24,7 +24,7 @@ import play.api.Logging
 import play.api.mvc.Results.*
 import play.api.mvc.*
 import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
+import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
@@ -67,6 +67,22 @@ class AuthenticatedIdentifierAction @Inject()(
                 Redirect(controllers.manage.routes.UnauthorisedOrganisationAffinityController.onPageLoad())
               )
             )
+        case Some(_) ~ _ ~ Some(Organisation) ~ Some(Assistant)                          =>
+          logger.info("EnrolmentAuthIdentifierAction - Organisation: Assistant login attempt")
+          Future.successful(Redirect(controllers.manage.routes.UnauthorisedWrongRoleController.onPageLoad()))
+        case Some(_) ~ _ ~ Some(Individual) ~ _                                          =>
+          logger.info("EnrolmentAuthIdentifierAction - Individual login attempt")
+          Future.successful(
+            Redirect(controllers.manage.routes.UnauthorisedIndividualAffinityController.onPageLoad())
+          )
+        case Some(_) ~ _ ~ Some(Agent) ~ _                                               =>
+          logger.info("EnrolmentAuthIdentifierAction - Unauthorised Agent login attempt")
+          Future.successful(
+            Redirect(controllers.manage.routes.UnauthorisedAgentAffinityController.onPageLoad())
+          )
+        case _                                                                           =>
+          logger.warn("EnrolmentAuthIdentifierAction - Unable to retrieve internal id or affinity group")
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
