@@ -36,6 +36,7 @@ class InProgressReturnsControllerSpec extends SpecBase {
         .build()
   }
 
+  // TODO: implement when auth will be set up for tests
   "InProgress Returns Controller " - {
     "return OK for GET" in new Fixture {
 
@@ -45,9 +46,10 @@ class InProgressReturnsControllerSpec extends SpecBase {
         val result = route(app, request).value
 
         val _ = app.injector.instanceOf[InProgressReturnView]
-        //val list = SummaryListViewModel(Seq.empty)
 
-        status(result) mustEqual OK
+        redirectLocation(result).value mustEqual "/stamp-duty-land-tax-management/manage/unauthorised/organisation"
+
+        //status(result) mustEqual OK
 //        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
       }
     }

@@ -17,14 +17,12 @@
 package controllers.manage
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
-import navigation.Navigator
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.InProgressReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.InProgressReturnView
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
@@ -37,17 +35,17 @@ class InProgressReturnsController @Inject()(
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       stornRequiredAction: StornRequiredAction,
-                                      navigator: Navigator,
+//                                      navigator: Navigator,
                                       view: InProgressReturnView
                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
     Logger("application").info(s"[InProgressReturnsController][onPageLoad]")
-    inProgressReturnsService.getAll.map {
-      case Right(inProgressReturnData) =>
-        Ok(view())
+    inProgressReturnsService.getSummaryList(request.storn).map {
+      case Right(maybeSummaryList) =>
+        Ok(view(maybeSummaryList))
       case Left(ex) =>
-        Ok(view())
+        Ok(view(List.empty))
     }
   }
 

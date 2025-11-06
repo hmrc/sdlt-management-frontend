@@ -28,12 +28,14 @@ import scala.concurrent.{ExecutionContext, Future}
 class InProgressReturnsConnector @Inject()(
                                             val appConfig: FrontendAppConfig,
                                             http: HttpClientV2)
-                                          (implicit ec: ExecutionContext) {
+                                          (implicit ec: ExecutionContext) extends FakeInProgressReturnData {
 
   // TODO: we return no data at the moment
-  def getAll: Future[Either[Throwable, List[SdltReturnInfoResponse]]] = {
+  def getAll(storn: String): Future[Either[Throwable, List[SdltReturnInfoResponse]]] = {
     Logger("application").info(s"[InProgressReturnsConnector][getAll] - get all returns")
-    Future.successful(Right(List.empty))
+    Future.successful(
+      Right( getData(storn) )
+    )
   }
 
 }

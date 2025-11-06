@@ -14,21 +14,65 @@
  * limitations under the License.
  *@
 
+@import models.responses.SdltReturnInfoResponse
+@import models.responses.UniversalStatus
+
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
         h1: components.H1,
         link: components.Link,
         p: components.Paragraph,
+        govukSummaryList: GovukSummaryList,
+        govukTable : GovukTable
 )
 
-@()(implicit request: Request[_], messages: Messages)
+
+
+@(dataRows:   List[SdltReturnInfoResponse])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("manageReturns.inProgressReturns.title"))) {
 
-    @h1("manageReturns.inProgressReturns.heading")
+    @if(dataRows.isEmpty) {
+        @h1("manageReturns.inProgressReturns.heading")
+        @p("manageReturns.inProgressReturns.noReturns")
+        @link("manageReturns.inProgressReturns.startNewReturn", "TBC")
+    } else {
 
-    @p("manageReturns.inProgressReturns.noReturns")
+        @govukTable(Table(
+            rows =
+                dataRows.map{ currentRow =>
+                    Seq(
+                        TableRow(
+                            content = Text( currentRow.purchaserName )
+                        ),
+                        TableRow(
+                            content = Text( currentRow.address )
+                        ),
+                        TableRow(
+                            content = Text( currentRow.agentReference )
+                        ),
+                        TableRow(
+                            content = Text( currentRow.status.toString() )
+                        )
+                    )
+                }
+            ,
+            head = Some(Seq(
+                HeadCell(
+                    content = Text(messages("manageReturns.inProgressReturns.summary.purchaser"))
+                ),
+                HeadCell(
+                    content = Text(messages("manageReturns.inProgressReturns.summary.address"))
+                ),
+                HeadCell(
+                    content = Text(messages("manageReturns.inProgressReturns.summary.agentsref"))
+                ),
+                HeadCell(
+                    content = Text(messages("manageReturns.inProgressReturns.summary.status"))
+                )
+            )),
+        ))
+    }
 
-    @link("manageReturns.inProgressReturns.startNewReturn", "TBC")
 }

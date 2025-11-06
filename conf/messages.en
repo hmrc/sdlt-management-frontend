@@ -77,3 +77,7 @@ manageReturns.inProgressReturns.title      = Manage returns – Returns in progr
 manageReturns.inProgressReturns.heading    = Returns in progress
 manageReturns.inProgressReturns.noReturns  = You have no returns in progress.
 manageReturns.inProgressReturns.startNewReturn = Start a new return
+manageReturns.inProgressReturns.summary.purchaser = Purchaser
+manageReturns.inProgressReturns.summary.address = Property Address
+manageReturns.inProgressReturns.summary.agentsref = Agent`s reference
+manageReturns.inProgressReturns.summary.status = Status
