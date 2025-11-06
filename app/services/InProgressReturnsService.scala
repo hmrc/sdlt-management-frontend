@@ -16,9 +16,9 @@
 
 package services
 
-import models.SdltReturnInfoMapperResponse
 import com.google.inject.Singleton
 import connectors.InProgressReturnsConnector
+import models.responses.SdltReturnInfoResponse
 import play.api.Logger
 
 import javax.inject.Inject
@@ -30,7 +30,7 @@ class InProgressReturnsService @Inject()(
                                         val inProgressReturnsConnector: InProgressReturnsConnector
                                     )(implicit ec: ExecutionContext) {
 
-  def getAll: Future[Either[Throwable, List[SdltReturnInfoMapperResponse]]] = {
+  def getAll: Future[Either[Throwable, List[SdltReturnInfoResponse]]] = {
     Logger("application").info(s"[InProgressReturnsService][getAll] - get all returns")
     inProgressReturnsConnector.getAll
   }

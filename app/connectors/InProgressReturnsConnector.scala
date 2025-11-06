@@ -18,7 +18,7 @@ package connectors
 
 import config.FrontendAppConfig
 import jakarta.inject.Singleton
-import models.SdltReturnInfoMapperResponse
+import models.responses.SdltReturnInfoResponse
 import uk.gov.hmrc.http.client.HttpClientV2
 import play.api.Logger
 import javax.inject.Inject
@@ -31,7 +31,7 @@ class InProgressReturnsConnector @Inject()(
                                           (implicit ec: ExecutionContext) {
 
   // TODO: we return no data at the moment
-  def getAll: Future[Either[Throwable, List[SdltReturnInfoMapperResponse]]] = {
+  def getAll: Future[Either[Throwable, List[SdltReturnInfoResponse]]] = {
     Logger("application").info(s"[InProgressReturnsConnector][getAll] - get all returns")
     Future.successful(Right(List.empty))
   }
