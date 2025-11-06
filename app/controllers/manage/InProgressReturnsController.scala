@@ -23,8 +23,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.InProgressReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.InProgressReturnView
-import javax.inject.Inject
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
