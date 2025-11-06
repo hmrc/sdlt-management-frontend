@@ -73,11 +73,17 @@ manage.unauthorised.agent.title = Sorry, you are unable to use this service
 manage.unauthorised.agent.heading = Sorry, you are unable to use this service
 manage.unauthorised.agent.p1 = You are signed in with an agent account. You need an organisation account to use this service.
 
-manageReturns.inProgressReturns.title      = Manage returns – Returns in progress – Stamp Taxes Online
-manageReturns.inProgressReturns.heading    = Returns in progress
-manageReturns.inProgressReturns.noReturns  = You have no returns in progress.
-manageReturns.inProgressReturns.startNewReturn = Start a new return
-manageReturns.inProgressReturns.summary.purchaser = Purchaser
-manageReturns.inProgressReturns.summary.address = Property Address
-manageReturns.inProgressReturns.summary.agentsref = Agent`s reference
-manageReturns.inProgressReturns.summary.status = Status
+manageReturns.inProgressReturns.title           = Manage returns – Returns in progress – Stamp Taxes Online
+manageReturns.inProgressReturns.heading         = Returns in progress
+manageReturns.inProgressReturns.noReturns       = You have no returns in progress.
+manageReturns.inProgressReturns.SomeReturns     = In-progress returns
+manageReturns.inProgressReturns.description     = In-progress returns that haven been inactive for 90 days will automatically delete and cannot be accessed after that.
+manageReturns.inProgressReturns.startNewReturn  = Start a new return
+manageReturns.inProgressReturns.summary.purchaser   = Purchaser
+manageReturns.inProgressReturns.summary.address     = Property Address
+manageReturns.inProgressReturns.summary.agentsref   = Agent`s reference
+manageReturns.inProgressReturns.summary.status      = Status
+manageReturns.inProgressReturns.details.summary       = What does 'Awaiting confirmation status' mean?
+manageReturns.inProgressReturns.details.content       = HMRC is processing your return. Once complete, the status will change to ‘Submitted’.
+
+

@@ -24,7 +24,8 @@
         link: components.Link,
         p: components.Paragraph,
         govukSummaryList: GovukSummaryList,
-        govukTable : GovukTable
+        govukTable : GovukTable,
+        govukDetails: GovukDetails
 )
 
 
@@ -38,6 +39,14 @@
         @p("manageReturns.inProgressReturns.noReturns")
         @link("manageReturns.inProgressReturns.startNewReturn", "TBC")
     } else {
+
+        @h1("manageReturns.inProgressReturns.SomeReturns")
+        @p("manageReturns.inProgressReturns.description")
+
+        @govukDetails(Details(
+            summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
+            content = Text(messages("manageReturns.inProgressReturns.details.content"))
+        ))
 
         @govukTable(Table(
             rows =
