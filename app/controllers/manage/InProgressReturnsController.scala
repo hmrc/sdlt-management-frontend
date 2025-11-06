@@ -23,7 +23,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.InProgressReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.InProgressReturnView
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
+import com.google.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -35,7 +36,6 @@ class InProgressReturnsController @Inject()(
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       stornRequiredAction: StornRequiredAction,
-//                                      navigator: Navigator,
                                       view: InProgressReturnView
                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
