@@ -44,6 +44,6 @@ class AtAGlanceController@Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction) { implicit request =>
 
-    Ok(view())
+    Ok(view(request.storn))
   }
 }

@@ -18,21 +18,63 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(
-        layout: templates.Layout,
-        hmrcPageHeading: HmrcPageHeading
+        layout: templates.LayoutFullWidth,
+        hmrcPageHeading: HmrcPageHeading,
+        paragraph: components.Paragraph,
+        card: components.Card,
+        cardWrapper: components.CardWrapper
 )
-@()(
+@(storn: String)(
         implicit request: Request[_],
         messages: Messages
 )
 
 @layout(
-    pageTitle = titleNoForm(messages("Overview Page")),
+    pageTitle = titleNoForm(messages("manage.homepage.title")),
     showBackLink = false
 ) {
 
     @hmrcPageHeading(PageHeading(
-        text = "Overview Page"
+        text = messages("manage.homepage.heading"),
+        headingClasses = Some("govuk-heading-xl govuk-!-margin-bottom-2")
     ))
+    @paragraph(message = "David Frank", extraClasses = "govuk-!-margin-bottom-0")
+    @paragraph(messages("manage.homepage.storn", storn))
 
+@cardWrapper(
+    card(
+        messages("manage.homepage.returnsManagement.title"),
+        Seq(
+            messages("manage.homepage.returnsManagement.returnsInProgress") -> controllers.routes.IndexController.onPageLoad(),
+            messages("manage.homepage.returnsManagement.submittedReturns") -> controllers.routes.IndexController.onPageLoad(),
+            messages("manage.homepage.returnsManagement.returnsDueForDeletion") -> controllers.routes.IndexController.onPageLoad(),
+            messages("manage.homepage.returnsManagement.startNewReturn") -> controllers.routes.IndexController.onPageLoad()
+        )
+    ),
+    card(
+        messages("manage.homepage.agentDetails.title"),
+        Seq(
+            messages("manage.homepage.agentDetails.manageAgents") -> controllers.routes.IndexController.onPageLoad(),
+            messages("manage.homepage.agentDetails.addNewAgent") -> controllers.routes.IndexController.onPageLoad()
+        )
+    )
+)
+
+@cardWrapper(
+    card(
+        messages("manage.homepage.helpAndContact.title"),
+        Seq(
+            messages("manage.homepage.helpAndContact.help") -> controllers.routes.IndexController.onPageLoad(),
+            messages("manage.homepage.helpAndContact.contactHMRC") -> controllers.routes.IndexController.onPageLoad(),
+            messages("manage.homepage.helpAndContact.howToPay") -> controllers.routes.IndexController.onPageLoad(),
+            messages("manage.homepage.helpAndContact.usefulLinks") -> controllers.routes.IndexController.onPageLoad()
+        )
+    ),
+    card(
+        messages("manage.homepage.feedback.title"),
+        Seq(
+            messages("manage.homepage.feedback.leaveFeedback") -> controllers.routes.IndexController.onPageLoad(),
+        )
+    )
+)
 }
