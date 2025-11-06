@@ -28,3 +28,7 @@ GET         /manage/unauthorised/standard-user           controllers.manage.Unau
 GET         /manage/unauthorised/organisation            controllers.manage.UnauthorisedOrganisationAffinityController.onPageLoad()
 GET         /manage/unauthorised/individual              controllers.manage.UnauthorisedIndividualAffinityController.onPageLoad()
 GET         /manage/unauthorised/agent                   controllers.manage.UnauthorisedAgentAffinityController.onPageLoad()
+
+GET         /leave-feedback                              controllers.FeedBackController.onPageLoad()
+
+GET        /feedback/stamp-duty-land-tax                 controllers.FeedBackController.redirectToFeedback()
