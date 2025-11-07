@@ -21,38 +21,29 @@ import config.FrontendAppConfig
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.SEE_OTHER
-import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, defaultAwaitTimeout, redirectLocation, route, running, status, writeableOf_AnyContentAsEmpty}
+import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status, stubMessagesControllerComponents}
 
-class FeedBackControllerSpec extends SpecBase with MockitoSugar{
+class FeedBackControllerSpec extends SpecBase with MockitoSugar {
 
-  "FeedBackController" -{
+  "FeedBackController" - {
     "gotToSurvey" - {
       s"must redirect to the Feedback page in a new tab " in {
         val testExitSurveyUrl = "https://sdlt-management-frontend"
-        
+
         val mockFrontendAppConfig = mock[FrontendAppConfig]
-        
+
         when(mockFrontendAppConfig.exitSurveyUrl).thenReturn(testExitSurveyUrl)
-        
-        val application = applicationBuilder()
-          .overrides(
-            bind[FrontendAppConfig].toInstance(mockFrontendAppConfig)
-          )
-          .build()
-        
-        running(application) {
-          val request = FakeRequest(GET, routes.FeedBackController.redirectToFeedback().url)
 
-          val result = route(application, request).value
+        val controller = new FeedBackController(
+          stubMessagesControllerComponents(),
+          mockFrontendAppConfig
+        )
 
-          status(result) mustEqual SEE_OTHER
+        val result = controller.redirectToFeedback()(FakeRequest())
 
-          redirectLocation(result).value mustEqual testExitSurveyUrl
-
-
-        }
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual (testExitSurveyUrl)
       }
     }
   }

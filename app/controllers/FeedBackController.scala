@@ -21,7 +21,6 @@ import jakarta.inject.Singleton
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.TestLeaveFeedback
 
 import javax.inject.Inject
 
@@ -29,13 +28,8 @@ import javax.inject.Inject
 class FeedBackController @Inject()(
                                     val controllerComponents: MessagesControllerComponents,
                                     config: FrontendAppConfig,
-                                    view: TestLeaveFeedback,
                                   ) extends FrontendBaseController with I18nSupport {
-
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
-  }
-
+  
   def redirectToFeedback(): Action[AnyContent] = Action {
     implicit request =>
       Redirect(config.exitSurveyUrl)
