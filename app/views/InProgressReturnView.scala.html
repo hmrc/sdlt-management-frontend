@@ -33,13 +33,19 @@
 @(dataRows:   List[SdltReturnInfoResponse],
         pagination: Option[Pagination], paginationInfoText: Option[String])(implicit request: Request[_], messages: Messages)
 
+@purchaserNameLink(row: SdltReturnInfoResponse)  = {
+    <p class="govuk-body">
+        <a class="govuk-link" href="@{row.returnId}">@row.purchaserName</a>
+    </p>
+}
+
 @renderTable() = {
     @govukTable(Table(
         rows =
         dataRows.map{ currentRow =>
             Seq(
                 TableRow(
-                    content = Text( currentRow.purchaserName )
+                    content = HtmlContent(purchaserNameLink(currentRow)),
                 ),
                 TableRow(
                     content = Text( currentRow.address )
