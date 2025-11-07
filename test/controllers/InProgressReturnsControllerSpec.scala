@@ -17,39 +17,66 @@
 package controllers
 
 import base.SpecBase
+import models.responses.{SdltReturnInfoResponse, UniversalStatus}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
-import services.InProgressReturnsService
-import views.html.InProgressReturnView
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
+import services.InProgressReturnsService
 
-class InProgressReturnsControllerSpec extends SpecBase {
+import java.time.LocalDate
+import scala.concurrent.Future
+
+class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
   trait Fixture {
-    val service: InProgressReturnsService = mock[InProgressReturnsService]
+    val mockService: InProgressReturnsService = mock[InProgressReturnsService]
+    val mockSessionRepository: SessionRepository = mock[SessionRepository]
 
-    val app: Application =
-      applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[InProgressReturnsService].toInstance(service))
-        .build()
+    val application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      .overrides(bind[InProgressReturnsService].toInstance(mockService))
+      .build()
+
+    val expectedData = List[SdltReturnInfoResponse](
+      SdltReturnInfoResponse(
+        address = "13: 29 Acacia Road",
+        agentReference = "B4N4NM4N",
+        dateSubmitted = LocalDate.parse("2025-01-01"),
+        utrn = "UTRN001",
+        purchaserName = "Wimp",
+        status = UniversalStatus.ACCEPTED,
+        returnReference = "RETREF001",
+        returnId = "RETID001"
+      )
+    )
   }
 
-  // TODO: implement when auth will be set up for tests
   "InProgress Returns Controller " - {
+
     "return OK for GET" in new Fixture {
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
 
-      running(app) {
-        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad().url)
+      when(mockService.getAllReturns(any()))
+        .thenReturn( Future.successful(Right(expectedData)) )
 
-        val result = route(app, request).value
+      when(mockService.getRowForPageSelected(any(), any(), any()))
+        .thenReturn(expectedData)
 
-        val _ = app.injector.instanceOf[InProgressReturnView]
+      running(application) {
 
-        redirectLocation(result).value mustEqual "/stamp-duty-land-tax-management/manage/unauthorised/organisation"
+        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
 
-        //status(result) mustEqual OK
+        val result = route(application, request).value
+
+        //redirectLocation(result).value mustEqual "/stamp-duty-land-tax-management/manage/unauthorised/organisation"
+
+        status(result) mustEqual OK
 //        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
       }
     }

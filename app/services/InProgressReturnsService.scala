@@ -20,7 +20,6 @@ import com.google.inject.{Inject, Singleton}
 import connectors.InProgressReturnsConnector
 import models.responses.SdltReturnInfoResponse
 import play.api.Logger
-import play.api.i18n.Messages
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -30,8 +29,7 @@ class InProgressReturnsService @Inject()(
                                         val inProgressReturnsConnector: InProgressReturnsConnector
                                     )(implicit ec: ExecutionContext) {
 
-  def getAllReturns(storn: String)
-                   (implicit messages: Messages): Future[Either[Throwable, List[SdltReturnInfoResponse] ]] = {
+  def getAllReturns(storn: String): Future[Either[Throwable, List[SdltReturnInfoResponse] ]] = {
     Logger("application").info(s"[InProgressReturnsService][getAll] - get all returns")
     inProgressReturnsConnector.getAll(storn).map {
       case data@Right(_) =>
