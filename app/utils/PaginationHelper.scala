@@ -17,7 +17,7 @@
 package utils
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{PaginationItem, PaginationLink}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
 trait PaginationHelper {
 
@@ -86,11 +86,30 @@ trait PaginationHelper {
     }
   }
 
-  def getPageCount(records: Int): Int = {
+  private def getPageCount(records: Int): Int = {
     if (records % ROWS_ON_PAGE == 0) {
       records / ROWS_ON_PAGE
     } else {
       (records / ROWS_ON_PAGE) + 1
+    }
+  }
+
+  def createPagination(pageIndex: Int, totalRowsCount : Int)
+                              (implicit messages: Messages): Option[Pagination] = {
+    val numberOfPages: Int = getPageCount(totalRowsCount)
+    if (totalRowsCount > 0 && numberOfPages > 1) {
+      Some(
+        Pagination(
+          items = Some(generatePaginationItems(pageIndex, numberOfPages)),
+          previous = generatePreviousLink(pageIndex, numberOfPages),
+          next = generateNextLink(pageIndex, numberOfPages),
+          landmarkLabel = None,
+          classes = "",
+          attributes = Map.empty
+        )
+      )
+    } else {
+      None
     }
   }
 

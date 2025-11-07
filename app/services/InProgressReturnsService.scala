@@ -41,9 +41,9 @@ class InProgressReturnsService @Inject()(
     }
   }
 
-  def getPageDataByIndex(allDataRows: List[SdltReturnInfoResponse], pageIndex: Int, pageSize: Int): List[SdltReturnInfoResponse] = {
+  def getRowForPageSelected(allDataRows: List[SdltReturnInfoResponse], pageIndex: Int, pageSize: Int): List[SdltReturnInfoResponse] = {
     val paged: Seq[Seq[SdltReturnInfoResponse]] = allDataRows.grouped(pageSize).toSeq
-    paged.lift(pageIndex - 1) match {
+    paged.lift( pageIndex - 1) match {
       case Some(sliceData) =>
         sliceData.toList
       case None =>

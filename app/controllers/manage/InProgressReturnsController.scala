@@ -16,21 +16,19 @@
 
 package controllers.manage
 
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
-import play.api.Logger
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
-import services.InProgressReturnsService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.InProgressReturnView
 import com.google.inject.{Inject, Singleton}
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
 import controllers.routes.JourneyRecoveryController
 import models.requests.DataRequest
 import models.responses.SdltReturnInfoResponse
+import play.api.Logger
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
+import services.InProgressReturnsService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
-import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PaginationHelper
-
+import views.html.InProgressReturnView
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -52,38 +50,15 @@ class InProgressReturnsController @Inject()(
     inProgressReturnsService.getAllReturns(request.storn).map {
       case Right(allDataRows) =>
         Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page")
-        val pageIndex: Int = index.getOrElse(1)
-        val paginator: Option[Pagination] = createPagination(pageIndex, allDataRows)
-        val paginationText: Option[String] = getPaginationInfoText(pageIndex, allDataRows)
-        val rowsOnPage : List[SdltReturnInfoResponse] = inProgressReturnsService.getPageDataByIndex(allDataRows, pageIndex, ROWS_ON_PAGE)
-        Ok(view(rowsOnPage, paginator, paginationText))
+        val selectedPageIndex: Int = index.getOrElse(1)
+        val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length)
+        val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
+        val rowsForSelectedPage: List[SdltReturnInfoResponse] = inProgressReturnsService.getRowForPageSelected(allDataRows, selectedPageIndex, ROWS_ON_PAGE)
+        Ok(view(rowsForSelectedPage, paginator, paginationText))
       case Left(ex) =>
-        Logger("application").error(s"[InProgressReturnsController][onPageLoad] - error: ${ex}")
+        Logger("application").error(s"[InProgressReturnsController][onPageLoad] - pageIndex: $index / error: ${ex}")
         Redirect(JourneyRecoveryController.onPageLoad())
     }
-
   }
-
-
-
-  private def createPagination(pageIndex: Int, dataRows: List[SdltReturnInfoResponse])
-                              (implicit messages: Messages): Option[Pagination] = {
-    val numberOfPages: Int = getPageCount(dataRows.length)
-    if (dataRows.nonEmpty && numberOfPages > 1) {
-      Some(
-        Pagination(
-          items = Some(generatePaginationItems(pageIndex, numberOfPages)),
-          previous = generatePreviousLink(pageIndex, numberOfPages),
-          next = generateNextLink(pageIndex, numberOfPages),
-          landmarkLabel = None,
-          classes = "",
-          attributes = Map.empty
-        )
-      )
-    } else {
-      None
-    }
-  }
-
 
 }
