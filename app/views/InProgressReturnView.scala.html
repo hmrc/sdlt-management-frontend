@@ -16,6 +16,7 @@
 
 @import models.responses.SdltReturnInfoResponse
 @import models.responses.UniversalStatus
+@import models.responses.UniversalStatus.ACCEPTED
 
 @this(
         layout: templates.Layout,
@@ -28,9 +29,44 @@
         govukDetails: GovukDetails
 )
 
-
-
 @(dataRows:   List[SdltReturnInfoResponse])(implicit request: Request[_], messages: Messages)
+
+@renderTable() = {
+    @govukTable(Table(
+        rows =
+        dataRows.map{ currentRow =>
+            Seq(
+                TableRow(
+                    content = Text( currentRow.purchaserName )
+                ),
+                TableRow(
+                    content = Text( currentRow.address )
+                ),
+                TableRow(
+                    content = Text( currentRow.agentReference )
+                ),
+                TableRow(
+                    content = HtmlContent(s"<strong class='" + currentRow.getStatusStyle() + "'>" + currentRow.getStatusText() + "</strong>")
+                )
+            )
+        }
+    ,
+    head = Some(Seq(
+        HeadCell(
+            content = Text(messages("manageReturns.inProgressReturns.summary.purchaser"))
+        ),
+        HeadCell(
+            content = Text(messages("manageReturns.inProgressReturns.summary.address"))
+        ),
+        HeadCell(
+            content = Text(messages("manageReturns.inProgressReturns.summary.agentsref"))
+        ),
+        HeadCell(
+            content = Text(messages("manageReturns.inProgressReturns.summary.status"))
+        )
+    )),
+    ))
+}
 
 @layout(pageTitle = titleNoForm(messages("manageReturns.inProgressReturns.title"))) {
 
@@ -48,40 +84,7 @@
             content = Text(messages("manageReturns.inProgressReturns.details.content"))
         ))
 
-        @govukTable(Table(
-            rows =
-                dataRows.map{ currentRow =>
-                    Seq(
-                        TableRow(
-                            content = Text( currentRow.purchaserName )
-                        ),
-                        TableRow(
-                            content = Text( currentRow.address )
-                        ),
-                        TableRow(
-                            content = Text( currentRow.agentReference )
-                        ),
-                        TableRow(
-                            content = Text( currentRow.status.toString() )
-                        )
-                    )
-                }
-            ,
-            head = Some(Seq(
-                HeadCell(
-                    content = Text(messages("manageReturns.inProgressReturns.summary.purchaser"))
-                ),
-                HeadCell(
-                    content = Text(messages("manageReturns.inProgressReturns.summary.address"))
-                ),
-                HeadCell(
-                    content = Text(messages("manageReturns.inProgressReturns.summary.agentsref"))
-                ),
-                HeadCell(
-                    content = Text(messages("manageReturns.inProgressReturns.summary.status"))
-                )
-            )),
-        ))
+        @renderTable()
     }
 
 }

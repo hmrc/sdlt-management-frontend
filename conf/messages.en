@@ -86,4 +86,10 @@ manageReturns.inProgressReturns.summary.status      = Status
 manageReturns.inProgressReturns.details.summary       = What does 'Awaiting confirmation status' mean?
 manageReturns.inProgressReturns.details.content       = HMRC is processing your return. Once complete, the status will change to ‘Submitted’.
 
+manageReturns.inProgressReturns.status.inprogress   = In progress
+manageReturns.inProgressReturns.status.awaiting     = Awaiting confirmation
+manageReturns.inProgressReturns.status.submitted     = Awaiting confirmation
+
+
+
 

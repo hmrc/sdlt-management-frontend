@@ -47,7 +47,7 @@ trait FakeInProgressReturnData {
           dateSubmitted = LocalDate.parse("2025-02-02"),
           utrn = "UTRN002",
           purchaserName = "SmithSon",
-          status = UniversalStatus.ACCEPTED,
+          status = UniversalStatus.PENDING,
           returnReference = "RETREF002",
           returnId = "RETID002"
         ),

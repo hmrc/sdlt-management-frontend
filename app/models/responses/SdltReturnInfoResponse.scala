@@ -16,8 +16,11 @@
 
 package models.responses
 
+import models.responses.UniversalStatus.{ACCEPTED, PENDING, SUBMITTED}
+import play.api.i18n.Messages
 import play.api.libs.json.{Json, OFormat}
-import java.time.{LocalDate}
+
+import java.time.LocalDate
 
 
 case class SdltReturnInfoResponse(
@@ -29,7 +32,39 @@ case class SdltReturnInfoResponse(
                                    status: UniversalStatus,
                                    returnReference: String,
                                    returnId: String
-                               )
+                               ) {
+  /*
+  Inprogress - ACCEPTED
+  Awaiting confirmation - PENDING
+  Submitted - SUBMITTED
+   */
+  def getStatusText()
+                   (implicit messages: Messages): String = {
+    status match {
+      case ACCEPTED =>
+        messages("manageReturns.inProgressReturns.status.inprogress")
+      case PENDING =>
+        messages("manageReturns.inProgressReturns.status.awaiting")
+      case SUBMITTED =>
+        messages("manageReturns.inProgressReturns.status.submitted")
+      case _ =>
+        ""
+    }
+  }
+
+
+  def getStatusStyle(): String = {
+    status match {
+      case ACCEPTED =>
+        "govuk-tag govuk-tag--blue"
+      case PENDING =>
+        "govuk-tag govuk-tag--grey"
+      case _ =>
+        ""
+    }
+  }
+
+}
 
 object JourneyResultAddressModel {
   implicit val format: OFormat[SdltReturnInfoResponse] = Json.format[SdltReturnInfoResponse]
