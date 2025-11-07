@@ -16,6 +16,7 @@
 
 package utils
 
+import controllers.manage.InProgressReturnsController
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{PaginationItem, PaginationLink}
 
@@ -28,7 +29,7 @@ trait PaginationHelper {
       .inclusive(1, numberOfPages)
       .map(pageIndex =>
         PaginationItem(
-          href = "",
+          href = controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url,
           number = Some(pageIndex.toString),
           visuallyHiddenText = None,
           current = Some(pageIndex == paginationIndex),
@@ -75,7 +76,6 @@ trait PaginationHelper {
     }
     else {
       val paged = itemList.grouped(ROWS_ON_PAGE).toSeq
-
       paged.lift(paginationIndex - 1).map { detailsChunk =>
         val total = itemList.length
         val start = (paginationIndex - 1) * ROWS_ON_PAGE + 1
@@ -84,4 +84,13 @@ trait PaginationHelper {
       }
     }
   }
+
+  def getPageCount(records: Int): Int = {
+    if (records % ROWS_ON_PAGE == 0) {
+      records / ROWS_ON_PAGE
+    } else {
+      (records / ROWS_ON_PAGE) + 1
+    }
+  }
+
 }

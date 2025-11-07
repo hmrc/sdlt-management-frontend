@@ -19,11 +19,12 @@ package controllers.manage
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
 import play.api.Logger
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import services.InProgressReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.InProgressReturnView
 import com.google.inject.{Inject, Singleton}
+import models.requests.DataRequest
 import models.responses.SdltReturnInfoResponse
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
@@ -33,37 +34,56 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class InProgressReturnsController @Inject()(
-                                      override val messagesApi: MessagesApi,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      val inProgressReturnsService: InProgressReturnsService,
-                                      identify: IdentifierAction,
-                                      getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
-                                      stornRequiredAction: StornRequiredAction,
-                                      view: InProgressReturnView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PaginationHelper {
+                                             override val messagesApi: MessagesApi,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             val inProgressReturnsService: InProgressReturnsService,
+                                             identify: IdentifierAction,
+                                             getData: DataRetrievalAction,
+                                             requireData: DataRequiredAction,
+                                             stornRequiredAction: StornRequiredAction,
+                                             view: InProgressReturnView
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PaginationHelper {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
-    Logger("application").info(s"[InProgressReturnsController][onPageLoad]")
-    inProgressReturnsService.getSummaryList(request.storn).map {
-      case Right(dataRows) =>
-        val paginator = createPagination(dataRows)
-        val paginationText: Option[String]     = getPaginationInfoText(1, dataRows)
-        Ok(view(dataRows, paginator, paginationText))
+  private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
+
+  def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
+    val pageIndex: Int = index.getOrElse(1)
+    Logger("application").info(s"[InProgressReturnsController][onPageLoad] - pageIndex: $pageIndex")
+
+    inProgressReturnsService.getAllReturns(request.storn).map {
+      case Right(allDataRows) =>
+
+        val paginator = createPagination(pageIndex, allDataRows)
+        val paginationText: Option[String] = getPaginationInfoText(pageIndex, allDataRows)
+        val slicedData : List[SdltReturnInfoResponse] = getPageDataByIndex(allDataRows, pageIndex)
+
+        Logger("application").info(s"[InProgressReturnsController][DEBUG] - $slicedData")
+        Ok(view(slicedData, paginator, paginationText))
       case Left(ex) =>
         Ok(view(List.empty, None, None))
     }
+
   }
 
-  private def createPagination(dataRows: List[SdltReturnInfoResponse])
+  def getPageDataByIndex(allDataRows: List[SdltReturnInfoResponse], pageIndex: Int): List[SdltReturnInfoResponse] = {
+    val paged: Seq[Seq[SdltReturnInfoResponse]] = allDataRows.grouped(ROWS_ON_PAGE).toSeq
+    paged.lift(pageIndex - 1) match {
+      case Some(sliceData) =>
+        println(s"SlicedData: ${allDataRows}")
+        sliceData.toList
+      case None => List.empty
+    }
+  }
+
+  private def createPagination(pageIndex: Int, dataRows: List[SdltReturnInfoResponse])
                               (implicit messages: Messages): Option[Pagination] = {
-    // TODO: evaluate number of pages => dataRows
-    if (dataRows.nonEmpty && dataRows.length > ROWS_ON_PAGE) {
+    val numberOfPages: Int = getPageCount(dataRows.length)
+    if (dataRows.nonEmpty && numberOfPages > 1) {
       Some(
         Pagination(
-          items = Some(generatePaginationItems(0, 2)),
-          previous = generatePreviousLink(0, 2),
-          next = generateNextLink(0, 2),
+          items = Some(generatePaginationItems(pageIndex, numberOfPages)),
+          previous = generatePreviousLink(pageIndex, numberOfPages),
+          next = generateNextLink(pageIndex, numberOfPages),
           landmarkLabel = None,
           classes = "",
           attributes = Map.empty
@@ -71,8 +91,7 @@ class InProgressReturnsController @Inject()(
       )
     } else {
       None
-  }
-
+    }
   }
 
 

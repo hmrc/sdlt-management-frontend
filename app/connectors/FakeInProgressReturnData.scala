@@ -66,7 +66,7 @@ trait FakeInProgressReturnData {
     case "STN003" =>
       List(
         SdltReturnInfoResponse(
-          address = "29 Acacia Road",
+          address = "1:29 Acacia Road",
           agentReference = "B4N4NM4N",
           dateSubmitted = LocalDate.parse("2025-01-01"),
           utrn = "UTRN001",
@@ -76,7 +76,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID001"
         ),
         SdltReturnInfoResponse(
-          address = "14 Edgeley Road",
+          address = "2: 14 Edgeley Road",
           agentReference = "",
           dateSubmitted = LocalDate.parse("2025-02-02"),
           utrn = "UTRN002",
@@ -86,7 +86,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID002"
         ),
         SdltReturnInfoResponse(
-          address = "40 Riverside Drive",
+          address = "3: 40 Riverside Drive",
           agentReference = "B4C72F7T3",
           dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
@@ -96,7 +96,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID003"
         ),
         SdltReturnInfoResponse(
-          address = "29 Acacia Road",
+          address = "4: 29 Acacia Road",
           agentReference = "B4N4NM4N",
           dateSubmitted = LocalDate.parse("2025-01-01"),
           utrn = "UTRN001",
@@ -106,7 +106,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID001"
         ),
         SdltReturnInfoResponse(
-          address = "14 Edgeley Road",
+          address = "5: 14 Edgeley Road",
           agentReference = "",
           dateSubmitted = LocalDate.parse("2025-02-02"),
           utrn = "UTRN002",
@@ -116,7 +116,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID002"
         ),
         SdltReturnInfoResponse(
-          address = "40 Riverside Drive",
+          address = "6: 40 Riverside Drive",
           agentReference = "B4C72F7T3",
           dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
@@ -126,7 +126,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID003"
         ),
         SdltReturnInfoResponse(
-          address = "29 Acacia Road",
+          address = "7: 29 Acacia Road",
           agentReference = "B4N4NM4N",
           dateSubmitted = LocalDate.parse("2025-01-01"),
           utrn = "UTRN001",
@@ -136,7 +136,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID001"
         ),
         SdltReturnInfoResponse(
-          address = "14 Edgeley Road",
+          address = "8: 14 Edgeley Road",
           agentReference = "",
           dateSubmitted = LocalDate.parse("2025-02-02"),
           utrn = "UTRN002",
@@ -146,7 +146,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID002"
         ),
         SdltReturnInfoResponse(
-          address = "40 Riverside Drive",
+          address = "9: 40 Riverside Drive",
           agentReference = "B4C72F7T3",
           dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
@@ -156,7 +156,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID003"
         ),
         SdltReturnInfoResponse(
-          address = "29 Acacia Road",
+          address = "10: 29 Acacia Road",
           agentReference = "B4N4NM4N",
           dateSubmitted = LocalDate.parse("2025-01-01"),
           utrn = "UTRN001",
@@ -166,7 +166,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID001"
         ),
         SdltReturnInfoResponse(
-          address = "14 Edgeley Road",
+          address = "11: 14 Edgeley Road",
           agentReference = "",
           dateSubmitted = LocalDate.parse("2025-02-02"),
           utrn = "UTRN002",
@@ -176,7 +176,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID002"
         ),
         SdltReturnInfoResponse(
-          address = "40 Riverside Drive",
+          address = "12: 40 Riverside Drive",
           agentReference = "B4C72F7T3",
           dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
@@ -186,7 +186,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID003"
         ),
         SdltReturnInfoResponse(
-          address = "29 Acacia Road",
+          address = "13: 29 Acacia Road",
           agentReference = "B4N4NM4N",
           dateSubmitted = LocalDate.parse("2025-01-01"),
           utrn = "UTRN001",
@@ -206,7 +206,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID002"
         ),
         SdltReturnInfoResponse(
-          address = "40 Riverside Drive",
+          address = "15: 40 Riverside Drive",
           agentReference = "B4C72F7T3",
           dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
@@ -216,7 +216,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID003"
         ),
         SdltReturnInfoResponse(
-          address = "29 Acacia Road",
+          address = "16: 29 Acacia Road",
           agentReference = "B4N4NM4N",
           dateSubmitted = LocalDate.parse("2025-01-01"),
           utrn = "UTRN001",
@@ -226,7 +226,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID001"
         ),
         SdltReturnInfoResponse(
-          address = "14 Edgeley Road",
+          address = "17: 14 Edgeley Road",
           agentReference = "",
           dateSubmitted = LocalDate.parse("2025-02-02"),
           utrn = "UTRN002",
@@ -236,7 +236,7 @@ trait FakeInProgressReturnData {
           returnId = "RETID002"
         ),
         SdltReturnInfoResponse(
-          address = "40 Riverside Drive",
+          address = "18: 40 Riverside Drive",
           agentReference = "B4C72F7T3",
           dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
