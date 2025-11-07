@@ -24,6 +24,7 @@ import services.InProgressReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.InProgressReturnView
 import com.google.inject.{Inject, Singleton}
+import controllers.routes.JourneyRecoveryController
 import models.requests.DataRequest
 import models.responses.SdltReturnInfoResponse
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
@@ -47,33 +48,23 @@ class InProgressReturnsController @Inject()(
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
-    val pageIndex: Int = index.getOrElse(1)
-    Logger("application").info(s"[InProgressReturnsController][onPageLoad] - pageIndex: $pageIndex")
-
+    Logger("application").info(s"[InProgressReturnsController][onPageLoad] - pageIndex: $index")
     inProgressReturnsService.getAllReturns(request.storn).map {
       case Right(allDataRows) =>
-
-        val paginator = createPagination(pageIndex, allDataRows)
+        Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page")
+        val pageIndex: Int = index.getOrElse(1)
+        val paginator: Option[Pagination] = createPagination(pageIndex, allDataRows)
         val paginationText: Option[String] = getPaginationInfoText(pageIndex, allDataRows)
-        val slicedData : List[SdltReturnInfoResponse] = getPageDataByIndex(allDataRows, pageIndex)
-
-        Logger("application").info(s"[InProgressReturnsController][DEBUG] - $slicedData")
-        Ok(view(slicedData, paginator, paginationText))
+        val rowsOnPage : List[SdltReturnInfoResponse] = inProgressReturnsService.getPageDataByIndex(allDataRows, pageIndex, ROWS_ON_PAGE)
+        Ok(view(rowsOnPage, paginator, paginationText))
       case Left(ex) =>
-        Ok(view(List.empty, None, None))
+        Logger("application").error(s"[InProgressReturnsController][onPageLoad] - error: ${ex}")
+        Redirect(JourneyRecoveryController.onPageLoad())
     }
 
   }
 
-  def getPageDataByIndex(allDataRows: List[SdltReturnInfoResponse], pageIndex: Int): List[SdltReturnInfoResponse] = {
-    val paged: Seq[Seq[SdltReturnInfoResponse]] = allDataRows.grouped(ROWS_ON_PAGE).toSeq
-    paged.lift(pageIndex - 1) match {
-      case Some(sliceData) =>
-        println(s"SlicedData: ${allDataRows}")
-        sliceData.toList
-      case None => List.empty
-    }
-  }
+
 
   private def createPagination(pageIndex: Int, dataRows: List[SdltReturnInfoResponse])
                               (implicit messages: Messages): Option[Pagination] = {

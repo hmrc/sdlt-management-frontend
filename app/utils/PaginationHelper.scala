@@ -16,7 +16,6 @@
 
 package utils
 
-import controllers.manage.InProgressReturnsController
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{PaginationItem, PaginationLink}
 
@@ -41,7 +40,9 @@ trait PaginationHelper {
 
   def generatePreviousLink(paginationIndex: Int, numberOfPages: Int)
                           (implicit messages: Messages): Option[PaginationLink] = {
-    if (paginationIndex == 1) None
+    if (paginationIndex == 1) {
+      None
+    }
     else {
       Some(
         PaginationLink(
@@ -55,9 +56,9 @@ trait PaginationHelper {
 
   def generateNextLink(paginationIndex: Int, numberOfPages: Int)
                       (implicit messages: Messages): Option[PaginationLink] = {
-    if (paginationIndex == numberOfPages)
+    if (paginationIndex == numberOfPages) {
       None
-    else {
+    } else {
       Some(
         PaginationLink(
           href = "",
