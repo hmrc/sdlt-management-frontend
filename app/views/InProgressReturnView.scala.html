@@ -26,10 +26,12 @@
         p: components.Paragraph,
         govukSummaryList: GovukSummaryList,
         govukTable : GovukTable,
-        govukDetails: GovukDetails
+        govukDetails: GovukDetails,
+        govukPagination: GovukPagination
 )
 
-@(dataRows:   List[SdltReturnInfoResponse])(implicit request: Request[_], messages: Messages)
+@(dataRows:   List[SdltReturnInfoResponse],
+        pagination: Option[Pagination], paginationInfoText: Option[String])(implicit request: Request[_], messages: Messages)
 
 @renderTable() = {
     @govukTable(Table(
@@ -71,10 +73,12 @@
 @layout(pageTitle = titleNoForm(messages("manageReturns.inProgressReturns.title"))) {
 
     @if(dataRows.isEmpty) {
+
         @h1("manageReturns.inProgressReturns.heading")
         @p("manageReturns.inProgressReturns.noReturns")
         @link("manageReturns.inProgressReturns.startNewReturn", "TBC")
-    } else {
+
+    } else if (pagination.isEmpty){
 
         @h1("manageReturns.inProgressReturns.SomeReturns")
         @p("manageReturns.inProgressReturns.description")
@@ -85,6 +89,23 @@
         ))
 
         @renderTable()
+
+    } else {
+
+        @h1("manageReturns.inProgressReturns.SomeReturns")
+        @p("manageReturns.inProgressReturns.description")
+
+        @govukDetails(Details(
+            summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
+            content = Text(messages("manageReturns.inProgressReturns.details.content"))
+        ))
+
+        @paginationInfoText.map(p(_))
+
+        @renderTable()
+
+        @pagination.map(govukPagination(_))
+
     }
 
 }

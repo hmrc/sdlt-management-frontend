@@ -64,8 +64,188 @@ trait FakeInProgressReturnData {
 
       )
     case "STN003" =>
-      // TODO: implement pagination
-      List[SdltReturnInfoResponse]()
+      List(
+        SdltReturnInfoResponse(
+          address = "29 Acacia Road",
+          agentReference = "B4N4NM4N",
+          dateSubmitted = LocalDate.parse("2025-01-01"),
+          utrn = "UTRN001",
+          purchaserName = "Wimp",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF001",
+          returnId = "RETID001"
+        ),
+        SdltReturnInfoResponse(
+          address = "14 Edgeley Road",
+          agentReference = "",
+          dateSubmitted = LocalDate.parse("2025-02-02"),
+          utrn = "UTRN002",
+          purchaserName = "SmithSon",
+          status = UniversalStatus.PENDING,
+          returnReference = "RETREF002",
+          returnId = "RETID002"
+        ),
+        SdltReturnInfoResponse(
+          address = "40 Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+          returnId = "RETID003"
+        ),
+        SdltReturnInfoResponse(
+          address = "29 Acacia Road",
+          agentReference = "B4N4NM4N",
+          dateSubmitted = LocalDate.parse("2025-01-01"),
+          utrn = "UTRN001",
+          purchaserName = "Wimp",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF001",
+          returnId = "RETID001"
+        ),
+        SdltReturnInfoResponse(
+          address = "14 Edgeley Road",
+          agentReference = "",
+          dateSubmitted = LocalDate.parse("2025-02-02"),
+          utrn = "UTRN002",
+          purchaserName = "SmithSon",
+          status = UniversalStatus.PENDING,
+          returnReference = "RETREF002",
+          returnId = "RETID002"
+        ),
+        SdltReturnInfoResponse(
+          address = "40 Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+          returnId = "RETID003"
+        ),
+        SdltReturnInfoResponse(
+          address = "29 Acacia Road",
+          agentReference = "B4N4NM4N",
+          dateSubmitted = LocalDate.parse("2025-01-01"),
+          utrn = "UTRN001",
+          purchaserName = "Wimp",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF001",
+          returnId = "RETID001"
+        ),
+        SdltReturnInfoResponse(
+          address = "14 Edgeley Road",
+          agentReference = "",
+          dateSubmitted = LocalDate.parse("2025-02-02"),
+          utrn = "UTRN002",
+          purchaserName = "SmithSon",
+          status = UniversalStatus.PENDING,
+          returnReference = "RETREF002",
+          returnId = "RETID002"
+        ),
+        SdltReturnInfoResponse(
+          address = "40 Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+          returnId = "RETID003"
+        ),
+        SdltReturnInfoResponse(
+          address = "29 Acacia Road",
+          agentReference = "B4N4NM4N",
+          dateSubmitted = LocalDate.parse("2025-01-01"),
+          utrn = "UTRN001",
+          purchaserName = "Wimp",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF001",
+          returnId = "RETID001"
+        ),
+        SdltReturnInfoResponse(
+          address = "14 Edgeley Road",
+          agentReference = "",
+          dateSubmitted = LocalDate.parse("2025-02-02"),
+          utrn = "UTRN002",
+          purchaserName = "SmithSon",
+          status = UniversalStatus.PENDING,
+          returnReference = "RETREF002",
+          returnId = "RETID002"
+        ),
+        SdltReturnInfoResponse(
+          address = "40 Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+          returnId = "RETID003"
+        ),
+        SdltReturnInfoResponse(
+          address = "29 Acacia Road",
+          agentReference = "B4N4NM4N",
+          dateSubmitted = LocalDate.parse("2025-01-01"),
+          utrn = "UTRN001",
+          purchaserName = "Wimp",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF001",
+          returnId = "RETID001"
+        ),
+        SdltReturnInfoResponse(
+          address = "14 Edgeley Road",
+          agentReference = "",
+          dateSubmitted = LocalDate.parse("2025-02-02"),
+          utrn = "UTRN002",
+          purchaserName = "SmithSon",
+          status = UniversalStatus.PENDING,
+          returnReference = "RETREF002",
+          returnId = "RETID002"
+        ),
+        SdltReturnInfoResponse(
+          address = "40 Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+          returnId = "RETID003"
+        ),
+        SdltReturnInfoResponse(
+          address = "29 Acacia Road",
+          agentReference = "B4N4NM4N",
+          dateSubmitted = LocalDate.parse("2025-01-01"),
+          utrn = "UTRN001",
+          purchaserName = "Wimp",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF001",
+          returnId = "RETID001"
+        ),
+        SdltReturnInfoResponse(
+          address = "14 Edgeley Road",
+          agentReference = "",
+          dateSubmitted = LocalDate.parse("2025-02-02"),
+          utrn = "UTRN002",
+          purchaserName = "SmithSon",
+          status = UniversalStatus.PENDING,
+          returnReference = "RETREF002",
+          returnId = "RETID002"
+        ),
+        SdltReturnInfoResponse(
+          address = "40 Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+          returnId = "RETID003"
+        )
+      )
     case _ | "STN001" =>
       List[SdltReturnInfoResponse]()
   }

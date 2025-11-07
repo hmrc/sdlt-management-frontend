@@ -88,8 +88,8 @@ manageReturns.inProgressReturns.details.content       = HMRC is processing your 
 
 manageReturns.inProgressReturns.status.inprogress   = In progress
 manageReturns.inProgressReturns.status.awaiting     = Awaiting confirmation
-manageReturns.inProgressReturns.status.submitted     = Awaiting confirmation
-
+manageReturns.inProgressReturns.status.submitted    = Awaiting confirmation
+manageReturns.inProgressReturns.paginationInfo      = Showing {0} to {1} of {2} records
 
 
 
