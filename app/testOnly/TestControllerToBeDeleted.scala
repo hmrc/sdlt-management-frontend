@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.manage
+package testOnly
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import play.api.i18n.{I18nSupport, MessagesApi}
