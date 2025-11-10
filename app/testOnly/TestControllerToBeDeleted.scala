@@ -43,18 +43,17 @@ class TestControllerToBeDeleted @Inject()(
     implicit request =>
 
       for {
-        allReturns <- stampDutyLandTaxService.getAllReturns(storn)
-        getAllAcceptedReturns <- stampDutyLandTaxService.getAllAcceptedReturns(storn)
-        getAllInProgressReturns <- stampDutyLandTaxService.getAllInProgressReturns(storn)
-        getAllPendingReturns <- stampDutyLandTaxService.getAllPendingReturns(storn)
-        getAllStartedReturns <- stampDutyLandTaxService.getAllStartedReturns(storn)
-        getAllSubmittedReturns <- stampDutyLandTaxService.getAllSubmittedReturns(storn)
-        getReturnsDueForDeletion <- stampDutyLandTaxService.getReturnsDueForDeletion(storn)
+        getAllAcceptedReturns <- stampDutyLandTaxService.getReturn(storn, "ACCEPTED")
+        getAllInProgressReturns <- stampDutyLandTaxService.getReturn(storn, "IN-PROGRESS")
+        getAllPendingReturns <- stampDutyLandTaxService.getReturn(storn, "PENDING")
+        getAllStartedReturns <- stampDutyLandTaxService.getReturn(storn, "STARTED")
+        getAllSubmittedReturns <- stampDutyLandTaxService.getReturn(storn, "SUBMITTED")
+        getReturnsDueForDeletion <- stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
         getAllAgents <- stampDutyLandTaxService.getAllAgents(storn)
       } yield {
         Ok(Html(
           s"""
-             |allReturns: $allReturns
+             |getAllAgents: $getAllAgents
              |<br><br>
              |getAllAcceptedReturns: $getAllAcceptedReturns
              |<br><br>
