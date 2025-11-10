@@ -46,14 +46,23 @@ class AtAGlanceController@Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
     val storn = request.storn
-    val agentsF = stampDutyLandTaxService.getAllAgentDetails(storn)
+    val agentsF = stampDutyLandTaxService.getAllAgents(storn)
+    val returnsInProgressF = stampDutyLandTaxService.getReturn(storn, "IN_PROGRESS")
+    val submittedReturnsF = stampDutyLandTaxService.getReturn(storn, "SUBMITTED")
+    val dueForDeletionF = stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
 
     (for {
       agents <- agentsF
+      returnsInProgress <- returnsInProgressF
+      submittedReturns <- submittedReturnsF
+      dueForDeletion <- dueForDeletionF
     } yield {
       val agentMsg = if(agents.nonEmpty) s"Manage agents (${agents.size})" else "Manage agents"
+      val inProgressMsg = if (returnsInProgress.nonEmpty) s"Returns in progress (${returnsInProgress.size})" else "Returns in progress"
+      val submittedMsg = if (submittedReturns.nonEmpty) s"Submitted returns (${submittedReturns.size})" else "Submitted returns"
+      val dueForDeletionMsg = if (dueForDeletion.nonEmpty) s"Returns due for deletion (${dueForDeletion.size})" else "Returns due for deletion"
 
-      Ok(view(storn, agentMsg, appConfig.feedbackUrl))
+      Ok(view(storn, agentMsg, inProgressMsg, submittedMsg, dueForDeletionMsg, appConfig.feedbackUrl))
     }).recover {
             case ex =>
               logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)

@@ -24,7 +24,7 @@
         card: components.Card,
         gridRow: components.GridRow
 )
-@(storn: String, agentMsg: String, feedbackUrl: String)(
+@(storn: String, agentMsg: String, inProgressMsg: String, submittedMsg: String, dueForDeletionMsg: String, feedbackUrl: String)(
         implicit request: Request[_],
         messages: Messages
 )
@@ -45,9 +45,9 @@
     card(
         messages("manage.homepage.returnsManagement.title"),
         Seq(
-            messages("manage.homepage.returnsManagement.returnsInProgress") -> controllers.routes.IndexController.onPageLoad().url,
-            messages("manage.homepage.returnsManagement.submittedReturns") -> controllers.routes.IndexController.onPageLoad().url,
-            messages("manage.homepage.returnsManagement.returnsDueForDeletion") -> controllers.routes.IndexController.onPageLoad().url,
+            inProgressMsg -> controllers.routes.IndexController.onPageLoad().url,
+            submittedMsg -> controllers.routes.IndexController.onPageLoad().url,
+            dueForDeletionMsg -> controllers.routes.IndexController.onPageLoad().url,
             messages("manage.homepage.returnsManagement.startNewReturn") -> controllers.routes.IndexController.onPageLoad().url
         )
     ),
