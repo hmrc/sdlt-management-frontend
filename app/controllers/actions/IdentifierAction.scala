@@ -56,7 +56,7 @@ class AuthenticatedIdentifierAction @Inject()(
         Retrievals.affinityGroup  and
         Retrievals.credentialRole
       ) {
-        //TODO: Add more cases to log and handle error response for missing items eg missing Organisation
+        //TODO: DO WE NEED TO MAKE THIS ACCESSIBLE TO IR-SDLT-AGENT?
         case Some(internalId) ~ Enrolments(enrolments) ~ Some(Organisation) ~ Some(User) =>
           hasSdltOrgEnrolment(enrolments)
             .map { storn =>
