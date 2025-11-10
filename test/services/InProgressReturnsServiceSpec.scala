@@ -33,8 +33,6 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import scala.concurrent.{ExecutionContext, Future}
 
-
-// WIP ....
 class InProgressReturnsServiceSpec extends AnyWordSpec
   with ScalaFutures
   with Matchers
@@ -66,13 +64,21 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
 
       result mustBe a[Either[Throwable, List[SdltReturnInfoResponse]]]
 
+      result mustBe Right(List.empty)
+
       verify(connector, times(1)).getAll(eqTo(storn))
     }
 
     "return error on failure" in new Fixture  {
+      when(connector.getAll(eqTo(storn)))
+        .thenReturn(Future.successful(Left(new Error("Some error"))))
+
+      val result: Either[Throwable, List[SdltReturnInfoResponse]] = service.getAllReturns(storn).futureValue
+
+      result mustBe a[Either[Throwable, List[SdltReturnInfoResponse]]]
+
+      result.left.value.getMessage mustBe "Some error"
 
     }
   }
-
-  // Get paged data based on page: [index/size]
 }
