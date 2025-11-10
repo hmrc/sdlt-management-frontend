@@ -29,3 +29,4 @@ GET         /manage/unauthorised/organisation            controllers.manage.Unau
 GET         /manage/unauthorised/individual              controllers.manage.UnauthorisedIndividualAffinityController.onPageLoad()
 GET         /manage/unauthorised/agent                   controllers.manage.UnauthorisedAgentAffinityController.onPageLoad()
 
+GET         /test                                        controllers.manage.TestControllerToBeDeleted.onPageLoad(storn: String)
