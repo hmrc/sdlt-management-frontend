@@ -60,7 +60,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
       .execute[List[AgentDetailsResponse]]
       .recover {
         case e: Throwable =>
-          logger.error(s"[getAllAgentDetails]: ${e.getMessage}")
+          logger.error(s"[StampDutyLandTaxConnector][getAllAgentDetails]: ${e.getMessage}")
           throw new RuntimeException(e.getMessage)
       }
 }
