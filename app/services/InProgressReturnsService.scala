@@ -34,11 +34,12 @@ class InProgressReturnsService @Inject()(
       case data@Right(_) =>
         data
       case Left(ex) =>
+        Logger("application").error(s"[InProgressReturnsService][getAll] - error: $ex")
         Left(ex)
     }
   }
 
-  def getRowForPageSelected(allDataRows: List[SdltReturnInfoResponse], pageIndex: Int, pageSize: Int): List[SdltReturnInfoResponse] = {
+  def getPageRows(allDataRows: List[SdltReturnInfoResponse], pageIndex: Int, pageSize: Int): List[SdltReturnInfoResponse] = {
     val paged: Seq[Seq[SdltReturnInfoResponse]] = allDataRows.grouped(pageSize).toSeq
     paged.lift( pageIndex - 1) match {
       case Some(sliceData) =>

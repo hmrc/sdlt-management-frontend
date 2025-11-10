@@ -75,12 +75,13 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
   "InProgress Returns Controller " - {
 
+    // happy path
     "return OK for GET:: show empty screen" in new Fixture {
 
       when(mockService.getAllReturns(any()))
         .thenReturn( Future.successful(Right(expectedEmptyData)) )
 
-      when(mockService.getRowForPageSelected(any(), any(), any()))
+      when(mockService.getPageRows(any(), any(), any()))
         .thenReturn(expectedEmptyData)
 
       running(application) {
@@ -94,7 +95,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(List[SdltReturnInfoResponse](), None, None)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())
-        verify(mockService, times(1)).getRowForPageSelected(any(), any(), any())
+        verify(mockService, times(1)).getPageRows(any(), any(), any())
       }
     }
 
@@ -116,7 +117,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any()))
         .thenReturn(Future.successful(Right(expectedDataPaginationOff)))
 
-      when(mockService.getRowForPageSelected(any(), any(), any()))
+      when(mockService.getPageRows(any(), any(), any()))
         .thenReturn(expectedDataPaginationOff)
 
       running(application) {
@@ -130,7 +131,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(actualDataPaginationOff, None, None)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())
-        verify(mockService, times(1)).getRowForPageSelected(any(), any(), any())
+        verify(mockService, times(1)).getPageRows(any(), any(), any())
       }
     }
 
@@ -152,7 +153,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any()))
         .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
 
-      when(mockService.getRowForPageSelected(any(), any(), any()))
+      when(mockService.getPageRows(any(), any(), any()))
         .thenReturn(expectedDataPaginationOn.take(rowsPerPage))
 
       val selectedPageIndex : Int = 1
@@ -170,7 +171,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(actualDataPaginationOn.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())
-        verify(mockService, times(1)).getRowForPageSelected(any(), any(), any())
+        verify(mockService, times(1)).getPageRows(any(), any(), any())
 
       }
     }
@@ -195,7 +196,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any()))
         .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
 
-      when(mockService.getRowForPageSelected(any(), any(), any()))
+      when(mockService.getPageRows(any(), any(), any()))
         .thenReturn(expectedDataPaginationOn.takeRight(actualDataPaginationOn.length - rowsPerPage) )
 
       val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length)(messages(application))
@@ -212,7 +213,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(actualDataPaginationOn.takeRight(actualDataPaginationOn.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())
-        verify(mockService, times(1)).getRowForPageSelected(any(), any(), any())
+        verify(mockService, times(1)).getPageRows(any(), any(), any())
       }
 
     }
@@ -237,7 +238,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any()))
         .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
 
-      when(mockService.getRowForPageSelected(any(), any(), any()))
+      when(mockService.getPageRows(any(), any(), any()))
         .thenReturn(List.empty)
 
       running(application) {
@@ -252,13 +253,31 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(List.empty, None, None)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())
-        verify(mockService, times(1)).getRowForPageSelected(any(), any(), any())
+        verify(mockService, times(1)).getPageRows(any(), any(), any())
       }
 
     }
+
+    // error case #1
+    "return SEE_OTHER on GET :: service level error" in new Fixture {
+
+      when(mockService.getAllReturns(any()))
+        .thenReturn(Future.successful(Left(new Error("SomeError"))))
+
+      running(application) {
+
+        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    // error case #?? pagination errors?
   }
 
-  // Error case scenarios
 
 
 }
