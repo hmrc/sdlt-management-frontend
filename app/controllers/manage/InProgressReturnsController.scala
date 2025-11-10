@@ -16,7 +16,6 @@
 
 package controllers.manage
 
-import com.google.inject.{Inject, Singleton}
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
 import controllers.routes.JourneyRecoveryController
 import models.requests.DataRequest
@@ -30,6 +29,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PaginationHelper
 import views.html.InProgressReturnView
 import scala.concurrent.ExecutionContext
+import javax.inject.*
 
 @Singleton
 class InProgressReturnsController @Inject()(

@@ -16,11 +16,10 @@
 
 package services
 
-import com.google.inject.{Inject, Singleton}
 import connectors.InProgressReturnsConnector
 import models.responses.SdltReturnInfoResponse
 import play.api.Logger
-
+import javax.inject.*
 import scala.concurrent.{ExecutionContext, Future}
 
 

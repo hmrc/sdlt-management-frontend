@@ -20,8 +20,7 @@ import config.FrontendAppConfig
 import models.responses.SdltReturnInfoResponse
 import uk.gov.hmrc.http.client.HttpClientV2
 import play.api.Logger
-import com.google.inject.{Inject, Singleton}
-
+import javax.inject.*
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
