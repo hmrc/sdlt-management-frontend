@@ -36,8 +36,6 @@ trait SpecBase
     with OptionValues
     with ScalaFutures
     with IntegrationPatience {
-
-  implicit lazy val applicationConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   
   val userAnswersId: String = "id"
 
