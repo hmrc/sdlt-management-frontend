@@ -16,7 +16,8 @@
 
 package base
 
-import controllers.actions._
+import config.FrontendAppConfig
+import controllers.actions.*
 import models.UserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -35,7 +36,7 @@ trait SpecBase
     with OptionValues
     with ScalaFutures
     with IntegrationPatience {
-
+  
   val userAnswersId: String = "id"
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
