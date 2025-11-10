@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import models.responses.{SdltReturnInfoResponse, UniversalStatus}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
@@ -28,60 +28,155 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.InProgressReturnsService
+import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
+import utils.PaginationHelper
+import views.html.{CheckYourAnswersView, InProgressReturnView}
 
 import java.time.LocalDate
 import scala.concurrent.Future
 
 class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
-  trait Fixture {
+  trait Fixture extends PaginationHelper {
+    val rowsPerPage : Int = 10
     val mockService: InProgressReturnsService = mock[InProgressReturnsService]
-    val mockSessionRepository: SessionRepository = mock[SessionRepository]
-
     val application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
       .overrides(bind[InProgressReturnsService].toInstance(mockService))
       .build()
 
-    val expectedData = List[SdltReturnInfoResponse](
-      SdltReturnInfoResponse(
-        address = "13: 29 Acacia Road",
-        agentReference = "B4N4NM4N",
-        dateSubmitted = LocalDate.parse("2025-01-01"),
-        utrn = "UTRN001",
-        purchaserName = "Wimp",
-        status = UniversalStatus.ACCEPTED,
-        returnReference = "RETREF001",
-        returnId = "RETID001"
+    val expectedEmptyData: List[SdltReturnInfoResponse] = List[SdltReturnInfoResponse]()
+    val expectedDataPaginationOff: List[SdltReturnInfoResponse] =
+      (0 to 7).toList.map( index =>
+        SdltReturnInfoResponse(
+          address = s"$index Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+          returnId = s"RETID$index"
+        )
       )
-    )
+
+    val expectedDataPaginationOn: List[SdltReturnInfoResponse] =
+      (0 to 17).toList.map(index =>
+        SdltReturnInfoResponse(
+          address = s"$index Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+          returnId = s"RETID$index"
+        )
+      )
   }
 
   "InProgress Returns Controller " - {
 
-    "return OK for GET" in new Fixture {
-      when(mockSessionRepository.set(any()))
-        .thenReturn(Future.successful(true))
+    "return OK for GET:: show empty screen" in new Fixture {
 
       when(mockService.getAllReturns(any()))
-        .thenReturn( Future.successful(Right(expectedData)) )
+        .thenReturn( Future.successful(Right(expectedEmptyData)) )
 
       when(mockService.getRowForPageSelected(any(), any(), any()))
-        .thenReturn(expectedData)
+        .thenReturn(expectedEmptyData)
 
       running(application) {
 
         val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
 
         val result = route(application, request).value
-
-        //redirectLocation(result).value mustEqual "/stamp-duty-land-tax-management/manage/unauthorised/organisation"
+        val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-//        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(List[SdltReturnInfoResponse](), None, None)(request, messages(application)).toString
+
+        verify(mockService, times(1)).getAllReturns(any())
+        verify(mockService, times(1)).getRowForPageSelected(any(), any(), any())
       }
     }
 
+    "return OK for GET:: few rows :: pagination OFF" in new Fixture {
+      val actualDataPaginationOff: List[SdltReturnInfoResponse] =
+        (0 to 7).toList.map(index =>
+          SdltReturnInfoResponse(
+            address = s"$index Riverside Drive",
+            agentReference = "B4C72F7T3",
+            dateSubmitted = LocalDate.parse("2025-04-05"),
+            utrn = "UTRN003",
+            purchaserName = "Brown",
+            status = UniversalStatus.ACCEPTED,
+            returnReference = "RETREF003",
+            returnId = s"RETID$index"
+          )
+        )
+
+      when(mockService.getAllReturns(any()))
+        .thenReturn(Future.successful(Right(expectedDataPaginationOff)))
+
+      when(mockService.getRowForPageSelected(any(), any(), any()))
+        .thenReturn(expectedDataPaginationOff)
+
+      running(application) {
+
+        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[InProgressReturnView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(actualDataPaginationOff, None, None)(request, messages(application)).toString
+
+        verify(mockService, times(1)).getAllReturns(any())
+        verify(mockService, times(1)).getRowForPageSelected(any(), any(), any())
+      }
+    }
+
+    "return OK for GET:: more than 10 rows:: pagination ON :: page 1" in new Fixture {
+      val actualDataPaginationOn: List[SdltReturnInfoResponse] =
+        (0 to 17).toList.map(index =>
+          SdltReturnInfoResponse(
+            address = s"$index Riverside Drive",
+            agentReference = "B4C72F7T3",
+            dateSubmitted = LocalDate.parse("2025-04-05"),
+            utrn = "UTRN003",
+            purchaserName = "Brown",
+            status = UniversalStatus.ACCEPTED,
+            returnReference = "RETREF003",
+            returnId = s"RETID$index"
+          )
+        )
+
+      when(mockService.getAllReturns(any()))
+        .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
+
+      when(mockService.getRowForPageSelected(any(), any(), any()))
+        .thenReturn(expectedDataPaginationOn.take(rowsPerPage))
+
+      val paginator: Option[Pagination] = createPagination(1, expectedDataPaginationOn.length)(messages(application))
+      val paginationText: Option[String] = getPaginationInfoText(1, expectedDataPaginationOn)(messages(application))
+
+      running(application) {
+
+        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[InProgressReturnView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(actualDataPaginationOn.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
+
+        verify(mockService, times(1)).getAllReturns(any())
+        verify(mockService, times(1)).getRowForPageSelected(any(), any(), any())
+
+      }
+    }
   }
+
+  // Error case scenarios
 
 
 }
