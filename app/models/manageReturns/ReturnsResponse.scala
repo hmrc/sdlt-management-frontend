@@ -18,12 +18,11 @@ package models.manageReturns
 
 import play.api.libs.json.{Json, OFormat}
 
-case class DBSubmittedReturnsResponse(
-                                     utrn: String,
-                                     one: String,
-                                     two: Int
-                                     )
+case class ReturnsResponse(
+                              returnSummaryCount: BigDecimal,
+                              returnSummaryList: List[ReturnsSummaryList]
+                            )
 
-object DBSubmittedReturnsResponse {
-  implicit val format: OFormat[DBSubmittedReturnsResponse] = Json.format[DBSubmittedReturnsResponse]
+object ReturnsResponse {
+  implicit val format: OFormat[ReturnsResponse] = Json.format[ReturnsResponse]
 }

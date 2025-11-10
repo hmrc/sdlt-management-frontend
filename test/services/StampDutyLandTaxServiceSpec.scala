@@ -17,7 +17,7 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.manageReturns.InProgressReturnsResponse
+import models.manageReturns.{ReturnsResponse, ReturnsSummaryList}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -27,7 +27,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.Future
 
 class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Matchers {
 
@@ -43,24 +42,40 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
   private val storn = "STN001"
   private val utrn = "123456789MC"
 
-  "getInProgressReturns" should {
+  "getReturns" should {
     "invoke the connector with given storn and fetch the in progress returns successfully" in {
 
       val (service, connector) = newService()
 
-      val progressReturns = Some(InProgressReturnsResponse(
-        utrn = utrn,
-        one = "one",
-        two = 2
-      ))
+      val returns = Some(ReturnsResponse(
+        returnSummaryCount = 2,
+        returnSummaryList = List(ReturnsSummaryList(
+          returnReference = "returnReference1",
+          utrn = "utrn1",
+          status = "status1",
+          dateSubmitted = "dateSubmitted1",
+          purchaserName = "purchaserName1",
+          address = "address1",
+          agentReference = "agentReference1"
+        ),
+          ReturnsSummaryList(
+          returnReference = "returnReference2",
+          utrn = "utrn2",
+          status = "status2",
+          dateSubmitted = "dateSubmitted2",
+          purchaserName = "purchaserName2",
+          address = "address2",
+          agentReference = "agentReference2"
+        )
+      )))
 
-      when(connector.getInProgressReturns(eqTo(storn), eqTo(utrn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(progressReturns))
+      when(connector.getReturns(eqTo(storn))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(returns))
 
-      val result = service.getInProgressReturns(storn, utrn).futureValue
-      result mustBe progressReturns
+      val result = service.getReturns(storn).futureValue
+      result mustBe returns
 
-      verify(connector).getInProgressReturns(eqTo(storn), eqTo(utrn))(any[HeaderCarrier])
+      verify(connector).getReturns(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
 
@@ -68,14 +83,14 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
       val (service, connector) = newService()
 
-      when(connector.getInProgressReturns(eqTo(storn), eqTo(utrn))(any[HeaderCarrier]))
+      when(connector.getReturns(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.failed(new RuntimeException("Error")))
 
       val ex = intercept[RuntimeException] {
-        service.getInProgressReturns(storn, utrn).futureValue
+        service.getReturns(storn).futureValue
       }
-
-        ex.getMessage must include("Error")
+      ex.getMessage must include("Error")
     }
   }
 }
+

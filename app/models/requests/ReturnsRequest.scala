@@ -19,10 +19,10 @@ package models.requests
 import play.api.libs.json.{Json, OFormat}
 
 case class ReturnsRequest(
-                          good: String,
-                          fort: String,
-                          you: String,
-                          jeff: BigDecimal
+                          param1: String,
+                          param2: String,
+                          param3: String,
+                          param4: BigDecimal
                          )
 
 object ReturnsRequest {

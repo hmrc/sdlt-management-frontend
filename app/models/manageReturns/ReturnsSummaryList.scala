@@ -18,12 +18,16 @@ package models.manageReturns
 
 import play.api.libs.json.{Json, OFormat}
 
-case class InProgressReturnsResponse(
-                                      utrn: String,
-                                      one: String,
-                                      two: Int
-                                    )
+case class ReturnsSummaryList(
+                           returnReference: String,
+                           utrn: String,
+                           status: String,
+                           dateSubmitted: String,
+                           purchaserName: String,
+                           address: String,
+                           agentReference: String
+                          )
 
-object InProgressReturnsResponse {
-  implicit val format: OFormat[InProgressReturnsResponse] = Json.format[InProgressReturnsResponse]
+object ReturnsSummaryList {
+  implicit val format: OFormat[ReturnsSummaryList] = Json.format[ReturnsSummaryList]
 }

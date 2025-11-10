@@ -16,12 +16,9 @@
 
 package connectors
 
-import models.manageReturns.{DBSubmittedReturnsResponse, DueDeletionReturnsResponse, InProgressReturnsResponse, SubmittedReturnsResponse}
-import models.requests.ReturnsRequest
+import models.manageReturns.ReturnsResponse
 import play.api.Logging
-import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps}
-import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -36,130 +33,18 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
 
   private val base = config.baseUrl("stamp-duty-land-tax")
 
-  private val getInProgressReturnsUrl: (String, String) => URL = (storn, utrn) =>
-    url"$base/stamp-duty-land-tax/manage-returns/in-progress-returns/get?storn=$storn&utrn=$utrn"
-
-  private val getAllInProgressReturnsUrl: String => URL = storn =>
-    url"$base/stamp-duty-land-tax/manage-returns/in-progress-returns/get?storn=$storn"
+  private val getReturnsUrl: String => URL = storn =>
+    url"$base/stamp-duty-land-tax/manage-returns/get-returns?storn=$storn"
 
 
-  private val getSubmittedReturnsUrl: (String, String) => URL = (storn, utrn) =>
-    url"$base/stamp-duty-land-tax/manage-returns/submitted-returns/get?storn=$storn&utrn=$utrn"
-
-  private val getAllSubmittedReturnsUrl: String => URL = storn =>
-    url"$base/stamp-duty-land-tax/manage-returns/submitted-returns/get?storn=$storn"
-
-
-  private val getDueDeletionReturnsUrl: (String, String) => URL = (storn, utrn) =>
-    url"$base/stamp-duty-land-tax/manage-returns/due-deletion-returns/get?storn=$storn&utrn=$utrn"
-
-  private val getAllDueDeletionReturnsUrl: String => URL = storn =>
-    url"$base/stamp-duty-land-tax/manage-returns/due-deletion-returns/get?storn=$storn"
-
-
-  private val startReturnUrl: URL =
-    url"$base/stamp-duty-land-tax/manage-returns/start-return/submit"
-
-  private val deleteReturnUrl: (String, String) => URL = (storn, utrn) =>
-    url"$base/stamp-duty-land-tax/manage-returns/delete-return/delete?storn=$storn&utrn=$utrn"
-
-
-
-  def getInProgressReturns(storn: String, utrn: String)
-                     (implicit hc: HeaderCarrier): Future[Option[InProgressReturnsResponse]] =
+  def getReturns(storn: String)
+                        (implicit hc: HeaderCarrier): Future[List[ReturnsResponse]] =
     http
-      .get(getInProgressReturnsUrl(storn, utrn))
-      .execute[Option[InProgressReturnsResponse]]
+      .get(getReturnsUrl(storn))
+      .execute[List[ReturnsResponse]]
       .recover {
         case e: Throwable =>
-          logger.error(s"[getInProgressReturns]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
-
-
-  def getAllInProgressReturns(storn: String)
-                        (implicit hc: HeaderCarrier): Future[List[InProgressReturnsResponse]] =
-    http
-      .get(getAllInProgressReturnsUrl(storn))
-      .execute[List[InProgressReturnsResponse]]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[getAllInProgressReturns]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
-
-
-
-  def getSubmittedReturns(storn: String, utrn: String)
-                          (implicit hc: HeaderCarrier): Future[Option[SubmittedReturnsResponse]] =
-    http
-      .get(getSubmittedReturnsUrl(storn, utrn))
-      .execute[Option[SubmittedReturnsResponse]]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[getSubmittedReturns]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
-
-
-  def getAllSubmittedReturns(storn: String)
-                             (implicit hc: HeaderCarrier): Future[List[SubmittedReturnsResponse]] =
-    http
-      .get(getAllSubmittedReturnsUrl(storn))
-      .execute[List[SubmittedReturnsResponse]]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[getAllSubmittedReturns]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
-
-
-  
-  def getDueDeletionReturns(storn: String, utrn: String)
-                         (implicit hc: HeaderCarrier): Future[Option[DueDeletionReturnsResponse]] =
-    http
-      .get(getDueDeletionReturnsUrl(storn, utrn))
-      .execute[Option[DueDeletionReturnsResponse]]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[getDueDeletionReturns]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
-
-
-  def getAllDueDeletionReturns(storn: String)
-                            (implicit hc: HeaderCarrier): Future[List[DueDeletionReturnsResponse]] =
-    http
-      .get(getAllDueDeletionReturnsUrl(storn))
-      .execute[List[DueDeletionReturnsResponse]]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[getAllDueDeletionReturns]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
-  
-  
-
-  def startReturn(returnsRequest: ReturnsRequest)
-                        (implicit hc: HeaderCarrier): Future[DBSubmittedReturnsResponse] =
-    http
-      .post(startReturnUrl)
-      .withBody(Json.toJson(returnsRequest))
-      .execute[DBSubmittedReturnsResponse]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[startReturn]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
-
-  def deleteReturn(storn: String, utrn: String)
-                        (implicit hc: HeaderCarrier): Future[Boolean] =
-    http
-      .get(deleteReturnUrl(storn, utrn))
-      .execute[Boolean]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[deleteReturn]: ${e.getMessage}")
+          logger.error(s"[getReturns]: ${e.getMessage}")
           throw new RuntimeException(e.getMessage)
       }
 }
