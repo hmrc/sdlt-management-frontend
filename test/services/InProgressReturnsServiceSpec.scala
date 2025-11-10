@@ -18,7 +18,7 @@ package services
 
 import connectors.InProgressReturnsConnector
 import models.UserAnswers
-import models.responses.SdltReturnInfoResponse
+import models.responses.{SdltReturnInfoResponse, UniversalStatus}
 import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{mock, times, verify, when}
 import org.scalatest.EitherValues
@@ -29,7 +29,7 @@ import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.Instant
+import java.time.{Instant, LocalDate}
 import java.time.temporal.ChronoUnit
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -52,6 +52,7 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
     val service: InProgressReturnsService = new InProgressReturnsService(connector)
 
     val instant: Instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
+    val pageSize : Int = 9
   }
 
   "Get all inProgressReturns records" should {
@@ -81,4 +82,34 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
 
     }
   }
+
+  "slice TaxReturns records into paged data: empty input" in new Fixture {
+    val result: List[SdltReturnInfoResponse] = service.getPageRows( List.empty, 1, pageSize = 10)
+    result mustBe List.empty
+  }
+
+  "slice all TaxReturn into paged data: 17 records" in new Fixture {
+    val expectedDataPaginationOn: List[SdltReturnInfoResponse] = {
+      (0 to 17).toList.map(index =>
+        SdltReturnInfoResponse(
+          address = s"$index Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+          returnId = s"RETID$index"
+        )
+      )
+    }
+
+    val pageOne: List[SdltReturnInfoResponse] = service.getPageRows(expectedDataPaginationOn, 1, pageSize = pageSize)
+    pageOne mustBe expectedDataPaginationOn.take(pageSize)
+
+    val pageTwo: List[SdltReturnInfoResponse] = service.getPageRows(expectedDataPaginationOn, 2, pageSize = pageSize)
+    pageTwo mustBe expectedDataPaginationOn.takeRight(expectedDataPaginationOn.length - pageSize)
+
+  }
+
 }
