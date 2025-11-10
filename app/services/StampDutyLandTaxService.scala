@@ -43,61 +43,26 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     "SUBMITTED_NO_RECEIPT"
   )
 
-  def getAllReturns(storn: String)
-                   (implicit headerCarrier: HeaderCarrier): Future[SdltReturnRecordResponse] =
-    stampDutyLandTaxConnector
-      .getAllReturns(storn)
-
-  def getAllPendingReturns(storn: String)
-                          (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] =
-    stampDutyLandTaxConnector
-      .getAllReturns(storn)
-      .collect {
-        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "PENDING")
+  def getReturn(storn: String)
+               (implicit headerCarrier: HeaderCarrier): Future[SdltReturnRecordResponse] =
+  stampDutyLandTaxConnector
+    .getAllReturns(storn)
+    .map {
+      _.returnSummaryList.filter {
+        case ReturnSummary(_, _, status, _, _, _, _) => status == "PENDING"
+        case ReturnSummary(_, _, status, _, _, _, _) => status == "ACCEPTED"
+        case ReturnSummary(_, _, status, _, _, _, _) => status == "PENDING"
+        case ReturnSummary(_, _, status, _, _, _, _) => status == "PENDING"
+        case ReturnSummary(_, _, status, _, _, _, _) => status == "PENDING"
+        case ReturnSummary(_, _, status, _, _, _, _) => status == "PENDING"
+        case ReturnSummary(_, _, status, _, _, _, _) => status == "PENDING"
+        case ReturnSummary(_, _, status, _, _, _, _) => status == "PENDING"
+        case summary@"SUBMITTED" => summary.status == "SUBMITTED"
+        case summary@"ACCEPTED" => summary.status == "ACCEPTED"
+        case summary@"STARTED" => summary.status == "STARTED"
+        case summary@"IN-PROGRESS" => summary.status == "IN-PROGRESS"
+        case summary@"DUE_FOR_DELETION" => summary.status == "DUE_FOR_DELETION"
+        case _ => false
       }
-
-  def getAllSubmittedReturns(storn: String)
-                            (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] =
-    stampDutyLandTaxConnector
-      .getAllReturns(storn)
-      .collect {
-        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "SUBMITTED")
-      }
-
-  def getAllAcceptedReturns(storn: String)
-                           (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] =
-    stampDutyLandTaxConnector
-      .getAllReturns(storn)
-      .collect {
-        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "ACCEPTED")
-      }
-
-  def getAllStartedReturns(storn: String)
-                          (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] =
-    stampDutyLandTaxConnector
-      .getAllReturns(storn)
-      .collect {
-        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "STARTED")
-      }
-
-  def getAllInProgressReturns(storn: String)
-                             (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] =
-    stampDutyLandTaxConnector
-      .getAllReturns(storn)
-      .collect {
-        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "IN-PROGRESS")
-      }
-
-  def getReturnsDueForDeletion(storn: String)
-                              (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] =
-    stampDutyLandTaxConnector
-      .getAllReturns(storn)
-      .collect {
-        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "DUE_FOR_DELETION")
-      }
-
-  def getAllAgents(storn: String)
-                  (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
-    stampDutyLandTaxConnector
-      .getAllAgentDetails(storn)
+    }
 }
