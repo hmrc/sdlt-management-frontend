@@ -25,18 +25,6 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.IndexView
-
-import base.SpecBase
-import models.UserAnswers
-import org.mockito.ArgumentMatchers.{any, argThat}
-import org.mockito.Mockito.{verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.inject.bind
-import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import repositories.SessionRepository
-import controllers.routes._
 
 import scala.concurrent.Future
 
