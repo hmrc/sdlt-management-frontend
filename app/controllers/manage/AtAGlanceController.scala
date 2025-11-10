@@ -16,34 +16,49 @@
 
 package controllers.manage
 
+import config.FrontendAppConfig
 import controllers.actions.*
-import models.Mode
-import navigation.Navigator
+import play.api.Logging
 
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
+import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
+import controllers.routes.JourneyRecoveryController
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AtAGlanceController@Inject()(
                                     override val messagesApi: MessagesApi,
                                     val controllerComponents: MessagesControllerComponents,
-                                    sessionRepository: SessionRepository,
+                                    stampDutyLandTaxService: StampDutyLandTaxService,
+                                    appConfig: FrontendAppConfig,
                                     identify: IdentifierAction,
                                     getData: DataRetrievalAction,
                                     view: AtAGlanceView,
                                     requireData: DataRequiredAction,
                                     stornRequiredAction: StornRequiredAction,
-                                    navigator: Navigator
-                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction) { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
-    Ok(view(request.storn))
+    val storn = request.storn
+    val agentsF = stampDutyLandTaxService.getAllAgentDetails(storn)
+
+    (for {
+      agents <- agentsF
+    } yield {
+      val agentMsg = if(agents.nonEmpty) s"Manage agents (${agents.size})" else "Manage agents"
+
+      Ok(view(storn, agentMsg, appConfig.feedbackUrl))
+    }).recover {
+            case ex =>
+              logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
+              Redirect(JourneyRecoveryController.onPageLoad())
+    }
+
   }
 }

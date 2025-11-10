@@ -18,19 +18,19 @@
 
 @(
 title: String,
-links: Seq[(String, play.api.mvc.Call)]
+links: Seq[(String, String)]
 )(implicit messages: Messages)
 
     <div class="govuk-grid-column-one-half">
-        <div class="govuk-summary-card" style="min-height: 45vh;">
-            <div class="govuk-summary-card__title-wrapper" style="min-height: 83px;">
+        <div class="govuk-summary-card" style="min-height: 290px;">
+            <div class="govuk-summary-card__title-wrapper">
                 <h2 class="govuk-heading-m govuk-!-margin-bottom-8">@title</h2>
             </div>
             <div class="govuk-summary-card__content">
                 <ul class="govuk-list">
                     @for((text, call) <- links) {
                     <li class="govuk-!-margin-bottom-2">
-                        <a href="@call.url" class="govuk-link">@text</a>
+                        <a href="@call" class="govuk-link">@text</a>
                     </li>
                     }
                 </ul>

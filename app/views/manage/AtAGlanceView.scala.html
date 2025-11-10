@@ -22,9 +22,9 @@
         hmrcPageHeading: HmrcPageHeading,
         paragraph: components.Paragraph,
         card: components.Card,
-        cardWrapper: components.CardWrapper
+        gridRow: components.GridRow
 )
-@(storn: String)(
+@(storn: String, agentMsg: String, feedbackUrl: String)(
         implicit request: Request[_],
         messages: Messages
 )
@@ -41,39 +41,39 @@
     @paragraph(message = "David Frank", extraClasses = "govuk-!-margin-bottom-0")
     @paragraph(messages("manage.homepage.storn", storn))
 
-@cardWrapper(
+@gridRow(
     card(
         messages("manage.homepage.returnsManagement.title"),
         Seq(
-            messages("manage.homepage.returnsManagement.returnsInProgress") -> controllers.routes.IndexController.onPageLoad(),
-            messages("manage.homepage.returnsManagement.submittedReturns") -> controllers.routes.IndexController.onPageLoad(),
-            messages("manage.homepage.returnsManagement.returnsDueForDeletion") -> controllers.routes.IndexController.onPageLoad(),
-            messages("manage.homepage.returnsManagement.startNewReturn") -> controllers.routes.IndexController.onPageLoad()
+            messages("manage.homepage.returnsManagement.returnsInProgress") -> controllers.routes.IndexController.onPageLoad().url,
+            messages("manage.homepage.returnsManagement.submittedReturns") -> controllers.routes.IndexController.onPageLoad().url,
+            messages("manage.homepage.returnsManagement.returnsDueForDeletion") -> controllers.routes.IndexController.onPageLoad().url,
+            messages("manage.homepage.returnsManagement.startNewReturn") -> controllers.routes.IndexController.onPageLoad().url
         )
     ),
     card(
         messages("manage.homepage.agentDetails.title"),
         Seq(
-            messages("manage.homepage.agentDetails.manageAgents") -> controllers.routes.IndexController.onPageLoad(),
-            messages("manage.homepage.agentDetails.addNewAgent") -> controllers.routes.IndexController.onPageLoad()
+            agentMsg -> controllers.routes.IndexController.onPageLoad().url,
+            messages("manage.homepage.agentDetails.addNewAgent") -> controllers.routes.IndexController.onPageLoad().url
         )
     )
 )
 
-@cardWrapper(
+@gridRow(
     card(
         messages("manage.homepage.helpAndContact.title"),
         Seq(
-            messages("manage.homepage.helpAndContact.help") -> controllers.routes.IndexController.onPageLoad(),
-            messages("manage.homepage.helpAndContact.contactHMRC") -> controllers.routes.IndexController.onPageLoad(),
-            messages("manage.homepage.helpAndContact.howToPay") -> controllers.routes.IndexController.onPageLoad(),
-            messages("manage.homepage.helpAndContact.usefulLinks") -> controllers.routes.IndexController.onPageLoad()
+            messages("manage.homepage.helpAndContact.help") -> controllers.routes.IndexController.onPageLoad().url,
+            messages("manage.homepage.helpAndContact.contactHMRC") -> controllers.routes.IndexController.onPageLoad().url,
+            messages("manage.homepage.helpAndContact.howToPay") -> controllers.routes.IndexController.onPageLoad().url,
+            messages("manage.homepage.helpAndContact.usefulLinks") -> controllers.routes.IndexController.onPageLoad().url
         )
     ),
     card(
         messages("manage.homepage.feedback.title"),
         Seq(
-            messages("manage.homepage.feedback.leaveFeedback") -> controllers.routes.IndexController.onPageLoad(),
+            messages("manage.homepage.feedback.leaveFeedback") -> feedbackUrl,
         )
     )
 )
