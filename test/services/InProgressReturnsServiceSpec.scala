@@ -16,9 +16,8 @@
 
 package services
 
-import connectors.InProgressReturnsConnector
 import models.UserAnswers
-import models.responses.{SdltReturnInfoResponse, UniversalStatus}
+import models.responses.{SdltReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{mock, times, verify, when}
 import org.scalatest.EitherValues
@@ -61,9 +60,9 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
       when(connector.getAll(eqTo(storn)))
         .thenReturn(Future.successful(Right( List.empty )))
 
-      val result: Either[Throwable, List[SdltReturnInfoResponse]] = service.getAllReturns(storn).futureValue
+      val result: Either[Throwable, List[SdltReturnViewRow]] = service.getAllReturns(storn).futureValue
 
-      result mustBe a[Either[Throwable, List[SdltReturnInfoResponse]]]
+      result mustBe a[Either[Throwable, List[SdltReturnViewRow]]]
 
       result mustBe Right(List.empty)
 
@@ -74,9 +73,9 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
       when(connector.getAll(eqTo(storn)))
         .thenReturn(Future.successful(Left(new Error("Some error"))))
 
-      val result: Either[Throwable, List[SdltReturnInfoResponse]] = service.getAllReturns(storn).futureValue
+      val result: Either[Throwable, List[SdltReturnViewRow]] = service.getAllReturns(storn).futureValue
 
-      result mustBe a[Either[Throwable, List[SdltReturnInfoResponse]]]
+      result mustBe a[Either[Throwable, List[SdltReturnViewRow]]]
 
       result.left.value.getMessage mustBe "Some error"
 
@@ -84,14 +83,14 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
   }
 
   "slice TaxReturns records into paged data: empty input" in new Fixture {
-    val result: List[SdltReturnInfoResponse] = service.getPageRows( List.empty, 1, pageSize = 10)
+    val result: List[SdltReturnViewRow] = service.getPageRows( List.empty, 1, pageSize = 10)
     result mustBe List.empty
   }
 
   "slice all TaxReturn into paged data: 17 records" in new Fixture {
-    val expectedDataPaginationOn: List[SdltReturnInfoResponse] = {
+    val expectedDataPaginationOn: List[SdltReturnViewRow] = {
       (0 to 17).toList.map(index =>
-        SdltReturnInfoResponse(
+        SdltReturnViewRow(
           address = s"$index Riverside Drive",
           agentReference = "B4C72F7T3",
           dateSubmitted = LocalDate.parse("2025-04-05"),
@@ -104,10 +103,10 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
       )
     }
 
-    val pageOne: List[SdltReturnInfoResponse] = service.getPageRows(expectedDataPaginationOn, 1, pageSize = pageSize)
+    val pageOne: List[SdltReturnViewRow] = service.getPageRows(expectedDataPaginationOn, 1, pageSize = pageSize)
     pageOne mustBe expectedDataPaginationOn.take(pageSize)
 
-    val pageTwo: List[SdltReturnInfoResponse] = service.getPageRows(expectedDataPaginationOn, 2, pageSize = pageSize)
+    val pageTwo: List[SdltReturnViewRow] = service.getPageRows(expectedDataPaginationOn, 2, pageSize = pageSize)
     pageTwo mustBe expectedDataPaginationOn.takeRight(expectedDataPaginationOn.length - pageSize)
 
   }

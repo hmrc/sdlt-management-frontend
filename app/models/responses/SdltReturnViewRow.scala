@@ -23,15 +23,14 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDate
 
 
-case class SdltReturnInfoResponse(
+case class SdltReturnViewRow(
                                    address: String,
                                    agentReference: String,
                                    dateSubmitted: LocalDate,
                                    utrn: String,
                                    purchaserName: String,
                                    status: UniversalStatus,
-                                   returnReference: String,
-                                   returnId: String
+                                   returnReference: String
                                ) {
   /*
   Inprogress - ACCEPTED
@@ -67,5 +66,5 @@ case class SdltReturnInfoResponse(
 }
 
 object JourneyResultAddressModel {
-  implicit val format: OFormat[SdltReturnInfoResponse] = Json.format[SdltReturnInfoResponse]
+  implicit val format: OFormat[SdltReturnViewRow] = Json.format[SdltReturnViewRow]
 }

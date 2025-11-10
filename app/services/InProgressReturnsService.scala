@@ -16,39 +16,61 @@
 
 package services
 
-import connectors.InProgressReturnsConnector
-import models.responses.SdltReturnInfoResponse
+import connectors.StampDutyLandTaxConnector
+import models.manage.SdltReturnRecordResponse
+import models.responses.SdltReturnViewRow
+import models.responses.UniversalStatus.STARTED
+import models.responses.UniversalStatus.*
 import play.api.Logger
+import uk.gov.hmrc.http.HeaderCarrier
+
 import javax.inject.*
 import scala.concurrent.{ExecutionContext, Future}
 
 
 @Singleton
 class InProgressReturnsService @Inject()(
-                                        val inProgressReturnsConnector: InProgressReturnsConnector
-                                    )(implicit ec: ExecutionContext) {
+                                          val stampDutyLandTaxConnector: StampDutyLandTaxConnector
+                                        )(implicit ec: ExecutionContext) {
 
-  def getAllReturns(storn: String): Future[Either[Throwable, List[SdltReturnInfoResponse] ]] = {
-    Logger("application").info(s"[InProgressReturnsService][getAll] - get all returns")
-    inProgressReturnsConnector.getAll(storn).map {
-      case data@Right(_) =>
-        data
-      case Left(ex) =>
-        Logger("application").error(s"[InProgressReturnsService][getAll] - error: $ex")
-        Left(ex)
+  private def mapResponseToViewRow(response: SdltReturnRecordResponse): List[SdltReturnViewRow] = {
+    response.returnSummaryList.flatMap {
+      rec =>
+        if (fromString(rec.status).isDefined) {
+          Some(
+            SdltReturnViewRow(
+              address = rec.address,
+              agentReference = rec.agentReference,
+              dateSubmitted = rec.dateSubmitted,
+              utrn = rec.utrn,
+              purchaserName = rec.purchaserName,
+              status = fromString(rec.status).get,
+              returnReference = rec.returnReference
+            )
+          )
+        } else {
+          None
+        }
     }
   }
 
-  def getPageRows(allDataRows: List[SdltReturnInfoResponse], pageIndex: Int, pageSize: Int): List[SdltReturnInfoResponse] = {
-    val paged: Seq[Seq[SdltReturnInfoResponse]] = allDataRows.grouped(pageSize).toSeq
-    paged.lift( pageIndex - 1) match {
+  def getAllReturns(storn: String)
+                   (implicit hc: HeaderCarrier): Future[Either[Throwable, List[SdltReturnViewRow]]] = {
+    Logger("application").info(s"[InProgressReturnsService][getAll] - get all returns")
+    stampDutyLandTaxConnector.getAllReturns(storn).map { response =>
+      Right(mapResponseToViewRow(response))
+    }
+  }
+
+  def getPageRows(allDataRows: List[SdltReturnViewRow], pageIndex: Int, pageSize: Int): List[SdltReturnViewRow] = {
+    val paged: Seq[Seq[SdltReturnViewRow]] = allDataRows.grouped(pageSize).toSeq
+    paged.lift(pageIndex - 1) match {
       case Some(sliceData) =>
         sliceData.toList
       case None =>
         List.empty
     }
   }
-
 
 
 }

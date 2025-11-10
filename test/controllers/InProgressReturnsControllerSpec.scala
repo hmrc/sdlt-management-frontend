@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import models.responses.{SdltReturnInfoResponse, UniversalStatus}
+import models.responses.{SdltReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -43,10 +43,10 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       .overrides(bind[InProgressReturnsService].toInstance(mockService))
       .build()
 
-    val expectedEmptyData: List[SdltReturnInfoResponse] = List[SdltReturnInfoResponse]()
-    val expectedDataPaginationOff: List[SdltReturnInfoResponse] =
+    val expectedEmptyData: List[SdltReturnViewRow] = List[SdltReturnViewRow]()
+    val expectedDataPaginationOff: List[SdltReturnViewRow] =
       (0 to 7).toList.map( index =>
-        SdltReturnInfoResponse(
+        SdltReturnViewRow(
           address = s"$index Riverside Drive",
           agentReference = "B4C72F7T3",
           dateSubmitted = LocalDate.parse("2025-04-05"),
@@ -58,9 +58,9 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-    val expectedDataPaginationOn: List[SdltReturnInfoResponse] =
+    val expectedDataPaginationOn: List[SdltReturnViewRow] =
       (0 to 17).toList.map(index =>
-        SdltReturnInfoResponse(
+        SdltReturnViewRow(
           address = s"$index Riverside Drive",
           agentReference = "B4C72F7T3",
           dateSubmitted = LocalDate.parse("2025-04-05"),
@@ -92,7 +92,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(List[SdltReturnInfoResponse](), None, None)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(List[SdltReturnViewRow](), None, None)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())
         verify(mockService, times(1)).getPageRows(any(), any(), any())
@@ -100,9 +100,9 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "return OK for GET:: few rows :: pagination OFF" in new Fixture {
-      val actualDataPaginationOff: List[SdltReturnInfoResponse] =
+      val actualDataPaginationOff: List[SdltReturnViewRow] =
         (0 to 7).toList.map(index =>
-          SdltReturnInfoResponse(
+          SdltReturnViewRow(
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
             dateSubmitted = LocalDate.parse("2025-04-05"),
@@ -136,9 +136,9 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "return OK for GET:: more than 10 rows:: pagination ON :: page 1" in new Fixture {
-      val actualDataPaginationOn: List[SdltReturnInfoResponse] =
+      val actualDataPaginationOn: List[SdltReturnViewRow] =
         (0 to 17).toList.map(index =>
-          SdltReturnInfoResponse(
+          SdltReturnViewRow(
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
             dateSubmitted = LocalDate.parse("2025-04-05"),
@@ -177,9 +177,9 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "return OK for GET:: more than 10 rows:: pagination ON :: page 2" in new Fixture {
-      val actualDataPaginationOn: List[SdltReturnInfoResponse] = {
+      val actualDataPaginationOn: List[SdltReturnViewRow] = {
         (0 to 17).toList.map(index =>
-          SdltReturnInfoResponse(
+          SdltReturnViewRow(
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
             dateSubmitted = LocalDate.parse("2025-04-05"),
@@ -219,9 +219,9 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "return OK for GET:: more than 10 rows:: pagination ON :: page index out of scope" in new Fixture {
-      val actualDataPaginationOn: List[SdltReturnInfoResponse] = {
+      val actualDataPaginationOn: List[SdltReturnViewRow] = {
         (0 to 17).toList.map(index =>
-          SdltReturnInfoResponse(
+          SdltReturnViewRow(
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
             dateSubmitted = LocalDate.parse("2025-04-05"),

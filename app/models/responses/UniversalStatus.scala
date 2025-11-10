@@ -49,4 +49,18 @@ object UniversalStatus {
     def writes(status: UniversalStatus): JsValue =
       JsString(status.toString.toUpperCase())
   }
+  
+  def fromString(in: String): Option[UniversalStatus] = {
+    in.toUpperCase() match {
+      case "STARTED" => Some(UniversalStatus.STARTED)
+      case "VALIDATED" => Some(UniversalStatus.VALIDATED)
+      case "PENDING" => Some(UniversalStatus.PENDING)
+      case "SUBMITTED" => Some(UniversalStatus.SUBMITTED)
+      case "SUBMITTED_NO_RECEIPT" => Some(UniversalStatus.SUBMITTED_NO_RECEIPT)
+      case "DEPARTMENTAL_ERROR" => Some(UniversalStatus.DEPARTMENTAL_ERROR)
+      case "FATAL_ERROR" => Some(UniversalStatus.FATAL_ERROR)
+      case _ => None
+    }
+  }
+  
 }
