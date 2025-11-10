@@ -137,9 +137,8 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(None))
 
-      intercept[NoSuchElementException] {
-        service.getAllPendingReturns(storn).futureValue
-      }
+      val ex = service.getAllPendingReturns(storn).failed.futureValue
+      ex.getMessage must include("partial function is not defined at: None")
     }
   }
 
