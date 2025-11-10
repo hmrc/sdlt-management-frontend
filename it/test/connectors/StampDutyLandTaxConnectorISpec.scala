@@ -80,16 +80,14 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
           )
       )
 
-      val result: Option[SdltReturnRecordResponse] =
+      val result: SdltReturnRecordResponse =
         connector.getAllReturns(storn).futureValue
 
-      result.isDefined mustBe true
-
-      result.get.storn mustBe "STN001"
-      result.get.returnSummaryCount mustBe 2
-      result.get.returnSummaryList.length mustBe 2
-      result.get.returnSummaryList.head.returnReference mustBe "RET20251101001"
-      result.get.returnSummaryList.head.status mustBe "SUBMITTED"
+      result.storn mustBe "STN001"
+      result.returnSummaryCount mustBe 2
+      result.returnSummaryList.length mustBe 2
+      result.returnSummaryList.head.returnReference mustBe "RET20251101001"
+      result.returnSummaryList.head.status mustBe "SUBMITTED"
     }
 
     "fail when BE returns 200 with invalid JSON" in {

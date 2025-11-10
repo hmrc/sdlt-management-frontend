@@ -44,7 +44,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
   )
 
   def getAllReturns(storn: String)
-                   (implicit headerCarrier: HeaderCarrier): Future[Option[SdltReturnRecordResponse]] =
+                   (implicit headerCarrier: HeaderCarrier): Future[SdltReturnRecordResponse] =
     stampDutyLandTaxConnector
       .getAllReturns(storn)
 
@@ -53,7 +53,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getAllReturns(storn)
       .collect {
-        case Some(returnResponse) => returnResponse.returnSummaryList.filter(_.status == "PENDING")
+        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "PENDING")
       }
 
   def getAllSubmittedReturns(storn: String)
@@ -61,7 +61,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getAllReturns(storn)
       .collect {
-        case Some(returnResponse) => returnResponse.returnSummaryList.filter(_.status == "SUBMITTED")
+        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "SUBMITTED")
       }
 
   def getAllAcceptedReturns(storn: String)
@@ -69,7 +69,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getAllReturns(storn)
       .collect {
-        case Some(returnResponse) => returnResponse.returnSummaryList.filter(_.status == "ACCEPTED")
+        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "ACCEPTED")
       }
 
   def getAllStartedReturns(storn: String)
@@ -77,7 +77,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getAllReturns(storn)
       .collect {
-        case Some(returnResponse) => returnResponse.returnSummaryList.filter(_.status == "STARTED")
+        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "STARTED")
       }
 
   def getAllInProgressReturns(storn: String)
@@ -85,7 +85,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getAllReturns(storn)
       .collect {
-        case Some(returnResponse) => returnResponse.returnSummaryList.filter(_.status == "IN-PROGRESS")
+        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "IN-PROGRESS")
       }
 
   def getReturnsDueForDeletion(storn: String)
@@ -93,7 +93,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getAllReturns(storn)
       .collect {
-        case Some(returnResponse) => returnResponse.returnSummaryList.filter(_.status == "DUE_FOR_DELETION")
+        case returnResponse => returnResponse.returnSummaryList.filter(_.status == "DUE_FOR_DELETION")
       }
 
   def getAllAgents(storn: String)

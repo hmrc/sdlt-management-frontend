@@ -110,10 +110,10 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(aggregateResponse)))
+        .thenReturn(Future.successful(aggregateResponse))
 
       val result = service.getAllReturns(storn).futureValue
-      result mustBe Some(aggregateResponse)
+      result mustBe aggregateResponse
 
       verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
@@ -137,7 +137,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(aggregateResponse)))
+        .thenReturn(Future.successful(aggregateResponse))
 
       val result = service.getAllPendingReturns(storn).futureValue
       result.map(_.status).distinct mustBe List("PENDING")
@@ -146,16 +146,6 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
-
-    "fail when BE returns None (collect not defined)" in {
-      val (service, connector) = newService()
-
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(None))
-
-      val ex = service.getAllPendingReturns(storn).failed.futureValue
-      ex.getMessage must include("partial function is not defined at: None")
-    }
   }
 
   "getAllSubmittedReturns" should {
@@ -163,7 +153,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(aggregateResponse)))
+        .thenReturn(Future.successful(aggregateResponse))
 
       val result = service.getAllSubmittedReturns(storn).futureValue
       result.map(_.status).distinct mustBe List("SUBMITTED")
@@ -191,7 +181,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(aggregateResponse)))
+        .thenReturn(Future.successful(aggregateResponse))
 
       val result = service.getAllAcceptedReturns(storn).futureValue
       result.map(_.status).distinct mustBe List("ACCEPTED")
@@ -207,7 +197,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(aggregateResponse)))
+        .thenReturn(Future.successful(aggregateResponse))
 
       val result = service.getAllStartedReturns(storn).futureValue
       result.map(_.status).distinct mustBe List("STARTED")
@@ -223,7 +213,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(aggregateResponse)))
+        .thenReturn(Future.successful(aggregateResponse))
 
       val result = service.getAllInProgressReturns(storn).futureValue
       result.map(_.status).distinct mustBe List("IN-PROGRESS")
@@ -239,7 +229,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(aggregateResponse)))
+        .thenReturn(Future.successful(aggregateResponse))
 
       val result = service.getReturnsDueForDeletion(storn).futureValue
       result.map(_.status).distinct mustBe List("DUE_FOR_DELETION")

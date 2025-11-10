@@ -43,10 +43,10 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
     url"$base/stamp-duty-land-tax/manage-agents/agent-details/get-all-agents?storn=$storn"
 
   def getAllReturns(storn: String)
-                   (implicit hc: HeaderCarrier): Future[Option[SdltReturnRecordResponse]] =
+                   (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
     http
       .get(getAllReturnsUrl(storn))
-      .execute[Option[SdltReturnRecordResponse]]
+      .execute[SdltReturnRecordResponse]
       .recover {
         case e: Throwable =>
           logger.error(s"[StampDutyLandTaxConnector][getAllReturns]: ${e.getMessage}")
