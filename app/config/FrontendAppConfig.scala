@@ -39,7 +39,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val govUkSDLTGuidanceUrl: String = configuration.get[String]("urls.govUkSDLTGuidance")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
-  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/sdlt-management-frontend"
+  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/stamp-duty-land-tax"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")

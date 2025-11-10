@@ -17,21 +17,42 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.AgentDetailsResponse
+import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.manageAgents.AgentDetailsResponse
 import uk.gov.hmrc.http.HeaderCarrier
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class StampDutyLandTaxService @Inject() (
-                                          stampDutyLandTaxConnector: StampDutyLandTaxConnector
-                                        )(implicit ec: ExecutionContext) {
+class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLandTaxConnector)
+                                        (implicit executionContext: ExecutionContext) {
 
-  // TODO: Modify these methods so that we try to retrieve from the session before attempting a BE call
+  // TODO: THIS LOGIC IMPLEMENTATION IS WRONG DUE TO INCORRECT DOCUMENTATION (wrong models) - THIS WILL BE FIXED IN THE NEXT SPRINT
 
-  def getAllAgentDetails(storn: String)
-                        (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
+  private val VALID_STATUSES: Set[String] = Set(
+    "PENDING",
+    "ACCEPTED",
+    "STARTED",
+    "IN-PROGRESS",
+    "ACCEPTED",
+    "FATAL_ERROR",
+    "DEPARTMENTAL_ERROR",
+    "SUBMITTED",
+    "DUE_FOR_DELETION",    // TODO: THIS IS AN INCORRECT WORKAROUND DUE TO INCORRECT DOCUMENTATION
+    "SUBMITTED_NO_RECEIPT"
+  )
+
+  def getReturn(storn: String, status: String)
+               (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] =
+  stampDutyLandTaxConnector
+    .getAllReturns(storn)
+    .map {
+      _.returnSummaryList.filter(_.status == status)
+    }
+
+  def getAllAgents(storn: String)
+                  (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
     stampDutyLandTaxConnector
       .getAllAgentDetails(storn)
-
 }

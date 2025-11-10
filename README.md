@@ -11,15 +11,9 @@ To run all tests and coverage: `sbt clean compile coverage test it/test coverage
 
 To start the server locally on `port 10912`: `sbt run`
 
-## To run the service in test-only mode (TO BE IMPLEMENTED)
+## To run the service in test-only mode
 
 Run the command: `sbt run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes`
-
-This allows access to the following test routes:
-```
-/stamp-duty-land-tax-agent/manage-agents/test-only/session/set
-/stamp-duty-land-tax-agent/manage-agents/test-only/session/clear
-```
 
 ## Adding New Pages
 

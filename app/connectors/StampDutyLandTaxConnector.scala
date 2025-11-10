@@ -16,12 +16,12 @@
 
 package connectors
 
-import models.AgentDetailsResponse
+import models.manage.SdltReturnRecordResponse
+import models.manageAgents.AgentDetailsResponse
 import play.api.Logging
-import uk.gov.hmrc.http as StringContextOps
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps}
-import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL
@@ -34,8 +34,24 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
 
   private val base = config.baseUrl("stamp-duty-land-tax")
 
+  // TODO: THIS LOGIC IMPLEMENTATION IS WRONG DUE TO INCORRECT DOCUMENTATION (wrong models) - THIS WILL BE FIXED IN THE NEXT SPRINT
+
+  private val getAllReturnsUrl: String => URL = storn =>
+    url"$base/stamp-duty-land-tax/manage-returns/get-returns?storn=$storn"
+
   private val getAllAgentDetailsUrl: String => URL = storn =>
     url"$base/stamp-duty-land-tax/manage-agents/agent-details/get-all-agents?storn=$storn"
+
+  def getAllReturns(storn: String)
+                   (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
+    http
+      .get(getAllReturnsUrl(storn))
+      .execute[SdltReturnRecordResponse]
+      .recover {
+        case e: Throwable =>
+          logger.error(s"[StampDutyLandTaxConnector][getAllReturns]: ${e.getMessage}")
+          throw new RuntimeException(e.getMessage)
+      }
 
   def getAllAgentDetails(storn: String)
                         (implicit hc: HeaderCarrier): Future[List[AgentDetailsResponse]] =
@@ -44,8 +60,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
       .execute[List[AgentDetailsResponse]]
       .recover {
         case e: Throwable =>
-          logger.error(s"[getAllAgentDetails]: ${e.getMessage}")
+          logger.error(s"[StampDutyLandTaxConnector][getAllAgentDetails]: ${e.getMessage}")
           throw new RuntimeException(e.getMessage)
       }
-
 }
