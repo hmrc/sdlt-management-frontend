@@ -65,6 +65,6 @@ case class SdltReturnViewRow(
 
 }
 
-object JourneyResultAddressModel {
-  implicit val format: OFormat[SdltReturnViewRow] = Json.format[SdltReturnViewRow]
-}
+//object JourneyResultAddressModel {
+//  implicit val format: OFormat[SdltReturnViewRow] = Json.format[SdltReturnViewRow]
+//}

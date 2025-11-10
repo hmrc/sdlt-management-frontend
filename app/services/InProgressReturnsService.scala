@@ -18,8 +18,7 @@ package services
 
 import connectors.StampDutyLandTaxConnector
 import models.manage.SdltReturnRecordResponse
-import models.responses.SdltReturnViewRow
-import models.responses.UniversalStatus.STARTED
+import models.responses.{SdltReturnViewRow, UniversalStatus}
 import models.responses.UniversalStatus.*
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,23 +32,23 @@ class InProgressReturnsService @Inject()(
                                           val stampDutyLandTaxConnector: StampDutyLandTaxConnector
                                         )(implicit ec: ExecutionContext) {
 
-  private def mapResponseToViewRow(response: SdltReturnRecordResponse): List[SdltReturnViewRow] = {
+  private val acceptableStatus : Seq[UniversalStatus] = Seq(ACCEPTED, PENDING)
+
+  private def mapResponseToViewRows(response: SdltReturnRecordResponse): List[SdltReturnViewRow] = {
     response.returnSummaryList.flatMap {
       rec =>
-        if (fromString(rec.status).isDefined) {
-          Some(
-            SdltReturnViewRow(
-              address = rec.address,
-              agentReference = rec.agentReference,
-              dateSubmitted = rec.dateSubmitted,
-              utrn = rec.utrn,
-              purchaserName = rec.purchaserName,
-              status = fromString(rec.status).get,
-              returnReference = rec.returnReference
-            )
+        fromString(rec.status)
+          .filter(acceptableStatus.contains(_))
+          .map { status =>
+          SdltReturnViewRow(
+            address = rec.address,
+            agentReference = rec.agentReference,
+            dateSubmitted = rec.dateSubmitted,
+            utrn = rec.utrn,
+            purchaserName = rec.purchaserName,
+            status = status,
+            returnReference = rec.returnReference
           )
-        } else {
-          None
         }
     }
   }
@@ -58,7 +57,7 @@ class InProgressReturnsService @Inject()(
                    (implicit hc: HeaderCarrier): Future[Either[Throwable, List[SdltReturnViewRow]]] = {
     Logger("application").info(s"[InProgressReturnsService][getAll] - get all returns")
     stampDutyLandTaxConnector.getAllReturns(storn).map { response =>
-      Right(mapResponseToViewRow(response))
+      Right(mapResponseToViewRows(response))
     }
   }
 
