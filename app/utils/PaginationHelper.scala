@@ -19,17 +19,16 @@ package utils
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
-// TODO: remove reference to any controller / pass urls from the caller
 trait PaginationHelper {
 
-  val ROWS_ON_PAGE = 10
+  private val ROWS_ON_PAGE = 10
 
-  def generatePaginationItems(paginationIndex: Int, numberOfPages: Int): Seq[PaginationItem] = {
+  def generatePaginationItems(paginationIndex: Int, numberOfPages: Int, url: String): Seq[PaginationItem] = {
     Range
       .inclusive(1, numberOfPages)
       .map(pageIndex =>
         PaginationItem(
-          href = controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url,
+          href = url,
           number = Some(pageIndex.toString),
           visuallyHiddenText = None,
           current = Some(pageIndex == paginationIndex),
@@ -95,13 +94,13 @@ trait PaginationHelper {
     }
   }
 
-  def createPagination(pageIndex: Int, totalRowsCount : Int)
+  def createPagination(pageIndex: Int, totalRowsCount : Int, url: String)
                               (implicit messages: Messages): Option[Pagination] = {
     val numberOfPages: Int = getPageCount(totalRowsCount)
     if (totalRowsCount > 0 && numberOfPages > 1) {
       Some(
         Pagination(
-          items = Some(generatePaginationItems(pageIndex, numberOfPages)),
+          items = Some(generatePaginationItems(pageIndex, numberOfPages, url)),
           previous = generatePreviousLink(pageIndex, numberOfPages),
           next = generateNextLink(pageIndex, numberOfPages),
           landmarkLabel = None,

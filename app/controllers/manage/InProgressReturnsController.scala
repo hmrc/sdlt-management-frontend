@@ -50,7 +50,8 @@ class InProgressReturnsController @Inject()(
       case Right(allDataRows) =>
         Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page")
         val selectedPageIndex: Int = index.getOrElse(1)
-        val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length)
+        val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length,
+          controllers.manage.routes.InProgressReturnsController.onPageLoad( Some(selectedPageIndex) ).url )
         val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
         val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
         Ok(view(rowsForSelectedPage, paginator, paginationText))

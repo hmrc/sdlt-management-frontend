@@ -38,7 +38,7 @@ import scala.concurrent.Future
 class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
   trait Fixture extends PaginationHelper {
-    val rowsPerPage : Int = 10
+    val rowsPerPage: Int = 10
 
     val mockService: InProgressReturnsService = mock[InProgressReturnsService]
 
@@ -49,7 +49,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     val expectedEmptyData: List[SdltInProgressReturnViewRow] = List[SdltInProgressReturnViewRow]()
 
     val expectedDataPaginationOff: List[SdltInProgressReturnViewRow] =
-      (0 to 7).toList.map( index =>
+      (0 to 7).toList.map(index =>
         SdltInProgressReturnViewRow(
           address = s"$index Riverside Drive",
           agentReference = "B4C72F7T3",
@@ -73,6 +73,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           returnReference = "RETREF003",
         )
       )
+
+    val url = (selectedPageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad( Some(selectedPageIndex) ).url
   }
 
   "InProgress Returns Controller " - {
@@ -80,8 +82,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     // happy path
     "return OK for GET:: show empty screen" in new Fixture {
 
-      when(mockService.getAllReturns(any()) (any[HeaderCarrier]))
-        .thenReturn( Future.successful(Right(expectedEmptyData)) )
+      when(mockService.getAllReturns(any())(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(expectedEmptyData)))
 
       running(application) {
 
@@ -145,9 +147,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
 
-
-      val selectedPageIndex : Int = 1
-      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length)(messages(application))
+      val selectedPageIndex: Int = 1
+      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length, url(selectedPageIndex) )(messages(application))
       val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPaginationOn)(messages(application))
 
       running(application) {
@@ -180,12 +181,12 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       }
 
-      val selectedPageIndex : Int = 2
+      val selectedPageIndex: Int = 2
       when(mockService.getAllReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
 
 
-      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length)(messages(application))
+      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length, url(selectedPageIndex) )(messages(application))
       val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPaginationOn)(messages(application))
 
       running(application) {
