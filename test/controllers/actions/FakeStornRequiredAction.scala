@@ -1,0 +1,36 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.actions
+
+import models.requests.DataRequest
+import pages.manage.StornPage
+import play.api.mvc.Result
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+class FakeStornRequiredAction @Inject()
+(implicit val executionContext: ExecutionContext)  extends StornRequiredAction {
+
+  override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+    request.userAnswers.get(StornPage) match {
+      case Some(storn) =>
+        Future.successful(Right(request))
+      case None =>
+        Future.successful(Right(request.copy(storn = "STORN1")))
+    }
+}

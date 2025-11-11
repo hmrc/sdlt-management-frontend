@@ -45,9 +45,9 @@
     card(
         messages("manage.homepage.returnsManagement.title"),
         Seq(
-            inProgressMsg -> controllers.routes.IndexController.onPageLoad().url,
-            submittedMsg -> controllers.routes.IndexController.onPageLoad().url,
-            dueForDeletionMsg -> controllers.routes.IndexController.onPageLoad().url,
+            inProgressMsg -> controllers.manage.routes.InProgressReturnsController.onPageLoad().url,
+            submittedMsg -> controllers.manage.routes.SubmittedReturnsController.onPageLoad().url,
+            dueForDeletionMsg -> controllers.manage.routes.DueForDeletionController.onPageLoad().url,
             messages("manage.homepage.returnsManagement.startNewReturn") -> controllers.routes.IndexController.onPageLoad().url
         )
     ),

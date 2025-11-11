@@ -27,8 +27,7 @@ import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
 import controllers.routes.JourneyRecoveryController
-
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class AtAGlanceController@Inject()(
