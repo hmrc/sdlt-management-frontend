@@ -76,7 +76,7 @@ manage.unauthorised.agent.p1 = You are signed in with an agent account. You need
 manageReturns.inProgressReturns.title           = Manage returns – Returns in progress – Stamp Taxes Online
 manageReturns.inProgressReturns.heading         = Returns in progress
 manageReturns.inProgressReturns.noReturns       = You have no returns in progress.
-manageReturns.inProgressReturns.SomeReturns     = In-progress returns
+manageReturns.inProgressReturns.SomeReturns     = Returns in progress
 manageReturns.inProgressReturns.description     = Select a return in progress to view the full details. In progress returns are automatically deleted after 90 days of inactivity. To keep a return active, select and view
 manageReturns.inProgressReturns.startNewReturn  = Start a new return
 manageReturns.inProgressReturns.summary.purchaser   = Purchaser
@@ -91,5 +91,7 @@ manageReturns.inProgressReturns.status.awaiting     = Awaiting confirmation
 manageReturns.inProgressReturns.status.submitted    = Submitted
 manageReturns.inProgressReturns.paginationInfo      = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
 
+pagination.previous = Previous
+pagination.next     = Next
 
 

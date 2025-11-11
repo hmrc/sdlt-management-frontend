@@ -54,14 +54,14 @@ trait PaginationHelper {
     }
   }
 
-  def generateNextLink(paginationIndex: Int, numberOfPages: Int)
+  def generateNextLink(paginationIndex: Int, numberOfPages: Int, urlNext: String)
                       (implicit messages: Messages): Option[PaginationLink] = {
     if (paginationIndex == numberOfPages) {
       None
     } else {
       Some(
         PaginationLink(
-          href = "",
+          href = urlNext,
           text = Some(messages("pagination.next")),
           attributes = Map.empty
         )
@@ -94,7 +94,7 @@ trait PaginationHelper {
     }
   }
 
-  def createPagination(pageIndex: Int, totalRowsCount : Int, url: String)
+  def createPagination(pageIndex: Int, totalRowsCount : Int, url: String, urlNext: String)
                               (implicit messages: Messages): Option[Pagination] = {
     val numberOfPages: Int = getPageCount(totalRowsCount)
     if (totalRowsCount > 0 && numberOfPages > 1) {
@@ -102,7 +102,7 @@ trait PaginationHelper {
         Pagination(
           items = Some(generatePaginationItems(pageIndex, numberOfPages, url)),
           previous = generatePreviousLink(pageIndex, numberOfPages),
-          next = generateNextLink(pageIndex, numberOfPages),
+          next = generateNextLink(pageIndex, numberOfPages, urlNext),
           landmarkLabel = None,
           classes = "",
           attributes = Map.empty
