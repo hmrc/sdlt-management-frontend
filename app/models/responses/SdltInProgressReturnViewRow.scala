@@ -74,7 +74,7 @@ object SdltInProgressReturnViewRow {
   def convertResponseToViewRows(response: SdltReturnRecordResponse): List[SdltInProgressReturnViewRow] = {
     response.returnSummaryList.flatMap {
       rec =>
-        fromString(rec.status)
+        fromString(rec.status) // Ignore rows which we fail to convert :: should we fail execution???
           .filter(acceptableStatus.contains(_))
           .map { status =>
             SdltInProgressReturnViewRow(
