@@ -74,7 +74,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-    val url = (selectedPageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad( Some(selectedPageIndex) ).url
+    val urlSelector: Int => String = (selectedPageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad( Some(selectedPageIndex) ).url
   }
 
   "InProgress Returns Controller " - {
@@ -148,8 +148,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
 
       val selectedPageIndex: Int = 1
-      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length,
-        url(selectedPageIndex), url(selectedPageIndex + 1) )(messages(application))
+      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length, urlSelector )(messages(application))
       val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPaginationOn)(messages(application))
 
       running(application) {
@@ -188,8 +187,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
 
       val paginator: Option[Pagination] = createPagination(selectedPageIndex,
-          expectedDataPaginationOn.length,
-          url(selectedPageIndex), url(selectedPageIndex + 1) )(messages(application))
+          expectedDataPaginationOn.length, urlSelector )(messages(application))
       val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPaginationOn)(messages(application))
 
       running(application) {

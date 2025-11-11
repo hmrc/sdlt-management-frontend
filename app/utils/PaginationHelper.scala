@@ -38,7 +38,7 @@ trait PaginationHelper {
       )
   }
 
-  def generatePreviousLink(paginationIndex: Int, numberOfPages: Int)
+  def generatePreviousLink(paginationIndex: Int, numberOfPages: Int, urlPrev: String)
                           (implicit messages: Messages): Option[PaginationLink] = {
     if (paginationIndex == 1) {
       None
@@ -46,7 +46,7 @@ trait PaginationHelper {
     else {
       Some(
         PaginationLink(
-          href = "",
+          href = urlPrev,
           text = Some(messages("pagination.previous")),
           attributes = Map.empty
         )
@@ -94,15 +94,15 @@ trait PaginationHelper {
     }
   }
 
-  def createPagination(pageIndex: Int, totalRowsCount : Int, url: String, urlNext: String)
+  def createPagination(pageIndex: Int, totalRowsCount : Int, urlSelector: Int => String )
                               (implicit messages: Messages): Option[Pagination] = {
     val numberOfPages: Int = getPageCount(totalRowsCount)
     if (totalRowsCount > 0 && numberOfPages > 1) {
       Some(
         Pagination(
-          items = Some(generatePaginationItems(pageIndex, numberOfPages, url)),
-          previous = generatePreviousLink(pageIndex, numberOfPages),
-          next = generateNextLink(pageIndex, numberOfPages, urlNext),
+          items = Some(generatePaginationItems(pageIndex, numberOfPages, urlSelector(pageIndex) )),
+          previous = generatePreviousLink(pageIndex, numberOfPages, urlSelector(pageIndex - 1)),
+          next = generateNextLink(pageIndex, numberOfPages, urlSelector(pageIndex + 1)),
           landmarkLabel = None,
           classes = "",
           attributes = Map.empty

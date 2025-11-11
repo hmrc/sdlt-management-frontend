@@ -45,15 +45,14 @@ class InProgressReturnsController @Inject()(
 
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
+  val urlSelector: Int => String = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
+
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
     inProgressReturnsService.getAllReturns(request.storn).map {
       case Right(allDataRows) =>
         Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page")
         val selectedPageIndex: Int = index.getOrElse(1)
-        val paginator: Option[Pagination] = createPagination(selectedPageIndex,
-          allDataRows.length,
-          controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(selectedPageIndex)).url,
-          controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(selectedPageIndex + 1)).url)
+        val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
         val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
         val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
         Ok(view(rowsForSelectedPage, paginator, paginationText))
