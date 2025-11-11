@@ -17,8 +17,8 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.responses.SdltReturnViewRow
-import models.responses.SdltReturnViewRow.*
+import models.responses.SdltInProgressReturnViewRow
+import models.responses.SdltInProgressReturnViewRow.*
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -31,7 +31,7 @@ class InProgressReturnsService @Inject()(
                                         )(implicit ec: ExecutionContext) {
 
   def getAllReturns(storn: String)
-                   (implicit hc: HeaderCarrier): Future[Either[Throwable, List[SdltReturnViewRow]]] = {
+                   (implicit hc: HeaderCarrier): Future[Either[Throwable, List[SdltInProgressReturnViewRow]]] = {
     Logger("application").info(s"[InProgressReturnsService][getAll] - get all returns")
     stampDutyLandTaxConnector.getAllReturns(storn).map { response =>
       Right(convertResponseToViewRows(response))
@@ -40,7 +40,7 @@ class InProgressReturnsService @Inject()(
     }
   }
 
-  def getPageRows(allDataRows: List[SdltReturnViewRow], pageIndex: Int, pageSize: Int): List[SdltReturnViewRow] = {
+  def getPageRows(allDataRows: List[SdltInProgressReturnViewRow], pageIndex: Int, pageSize: Int): List[SdltInProgressReturnViewRow] = {
     allDataRows.grouped(pageSize).toSeq.lift(pageIndex - 1) match {
       case Some(sliceData) =>
         sliceData

@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.responses.SdltReturnViewRow
+@import models.responses.SdltInProgressReturnViewRow
 @import models.responses.UniversalStatus
 @import models.responses.UniversalStatus.ACCEPTED
 
@@ -30,10 +30,10 @@
         govukPagination: GovukPagination
 )
 
-@(dataRows:   List[SdltReturnViewRow],
+@(dataRows:   List[SdltInProgressReturnViewRow],
         pagination: Option[Pagination], paginationInfoText: Option[String])(implicit request: Request[_], messages: Messages)
 
-@purchaserNameLink(row: SdltReturnViewRow)  = {
+@purchaserNameLink(row: SdltInProgressReturnViewRow)  = {
     <p class="govuk-body">
         <a class="govuk-link" href="@{row.returnReference}">@row.purchaserName</a>
     </p>

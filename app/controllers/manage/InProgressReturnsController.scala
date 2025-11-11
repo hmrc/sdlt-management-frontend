@@ -19,7 +19,7 @@ package controllers.manage
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
 import controllers.routes.JourneyRecoveryController
 import models.requests.DataRequest
-import models.responses.SdltReturnViewRow
+import models.responses.SdltInProgressReturnViewRow
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
@@ -52,7 +52,7 @@ class InProgressReturnsController @Inject()(
         val selectedPageIndex: Int = index.getOrElse(1)
         val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length)
         val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
-        val rowsForSelectedPage: List[SdltReturnViewRow] = inProgressReturnsService.getPageRows(allDataRows, selectedPageIndex, ROWS_ON_PAGE)
+        val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = inProgressReturnsService.getPageRows(allDataRows, selectedPageIndex, ROWS_ON_PAGE)
         Ok(view(rowsForSelectedPage, paginator, paginationText))
       case Left(ex) =>
         Logger("application").error(s"[InProgressReturnsController][onPageLoad] - pageIndex: $index / error: ${ex}")

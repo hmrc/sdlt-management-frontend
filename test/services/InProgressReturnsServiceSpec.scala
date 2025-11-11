@@ -18,7 +18,7 @@ package services
 
 import connectors.StampDutyLandTaxConnector
 import models.UserAnswers
-import models.responses.{SdltReturnViewRow, UniversalStatus}
+import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{mock, times, verify, when}
 import org.scalatest.EitherValues

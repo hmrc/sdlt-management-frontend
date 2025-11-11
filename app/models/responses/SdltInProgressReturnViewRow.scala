@@ -24,7 +24,7 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDate
 
 
-case class SdltReturnViewRow(
+case class SdltInProgressReturnViewRow(
                                    address: String,
                                    agentReference: String,
                                    dateSubmitted: LocalDate,
@@ -66,18 +66,18 @@ case class SdltReturnViewRow(
 
 }
 
-object SdltReturnViewRow {
+object SdltInProgressReturnViewRow {
   import UniversalStatus.*
 
   private val acceptableStatus : Seq[UniversalStatus] = Seq(ACCEPTED, PENDING)
 
-  def convertResponseToViewRows(response: SdltReturnRecordResponse): List[SdltReturnViewRow] = {
+  def convertResponseToViewRows(response: SdltReturnRecordResponse): List[SdltInProgressReturnViewRow] = {
     response.returnSummaryList.flatMap {
       rec =>
         fromString(rec.status)
           .filter(acceptableStatus.contains(_))
           .map { status =>
-            SdltReturnViewRow(
+            SdltInProgressReturnViewRow(
               address = rec.address,
               agentReference = rec.agentReference,
               dateSubmitted = rec.dateSubmitted,
