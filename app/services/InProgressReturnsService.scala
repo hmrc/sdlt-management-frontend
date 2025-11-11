@@ -35,8 +35,6 @@ class InProgressReturnsService @Inject()(
     Logger("application").info(s"[InProgressReturnsService][getAll] - get all returns")
     stampDutyLandTaxConnector.getAllReturns(storn).map { response =>
       Right(convertResponseToViewRows(response))
-    }.recover{ ex =>
-      Left(ex)
     }
   }
 
@@ -48,6 +46,5 @@ class InProgressReturnsService @Inject()(
         List.empty
     }
   }
-
 
 }

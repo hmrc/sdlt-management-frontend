@@ -18,8 +18,10 @@ package services
 
 import connectors.StampDutyLandTaxConnector
 import models.UserAnswers
+import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.responses.UniversalStatus.{ACCEPTED, PENDING}
 import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
-import org.mockito.ArgumentMatchers.eq as eqTo
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{mock, times, verify, when}
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.ScalaFutures
@@ -52,64 +54,118 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
     val service: InProgressReturnsService = new InProgressReturnsService(connector)
 
     val instant: Instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
-    val pageSize : Int = 9
+    val pageSize: Int = 9
   }
 
-//  "Get all inProgressReturns records" should {
-//    "return list of records on success" in new Fixture {
-//
-//      when(connector.getAll(eqTo(storn)))
-//        .thenReturn(Future.successful(Right( List.empty )))
-//
-//      val result: Either[Throwable, List[SdltReturnViewRow]] = service.getAllReturns(storn).futureValue
-//
-//      result mustBe a[Either[Throwable, List[SdltReturnViewRow]]]
-//
-//      result mustBe Right(List.empty)
-//
-//      verify(connector, times(1)).getAll(eqTo(storn))
-//    }
-//
-//    "return error on failure" in new Fixture  {
-//      when(connector.getAll(eqTo(storn)))
-//        .thenReturn(Future.successful(Left(new Error("Some error"))))
-//
-//      val result: Either[Throwable, List[SdltReturnViewRow]] = service.getAllReturns(storn).futureValue
-//
-//      result mustBe a[Either[Throwable, List[SdltReturnViewRow]]]
-//
-//      result.left.value.getMessage mustBe "Some error"
-//
-//    }
-//  }
-//
-//  "slice TaxReturns records into paged data: empty input" in new Fixture {
-//    val result: List[SdltReturnViewRow] = service.getPageRows( List.empty, 1, pageSize = 10)
-//    result mustBe List.empty
-//  }
-//
-//  "slice all TaxReturn into paged data: 17 records" in new Fixture {
-//    val expectedDataPaginationOn: List[SdltReturnViewRow] = {
-//      (0 to 17).toList.map(index =>
-//        SdltReturnViewRow(
-//          address = s"$index Riverside Drive",
-//          agentReference = "B4C72F7T3",
-//          dateSubmitted = LocalDate.parse("2025-04-05"),
-//          utrn = "UTRN003",
-//          purchaserName = "Brown",
-//          status = UniversalStatus.ACCEPTED,
-//          returnReference = "RETREF003",
-//          returnId = s"RETID$index"
-//        )
-//      )
-//    }
-//
-//    val pageOne: List[SdltReturnViewRow] = service.getPageRows(expectedDataPaginationOn, 1, pageSize = pageSize)
-//    pageOne mustBe expectedDataPaginationOn.take(pageSize)
-//
-//    val pageTwo: List[SdltReturnViewRow] = service.getPageRows(expectedDataPaginationOn, 2, pageSize = pageSize)
-//    pageTwo mustBe expectedDataPaginationOn.takeRight(expectedDataPaginationOn.length - pageSize)
-//
-//  }
+  "Get all inProgressReturns records" should {
+
+    "return empty list on success :: response with empty list" in new Fixture {
+
+      val emptyResponse = SdltReturnRecordResponse(
+        storn = storn,
+        returnSummaryCount = 0,
+        returnSummaryList = List.empty
+      )
+
+      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(emptyResponse))
+
+      val result: Either[Throwable, List[SdltInProgressReturnViewRow]] = service.getAllReturns(storn).futureValue
+      result mustBe a[Either[Throwable, List[SdltInProgressReturnViewRow]]]
+      result mustBe Right(List.empty)
+      verify(connector, times(1)).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+    }
+
+    "return list of recs on success :: response with data" in new Fixture {
+
+      val response = SdltReturnRecordResponse(
+        storn = storn,
+        returnSummaryCount = 0,
+        returnSummaryList = List(
+          ReturnSummary(
+            returnReference = "REF005",
+            utrn = "UTRN005",
+            status = "ACCEPTED",
+            dateSubmitted = LocalDate.parse("2025-01-02"),
+            purchaserName = "Name005",
+            address = "Address005",
+            agentReference = "AgentRef005"
+          ),
+          ReturnSummary(
+            returnReference = "REF003",
+            utrn = "UTRN003",
+            status = "PENDING",
+            dateSubmitted = LocalDate.parse("2025-01-02"),
+            purchaserName = "Name003",
+            address = "Address003",
+            agentReference = "AgentRef003"
+          )
+        )
+      )
+      val expected = List(
+        SdltInProgressReturnViewRow("Address005",
+          "AgentRef005",
+          LocalDate.parse("2025-01-02"),
+          "UTRN005",
+          "Name005",
+          ACCEPTED,
+          "REF005"),
+        SdltInProgressReturnViewRow("Address003", "AgentRef003",
+          LocalDate.parse("2025-01-02"),
+          "UTRN003", "Name003", PENDING, "REF003")
+      )
+
+
+      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(response))
+
+      val result: Either[Throwable, List[SdltInProgressReturnViewRow]] = service.getAllReturns(storn).futureValue
+      result mustBe a[Either[Throwable, List[SdltInProgressReturnViewRow]]]
+      result mustBe Right(expected)
+      verify(connector, times(1)).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+    }
+
+    "return error on failure" in new Fixture  {
+      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+        .thenThrow(new Error("Some error"))
+
+      val error: Error = intercept[Error] {
+        service.getAllReturns(storn).futureValue
+      }
+
+      error.getMessage mustBe "Some error"
+    }
+  }
+
+  // TODO: shall this be part of the service???
+
+  //  "slice TaxReturns records into paged data: empty input" in new Fixture {
+  //    val result: List[SdltReturnViewRow] = service.getPageRows( List.empty, 1, pageSize = 10)
+  //    result mustBe List.empty
+  //  }
+  //
+  //  "slice all TaxReturn into paged data: 17 records" in new Fixture {
+  //    val expectedDataPaginationOn: List[SdltReturnViewRow] = {
+  //      (0 to 17).toList.map(index =>
+  //        SdltReturnViewRow(
+  //          address = s"$index Riverside Drive",
+  //          agentReference = "B4C72F7T3",
+  //          dateSubmitted = LocalDate.parse("2025-04-05"),
+  //          utrn = "UTRN003",
+  //          purchaserName = "Brown",
+  //          status = UniversalStatus.ACCEPTED,
+  //          returnReference = "RETREF003",
+  //          returnId = s"RETID$index"
+  //        )
+  //      )
+  //    }
+  //
+  //    val pageOne: List[SdltReturnViewRow] = service.getPageRows(expectedDataPaginationOn, 1, pageSize = pageSize)
+  //    pageOne mustBe expectedDataPaginationOn.take(pageSize)
+  //
+  //    val pageTwo: List[SdltReturnViewRow] = service.getPageRows(expectedDataPaginationOn, 2, pageSize = pageSize)
+  //    pageTwo mustBe expectedDataPaginationOn.takeRight(expectedDataPaginationOn.length - pageSize)
+  //
+  //  }
 
 }
