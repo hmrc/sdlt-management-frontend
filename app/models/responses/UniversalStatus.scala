@@ -37,6 +37,7 @@ object UniversalStatus {
         case "STARTED" => JsSuccess(UniversalStatus.STARTED)
         case "VALIDATED" => JsSuccess(UniversalStatus.VALIDATED)
         case "PENDING" => JsSuccess(UniversalStatus.PENDING)
+        case "ACCEPTED" => JsSuccess(UniversalStatus.ACCEPTED)
         case "SUBMITTED" => JsSuccess(UniversalStatus.SUBMITTED)
         case "SUBMITTED_NO_RECEIPT" => JsSuccess(UniversalStatus.SUBMITTED_NO_RECEIPT)
         case "DEPARTMENTAL_ERROR" => JsSuccess(UniversalStatus.DEPARTMENTAL_ERROR)
@@ -49,11 +50,12 @@ object UniversalStatus {
     def writes(status: UniversalStatus): JsValue =
       JsString(status.toString.toUpperCase())
   }
-  
+
   def fromString(in: String): Option[UniversalStatus] = {
     in.toUpperCase() match {
       case "STARTED" => Some(UniversalStatus.STARTED)
       case "VALIDATED" => Some(UniversalStatus.VALIDATED)
+      case "ACCEPTED" => Some(UniversalStatus.ACCEPTED)
       case "PENDING" => Some(UniversalStatus.PENDING)
       case "SUBMITTED" => Some(UniversalStatus.SUBMITTED)
       case "SUBMITTED_NO_RECEIPT" => Some(UniversalStatus.SUBMITTED_NO_RECEIPT)
