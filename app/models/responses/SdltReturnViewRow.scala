@@ -16,6 +16,7 @@
 
 package models.responses
 
+import models.manage.SdltReturnRecordResponse
 import models.responses.UniversalStatus.{ACCEPTED, PENDING, SUBMITTED}
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, OFormat}
@@ -65,6 +66,27 @@ case class SdltReturnViewRow(
 
 }
 
-//object JourneyResultAddressModel {
-//  implicit val format: OFormat[SdltReturnViewRow] = Json.format[SdltReturnViewRow]
-//}
+object SdltReturnViewRow {
+  import UniversalStatus.*
+
+  private val acceptableStatus : Seq[UniversalStatus] = Seq(ACCEPTED, PENDING)
+
+  def convertResponseToViewRows(response: SdltReturnRecordResponse): List[SdltReturnViewRow] = {
+    response.returnSummaryList.flatMap {
+      rec =>
+        fromString(rec.status)
+          .filter(acceptableStatus.contains(_))
+          .map { status =>
+            SdltReturnViewRow(
+              address = rec.address,
+              agentReference = rec.agentReference,
+              dateSubmitted = rec.dateSubmitted,
+              utrn = rec.utrn,
+              purchaserName = rec.purchaserName,
+              status = status,
+              returnReference = rec.returnReference
+            )
+          }
+    }
+  }
+}
