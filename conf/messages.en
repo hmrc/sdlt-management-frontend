@@ -74,8 +74,8 @@ manage.unauthorised.agent.heading = Sorry, you are unable to use this service
 manage.unauthorised.agent.p1 = You are signed in with an agent account. You need an organisation account to use this service.
 
 manageReturns.inProgressReturns.title           = Manage returns – Returns in progress
-manageReturns.inProgressReturns.heading         = Returns in progress
-manageReturns.inProgressReturns.noReturns       = You have no returns in progress.
+manageReturns.inProgressReturns.heading         = Submitted returns
+manageReturns.inProgressReturns.noReturns       = You have no submitted returns.
 manageReturns.inProgressReturns.SomeReturns     = Returns in progress
 manageReturns.inProgressReturns.description     = Select a return in progress to view the full details. In progress returns are automatically deleted after 90 days of inactivity. To keep a return active, select and view
 manageReturns.inProgressReturns.startNewReturn  = Start a new return
@@ -90,6 +90,7 @@ manageReturns.inProgressReturns.status.inprogress   = In progress
 manageReturns.inProgressReturns.status.awaiting     = Awaiting confirmation
 manageReturns.inProgressReturns.status.submitted    = Submitted
 manageReturns.inProgressReturns.paginationInfo      = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
+manageReturns.inProgressReturns.span                = Returns management
 
 pagination.previous = Previous
 pagination.next     = Next
