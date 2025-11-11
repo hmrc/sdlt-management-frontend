@@ -19,6 +19,7 @@ package utils
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
+// TODO: remove reference to any controller / pass urls from the caller
 trait PaginationHelper {
 
   val ROWS_ON_PAGE = 10
@@ -113,4 +114,12 @@ trait PaginationHelper {
     }
   }
 
+  def getSelectedPageRows[A](allDataRows: List[A], pageIndex: Int): List[A] = {
+    allDataRows.grouped(ROWS_ON_PAGE).toSeq.lift(pageIndex - 1) match {
+      case Some(sliceData) =>
+        sliceData
+      case None =>
+        List.empty
+    }
+  }
 }

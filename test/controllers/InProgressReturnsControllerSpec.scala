@@ -83,9 +83,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any()) (any[HeaderCarrier]))
         .thenReturn( Future.successful(Right(expectedEmptyData)) )
 
-      when(mockService.getPageRows(any(), any(), any()))
-        .thenReturn(expectedEmptyData)
-
       running(application) {
 
         val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
@@ -97,7 +94,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(List[SdltInProgressReturnViewRow](), None, None)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
-        verify(mockService, times(1)).getPageRows(any(), any(), any())
       }
     }
 
@@ -118,9 +114,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(expectedDataPaginationOff)))
 
-      when(mockService.getPageRows(any(), any(), any()))
-        .thenReturn(expectedDataPaginationOff)
-
       running(application) {
 
         val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
@@ -132,7 +125,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(actualDataPaginationOff, None, None)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
-        verify(mockService, times(1)).getPageRows(any(), any(), any())
       }
     }
 
@@ -153,8 +145,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
 
-      when(mockService.getPageRows(any(), any(), any()))
-        .thenReturn(expectedDataPaginationOn.take(rowsPerPage))
 
       val selectedPageIndex : Int = 1
       val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length)(messages(application))
@@ -171,7 +161,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(actualDataPaginationOn.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
-        verify(mockService, times(1)).getPageRows(any(), any(), any())
 
       }
     }
@@ -195,8 +184,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
 
-      when(mockService.getPageRows(any(), any(), any()))
-        .thenReturn(expectedDataPaginationOn.takeRight(actualDataPaginationOn.length - rowsPerPage) )
 
       val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length)(messages(application))
       val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPaginationOn)(messages(application))
@@ -212,7 +199,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(actualDataPaginationOn.takeRight(actualDataPaginationOn.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
-        verify(mockService, times(1)).getPageRows(any(), any(), any())
       }
 
     }
@@ -236,8 +222,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
 
-      when(mockService.getPageRows(any(), any(), any()))
-        .thenReturn(List.empty)
 
       running(application) {
 
@@ -251,7 +235,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(List.empty, None, None)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
-        verify(mockService, times(1)).getPageRows(any(), any(), any())
       }
 
     }

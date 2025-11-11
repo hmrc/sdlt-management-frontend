@@ -38,13 +38,4 @@ class InProgressReturnsService @Inject()(
     }
   }
 
-  def getPageRows(allDataRows: List[SdltInProgressReturnViewRow], pageIndex: Int, pageSize: Int): List[SdltInProgressReturnViewRow] = {
-    allDataRows.grouped(pageSize).toSeq.lift(pageIndex - 1) match {
-      case Some(sliceData) =>
-        sliceData
-      case None =>
-        List.empty
-    }
-  }
-
 }

@@ -30,6 +30,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.PaginationHelper
 
 import java.time.{Instant, LocalDate}
 import java.time.temporal.ChronoUnit
@@ -44,7 +45,7 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
   implicit val messages: Messages = stubMessages()
   implicit val ex: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  trait Fixture {
+  trait Fixture extends PaginationHelper {
     val storn: String = "SN001"
     val id: String = "idToExtractAddress"
     val userId: String = "userId"
@@ -54,7 +55,7 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
     val service: InProgressReturnsService = new InProgressReturnsService(connector)
 
     val instant: Instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
-    val pageSize: Int = 9
+    val pageSize: Int = 10
   }
 
   "Get all inProgressReturns records" should {
@@ -125,7 +126,7 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
       verify(connector, times(1)).getAllReturns(eqTo(storn))(any[HeaderCarrier])
     }
 
-    "return error on failure" in new Fixture  {
+    "return error on failure" in new Fixture {
       when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
         .thenThrow(new Error("Some error"))
 
@@ -137,35 +138,33 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
     }
   }
 
-  // TODO: shall this be part of the service???
+  // TODO: move these tests under PaginationHelper / drop extension in the Fixture as well
+  "slice TaxReturns records into paged data: empty input" in new Fixture {
+    val result: List[SdltInProgressReturnViewRow] = getSelectedPageRows(List.empty, 1)
+    result mustBe List.empty
+  }
 
-  //  "slice TaxReturns records into paged data: empty input" in new Fixture {
-  //    val result: List[SdltReturnViewRow] = service.getPageRows( List.empty, 1, pageSize = 10)
-  //    result mustBe List.empty
-  //  }
-  //
-  //  "slice all TaxReturn into paged data: 17 records" in new Fixture {
-  //    val expectedDataPaginationOn: List[SdltReturnViewRow] = {
-  //      (0 to 17).toList.map(index =>
-  //        SdltReturnViewRow(
-  //          address = s"$index Riverside Drive",
-  //          agentReference = "B4C72F7T3",
-  //          dateSubmitted = LocalDate.parse("2025-04-05"),
-  //          utrn = "UTRN003",
-  //          purchaserName = "Brown",
-  //          status = UniversalStatus.ACCEPTED,
-  //          returnReference = "RETREF003",
-  //          returnId = s"RETID$index"
-  //        )
-  //      )
-  //    }
-  //
-  //    val pageOne: List[SdltReturnViewRow] = service.getPageRows(expectedDataPaginationOn, 1, pageSize = pageSize)
-  //    pageOne mustBe expectedDataPaginationOn.take(pageSize)
-  //
-  //    val pageTwo: List[SdltReturnViewRow] = service.getPageRows(expectedDataPaginationOn, 2, pageSize = pageSize)
-  //    pageTwo mustBe expectedDataPaginationOn.takeRight(expectedDataPaginationOn.length - pageSize)
-  //
-  //  }
+  "slice all TaxReturn into paged data" in new Fixture {
+    val expectedDataPaginationOn: List[SdltInProgressReturnViewRow] = {
+      (0 to 17).toList.map(index =>
+        SdltInProgressReturnViewRow(
+          address = s"$index Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.ACCEPTED,
+          returnReference = "RETREF003",
+        )
+      )
+    }
+
+    val pageOne: List[SdltInProgressReturnViewRow] = getSelectedPageRows(expectedDataPaginationOn, 1)
+    pageOne mustBe expectedDataPaginationOn.take(pageSize)
+
+    val pageTwo: List[SdltInProgressReturnViewRow] = getSelectedPageRows(expectedDataPaginationOn, 2)
+    pageTwo mustBe expectedDataPaginationOn.takeRight(expectedDataPaginationOn.length - pageSize)
+
+  }
 
 }

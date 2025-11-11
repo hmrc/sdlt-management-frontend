@@ -52,7 +52,7 @@ class InProgressReturnsController @Inject()(
         val selectedPageIndex: Int = index.getOrElse(1)
         val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length)
         val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
-        val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = inProgressReturnsService.getPageRows(allDataRows, selectedPageIndex, ROWS_ON_PAGE)
+        val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
         Ok(view(rowsForSelectedPage, paginator, paginationText))
       case Left(ex) =>
         Logger("application").error(s"[InProgressReturnsController][onPageLoad] - pageIndex: $index / error: ${ex}")
