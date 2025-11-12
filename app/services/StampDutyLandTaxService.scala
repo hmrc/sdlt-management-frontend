@@ -19,7 +19,11 @@ package services
 import connectors.StampDutyLandTaxConnector
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.manageAgents.AgentDetailsResponse
+import models.requests.ReturnsRequest
+import models.responses.UniversalStatus.{SUBMITTED, SUBMITTED_NO_RECEIPT}
+import viewmodels.manage.SdltSubmittedReturnsViewModel
 import uk.gov.hmrc.http.HeaderCarrier
+import viewmodels.manage.SdltSubmittedReturnsViewModel.convertResponseToSubmittedView
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -58,4 +62,18 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
                   (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
     stampDutyLandTaxConnector
       .getAllAgentDetails(storn)
+
+  def getSubmittedReturnsView(storn: String, status: String)
+                   (implicit hc: HeaderCarrier): Future[List[SdltSubmittedReturnsViewModel]] = {
+//    val request = ReturnsRequest(
+//      storn = storn,
+//      pageType = "SUBMITTED",
+//      deletionFlag = false,
+//      status = "SUBMITTED"
+//    )
+    stampDutyLandTaxConnector
+      .getAllReturns(storn).map { response =>
+      convertResponseToSubmittedView(response)
+    }
+  }
 }

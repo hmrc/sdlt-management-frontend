@@ -18,10 +18,13 @@ package connectors
 
 import models.manage.SdltReturnRecordResponse
 import models.manageAgents.AgentDetailsResponse
+import models.requests.ReturnsRequest
 import play.api.Logging
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps}
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL
@@ -42,6 +45,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
   private val getAllAgentDetailsUrl: String => URL = storn =>
     url"$base/stamp-duty-land-tax/manage-agents/agent-details/get-all-agents?storn=$storn"
 
+
   def getAllReturns(storn: String)
                    (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
     http
@@ -61,6 +65,18 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
       .recover {
         case e: Throwable =>
           logger.error(s"[StampDutyLandTaxConnector][getAllAgentDetails]: ${e.getMessage}")
+          throw new RuntimeException(e.getMessage)
+      }
+
+  def getAllSubmittedReturns(request: ReturnsRequest)
+                   (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
+    http
+      .post(getAllReturnsUrl(request.storn))
+      .withBody(Json.toJson(request))
+      .execute[SdltReturnRecordResponse]
+      .recover {
+        case e: Throwable =>
+          logger.error(s"[StampDutyLandTaxConnector][getAllReturns]: ${e.getMessage}")
           throw new RuntimeException(e.getMessage)
       }
 }
