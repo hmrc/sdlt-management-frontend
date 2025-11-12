@@ -17,6 +17,7 @@
 @import models.responses.SdltInProgressReturnViewRow
 @import models.responses.UniversalStatus
 @import models.responses.UniversalStatus.ACCEPTED
+@import models.responses.UniversalStatus.STARTED
 
 @this(
         layout: templates.Layout,
@@ -30,6 +31,7 @@
         govukPagination: GovukPagination,
         govukTag: GovukTag
 )
+
 
 @(dataRows:   List[SdltInProgressReturnViewRow],
         pagination: Option[Pagination], paginationInfoText: Option[String])(implicit request: Request[_], messages: Messages)
@@ -57,10 +59,12 @@
                 TableRow(
                     content = HtmlContent(
                         currentRow.status match {
-                            case ACCEPTED =>
+                            case STARTED =>
                                 govukTag.apply( TagViewModel(Text( messages("manageReturns.inProgressReturns.status.inprogress") )).blue()  )
-                            case _ =>
+                            case ACCEPTED =>
                                 govukTag.apply( TagViewModel(Text( messages("manageReturns.inProgressReturns.status.awaiting") )).grey()  )
+                            case _ => // SHOULD NOT HAPPEN
+                                govukTag.apply( TagViewModel(Text( "" )).grey()  )
                         }
 
                     )

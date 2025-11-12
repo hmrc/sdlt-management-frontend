@@ -37,13 +37,14 @@ case class SdltInProgressReturnViewRow(
 object SdltInProgressReturnViewRow {
   import UniversalStatus.*
 
-  private val acceptableStatus : Seq[UniversalStatus] = Seq(ACCEPTED, PENDING)
+  // TODO: add required tests
+  private val inProgressReturnStatuses : Seq[UniversalStatus] = Seq(STARTED, PENDING)
 
   def convertResponseToViewRows(response: SdltReturnRecordResponse): List[SdltInProgressReturnViewRow] = {
     response.returnSummaryList.flatMap {
       rec =>
         fromString(rec.status) // Ignore rows which we fail to convert :: should we fail execution???
-          .filter(acceptableStatus.contains(_))
+          .filter(inProgressReturnStatuses.contains(_))
           .map { status =>
             SdltInProgressReturnViewRow(
               address = rec.address,
