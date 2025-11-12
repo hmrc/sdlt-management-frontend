@@ -16,21 +16,50 @@
 
 package controllers.manage
 
-import controllers.actions.IdentifierAction
-import javax.inject.{Inject, Singleton}
-import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
+import controllers.routes.JourneyRecoveryController
+import models.requests.DataRequest
+import models.responses.SdltInProgressReturnViewRow
+import play.api.Logger
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
+import services.InProgressReturnsService
+import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.IndexView
+import utils.PaginationHelper
+import views.html.InProgressReturnView
+import scala.concurrent.ExecutionContext
+import javax.inject.*
 
 @Singleton
 class InProgressReturnsController @Inject()(
-                                               val controllerComponents: MessagesControllerComponents,
-                                               identify: IdentifierAction,
-                                               view: IndexView
-                                             ) extends FrontendBaseController with I18nSupport {
+                                             override val messagesApi: MessagesApi,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             val inProgressReturnsService: InProgressReturnsService,
+                                             identify: IdentifierAction,
+                                             getData: DataRetrievalAction,
+                                             requireData: DataRequiredAction,
+                                             stornRequiredAction: StornRequiredAction,
+                                             view: InProgressReturnView
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PaginationHelper {
 
-  def onPageLoad(): Action[AnyContent] = identify { implicit request =>
-    Ok(view())
+  private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
+
+  val urlSelector: Int => String = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
+
+  def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
+    inProgressReturnsService.getAllReturns(request.storn).map {
+      case Right(allDataRows) =>
+        Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page")
+        val selectedPageIndex: Int = index.getOrElse(1)
+        val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
+        val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
+        val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
+        Ok(view(rowsForSelectedPage, paginator, paginationText))
+      case Left(ex) =>
+        Logger("application").error(s"[InProgressReturnsController][onPageLoad] - pageIndex: $index / error: ${ex}")
+        Redirect(JourneyRecoveryController.onPageLoad())
+    }
   }
+
 }

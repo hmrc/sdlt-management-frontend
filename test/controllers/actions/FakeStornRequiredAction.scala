@@ -24,7 +24,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class FakeStornRequiredAction @Inject()
-(implicit val executionContext: ExecutionContext)  extends StornRequiredAction {
+  (implicit val executionContext: ExecutionContext)  extends StornRequiredAction {
 
   override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
     request.userAnswers.get(StornPage) match {
