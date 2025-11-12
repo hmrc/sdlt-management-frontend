@@ -16,25 +16,46 @@
 
 package utils
 
+import base.SpecBase
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
-class PaginationHelperSpec extends AnyFreeSpec with Matchers {
+class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
 
   trait Fixture extends PaginationHelper {
-     // can be arbitrary page supporting controller??
      val urlSelector = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
+
+    val application = applicationBuilder(userAnswers = None).build()
   }
 
   "PageItems" - {
+
     "Get unique pagination items" in new Fixture {
       val pageCount : Int = 10
       val items = generatePaginationItems(paginationIndex = 1, numberOfPages = pageCount, urlSelector = urlSelector)
       items.length mustBe pageCount
-      items.map(_.href) mustBe (1 to 10).map(index =>
-        s"/manage-returns/in-progress-returns?index=$index")
+      items.map(_.href).toList mustBe (1 to 10).map(index =>
+        s"/stamp-duty-land-tax-management/manage-returns/in-progress-returns?index=$index").toList
       items.map(_.href).toSet.toList.length mustBe pageCount
     }
+
+    "Get prev pagination link" in new Fixture {
+      val pageCount: Int = 10
+
+      // render prev link
+      generatePreviousLink(paginationIndex = 5,
+        numberOfPages = pageCount,
+        urlPrev = "prevLink")( messages(application) )
+        .toList.nonEmpty mustBe true
+
+      // should not render prev link
+      generatePreviousLink(paginationIndex = 1,
+        numberOfPages = pageCount,
+        urlPrev = "prevLink")(messages(application))
+        .toList.isEmpty mustBe true
+    }
+
+
   }
 
 }
