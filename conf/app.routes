@@ -22,10 +22,6 @@ GET         /unauthorised                                controllers.Unauthorise
 
 GET         /homepage                                    controllers.manage.AtAGlanceController.onPageLoad()
 
-GET         /manage/in-progress-returns                  controllers.manage.InProgressReturnsController.onPageLoad()
-GET         /manage/submitted-returns                    controllers.manage.SubmittedReturnsController.onPageLoad()
-GET         /manage/due-for-deletion                     controllers.manage.DueForDeletionController.onPageLoad()
-
 GET         /manage/unauthorised/organisation            controllers.manage.UnauthorisedOrganisationAffinityController.onPageLoad()
 
 GET         /manage/unauthorised/standard-user           controllers.manage.UnauthorisedWrongRoleController.onPageLoad()
@@ -34,3 +30,5 @@ GET         /manage/unauthorised/individual              controllers.manage.Unau
 GET         /manage/unauthorised/agent                   controllers.manage.UnauthorisedAgentAffinityController.onPageLoad()
 
 GET         /manage-returns/in-progress-returns          controllers.manage.InProgressReturnsController.onPageLoad(index: Option[Int])
+GET         /manage-returns/submitted-returns            controllers.manage.SubmittedReturnsController.onPageLoad()
+GET         /manage-returns/due-for-deletion             controllers.manage.DueForDeletionController.onPageLoad()

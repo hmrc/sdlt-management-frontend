@@ -24,7 +24,7 @@
         card: components.Card,
         gridRow: components.GridRow
 )
-@(storn: String, agentMsg: String, inProgressMsg: String, submittedMsg: String, dueForDeletionMsg: String, feedbackUrl: String)(
+@(storn: String, numAgents: Int, numInProgress: Int, numSubmitted: Int, numDueForDeletion: Int, inProgressUrl: String, submittedUrl: String, dueForDeletionUrl: String, feedbackUrl: String)(
         implicit request: Request[_],
         messages: Messages
 )
@@ -45,17 +45,17 @@
     card(
         messages("manage.homepage.returnsManagement.title"),
         Seq(
-            inProgressMsg -> controllers.manage.routes.InProgressReturnsController.onPageLoad().url,
-            submittedMsg -> controllers.manage.routes.SubmittedReturnsController.onPageLoad().url,
-            dueForDeletionMsg -> controllers.manage.routes.DueForDeletionController.onPageLoad().url,
-            messages("manage.homepage.returnsManagement.startNewReturn") -> controllers.routes.IndexController.onPageLoad().url
+            messages("manage.homepage.returnsManagement.returnsInProgress.withNum", numInProgress) -> inProgressUrl,
+            messages("manage.homepage.returnsManagement.submittedReturns.withNum", numSubmitted) -> submittedUrl,
+            messages("manage.homepage.returnsManagement.returnsDueForDeletion.withNum", numDueForDeletion) -> dueForDeletionUrl,
+            messages("manage.homepage.returnsManagement.startNewReturn") -> ""
         )
     ),
     card(
         messages("manage.homepage.agentDetails.title"),
         Seq(
-            agentMsg -> controllers.routes.IndexController.onPageLoad().url,
-            messages("manage.homepage.agentDetails.addNewAgent") -> controllers.routes.IndexController.onPageLoad().url
+            messages("manage.homepage.agentDetails.manageAgents.withNum", numAgents) -> "",
+            messages("manage.homepage.agentDetails.addNewAgent") -> ""
         )
     )
 )
@@ -64,10 +64,10 @@
     card(
         messages("manage.homepage.helpAndContact.title"),
         Seq(
-            messages("manage.homepage.helpAndContact.help") -> controllers.routes.IndexController.onPageLoad().url,
-            messages("manage.homepage.helpAndContact.contactHMRC") -> controllers.routes.IndexController.onPageLoad().url,
-            messages("manage.homepage.helpAndContact.howToPay") -> controllers.routes.IndexController.onPageLoad().url,
-            messages("manage.homepage.helpAndContact.usefulLinks") -> controllers.routes.IndexController.onPageLoad().url
+            messages("manage.homepage.helpAndContact.help") -> "",
+            messages("manage.homepage.helpAndContact.contactHMRC") -> "",
+            messages("manage.homepage.helpAndContact.howToPay") -> "",
+            messages("manage.homepage.helpAndContact.usefulLinks") -> ""
         )
     ),
     card(

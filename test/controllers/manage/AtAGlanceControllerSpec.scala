@@ -9,6 +9,7 @@ import views.html.manage.AtAGlanceView
 import play.api.inject.bind
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import play.api.Application
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -17,29 +18,25 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
   private val mockService = mock[StampDutyLandTaxService]
 
-  private val atAGlanceUrl = "/stamp-duty-land-tax-management"
+  val application: Application =
+    applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
+      .build()
 
-    // controllers.manage.routes.AtAGlanceController.onPageLoad().url
+  private val atAGlanceUrl = controllers.manage.routes.AtAGlanceController.onPageLoad().url
 
   "At A Glance Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
-          .build()
-
       when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(List.empty)))
+        .thenReturn(Future.successful(Right(Nil)))
 
       when(mockService.getReturn(any[String], any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(List.empty)))
+        .thenReturn(Future.successful(Right(Nil)))
 
       running(application) {
         val request = FakeRequest(GET, atAGlanceUrl)
-        println(request)
-        println("^^^^^^^^^^^^^^^^^^^ REQUEST")
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[AtAGlanceView]

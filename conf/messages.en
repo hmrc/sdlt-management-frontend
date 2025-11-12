@@ -95,9 +95,6 @@ manageReturns.inProgressReturns.span                = Returns management
 pagination.previous = Previous
 pagination.next     = Next
 
-
-
-
 manage.homepage.title = Homepage
 manage.homepage.heading = Manage your Stamp Taxes
 manage.homepage.storn = STORN: {0}
