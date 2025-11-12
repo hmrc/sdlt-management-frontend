@@ -45,8 +45,6 @@ case class SdltInProgressReturnViewRow(
         messages("manageReturns.inProgressReturns.status.inprogress")
       case PENDING =>
         messages("manageReturns.inProgressReturns.status.awaiting")
-      case SUBMITTED =>
-        messages("manageReturns.inProgressReturns.status.submitted")
       case _ =>
         ""
     }
