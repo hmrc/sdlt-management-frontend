@@ -23,12 +23,13 @@ trait PaginationHelper {
 
   private val ROWS_ON_PAGE = 10
 
-  def generatePaginationItems(paginationIndex: Int, numberOfPages: Int, url: String): Seq[PaginationItem] = {
+  def generatePaginationItems(paginationIndex: Int, numberOfPages: Int,
+                              urlSelector: Int => String ): Seq[PaginationItem] = {
     Range
       .inclusive(1, numberOfPages)
       .map(pageIndex =>
         PaginationItem(
-          href = url,
+          href = urlSelector(pageIndex),
           number = Some(pageIndex.toString),
           visuallyHiddenText = None,
           current = Some(pageIndex == paginationIndex),
@@ -100,7 +101,7 @@ trait PaginationHelper {
     if (totalRowsCount > 0 && numberOfPages > 1) {
       Some(
         Pagination(
-          items = Some(generatePaginationItems(pageIndex, numberOfPages, urlSelector(pageIndex) )),
+          items = Some( generatePaginationItems(pageIndex, numberOfPages, urlSelector ) ),
           previous = generatePreviousLink(pageIndex, numberOfPages, urlSelector(pageIndex - 1)),
           next = generateNextLink(pageIndex, numberOfPages, urlSelector(pageIndex + 1)),
           landmarkLabel = None,
