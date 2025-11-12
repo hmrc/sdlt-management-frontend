@@ -38,7 +38,7 @@ object SdltInProgressReturnViewRow {
   import UniversalStatus.*
 
   // TODO: add required tests
-  private val inProgressReturnStatuses : Seq[UniversalStatus] = Seq(STARTED, PENDING)
+  private val inProgressReturnStatuses : Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
 
   def convertResponseToViewRows(response: SdltReturnRecordResponse): List[SdltInProgressReturnViewRow] = {
     response.returnSummaryList.flatMap {

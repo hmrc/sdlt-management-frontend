@@ -19,7 +19,7 @@ package services
 import connectors.StampDutyLandTaxConnector
 import models.UserAnswers
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
-import models.responses.UniversalStatus.{ACCEPTED, PENDING}
+import models.responses.UniversalStatus.{ACCEPTED, PENDING, STARTED}
 import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{mock, times, verify, when}
@@ -87,7 +87,7 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
             returnReference = "REF005",
             utrn = "UTRN005",
             status = "ACCEPTED",
-            dateSubmitted = LocalDate.parse("2025-01-02"),
+            dateSubmitted = LocalDate.parse("2025-01-01"),
             purchaserName = "Name005",
             address = "Address005",
             agentReference = "AgentRef005"
@@ -95,25 +95,34 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
           ReturnSummary(
             returnReference = "REF003",
             utrn = "UTRN003",
-            status = "PENDING",
+            status = "STARTED",
             dateSubmitted = LocalDate.parse("2025-01-02"),
             purchaserName = "Name003",
             address = "Address003",
             agentReference = "AgentRef003"
+          ),
+          ReturnSummary(
+            returnReference = "REF009",
+            utrn = "UTRN009",
+            status = "PENDING",
+            dateSubmitted = LocalDate.parse("2025-01-02"),
+            purchaserName = "Name009",
+            address = "Address009",
+            agentReference = "AgentRef009"
           )
         )
       )
       val expected = List(
         SdltInProgressReturnViewRow("Address005",
           "AgentRef005",
-          LocalDate.parse("2025-01-02"),
+          LocalDate.parse("2025-01-01"),
           "UTRN005",
           "Name005",
           ACCEPTED,
           "REF005"),
         SdltInProgressReturnViewRow("Address003", "AgentRef003",
           LocalDate.parse("2025-01-02"),
-          "UTRN003", "Name003", PENDING, "REF003")
+          "UTRN003", "Name003", STARTED, "REF003")
       )
 
 
@@ -123,6 +132,7 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
       val result: Either[Throwable, List[SdltInProgressReturnViewRow]] = service.getAllReturns(storn).futureValue
       result mustBe a[Either[Throwable, List[SdltInProgressReturnViewRow]]]
       result mustBe Right(expected)
+      result.value.map(_.status).toSet mustBe Set(ACCEPTED, STARTED) // Permitted statuses
       verify(connector, times(1)).getAllReturns(eqTo(storn))(any[HeaderCarrier])
     }
 

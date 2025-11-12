@@ -23,7 +23,7 @@ import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import models.responses.SdltInProgressReturnViewRow.*
-import models.responses.UniversalStatus.{ACCEPTED, PENDING}
+import models.responses.UniversalStatus.{ACCEPTED, PENDING, STARTED}
 
 import java.time.LocalDate
 
@@ -42,7 +42,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
       ReturnSummary(
         returnReference = "REF001",
         utrn = "UTRN001",
-        status = "STARTED",
+        status = "PENDING",
         dateSubmitted = LocalDate.parse("2025-01-02"),
         purchaserName = "Name001",
         address = "Address001",
@@ -60,7 +60,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
       ReturnSummary(
         returnReference = "REF003",
         utrn = "UTRN003",
-        status = "PENDING",
+        status = "STARTED",
         dateSubmitted = LocalDate.parse("2025-01-02"),
         purchaserName = "Name003",
         address = "Address003",
@@ -94,7 +94,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
       "AgentRef003",
       LocalDate.parse("2025-01-02"),
       "UTRN003",
-      "Name003", PENDING,
+      "Name003", STARTED,
       "REF003"),
     SdltInProgressReturnViewRow(
       "Address005",
