@@ -1,6 +1,7 @@
 package controllers.manage
 
 import base.SpecBase
+import config.FrontendAppConfig
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -16,18 +17,22 @@ import scala.concurrent.Future
 
 class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
-  private val mockService = mock[StampDutyLandTaxService]
+  trait Fixture {
 
-  val application: Application =
-    applicationBuilder(userAnswers = Some(emptyUserAnswers))
-      .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
-      .build()
+    val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
 
-  private val atAGlanceUrl = controllers.manage.routes.AtAGlanceController.onPageLoad().url
+    val application: Application =
+      applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
+        .build()
+
+    val atAGlanceUrl: String = controllers.manage.routes.AtAGlanceController.onPageLoad().url
+    
+  }
 
   "At A Glance Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET" in new Fixture {
 
       when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(Nil)))
@@ -36,21 +41,26 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(Right(Nil)))
 
       running(application) {
+        implicit val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
+
         val request = FakeRequest(GET, atAGlanceUrl)
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[AtAGlanceView]
         val expected = view(
           storn = "STN001",
-          agentMsg = "Manage agents",
-          inProgressMsg = "Returns in progress",
-          submittedMsg = "Submitted returns",
-          dueForDeletionMsg = "Returns due for deletion",
-          feedbackUrl = ""
-        )(request, messages(application))
+          numAgents = 0,
+          numInProgress = 0,
+          numSubmitted = 0,
+          numDueForDeletion = 0,
+          inProgressUrl = "",
+          submittedUrl = "",
+          dueForDeletionUrl = "",
+          feedbackUrl = appConfig.feedbackUrl(request)
+        )(request, messages(application)).toString
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual expected.toString
+        contentAsString(result) mustEqual expected
       }
     }
   }
