@@ -16,16 +16,21 @@
 
 package controllers.actions
 
-import models.UserAnswers
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import models.requests.DataRequest
+import pages.manage.StornPage
+import play.api.mvc.Result
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
+class FakeStornRequiredAction @Inject()
+  (implicit val executionContext: ExecutionContext)  extends StornRequiredAction {
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request.request, request.userId, storn = "STORN1", dataToReturn))
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+    request.userAnswers.get(StornPage) match {
+      case Some(storn) =>
+        Future.successful(Right(request))
+      case None =>
+        Future.successful(Right(request.copy(storn = "STORN1")))
+    }
 }

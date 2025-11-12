@@ -1,0 +1,128 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.responses.SdltInProgressReturnViewRow
+@import models.responses.UniversalStatus
+@import models.responses.UniversalStatus.ACCEPTED
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        h1: components.H1,
+        span: components.Span,
+        link: components.Link,
+        p: components.Paragraph,
+        govukTable : GovukTable,
+        govukDetails: GovukDetails,
+        govukPagination: GovukPagination,
+        govukTag: GovukTag
+)
+
+@(dataRows:   List[SdltInProgressReturnViewRow],
+        pagination: Option[Pagination], paginationInfoText: Option[String])(implicit request: Request[_], messages: Messages)
+
+@purchaserNameLink(row: SdltInProgressReturnViewRow)  = {
+    <p class="govuk-body">
+        <a class="govuk-link" href="../manage-returns/in-progress-returns">@row.purchaserName</a>
+    </p>
+}
+
+@renderTable() = {
+    @govukTable(Table(
+        rows =
+        dataRows.map{ currentRow =>
+            Seq(
+                TableRow(
+                    content = HtmlContent(purchaserNameLink(currentRow)),
+                ),
+                TableRow(
+                    content = Text( currentRow.address )
+                ),
+                TableRow(
+                    content = Text( currentRow.agentReference )
+                ),
+                TableRow(
+                    content = HtmlContent(
+                        currentRow.status match {
+                            case ACCEPTED =>
+                                govukTag.apply( TagViewModel(Text( messages("manageReturns.inProgressReturns.status.inprogress") )).blue()  )
+                            case _ =>
+                                govukTag.apply( TagViewModel(Text( messages("manageReturns.inProgressReturns.status.awaiting") )).grey()  )
+                        }
+
+                    )
+
+                )
+            )
+        }
+    ,
+    head = Some(Seq(
+        HeadCell(
+            content = Text(messages("manageReturns.inProgressReturns.summary.purchaser"))
+        ),
+        HeadCell(
+            content = Text(messages("manageReturns.inProgressReturns.summary.address"))
+        ),
+        HeadCell(
+            content = Text(messages("manageReturns.inProgressReturns.summary.agentsref"))
+        ),
+        HeadCell(
+            content = Text(messages("manageReturns.inProgressReturns.summary.status"))
+        )
+    )),
+    ))
+}
+
+@layout(pageTitle = titleNoForm(messages("manageReturns.inProgressReturns.title"))) {
+
+    @if(dataRows.isEmpty) {
+
+        @span("manageReturns.inProgressReturns.span")
+        @h1("manageReturns.inProgressReturns.heading")
+        @p("manageReturns.inProgressReturns.noReturns")
+        @link("manageReturns.inProgressReturns.startNewReturn", "TBC")
+
+    } else if (pagination.isEmpty){
+
+        @h1("manageReturns.inProgressReturns.SomeReturns")
+        @p("manageReturns.inProgressReturns.description")
+
+        @govukDetails(Details(
+            summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
+            content = Text(messages("manageReturns.inProgressReturns.details.content"))
+        ))
+
+        @renderTable()
+
+    } else {
+
+        @h1("manageReturns.inProgressReturns.SomeReturns")
+        @p("manageReturns.inProgressReturns.description")
+
+        @govukDetails(Details(
+            summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
+            content = Text(messages("manageReturns.inProgressReturns.details.content"))
+        ))
+
+        @paginationInfoText.map(p(_))
+
+        @renderTable()
+
+        @pagination.map(govukPagination(_))
+
+    }
+
+}

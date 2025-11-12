@@ -1,0 +1,65 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.manage
+
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
+import controllers.routes.JourneyRecoveryController
+import models.requests.DataRequest
+import models.responses.SdltInProgressReturnViewRow
+import play.api.Logger
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
+import services.InProgressReturnsService
+import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.PaginationHelper
+import views.html.InProgressReturnView
+import scala.concurrent.ExecutionContext
+import javax.inject.*
+
+@Singleton
+class InProgressReturnsController @Inject()(
+                                             override val messagesApi: MessagesApi,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             val inProgressReturnsService: InProgressReturnsService,
+                                             identify: IdentifierAction,
+                                             getData: DataRetrievalAction,
+                                             requireData: DataRequiredAction,
+                                             stornRequiredAction: StornRequiredAction,
+                                             view: InProgressReturnView
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PaginationHelper {
+
+  private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
+
+  val urlSelector: Int => String = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
+
+  def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
+    inProgressReturnsService.getAllReturns(request.storn).map {
+      case Right(allDataRows) =>
+        Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page")
+        val selectedPageIndex: Int = index.getOrElse(1)
+        val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
+        val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
+        val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
+        Ok(view(rowsForSelectedPage, paginator, paginationText))
+      case Left(ex) =>
+        Logger("application").error(s"[InProgressReturnsController][onPageLoad] - pageIndex: $index / error: ${ex}")
+        Redirect(JourneyRecoveryController.onPageLoad())
+    }
+  }
+
+}
