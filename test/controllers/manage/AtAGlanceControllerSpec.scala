@@ -35,10 +35,10 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and the correct view for a GET" in new Fixture {
 
       when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(Nil)))
+        .thenReturn(Future.successful(Nil))
 
       when(mockService.getReturn(any[String], any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(Nil)))
+        .thenReturn(Future.successful(Nil))
 
       running(application) {
         implicit val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
@@ -53,9 +53,9 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
           numInProgress = 0,
           numSubmitted = 0,
           numDueForDeletion = 0,
-          inProgressUrl = "",
-          submittedUrl = "",
-          dueForDeletionUrl = "",
+          inProgressUrl = "/stamp-duty-land-tax-management/manage-returns/in-progress-returns?index=1",
+          submittedUrl = "/stamp-duty-land-tax-management/manage-returns/submitted-returns",
+          dueForDeletionUrl = "/stamp-duty-land-tax-management/manage-returns/due-for-deletion",
           feedbackUrl = appConfig.feedbackUrl(request)
         )(request, messages(application)).toString
 
