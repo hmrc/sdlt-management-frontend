@@ -19,18 +19,20 @@ package utils
 import base.SpecBase
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import play.api.Application
 
 class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
 
   trait Fixture extends PaginationHelper {
-     val urlSelector = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
-
-    val application = applicationBuilder(userAnswers = None).build()
+    val urlSelector: Int => String = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
+    val application: Application = applicationBuilder(userAnswers = None).build()
+    val paginationIndexSelectedMidPage: Int = 5
+    val paginationIndexSelectedFirstPage: Int = 1
   }
 
   "PageItems" - {
 
-    "Get unique pagination items" in new Fixture {
+    "Get unique pagination items :: InProgressReturnsController" in new Fixture {
       val pageCount : Int = 10
       val items = generatePaginationItems(paginationIndex = 1, numberOfPages = pageCount, urlSelector = urlSelector)
       items.length mustBe pageCount
@@ -43,16 +45,30 @@ class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
       val pageCount: Int = 10
 
       // render prev link
-      generatePreviousLink(paginationIndex = 5,
+      generatePreviousLink(paginationIndex = paginationIndexSelectedMidPage,
         numberOfPages = pageCount,
         urlPrev = "prevLink")( messages(application) )
         .toList.nonEmpty mustBe true
 
       // should not render prev link
-      generatePreviousLink(paginationIndex = 1,
+      generatePreviousLink(paginationIndex = paginationIndexSelectedFirstPage,
         numberOfPages = pageCount,
         urlPrev = "prevLink")(messages(application))
         .toList.isEmpty mustBe true
+    }
+
+    "Get next pagination link" in new Fixture {
+      val pageCount: Int = 10
+
+      generateNextLink(paginationIndex = pageCount,
+        numberOfPages = pageCount,
+        urlNext = "prevLink")(messages(application))
+        .toList.isEmpty mustBe true
+
+      generateNextLink(paginationIndex = pageCount,
+        numberOfPages = paginationIndexSelectedFirstPage,
+        urlNext = "prevLink")(messages(application))
+        .toList.nonEmpty mustBe true
     }
 
 
