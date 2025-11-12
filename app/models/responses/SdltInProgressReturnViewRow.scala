@@ -52,18 +52,6 @@ case class SdltInProgressReturnViewRow(
     }
   }
 
-
-  def getStatusStyle(): String = {
-    status match {
-      case ACCEPTED =>
-        "govuk-tag govuk-tag--blue"
-      case PENDING =>
-        "govuk-tag govuk-tag--grey"
-      case _ =>
-        ""
-    }
-  }
-
 }
 
 object SdltInProgressReturnViewRow {

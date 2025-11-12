@@ -27,7 +27,8 @@
         p: components.Paragraph,
         govukTable : GovukTable,
         govukDetails: GovukDetails,
-        govukPagination: GovukPagination
+        govukPagination: GovukPagination,
+        govukTag: GovukTag
 )
 
 @(dataRows:   List[SdltInProgressReturnViewRow],
@@ -54,7 +55,16 @@
                     content = Text( currentRow.agentReference )
                 ),
                 TableRow(
-                    content = HtmlContent(s"<strong class='" + currentRow.getStatusStyle() + "'>" + currentRow.getStatusText() + "</strong>")
+                    content = HtmlContent(
+                        currentRow.status match {
+                            case ACCEPTED =>
+                                govukTag.apply( TagViewModel(Text( currentRow.getStatusText() )).blue()  )
+                            case _ =>
+                                govukTag.apply( TagViewModel(Text( currentRow.getStatusText() )).grey()  )
+                        }
+
+                    )
+
                 )
             )
         }
