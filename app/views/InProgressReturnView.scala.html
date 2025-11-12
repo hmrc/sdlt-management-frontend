@@ -58,9 +58,9 @@
                     content = HtmlContent(
                         currentRow.status match {
                             case ACCEPTED =>
-                                govukTag.apply( TagViewModel(Text( currentRow.getStatusText() )).blue()  )
+                                govukTag.apply( TagViewModel(Text( messages("manageReturns.inProgressReturns.status.inprogress") )).blue()  )
                             case _ =>
-                                govukTag.apply( TagViewModel(Text( currentRow.getStatusText() )).grey()  )
+                                govukTag.apply( TagViewModel(Text( messages("manageReturns.inProgressReturns.status.awaiting") )).grey()  )
                         }
 
                     )

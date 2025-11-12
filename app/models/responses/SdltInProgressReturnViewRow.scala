@@ -32,25 +32,7 @@ case class SdltInProgressReturnViewRow(
                                    purchaserName: String,
                                    status: UniversalStatus,
                                    returnReference: String
-                               ) {
-  /*
-  Inprogress - ACCEPTED
-  Awaiting confirmation - PENDING
-  Submitted - SUBMITTED
-   */
-  def getStatusText()
-                   (implicit messages: Messages): String = {
-    status match {
-      case ACCEPTED =>
-        messages("manageReturns.inProgressReturns.status.inprogress")
-      case PENDING =>
-        messages("manageReturns.inProgressReturns.status.awaiting")
-      case _ =>
-        ""
-    }
-  }
-
-}
+                               )
 
 object SdltInProgressReturnViewRow {
   import UniversalStatus.*
