@@ -51,7 +51,7 @@ class InProgressReturnsController @Inject()(
     inProgressReturnsService.getAllReturns(request.storn).map {
       case Right(allDataRows) =>
         Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page")
-        val selectedPageIndex: Int = index.getOrElse(1)
+        val selectedPageIndex: Int = pageIndexSelector(index, allDataRows.length)
         val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
         val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
         val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)

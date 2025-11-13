@@ -22,9 +22,10 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, Pagina
 trait PaginationHelper {
 
   private val ROWS_ON_PAGE = 10
+  private val DEFAULT_PAGE_INDEX = 1
 
   def generatePaginationItems(paginationIndex: Int, numberOfPages: Int,
-                              urlSelector: Int => String ): Seq[PaginationItem] = {
+                              urlSelector: Int => String): Seq[PaginationItem] = {
     Range
       .inclusive(1, numberOfPages)
       .map(pageIndex =>
@@ -95,13 +96,28 @@ trait PaginationHelper {
     }
   }
 
-  def createPagination(pageIndex: Int, totalRowsCount : Int, urlSelector: Int => String )
-                              (implicit messages: Messages): Option[Pagination] = {
+  // TODO: add test coverage
+  def pageIndexSelector(userInputPageInput: Option[Int], rowsCount: Int): Int = {
+    userInputPageInput
+      .map { attemptToSelectIndex =>
+        if (attemptToSelectIndex > getPageCount(rowsCount)) {
+          DEFAULT_PAGE_INDEX
+        } else if (attemptToSelectIndex < DEFAULT_PAGE_INDEX) {
+          DEFAULT_PAGE_INDEX
+        } else {
+          attemptToSelectIndex
+        }
+      }
+      .getOrElse(DEFAULT_PAGE_INDEX)
+  }
+
+  def createPagination(pageIndex: Int, totalRowsCount: Int, urlSelector: Int => String)
+                      (implicit messages: Messages): Option[Pagination] = {
     val numberOfPages: Int = getPageCount(totalRowsCount)
     if (totalRowsCount > 0 && numberOfPages > 1) {
       Some(
         Pagination(
-          items = Some( generatePaginationItems(pageIndex, numberOfPages, urlSelector ) ),
+          items = Some(generatePaginationItems(pageIndex, numberOfPages, urlSelector)),
           previous = generatePreviousLink(pageIndex, numberOfPages, urlSelector(pageIndex - 1)),
           next = generateNextLink(pageIndex, numberOfPages, urlSelector(pageIndex + 1)),
           landmarkLabel = None,
