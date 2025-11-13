@@ -27,7 +27,7 @@ object SdltInProgressReturnViewRowGenSpec extends Properties("SdltInProgressRetu
   import models.responses.SdltInProgressReturnViewRow._
   import Prop.forAll
 
-  val maxNumberInGeneratedSet : Int = 100
+  val maxNumberOfRecsInGeneratedSet : Int = 100
 
   val returnSummaryGen: Gen[ReturnSummary] = for {
     ref <- Gen.alphaStr
@@ -45,7 +45,7 @@ object SdltInProgressReturnViewRowGenSpec extends Properties("SdltInProgressRetu
       agentReference = "AgentRef002"
     )
 
-  val syntheticResponse: Gen[List[ReturnSummary]] = Gen.listOfN(maxNumberInGeneratedSet, returnSummaryGen)
+  val syntheticResponse: Gen[List[ReturnSummary]] = Gen.listOfN(maxNumberOfRecsInGeneratedSet, returnSummaryGen)
 
   val convertToResponse: List[ReturnSummary] => SdltReturnRecordResponse = (list: List[ReturnSummary]) => {
     SdltReturnRecordResponse(
