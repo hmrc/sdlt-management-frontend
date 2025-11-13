@@ -49,7 +49,7 @@ class AtAGlanceController@Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
     // TODO : retrieve first and last name of user and pass down to view
-    
+
     val storn = request.storn
 
     val agentsF = stampDutyLandTaxService.getAllAgents(storn)
@@ -66,8 +66,8 @@ class AtAGlanceController@Inject()(
       Ok(view(
               storn,
               returnsManagementViewModel(returnsInProgress.size, submittedReturns.size, dueForDeletion.size),
-              agentDetailsViewModel(agents.size),
-              helpAndContactViewModel(appConfig.howToPayUrl),
+              agentDetailsViewModel(agents.size, appConfig),
+              helpAndContactViewModel(appConfig),
               feedbackViewModel(appConfig.feedbackUrl)
             )
         )
@@ -91,16 +91,16 @@ object AtAGlanceController {
     ""
   )
 
-  def agentDetailsViewModel(agents: Int): AgentDetailsViewModel = AgentDetailsViewModel(
+  def agentDetailsViewModel(agents: Int, appConfig: FrontendAppConfig): AgentDetailsViewModel = AgentDetailsViewModel(
     agents,
-    "",
-    ""
+    appConfig.agentOverviewUrl,
+    appConfig.startAddAgentUrl
   )
 
-  def helpAndContactViewModel(howToPayUrl: String): HelpAndContactViewModel = HelpAndContactViewModel(
+  def helpAndContactViewModel(appConfig: FrontendAppConfig): HelpAndContactViewModel = HelpAndContactViewModel(
     "",
     "",
-    howToPayUrl,
+    appConfig.howToPayUrl,
     ""
   )
 

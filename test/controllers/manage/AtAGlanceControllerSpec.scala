@@ -98,8 +98,8 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val expected = view(
           storn = "STN001",
           returnsManagementViewModel(0, 0, 0),
-          agentDetailsViewModel(0),
-          helpAndContactViewModel(appConfig.howToPayUrl),
+          agentDetailsViewModel(0, appConfig),
+          helpAndContactViewModel(appConfig),
           feedbackViewModel(appConfig.feedbackUrl(request))
         )(request, messages(application)).toString
 
@@ -129,8 +129,8 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
             expectedReturnsManagementData.size,
             expectedReturnsManagementData.size
           ),
-          agentDetailsViewModel(expectedAgentData.size),
-          helpAndContactViewModel(appConfig.howToPayUrl),
+          agentDetailsViewModel(expectedAgentData.size, appConfig),
+          helpAndContactViewModel(appConfig),
           feedbackViewModel(appConfig.feedbackUrl(request))
         )(request, messages(application)).toString
 

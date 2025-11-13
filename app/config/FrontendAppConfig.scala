@@ -38,6 +38,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val signOutUrl: String           = configuration.get[String]("urls.signOut")
   val govUkSDLTGuidanceUrl: String = configuration.get[String]("urls.govUkSDLTGuidance")
 
+  private val agentServiceBaseUrl: String       = configuration.get[Service]("microservice.services.stamp-duty-land-tax-agent").baseUrl
+  val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/manage-agents/start-add-agent"
+  val agentOverviewUrl: String                  = s"$agentServiceBaseUrl/manage-agents/agent-overview?paginationIndex=1"
+  
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/stamp-duty-land-tax"
 
