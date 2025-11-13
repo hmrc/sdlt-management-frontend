@@ -20,6 +20,7 @@ import base.SpecBase
 import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
+import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
@@ -36,6 +37,8 @@ import java.time.LocalDate
 import scala.concurrent.Future
 
 class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
+
+  val outOfScopePageIndex: Int = Gen.oneOf[Int](-1, -100, 9, 100, 200).sample.toList.take(1).head
 
   trait Fixture extends PaginationHelper {
     val rowsPerPage: Int = 10
@@ -205,7 +208,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
     }
 
-    "return OK for GET:: more than 10 rows:: pagination ON :: page index out of scope" in new Fixture {
+    // random pageIndex would be used on each run
+    s"return OK for GET:: more than 10 rows:: pagination ON :: page index out of scope ${outOfScopePageIndex}" in new Fixture {
       val actualDataPaginationOn: List[SdltInProgressReturnViewRow] = {
         (0 to 17).toList.map(index =>
           SdltInProgressReturnViewRow(
@@ -220,21 +224,18 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       }
 
-      val selectedPageIndex: Int = 9
       when(mockService.getAllReturns(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
-
+        .thenReturn(Future.successful(Right(actualDataPaginationOn)))
 
       running(application) {
 
-        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url + s"?index=$selectedPageIndex")
+        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url + s"?index=$outOfScopePageIndex")
 
         val result = route(application, request).value
         val view = application.injector.instanceOf[InProgressReturnView]
 
-        status(result) mustEqual OK
-        // NoData found screen expected
-        contentAsString(result) mustEqual view(List.empty, None, None)(request, messages(application)).toString
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe "/stamp-duty-land-tax-management/manage-returns/in-progress-returns?index=1"
 
         verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
       }

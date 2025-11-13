@@ -16,8 +16,7 @@
 
 package models.responses
 
-import play.api.libs.json._
-import play.api.libs.json.Reads._
+import play.api.libs.json.Reads.*
 
 enum UniversalStatus:
   case STARTED
@@ -31,25 +30,6 @@ enum UniversalStatus:
 
 
 object UniversalStatus {
-  implicit val universalStatusFormat: Format[UniversalStatus] = new Format[UniversalStatus] {
-    def reads(json: JsValue): JsResult[UniversalStatus] = json match {
-      case JsString(s) => s.toUpperCase() match {
-        case "STARTED" => JsSuccess(UniversalStatus.STARTED)
-        case "VALIDATED" => JsSuccess(UniversalStatus.VALIDATED)
-        case "PENDING" => JsSuccess(UniversalStatus.PENDING)
-        case "ACCEPTED" => JsSuccess(UniversalStatus.ACCEPTED)
-        case "SUBMITTED" => JsSuccess(UniversalStatus.SUBMITTED)
-        case "SUBMITTED_NO_RECEIPT" => JsSuccess(UniversalStatus.SUBMITTED_NO_RECEIPT)
-        case "DEPARTMENTAL_ERROR" => JsSuccess(UniversalStatus.DEPARTMENTAL_ERROR)
-        case "FATAL_ERROR" => JsSuccess(UniversalStatus.FATAL_ERROR)
-        case _ => JsError("Invalid UniversalStatus string")
-      }
-      case _ => JsError("Expected JsString")
-    }
-
-    def writes(status: UniversalStatus): JsValue =
-      JsString(status.toString.toUpperCase())
-  }
 
   def fromString(in: String): Option[UniversalStatus] = {
     in.toUpperCase() match {

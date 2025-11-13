@@ -23,27 +23,27 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-
 case class SdltInProgressReturnViewRow(
-                                   address: String,
-                                   agentReference: String,
-                                   dateSubmitted: LocalDate,
-                                   utrn: String,
-                                   purchaserName: String,
-                                   status: UniversalStatus,
-                                   returnReference: String
-                               )
+                                        address: String,
+                                        agentReference: String,
+                                        dateSubmitted: LocalDate,
+                                        utrn: String,
+                                        purchaserName: String,
+                                        status: UniversalStatus,
+                                        returnReference: String
+                                      )
 
 object SdltInProgressReturnViewRow {
+
   import UniversalStatus.*
 
-  private val acceptableStatus : Seq[UniversalStatus] = Seq(ACCEPTED, PENDING)
+  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
 
   def convertResponseToViewRows(response: SdltReturnRecordResponse): List[SdltInProgressReturnViewRow] = {
     response.returnSummaryList.flatMap {
       rec =>
         fromString(rec.status) // Ignore rows which we fail to convert :: should we fail execution???
-          .filter(acceptableStatus.contains(_))
+          .filter(inProgressReturnStatuses.contains(_))
           .map { status =>
             SdltInProgressReturnViewRow(
               address = rec.address,
@@ -57,4 +57,5 @@ object SdltInProgressReturnViewRow {
           }
     }
   }
+
 }
