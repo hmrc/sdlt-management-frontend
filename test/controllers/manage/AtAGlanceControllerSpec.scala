@@ -99,7 +99,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
           storn = "STN001",
           returnsManagementViewModel(0, 0, 0),
           agentDetailsViewModel(0),
-          helpAndContactViewModel(),
+          helpAndContactViewModel(appConfig.howToPayUrl),
           feedbackViewModel(appConfig.feedbackUrl(request))
         )(request, messages(application)).toString
 
@@ -130,7 +130,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
             expectedReturnsManagementData.size
           ),
           agentDetailsViewModel(expectedAgentData.size),
-          helpAndContactViewModel(),
+          helpAndContactViewModel(appConfig.howToPayUrl),
           feedbackViewModel(appConfig.feedbackUrl(request))
         )(request, messages(application)).toString
 

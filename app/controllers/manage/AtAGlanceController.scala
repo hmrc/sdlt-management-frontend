@@ -48,6 +48,8 @@ class AtAGlanceController@Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
+    // TODO : retrieve first and last name of user and pass down to view
+    
     val storn = request.storn
 
     val agentsF = stampDutyLandTaxService.getAllAgents(storn)
@@ -61,7 +63,6 @@ class AtAGlanceController@Inject()(
       submittedReturns <- submittedReturnsF
       dueForDeletion <- dueForDeletionF
     } yield {
-
       Ok(view(
               storn,
               returnsManagementViewModel(returnsInProgress.size, submittedReturns.size, dueForDeletion.size),
