@@ -17,6 +17,8 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
+@import viewmodels.manage.*
+
 @this(
         layout: templates.LayoutFullWidth,
         hmrcPageHeading: HmrcPageHeading,
@@ -24,7 +26,13 @@
         card: components.Card,
         gridRow: components.GridRow
 )
-@(storn: String, numAgents: Int, numInProgress: Int, numSubmitted: Int, numDueForDeletion: Int, inProgressUrl: String, submittedUrl: String, dueForDeletionUrl: String, feedbackUrl: String)(
+@(
+    storn: String,
+    returnsViewModel: ReturnsManagementViewModel,
+    agentsViewModel: AgentDetailsViewModel,
+    helpViewModel: HelpAndContactViewModel,
+    feedbackViewModel: FeedbackViewModel
+)(
         implicit request: Request[_],
         messages: Messages
 )
@@ -45,17 +53,17 @@
     card(
         messages("manage.homepage.returnsManagement.title"),
         Seq(
-            messages("manage.homepage.returnsManagement.returnsInProgress.withNum", numInProgress) -> inProgressUrl,
-            messages("manage.homepage.returnsManagement.submittedReturns.withNum", numSubmitted) -> submittedUrl,
-            messages("manage.homepage.returnsManagement.returnsDueForDeletion.withNum", numDueForDeletion) -> dueForDeletionUrl,
-            messages("manage.homepage.returnsManagement.startNewReturn") -> ""
+            messages("manage.homepage.returnsManagement.returnsInProgress.withNum", returnsViewModel.inProgress) -> returnsViewModel.inProgressUrl,
+            messages("manage.homepage.returnsManagement.submittedReturns.withNum", returnsViewModel.submitted) -> returnsViewModel.submittedUrl,
+            messages("manage.homepage.returnsManagement.returnsDueForDeletion.withNum", returnsViewModel.dueForDeletion) -> returnsViewModel.dueForDeletionUrl,
+            messages("manage.homepage.returnsManagement.startNewReturn") -> returnsViewModel.startReturnUrl
         )
     ),
     card(
         messages("manage.homepage.agentDetails.title"),
         Seq(
-            messages("manage.homepage.agentDetails.manageAgents.withNum", numAgents) -> "",
-            messages("manage.homepage.agentDetails.addNewAgent") -> ""
+            messages("manage.homepage.agentDetails.manageAgents.withNum", agentsViewModel.agents) -> agentsViewModel.agentsUrl,
+            messages("manage.homepage.agentDetails.addNewAgent") -> agentsViewModel.addAgentUrl
         )
     )
 )
@@ -64,16 +72,16 @@
     card(
         messages("manage.homepage.helpAndContact.title"),
         Seq(
-            messages("manage.homepage.helpAndContact.help") -> "",
-            messages("manage.homepage.helpAndContact.contactHMRC") -> "",
-            messages("manage.homepage.helpAndContact.howToPay") -> "",
-            messages("manage.homepage.helpAndContact.usefulLinks") -> ""
+            messages("manage.homepage.helpAndContact.help") -> helpViewModel.helpUrl,
+            messages("manage.homepage.helpAndContact.contactHMRC") -> helpViewModel.contactUrl,
+            messages("manage.homepage.helpAndContact.howToPay") -> helpViewModel.howToPayUrl,
+            messages("manage.homepage.helpAndContact.usefulLinks") -> helpViewModel.usefulLinksUrl
         )
     ),
     card(
         messages("manage.homepage.feedback.title"),
         Seq(
-            messages("manage.homepage.feedback.leaveFeedback") -> feedbackUrl,
+            messages("manage.homepage.feedback.leaveFeedback") -> feedbackViewModel.feedbackUrl,
         )
     )
 )

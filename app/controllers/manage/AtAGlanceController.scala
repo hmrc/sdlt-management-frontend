@@ -28,6 +28,9 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
 import controllers.routes.JourneyRecoveryController
 import controllers.manage.routes.*
+import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
+import AtAGlanceController.*
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -65,14 +68,10 @@ class AtAGlanceController@Inject()(
 
       Ok(view(
               storn,
-              numAgents,
-              numInProgress,
-              numSubmitted,
-              numDueForDeletion,
-              inProgressUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
-              submittedUrl = SubmittedReturnsController.onPageLoad().url,
-              dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
-              feedbackUrl = appConfig.feedbackUrl
+              returnsManagementViewModel(numInProgress, numSubmitted, numDueForDeletion),
+              agentDetailsViewModel(numAgents),
+              helpAndContactViewModel(),
+              feedbackViewModel(appConfig.feedbackUrl)
             )
         )
     }).recover {
@@ -80,6 +79,35 @@ class AtAGlanceController@Inject()(
               logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
               Redirect(JourneyRecoveryController.onPageLoad())
     }
-
   }
+}
+
+object AtAGlanceController {
+
+  def returnsManagementViewModel(inProgress: Int, submitted: Int, dueForDeletion: Int): ReturnsManagementViewModel = ReturnsManagementViewModel(
+    inProgress,
+    InProgressReturnsController.onPageLoad(Some(1)).url,
+    submitted,
+    SubmittedReturnsController.onPageLoad().url,
+    dueForDeletion,
+    DueForDeletionController.onPageLoad().url,
+    ""
+  )
+
+  def agentDetailsViewModel(agents: Int): AgentDetailsViewModel = AgentDetailsViewModel(
+    agents,
+    "",
+    ""
+  )
+
+  def helpAndContactViewModel(): HelpAndContactViewModel = HelpAndContactViewModel(
+    "",
+    "",
+    "",
+    ""
+  )
+
+  def feedbackViewModel(feedbackUrl: String): FeedbackViewModel = FeedbackViewModel(
+    feedbackUrl
+  )
 }

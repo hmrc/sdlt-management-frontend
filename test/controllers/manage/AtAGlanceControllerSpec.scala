@@ -32,6 +32,7 @@ import play.api.Application
 import uk.gov.hmrc.http.HeaderCarrier
 import java.time.LocalDate
 import scala.concurrent.Future
+import AtAGlanceController.*
 
 class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
@@ -47,9 +48,6 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
     implicit val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
 
     val atAGlanceUrl: String = controllers.manage.routes.AtAGlanceController.onPageLoad().url
-    val inProgressUrl: String = controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(1)).url
-    val submittedUrl: String = controllers.manage.routes.SubmittedReturnsController.onPageLoad().url
-    val dueForDeletionUrl: String = controllers.manage.routes.DueForDeletionController.onPageLoad().url
 
     val expectedAgentData: List[AgentDetailsResponse] =
       (0 to 3).toList.map(index =>
@@ -99,14 +97,10 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AtAGlanceView]
         val expected = view(
           storn = "STN001",
-          numAgents = 0,
-          numInProgress = 0,
-          numSubmitted = 0,
-          numDueForDeletion = 0,
-          inProgressUrl = inProgressUrl,
-          submittedUrl = submittedUrl,
-          dueForDeletionUrl = dueForDeletionUrl,
-          feedbackUrl = appConfig.feedbackUrl(request)
+          returnsManagementViewModel(0, 0, 0),
+          agentDetailsViewModel(0),
+          helpAndContactViewModel(),
+          feedbackViewModel(appConfig.feedbackUrl(request))
         )(request, messages(application)).toString
 
         status(result) mustEqual OK
@@ -130,14 +124,14 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AtAGlanceView]
         val expected = view(
           storn = "STN001",
-          numAgents = 4,
-          numInProgress = 8,
-          numSubmitted = 8,
-          numDueForDeletion = 8,
-          inProgressUrl = inProgressUrl,
-          submittedUrl = submittedUrl,
-          dueForDeletionUrl = dueForDeletionUrl,
-          feedbackUrl = appConfig.feedbackUrl(request)
+          returnsManagementViewModel(
+            expectedReturnsManagementData.size,
+            expectedReturnsManagementData.size,
+            expectedReturnsManagementData.size
+          ),
+          agentDetailsViewModel(expectedAgentData.size),
+          helpAndContactViewModel(),
+          feedbackViewModel(appConfig.feedbackUrl(request))
         )(request, messages(application)).toString
 
         status(result) mustEqual OK
