@@ -227,10 +227,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(actualDataPaginationOn)))
 
-      // Pagination should handle this as we are on the first page
-      //val paginator: Option[Pagination] = createPagination(1, actualDataPaginationOn.length, urlSelector)(messages(application))
-      //val paginationText: Option[String] = getPaginationInfoText(1, actualDataPaginationOn)(messages(application))
-
       running(application) {
 
         val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url + s"?index=$outOfScopePageIndex")
@@ -240,8 +236,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe "/stamp-duty-land-tax-management/manage-returns/in-progress-returns?index=1"
-        // NoData found screen expected
-        //contentAsString(result) mustEqual view(actualDataPaginationOn.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
       }
