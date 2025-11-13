@@ -27,6 +27,7 @@ import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
 import controllers.routes.JourneyRecoveryController
+import controllers.manage.routes.*
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -46,10 +47,6 @@ class AtAGlanceController@Inject()(
 
     val storn = request.storn
 
-    val inProgressUrl = controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(1)).url
-    val submittedUrl = controllers.manage.routes.SubmittedReturnsController.onPageLoad().url
-    val dueForDeletionUrl = controllers.manage.routes.DueForDeletionController.onPageLoad().url
-
     val agentsF = stampDutyLandTaxService.getAllAgents(storn)
     val returnsInProgressF = stampDutyLandTaxService.getReturn(storn, "IN_PROGRESS")
     val submittedReturnsF = stampDutyLandTaxService.getReturn(storn, "SUBMITTED")
@@ -66,7 +63,18 @@ class AtAGlanceController@Inject()(
       val numSubmitted = submittedReturns.size
       val numDueForDeletion = dueForDeletion.size
 
-      Ok(view(storn, numAgents, numInProgress, numSubmitted, numDueForDeletion, inProgressUrl, submittedUrl, dueForDeletionUrl, appConfig.feedbackUrl))
+      Ok(view(
+              storn,
+              numAgents,
+              numInProgress,
+              numSubmitted,
+              numDueForDeletion,
+              inProgressUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
+              submittedUrl = SubmittedReturnsController.onPageLoad().url,
+              dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
+              feedbackUrl = appConfig.feedbackUrl
+            )
+        )
     }).recover {
             case ex =>
               logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
