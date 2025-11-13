@@ -59,7 +59,7 @@ class InProgressReturnsController @Inject()(
             val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
             Ok(view(rowsForSelectedPage, paginator, paginationText))
           case Left(error) => // strongly advised to avoid this approach to redirect to itself / implemented as per QA request
-            Logger("application").error(s"[InProgressReturnsController][onPageLoad] - indexErrir: $error")
+            Logger("application").error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
             Redirect( urlSelector(1) )
         }
       case Left(ex) =>
