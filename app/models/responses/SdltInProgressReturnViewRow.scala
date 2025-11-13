@@ -23,22 +23,21 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-
 case class SdltInProgressReturnViewRow(
-                                   address: String,
-                                   agentReference: String,
-                                   dateSubmitted: LocalDate,
-                                   utrn: String,
-                                   purchaserName: String,
-                                   status: UniversalStatus,
-                                   returnReference: String
-                               )
+                                        address: String,
+                                        agentReference: String,
+                                        dateSubmitted: LocalDate,
+                                        utrn: String,
+                                        purchaserName: String,
+                                        status: UniversalStatus,
+                                        returnReference: String
+                                      )
 
 object SdltInProgressReturnViewRow {
+
   import UniversalStatus.*
 
-  // TODO: add required tests
-  private val inProgressReturnStatuses : Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
+  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
 
   def convertResponseToViewRows(response: SdltReturnRecordResponse): List[SdltInProgressReturnViewRow] = {
     response.returnSummaryList.flatMap {
@@ -58,4 +57,5 @@ object SdltInProgressReturnViewRow {
           }
     }
   }
+
 }

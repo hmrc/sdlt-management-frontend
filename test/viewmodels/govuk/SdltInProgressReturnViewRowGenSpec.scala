@@ -17,6 +17,7 @@
 package viewmodels.govuk
 
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.responses.UniversalStatus.{ACCEPTED, STARTED}
 import org.scalacheck.*
 
 import java.time.LocalDate
@@ -26,29 +27,39 @@ object SdltInProgressReturnViewRowGenSpec extends Properties("SdltInProgressRetu
   import models.responses.SdltInProgressReturnViewRow._
   import Prop.forAll
 
-  val returnSummaryGen: Gen[SdltReturnRecordResponse] = for {
-    returnReference <- Gen.alphaNumStr
-    status <- Gen.oneOf('A', 'E', 'I', 'O', 'U', 'Y')
-  } yield SdltReturnRecordResponse(
-    storn = "STORN",
-    returnSummaryCount = 20,
-    returnSummaryList = List(
-      ReturnSummary(
-        returnReference = returnReference,
-        utrn = "UTRN002",
-        status = "VALIDATED",
-        dateSubmitted = LocalDate.parse("2025-01-02"),
-        purchaserName = "Name002",
-        address = "Address002",
-        agentReference = "AgentRef002"
-      )
+  val maxNumberInGeneratedSet : Int = 100
+
+  val returnSummaryGen: Gen[ReturnSummary] = for {
+    ref <- Gen.alphaStr
+    utr <- Gen.alphaNumStr
+    status <- Gen.oneOf("STARTED", "VALIDATED", "ACCEPTED",
+      "PENDING", "SUBMITTED", "SUBMITTED_NO_RECEIPT", "DEPARTMENTAL_ERROR", "FATAL_ERROR")
+  } yield
+    ReturnSummary(
+      returnReference = s"REF${ref.take(5)}",
+      utrn = s"UTR${utr.take(5)}",
+      status = status,
+      dateSubmitted = LocalDate.parse("2025-01-02"),
+      purchaserName = "Name002",
+      address = "Address002",
+      agentReference = "AgentRef002"
     )
-  )
 
+  val syntheticResponse: Gen[List[ReturnSummary]] = Gen.listOfN(maxNumberInGeneratedSet, returnSummaryGen)
 
-  property("convertResponseToViewRows") = forAll(returnSummaryGen) { returnSummary =>
-    println(returnSummaryGen)
-    convertResponseToViewRows(returnSummary).length > 0
+  val convertToResponse: List[ReturnSummary] => SdltReturnRecordResponse = (list: List[ReturnSummary]) => {
+    SdltReturnRecordResponse(
+      storn = "STORN",
+      returnSummaryCount = list.length,
+      returnSummaryList = list
+    )
+  }
+
+  // Verify that we can only get recs with these 2 statuses
+  property("convertReturnsResponseToViewRows") = forAll(syntheticResponse) { returnSummary =>
+    val response: SdltReturnRecordResponse = convertToResponse(returnSummary)
+    val result = convertResponseToViewRows(response)
+    result.nonEmpty && result.map(_.status).toSet == Set(ACCEPTED, STARTED)
   }
 
 }
