@@ -51,7 +51,7 @@ class AtAGlanceController@Inject()(
     val storn = request.storn
 
     val agentsF = stampDutyLandTaxService.getAllAgents(storn)
-    val returnsInProgressF = stampDutyLandTaxService.getReturn(storn, "IN_PROGRESS")
+    val returnsInProgressF = stampDutyLandTaxService.getReturn(storn, "PENDING")
     val submittedReturnsF = stampDutyLandTaxService.getReturn(storn, "SUBMITTED")
     val dueForDeletionF = stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
 
@@ -61,16 +61,12 @@ class AtAGlanceController@Inject()(
       submittedReturns <- submittedReturnsF
       dueForDeletion <- dueForDeletionF
     } yield {
-      val numAgents = agents.size
-      val numInProgress = returnsInProgress.size
-      val numSubmitted = submittedReturns.size
-      val numDueForDeletion = dueForDeletion.size
 
       Ok(view(
               storn,
-              returnsManagementViewModel(numInProgress, numSubmitted, numDueForDeletion),
-              agentDetailsViewModel(numAgents),
-              helpAndContactViewModel(),
+              returnsManagementViewModel(returnsInProgress.size, submittedReturns.size, dueForDeletion.size),
+              agentDetailsViewModel(agents.size),
+              helpAndContactViewModel(appConfig.howToPayUrl),
               feedbackViewModel(appConfig.feedbackUrl)
             )
         )
@@ -100,10 +96,10 @@ object AtAGlanceController {
     ""
   )
 
-  def helpAndContactViewModel(): HelpAndContactViewModel = HelpAndContactViewModel(
+  def helpAndContactViewModel(howToPayUrl: String): HelpAndContactViewModel = HelpAndContactViewModel(
     "",
     "",
-    "",
+    howToPayUrl,
     ""
   )
 
