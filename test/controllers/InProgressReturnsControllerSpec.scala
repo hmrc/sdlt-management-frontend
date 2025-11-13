@@ -39,8 +39,7 @@ import scala.concurrent.Future
 class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
   val outOfScopePageIndex: Int = Gen.oneOf[Int](-1, -100, 9, 100, 200).sample.toList.take(1).head
-
-
+  
   trait Fixture extends PaginationHelper {
     val rowsPerPage: Int = 10
 

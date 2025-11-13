@@ -90,25 +90,25 @@ trait PaginationHelper {
 
   private def getPageCount(records: Int): Int = {
     if (records % ROWS_ON_PAGE == 0) {
-      records / ROWS_ON_PAGE
+      records / ROWS_ON_PAGE + 1
     } else {
       (records / ROWS_ON_PAGE) + 1
     }
   }
 
   // TODO: add test coverage
-  def pageIndexSelector(userInputPageInput: Option[Int], rowsCount: Int): Int = {
+  def pageIndexSelector(userInputPageInput: Option[Int], rowsCount: Int): Either[Throwable, Int] = {
     userInputPageInput
       .map { attemptToSelectIndex =>
         if (attemptToSelectIndex > getPageCount(rowsCount)) {
-          DEFAULT_PAGE_INDEX
+          Left(new Error("PageIndex selected is out of scope"))
         } else if (attemptToSelectIndex < DEFAULT_PAGE_INDEX) {
-          DEFAULT_PAGE_INDEX
+          Left(new Error("PageIndex selected is out of scope"))
         } else {
-          attemptToSelectIndex
+          Right(attemptToSelectIndex)
         }
       }
-      .getOrElse(DEFAULT_PAGE_INDEX)
+      .getOrElse( Right(DEFAULT_PAGE_INDEX) )
   }
 
   def createPagination(pageIndex: Int, totalRowsCount: Int, urlSelector: Int => String)

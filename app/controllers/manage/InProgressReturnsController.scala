@@ -48,14 +48,20 @@ class InProgressReturnsController @Inject()(
   val urlSelector: Int => String = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
+
     inProgressReturnsService.getAllReturns(request.storn).map {
       case Right(allDataRows) =>
-        Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page")
-        val selectedPageIndex: Int = pageIndexSelector(index, allDataRows.length)
-        val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
-        val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
-        val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
-        Ok(view(rowsForSelectedPage, paginator, paginationText))
+        Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
+        pageIndexSelector(index, allDataRows.length) match {
+          case Right(selectedPageIndex) =>
+            val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
+            val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
+            val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
+            Ok(view(rowsForSelectedPage, paginator, paginationText))
+          case Left(error) => // strongly advised to avoid this approach to redirect to itself / implemented as per QA request
+            Logger("application").error(s"[InProgressReturnsController][onPageLoad] - indexErrir: $error")
+            Redirect( urlSelector(1) )
+        }
       case Left(ex) =>
         Logger("application").error(s"[InProgressReturnsController][onPageLoad] - pageIndex: $index / error: ${ex}")
         Redirect(JourneyRecoveryController.onPageLoad())
