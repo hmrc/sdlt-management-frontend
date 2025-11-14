@@ -52,16 +52,11 @@ class AtAGlanceController@Inject()(
 
     val storn = request.storn
 
-    val agentsF = stampDutyLandTaxService.getAllAgents(storn)
-    val returnsInProgressF = stampDutyLandTaxService.getReturn(storn, "PENDING")
-    val submittedReturnsF = stampDutyLandTaxService.getReturn(storn, "SUBMITTED")
-    val dueForDeletionF = stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
-
     (for {
-      agents <- agentsF
-      returnsInProgress <- returnsInProgressF
-      submittedReturns <- submittedReturnsF
-      dueForDeletion <- dueForDeletionF
+      agents <- stampDutyLandTaxService.getAllAgents(storn)
+      returnsInProgress <- stampDutyLandTaxService.getReturn(storn, "PENDING")
+      submittedReturns <- stampDutyLandTaxService.getReturn(storn, "SUBMITTED")
+      dueForDeletion <- stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
     } yield {
       Ok(view(
               storn,
