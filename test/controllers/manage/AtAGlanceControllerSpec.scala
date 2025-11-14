@@ -96,6 +96,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AtAGlanceView]
         val expected = view(
           storn = "STN001",
+          name = "David Frank",
           returnsManagementViewModel(0, 0, 0),
           agentDetailsViewModel(0, appConfig),
           helpAndContactViewModel(appConfig),
@@ -123,6 +124,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AtAGlanceView]
         val expected = view(
           storn = "STN001",
+          name = "David Frank",
           returnsManagementViewModel(
             expectedReturnsManagementData.size,
             expectedReturnsManagementData.size,
