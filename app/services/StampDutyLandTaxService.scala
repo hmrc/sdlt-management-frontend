@@ -17,10 +17,8 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.manage.ReturnSummary
 import models.manageAgents.AgentDetailsResponse
-import models.requests.ReturnsRequest
-import models.responses.UniversalStatus.{SUBMITTED, SUBMITTED_NO_RECEIPT}
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import uk.gov.hmrc.http.HeaderCarrier
 import viewmodels.manage.SdltSubmittedReturnsViewModel.convertResponseToSubmittedView

@@ -17,7 +17,7 @@
 package controllers.manage
 
 import base.SpecBase
-import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
+import models.responses.UniversalStatus
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,7 +32,6 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.PaginationHelper
 import viewmodels.manage.SdltSubmittedReturnsViewModel
-import views.html.InProgressReturnView
 import views.html.manage.SubmittedReturnsView
 
 import java.time.LocalDate

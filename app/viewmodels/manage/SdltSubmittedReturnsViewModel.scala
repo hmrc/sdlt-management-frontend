@@ -17,9 +17,6 @@
 package viewmodels.manage
 import models.manage.SdltReturnRecordResponse
 import models.responses.UniversalStatus
-import models.responses.UniversalStatus.{ACCEPTED, PENDING, SUBMITTED, fromString}
-import play.api.i18n.Messages
-import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 

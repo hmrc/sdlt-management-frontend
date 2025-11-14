@@ -18,13 +18,10 @@ package connectors
 
 import models.manage.SdltReturnRecordResponse
 import models.manageAgents.AgentDetailsResponse
-import models.requests.ReturnsRequest
 import play.api.Logging
-import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps}
-import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URL

@@ -16,31 +16,22 @@
 
 package controllers.manage
 
-import controllers.actions.IdentifierAction
-import javax.inject.{Inject, Singleton}
 import controllers.actions.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.IndexView
 import controllers.routes.JourneyRecoveryController
 import play.api.{Logger, Logging}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
 
 import javax.inject.{Inject, Singleton}
-import models.NormalMode
-import models.manage.ReturnSummary
-import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
-import models.responses.SdltInProgressReturnViewRow.convertResponseToViewRows
 import navigation.Navigator
 import utils.PaginationHelper
 import services.StampDutyLandTaxService
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import views.html.manage.SubmittedReturnsView
 
-import java.time.LocalDate
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class SubmittedReturnsController @Inject()(
