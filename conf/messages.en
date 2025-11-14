@@ -95,4 +95,26 @@ manageReturns.inProgressReturns.span.manage         = Manage returns
 pagination.previous = Previous
 pagination.next     = Next
 
+manage.homepage.title = Homepage
+manage.homepage.heading = Manage your Stamp Taxes
+manage.homepage.name = {0}
+manage.homepage.storn = STORN: {0}
 
+manage.homepage.returnsManagement.title = Returns Management
+manage.homepage.returnsManagement.returnsInProgress.withNum = Returns in progress ({0})
+manage.homepage.returnsManagement.submittedReturns.withNum = Submitted returns ({0})
+manage.homepage.returnsManagement.returnsDueForDeletion.withNum = Returns due for deletion ({0})
+manage.homepage.returnsManagement.startNewReturn = Start a new return
+
+manage.homepage.agentDetails.title = Agent details
+manage.homepage.agentDetails.manageAgents.withNum = Manage agents ({0})
+manage.homepage.agentDetails.addNewAgent = Add a new agent
+
+manage.homepage.helpAndContact.title = Help and contact
+manage.homepage.helpAndContact.help = Help
+manage.homepage.helpAndContact.contactHMRC = Contact HMRC
+manage.homepage.helpAndContact.howToPay = How to pay
+manage.homepage.helpAndContact.usefulLinks = Useful links
+
+manage.homepage.feedback.title = Feedback
+manage.homepage.feedback.leaveFeedback = Leave feedback

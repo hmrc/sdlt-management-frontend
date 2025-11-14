@@ -20,7 +20,7 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
-GET         /manage/overview                             controllers.manage.AtAGlanceController.onPageLoad()
+GET         /homepage                                    controllers.manage.AtAGlanceController.onPageLoad()
 
 GET         /manage/unauthorised/organisation            controllers.manage.UnauthorisedOrganisationAffinityController.onPageLoad()
 
@@ -30,3 +30,5 @@ GET         /manage/unauthorised/individual              controllers.manage.Unau
 GET         /manage/unauthorised/agent                   controllers.manage.UnauthorisedAgentAffinityController.onPageLoad()
 
 GET         /manage-returns/in-progress-returns          controllers.manage.InProgressReturnsController.onPageLoad(index: Option[Int])
+GET         /manage-returns/submitted-returns            controllers.manage.SubmittedReturnsController.onPageLoad()
+GET         /manage-returns/due-for-deletion             controllers.manage.DueForDeletionController.onPageLoad()

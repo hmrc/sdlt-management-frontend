@@ -17,22 +17,74 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
+@import viewmodels.manage.*
+
 @this(
         layout: templates.Layout,
-        hmrcPageHeading: HmrcPageHeading
+        hmrcPageHeading: HmrcPageHeading,
+        paragraph: components.Paragraph,
+        card: components.Card,
+        gridRow: components.GridRow
 )
-@()(
+@(
+    storn: String,
+    name: String,
+    returnsViewModel: ReturnsManagementViewModel,
+    agentsViewModel: AgentDetailsViewModel,
+    helpViewModel: HelpAndContactViewModel,
+    feedbackViewModel: FeedbackViewModel
+)(
         implicit request: Request[_],
         messages: Messages
 )
 
 @layout(
-    pageTitle = titleNoForm(messages("Overview Page")),
-    showBackLink = false
+    pageTitle = titleNoForm(messages("manage.homepage.title")),
+    showBackLink = false,
+    isFullWidth = true
 ) {
 
     @hmrcPageHeading(PageHeading(
-        text = "Overview Page"
+        text = messages("manage.homepage.heading"),
+        headingClasses = Some("govuk-heading-xl govuk-!-margin-bottom-2")
     ))
+    @paragraph(messages("manage.homepage.name", name), extraClasses = "govuk-!-margin-bottom-0")
+    @paragraph(messages("manage.homepage.storn", storn))
 
+@gridRow(
+    card(
+        messages("manage.homepage.returnsManagement.title"),
+        Seq(
+            messages("manage.homepage.returnsManagement.returnsInProgress.withNum", returnsViewModel.inProgress) -> returnsViewModel.inProgressUrl,
+            messages("manage.homepage.returnsManagement.submittedReturns.withNum", returnsViewModel.submitted) -> returnsViewModel.submittedUrl,
+            messages("manage.homepage.returnsManagement.returnsDueForDeletion.withNum", returnsViewModel.dueForDeletion) -> returnsViewModel.dueForDeletionUrl,
+            messages("manage.homepage.returnsManagement.startNewReturn") -> returnsViewModel.startReturnUrl
+        )
+    ),
+    card(
+        messages("manage.homepage.agentDetails.title"),
+        Seq(
+            messages("manage.homepage.agentDetails.manageAgents.withNum", agentsViewModel.agents) -> agentsViewModel.agentsUrl,
+            messages("manage.homepage.agentDetails.addNewAgent") -> agentsViewModel.addAgentUrl
+        )
+    )
+)
+
+@gridRow(
+    card(
+        messages("manage.homepage.helpAndContact.title"),
+        Seq(
+            messages("manage.homepage.helpAndContact.help") -> helpViewModel.helpUrl,
+            messages("manage.homepage.helpAndContact.contactHMRC") -> helpViewModel.contactUrl,
+            messages("manage.homepage.helpAndContact.howToPay") -> helpViewModel.howToPayUrl,
+            messages("manage.homepage.helpAndContact.usefulLinks") -> helpViewModel.usefulLinksUrl
+        )
+    ),
+    card(
+        messages("manage.homepage.feedback.title"),
+        Seq(
+            messages("manage.homepage.feedback.leaveFeedback") -> feedbackViewModel.feedbackUrl,
+        )
+    )
+)
 }

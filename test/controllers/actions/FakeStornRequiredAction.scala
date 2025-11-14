@@ -31,6 +31,6 @@ class FakeStornRequiredAction @Inject()
       case Some(storn) =>
         Future.successful(Right(request))
       case None =>
-        Future.successful(Right(request.copy(storn = "STORN1")))
+        Future.successful(Right(request.copy(storn = "STN001")))
     }
 }

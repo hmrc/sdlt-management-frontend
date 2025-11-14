@@ -16,7 +16,7 @@
 
 package base
 
-import controllers.actions._
+import controllers.actions.*
 import models.UserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec

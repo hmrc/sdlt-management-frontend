@@ -44,13 +44,16 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
   )
 
   def getReturn(storn: String, status: String)
-               (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] =
+               (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] = {
   stampDutyLandTaxConnector
     .getAllReturns(storn)
     .map {
       _.returnSummaryList.filter(_.status == status)
     }
+  }
 
+  // TODO: THIS IS USING A DEPRECATED CALL
+  @deprecated
   def getAllAgents(storn: String)
                   (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
     stampDutyLandTaxConnector
