@@ -81,7 +81,7 @@ object AtAGlanceController {
     inProgress,
     InProgressReturnsController.onPageLoad(Some(1)).url,
     submitted,
-    SubmittedReturnsController.onPageLoad().url,
+    SubmittedReturnsController.onPageLoad(Some(1)).url,
     dueForDeletion,
     DueForDeletionController.onPageLoad().url,
     "#"
