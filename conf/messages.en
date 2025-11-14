@@ -100,16 +100,12 @@ manage.homepage.heading = Manage your Stamp Taxes
 manage.homepage.storn = STORN: {0}
 
 manage.homepage.returnsManagement.title = Returns Management
-manage.homepage.returnsManagement.returnsInProgress = Returns in progress
 manage.homepage.returnsManagement.returnsInProgress.withNum = Returns in progress ({0})
-manage.homepage.returnsManagement.submittedReturns = Submitted returns
 manage.homepage.returnsManagement.submittedReturns.withNum = Submitted returns ({0})
-manage.homepage.returnsManagement.returnsDueForDeletion = Returns due for deletion
 manage.homepage.returnsManagement.returnsDueForDeletion.withNum = Returns due for deletion ({0})
 manage.homepage.returnsManagement.startNewReturn = Start a new return
 
 manage.homepage.agentDetails.title = Agent details
-manage.homepage.agentDetails.manageAgents = Manage agents
 manage.homepage.agentDetails.manageAgents.withNum = Manage agents ({0})
 manage.homepage.agentDetails.addNewAgent = Add a new agent
 

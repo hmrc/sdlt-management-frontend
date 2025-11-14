@@ -141,7 +141,6 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
                   |  {
                   |    "agentReferenceNumber": "ARN001",
                   |    "agentName": "Acme Property Agents Ltd",
-                  |    "houseNumber": "42",
                   |    "addressLine1": "High Street",
                   |    "addressLine2": "Westminster",
                   |    "addressLine3": "London",
@@ -169,7 +168,6 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
         AgentDetailsResponse(
           agentReferenceNumber = "ARN001",
           agentName            = "Acme Property Agents Ltd",
-          houseNumber          = "42",
           addressLine1         = "High Street",
           addressLine2         = Some("Westminster"),
           addressLine3         = "London",
@@ -181,7 +179,6 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
         AgentDetailsResponse(
           agentReferenceNumber = "ARN002",
           agentName            = "Harborview Estates",
-          houseNumber          = "22A",
           addressLine1         = "Queensway",
           addressLine2         = None,
           addressLine3         = "Birmingham",

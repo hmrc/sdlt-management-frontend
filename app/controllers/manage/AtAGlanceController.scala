@@ -88,7 +88,7 @@ object AtAGlanceController {
     SubmittedReturnsController.onPageLoad().url,
     dueForDeletion,
     DueForDeletionController.onPageLoad().url,
-    ""
+    "#"
   )
 
   def agentDetailsViewModel(agents: Int, appConfig: FrontendAppConfig): AgentDetailsViewModel = AgentDetailsViewModel(
@@ -98,10 +98,10 @@ object AtAGlanceController {
   )
 
   def helpAndContactViewModel(appConfig: FrontendAppConfig): HelpAndContactViewModel = HelpAndContactViewModel(
-    "",
-    "",
+    "#",
+    "#",
     appConfig.howToPayUrl,
-    ""
+    "#"
   )
 
   def feedbackViewModel(feedbackUrl: String): FeedbackViewModel = FeedbackViewModel(

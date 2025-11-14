@@ -221,7 +221,6 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         AgentDetailsResponse(
           agentReferenceNumber = "ARN001",
           agentName            = "Acme Property Agents Ltd",
-          houseNumber          = "42",
           addressLine1         = "High Street",
           addressLine2         = Some("Westminster"),
           addressLine3         = "London",
@@ -233,7 +232,6 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         AgentDetailsResponse(
           agentReferenceNumber = "ARN002",
           agentName            = "Harborview Estates",
-          houseNumber          = "22A",
           addressLine1         = "Queensway",
           addressLine2         = None,
           addressLine3         = "Birmingham",

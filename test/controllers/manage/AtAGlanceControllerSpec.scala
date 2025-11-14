@@ -53,7 +53,6 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
       (0 to 3).toList.map(index =>
         AgentDetailsResponse(
           agentName =             "John Doe",
-          houseNumber =           "123",
           addressLine1 =          "Oak Lane",
           addressLine2 =          None,
           addressLine3 =          "London",
