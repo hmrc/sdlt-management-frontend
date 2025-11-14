@@ -20,7 +20,7 @@
 @import viewmodels.manage.*
 
 @this(
-        layout: templates.LayoutFullWidth,
+        layout: templates.Layout,
         hmrcPageHeading: HmrcPageHeading,
         paragraph: components.Paragraph,
         card: components.Card,
@@ -40,7 +40,8 @@
 
 @layout(
     pageTitle = titleNoForm(messages("manage.homepage.title")),
-    showBackLink = false
+    showBackLink = false,
+    isFullWidth = true
 ) {
 
     @hmrcPageHeading(PageHeading(
