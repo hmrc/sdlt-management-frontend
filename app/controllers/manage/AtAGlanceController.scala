@@ -48,9 +48,9 @@ class AtAGlanceController@Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
-    // TODO : retrieve first and last name of user and pass down to view
-
     val storn = request.storn
+    // TODO : retrieve first and last name of user and pass down to view
+    val name = "David Frank"
 
     (for {
       agents <- stampDutyLandTaxService.getAllAgents(storn)
@@ -59,17 +59,18 @@ class AtAGlanceController@Inject()(
       dueForDeletion <- stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
     } yield {
       Ok(view(
-              storn,
-              returnsManagementViewModel(returnsInProgress.size, submittedReturns.size, dueForDeletion.size),
-              agentDetailsViewModel(agents.size, appConfig),
-              helpAndContactViewModel(appConfig),
-              feedbackViewModel(appConfig.feedbackUrl)
-            )
+          storn,
+          name,
+          returnsManagementViewModel(returnsInProgress.size, submittedReturns.size, dueForDeletion.size),
+          agentDetailsViewModel(agents.size, appConfig),
+          helpAndContactViewModel(appConfig),
+          feedbackViewModel(appConfig.feedbackUrl)
+          )
         )
     }).recover {
-            case ex =>
-              logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
-              Redirect(JourneyRecoveryController.onPageLoad())
+        case ex =>
+          logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
+          Redirect(JourneyRecoveryController.onPageLoad())
     }
   }
 }
