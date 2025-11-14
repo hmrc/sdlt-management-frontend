@@ -63,14 +63,8 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getAllAgentDetails(storn)
 
-  def getSubmittedReturnsView(storn: String, status: String)
+  def getSubmittedReturnsView(storn: String)
                    (implicit hc: HeaderCarrier): Future[List[SdltSubmittedReturnsViewModel]] = {
-//    val request = ReturnsRequest(
-//      storn = storn,
-//      pageType = "SUBMITTED",
-//      deletionFlag = false,
-//      status = "SUBMITTED"
-//    )
     stampDutyLandTaxConnector
       .getAllReturns(storn).map { response =>
       convertResponseToSubmittedView(response)

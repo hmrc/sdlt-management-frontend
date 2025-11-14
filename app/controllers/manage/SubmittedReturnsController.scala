@@ -25,13 +25,13 @@ import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.IndexView
 import controllers.routes.JourneyRecoveryController
-import play.api.Logging
+import play.api.{Logger, Logging}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
 
 import javax.inject.{Inject, Singleton}
 import models.NormalMode
 import models.manage.ReturnSummary
-import models.responses.SdltInProgressReturnViewRow
+import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
 import models.responses.SdltInProgressReturnViewRow.convertResponseToViewRows
 import navigation.Navigator
 import utils.PaginationHelper
@@ -39,7 +39,8 @@ import services.StampDutyLandTaxService
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import views.html.manage.SubmittedReturnsView
 
-import scala.concurrent.ExecutionContext
+import java.time.LocalDate
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class SubmittedReturnsController @Inject()(
@@ -59,18 +60,25 @@ class SubmittedReturnsController @Inject()(
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
       stampDutyLandTaxService
-        .getSubmittedReturnsView(request.storn, "SUBMITTED").map {
+        .getSubmittedReturnsView(request.storn).map {
           case allDataRows =>
+            pageIndexSelector(paginationIndex, allDataRows.length) match {
+              case Right(selectedPageIndex) =>
 
-            val selectedPageIndex: Int = paginationIndex.getOrElse(1)
-            val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
-            val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
-            val rowsForSelectedPage: List[SdltSubmittedReturnsViewModel] = getSelectedPageRows(allDataRows, selectedPageIndex)
+                val selectedPageIndex: Int = paginationIndex.getOrElse(1)
+                val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
+                val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
+                val rowsForSelectedPage: List[SdltSubmittedReturnsViewModel] = getSelectedPageRows(allDataRows, selectedPageIndex)
 
-            Ok(view(rowsForSelectedPage, paginator, paginationText))
+                Ok(view(rowsForSelectedPage, paginator, paginationText))
+
+              case Left(error) =>
+                Logger("application").error(s"[SubmittedReturnsController][onPageLoad] - paginationIndexError: $error")
+                Redirect(urlSelector(1))
+            }
         } recover {
         case ex =>
-          logger.error("[SubmittedReturnsOverviewController][onPageLoad] Unexpected failure", ex)
+          logger.error("[SubmittedReturnsController][onPageLoad] Unexpected failure", ex)
           Redirect(JourneyRecoveryController.onPageLoad())
       }
     }

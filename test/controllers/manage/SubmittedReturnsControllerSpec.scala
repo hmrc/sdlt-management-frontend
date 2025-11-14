@@ -24,6 +24,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.inject.bind
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
@@ -58,7 +59,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.ACCEPTED,
+          status = UniversalStatus.SUBMITTED,
           returnReference = "RETREF003",
         )
       )
@@ -71,13 +72,14 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.ACCEPTED,
+          status = UniversalStatus.SUBMITTED_NO_RECEIPT,
           returnReference = "RETREF003",
         )
       )
 
-    val urlSelector: Int => String = (selectedPageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(selectedPageIndex)).url
+    val urlSelector: Int => String = (selectedPageIndex: Int) => controllers.manage.routes.SubmittedReturnsController.onPageLoad(Some(selectedPageIndex)).url
     lazy val SubmittedControllerRoute = controllers.manage.routes.SubmittedReturnsController.onPageLoad(None).url
+    def onwardRoute = Call("GET", "/stamp-duty-land-tax-management/manage-returns/submitted-return?paginationIndex=1")
   }
 
   "SubmittedReturnsController " - {
@@ -110,13 +112,13 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
             dateSubmitted = LocalDate.parse("2025-04-05"),
             utrn = "UTRN003",
             purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED,
+            status = UniversalStatus.SUBMITTED,
             returnReference = "RETREF003",
           )
         )
 
       when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(expectedDataNoPagination))
+        .thenReturn(Future.successful(actualDataNoPagination))
 
       running(application) {
 
@@ -126,7 +128,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[SubmittedReturnsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(actualDataNoPagination, None, None)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(expectedDataNoPagination, None, None)(request, messages(application)).toString
 
         verify(mockService, times(1)).getSubmittedReturnsView(any())(any[HeaderCarrier])
       }
@@ -136,22 +138,23 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val selectedPageIndex: Int = 1
       val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPagination.length, urlSelector)(messages(application))
       val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPagination)(messages(application))
-      
+
       val actualDataPagination: List[SdltSubmittedReturnsViewModel] =
-        (0 to 17).toList.map(index =>
-          SdltSubmittedReturnsViewModel(
-            address = s"$index Riverside Drive",
-            agentReference = "B4C72F7T3",
-            dateSubmitted = LocalDate.parse("2025-04-05"),
-            utrn = "UTRN003",
-            purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED,
-            returnReference = "RETREF003",
-          )
+      (0 to 17).toList.map(index =>
+        SdltSubmittedReturnsViewModel(
+          address = s"$index Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.SUBMITTED_NO_RECEIPT,
+          returnReference = "RETREF003",
         )
+      )
 
       when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(expectedDataPagination))
+        .thenReturn(Future.successful(actualDataPagination))
+
 
       running(application) {
 
@@ -161,10 +164,98 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[SubmittedReturnsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(actualDataPagination.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(expectedDataPagination.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
         verify(mockService, times(1)).getSubmittedReturnsView(any())(any[HeaderCarrier])
 
+      }
+    }
+
+    "must return OK and the correct view for a GET request with pagination Page 2" in new Fixture {
+      val selectedPageIndex: Int = 2
+      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPagination.length, urlSelector)(messages(application))
+      val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPagination)(messages(application))
+
+      val actualDataPagination: List[SdltSubmittedReturnsViewModel] =
+      (0 to 17).toList.map(index =>
+        SdltSubmittedReturnsViewModel(
+          address = s"$index Riverside Drive",
+          agentReference = "B4C72F7T3",
+          dateSubmitted = LocalDate.parse("2025-04-05"),
+          utrn = "UTRN003",
+          purchaserName = "Brown",
+          status = UniversalStatus.SUBMITTED_NO_RECEIPT,
+          returnReference = "RETREF003",
+        )
+      )
+
+      when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
+        .thenReturn(Future.successful(actualDataPagination))
+
+      running(application) {
+
+        val request = FakeRequest(GET, SubmittedControllerRoute + s"?paginationIndex=$selectedPageIndex")
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[SubmittedReturnsView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(expectedDataPagination.takeRight(expectedDataPagination.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
+
+        verify(mockService, times(1)).getSubmittedReturnsView(any())(any[HeaderCarrier])
+      }
+
+    }
+
+    "must redirect to paginationIndex=1 for a GET request when pagination index is out of scope" in new Fixture {
+      val invalidPageIndex: Int = 100
+
+      val actualDataPagination: List[SdltSubmittedReturnsViewModel] = {
+        (0 to 17).toList.map(index =>
+          SdltSubmittedReturnsViewModel(
+            address = s"$index Riverside Drive",
+            agentReference = "B4C72F7T3",
+            dateSubmitted = LocalDate.parse("2025-04-05"),
+            utrn = "UTRN003",
+            purchaserName = "Brown",
+            status = UniversalStatus.SUBMITTED_NO_RECEIPT,
+            returnReference = "RETREF003",
+          )
+        )
+      }
+
+      when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
+        .thenReturn(Future.successful(actualDataPagination))
+
+
+      running(application) {
+
+        val request = FakeRequest(GET, SubmittedControllerRoute + s"?paginationIndex=$invalidPageIndex")
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[SubmittedReturnsView]
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe onwardRoute.url
+
+        verify(mockService, times(1)).getSubmittedReturnsView(any())(any[HeaderCarrier])
+      }
+
+    }
+
+    "redirect to JourneyRecovery if error occurs during returns retrieval" in new Fixture {
+
+      when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
+        .thenReturn(Future.successful(new Error("Error")))
+
+      running(application) {
+
+        val request = FakeRequest(GET, SubmittedControllerRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

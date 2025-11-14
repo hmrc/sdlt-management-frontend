@@ -45,7 +45,6 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
   private val getAllAgentDetailsUrl: String => URL = storn =>
     url"$base/stamp-duty-land-tax/manage-agents/agent-details/get-all-agents?storn=$storn"
 
-
   def getAllReturns(storn: String)
                    (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
     http
@@ -65,18 +64,6 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
       .recover {
         case e: Throwable =>
           logger.error(s"[StampDutyLandTaxConnector][getAllAgentDetails]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
-
-  def getAllSubmittedReturns(request: ReturnsRequest)
-                   (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
-    http
-      .post(getAllReturnsUrl(request.storn))
-      .withBody(Json.toJson(request))
-      .execute[SdltReturnRecordResponse]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[StampDutyLandTaxConnector][getAllReturns]: ${e.getMessage}")
           throw new RuntimeException(e.getMessage)
       }
 }

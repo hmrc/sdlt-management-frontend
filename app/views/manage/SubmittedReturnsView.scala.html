@@ -43,7 +43,7 @@
 )
 @purchaserNameLink(row: SdltSubmittedReturnsViewModel)  = {
     <p class="govuk-body">
-        <a class="govuk-link" href="../manage-returns/submitted-returns-overview">@row.purchaserName</a>
+        <a class="govuk-link" href="../manage-returns/submitted-return">@row.purchaserName</a>
     </p>
 }
 
@@ -84,7 +84,9 @@
 
     @hmrcPageHeading(PageHeading(
         text    = messages("manage.submittedReturnsOverview.heading"),
-        section = Some(messages("manage.submittedReturnsOverview.caption"))
+        section = Some(messages("manage.submittedReturnsOverview.caption")),
+        headingClasses = Some("govuk-heading-l"),
+        captionClasses = Some("govuk-caption-l")
     ))
 
     @if(dataRows.isEmpty) {

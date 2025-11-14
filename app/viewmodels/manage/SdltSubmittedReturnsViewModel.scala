@@ -37,7 +37,7 @@ case class SdltSubmittedReturnsViewModel(
 object SdltSubmittedReturnsViewModel {
   import UniversalStatus.*
 
-  private val acceptableStatus : Seq[UniversalStatus] = Seq(ACCEPTED, PENDING)
+  private val acceptableStatus : Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
 
   def convertResponseToSubmittedView(response: SdltReturnRecordResponse): List[SdltSubmittedReturnsViewModel] = {
     response.returnSummaryList.flatMap {

@@ -30,5 +30,5 @@ GET         /manage/unauthorised/individual              controllers.manage.Unau
 GET         /manage/unauthorised/agent                   controllers.manage.UnauthorisedAgentAffinityController.onPageLoad()
 
 GET         /manage-returns/in-progress-returns          controllers.manage.InProgressReturnsController.onPageLoad(index: Option[Int])
-GET         /manage-returns/submitted-returns            controllers.manage.SubmittedReturnsController.onPageLoad()
+GET         /manage-returns/submitted-return             controllers.manage.SubmittedReturnsController.onPageLoad(paginationIndex: Option[Int])
 GET         /manage-returns/due-for-deletion             controllers.manage.DueForDeletionController.onPageLoad()
