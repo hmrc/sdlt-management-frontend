@@ -75,7 +75,7 @@ manage.unauthorised.agent.p1 = You are signed in with an agent account. You need
 
 manageReturns.inProgressReturns.title           = Manage returns – Returns in progress
 manageReturns.inProgressReturns.heading         = Submitted returns
-manageReturns.inProgressReturns.noReturns       = You have no submitted returns.
+manageReturns.inProgressReturns.noReturns       = You have no returns in progress.
 manageReturns.inProgressReturns.SomeReturns     = Returns in progress
 manageReturns.inProgressReturns.description     = Select a return in progress to view the full details. In progress returns are automatically deleted after 90 days of inactivity. To keep a return active, select and view
 manageReturns.inProgressReturns.startNewReturn  = Start a new return
