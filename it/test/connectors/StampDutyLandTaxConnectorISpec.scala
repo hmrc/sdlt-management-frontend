@@ -18,7 +18,7 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalTo, get, stubFor, urlPathEqualTo}
 import itutil.ApplicationWithWiremock
-import models.manage.SdltReturnRecordResponse
+import models.manage.SdltReturnRecordResponseLegacy
 import models.manageAgents.AgentDetailsResponse
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -80,8 +80,8 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
           )
       )
 
-      val result: SdltReturnRecordResponse =
-        connector.getAllReturns(storn).futureValue
+      val result: SdltReturnRecordResponseLegacy =
+        connector.getAllReturnsLegacy(storn).futureValue
 
       result.storn mustBe "STN001"
       result.returnSummaryCount mustBe 2
@@ -102,7 +102,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       )
 
       val ex = intercept[Exception] {
-        connector.getAllReturns(storn).futureValue
+        connector.getAllReturnsLegacy(storn).futureValue
       }
       ex.getMessage.toLowerCase must include ("storn")
     }
@@ -119,7 +119,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       )
 
       val ex = intercept[Exception] {
-        connector.getAllReturns(storn).futureValue
+        connector.getAllReturnsLegacy(storn).futureValue
       }
       ex.getMessage must include ("returned 500")
     }
@@ -189,7 +189,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
         )
       )
 
-      val result = connector.getAllAgentDetails(storn).futureValue
+      val result = connector.getAllAgentDetailsLegacy(storn).futureValue
       result mustBe expected
     }
 
@@ -205,7 +205,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       )
 
       val ex = intercept[Exception] {
-        connector.getAllAgentDetails(storn).futureValue
+        connector.getAllAgentDetailsLegacy(storn).futureValue
       }
       ex.getMessage.toLowerCase must include ("agent")
     }
@@ -222,7 +222,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       )
 
       val ex = intercept[Exception] {
-        connector.getAllAgentDetails(storn).futureValue
+        connector.getAllAgentDetailsLegacy(storn).futureValue
       }
       ex.getMessage must include ("returned 500")
     }

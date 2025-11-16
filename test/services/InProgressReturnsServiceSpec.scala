@@ -18,7 +18,7 @@ package services
 
 import connectors.StampDutyLandTaxConnector
 import models.UserAnswers
-import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.manage.{ReturnSummaryLegacy, SdltReturnRecordResponseLegacy}
 import models.responses.UniversalStatus.{ACCEPTED, PENDING, STARTED}
 import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -62,28 +62,28 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
 
     "return empty list on success :: response with empty list" in new Fixture {
 
-      val emptyResponse = SdltReturnRecordResponse(
+      val emptyResponse = SdltReturnRecordResponseLegacy(
         storn = storn,
         returnSummaryCount = 0,
         returnSummaryList = List.empty
       )
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(emptyResponse))
 
-      val result: Either[Throwable, List[SdltInProgressReturnViewRow]] = service.getAllReturns(storn).futureValue
+      val result: Either[Throwable, List[SdltInProgressReturnViewRow]] = service.getAllReturnsLegacy(storn).futureValue
       result mustBe a[Either[Throwable, List[SdltInProgressReturnViewRow]]]
       result mustBe Right(List.empty)
-      verify(connector, times(1)).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+      verify(connector, times(1)).getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier])
     }
 
     "return list of recs on success :: response with data" in new Fixture {
 
-      val response = SdltReturnRecordResponse(
+      val response = SdltReturnRecordResponseLegacy(
         storn = storn,
         returnSummaryCount = 0,
         returnSummaryList = List(
-          ReturnSummary(
+          ReturnSummaryLegacy(
             returnReference = "REF005",
             utrn = "UTRN005",
             status = "ACCEPTED",
@@ -92,7 +92,7 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
             address = "Address005",
             agentReference = "AgentRef005"
           ),
-          ReturnSummary(
+          ReturnSummaryLegacy(
             returnReference = "REF003",
             utrn = "UTRN003",
             status = "STARTED",
@@ -101,7 +101,7 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
             address = "Address003",
             agentReference = "AgentRef003"
           ),
-          ReturnSummary(
+          ReturnSummaryLegacy(
             returnReference = "REF009",
             utrn = "UTRN009",
             status = "PENDING",
@@ -126,22 +126,22 @@ class InProgressReturnsServiceSpec extends AnyWordSpec
       )
 
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(response))
 
-      val result: Either[Throwable, List[SdltInProgressReturnViewRow]] = service.getAllReturns(storn).futureValue
+      val result: Either[Throwable, List[SdltInProgressReturnViewRow]] = service.getAllReturnsLegacy(storn).futureValue
       result mustBe a[Either[Throwable, List[SdltInProgressReturnViewRow]]]
       result mustBe Right(expected)
       result.value.map(_.status).toSet mustBe Set(ACCEPTED, STARTED) // Permitted statuses
-      verify(connector, times(1)).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+      verify(connector, times(1)).getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier])
     }
 
     "return error on failure" in new Fixture {
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenThrow(new Error("Some error"))
 
       val error: Error = intercept[Error] {
-        service.getAllReturns(storn).futureValue
+        service.getAllReturnsLegacy(storn).futureValue
       }
 
       error.getMessage mustBe "Some error"

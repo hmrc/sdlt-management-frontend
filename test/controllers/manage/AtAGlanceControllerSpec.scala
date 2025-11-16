@@ -18,7 +18,7 @@ package controllers.manage
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.manage.ReturnSummary
+import models.manage.ReturnSummaryLegacy
 import models.manageAgents.AgentDetailsResponse
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
@@ -64,9 +64,9 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-    val expectedReturnsManagementData: List[ReturnSummary] =
+    val expectedReturnsManagementData: List[ReturnSummaryLegacy] =
       (0 to 7).toList.map(index =>
-        ReturnSummary(
+        ReturnSummaryLegacy(
           returnReference = "RETREF003",
           utrn = "UTRN003",
           status = "ACCEPTED",
@@ -85,7 +85,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Nil))
 
-      when(mockService.getReturn(any[String], any[String])(any[HeaderCarrier]))
+      when(mockService.getReturnLegacy(any[String], any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Nil))
 
       running(application) {
@@ -113,7 +113,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(expectedAgentData))
 
-      when(mockService.getReturn(any[String], any[String])(any[HeaderCarrier]))
+      when(mockService.getReturnLegacy(any[String], any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(expectedReturnsManagementData))
 
       running(application) {

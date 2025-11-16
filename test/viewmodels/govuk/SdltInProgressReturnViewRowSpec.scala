@@ -17,7 +17,7 @@
 package viewmodels.govuk
 
 import forms.mappings.Mappings
-import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.manage.{ReturnSummaryLegacy, SdltReturnRecordResponseLegacy}
 import models.responses.SdltInProgressReturnViewRow
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
@@ -29,17 +29,17 @@ import java.time.LocalDate
 
 class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Mappings with OptionValues {
 
-  val responseWithEmptySummary: SdltReturnRecordResponse = SdltReturnRecordResponse(
+  val responseWithEmptySummary: SdltReturnRecordResponseLegacy = SdltReturnRecordResponseLegacy(
     storn = "STORN1",
     returnSummaryCount = 0,
     returnSummaryList = List.empty
   )
 
-  val responseWithData: SdltReturnRecordResponse = SdltReturnRecordResponse(
+  val responseWithData: SdltReturnRecordResponseLegacy = SdltReturnRecordResponseLegacy(
     storn = "STORN1",
     returnSummaryCount = 0,
     returnSummaryList = List(
-      ReturnSummary(
+      ReturnSummaryLegacy(
         returnReference = "REF001",
         utrn = "UTRN001",
         status = "PENDING",
@@ -48,7 +48,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address = "Address001",
         agentReference = "AgentRef001"
       ),
-      ReturnSummary(
+      ReturnSummaryLegacy(
         returnReference = "REF002",
         utrn = "UTRN002",
         status = "VALIDATED",
@@ -57,7 +57,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address = "Address002",
         agentReference = "AgentRef002"
       ),
-      ReturnSummary(
+      ReturnSummaryLegacy(
         returnReference = "REF003",
         utrn = "UTRN003",
         status = "STARTED",
@@ -66,7 +66,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address = "Address003",
         agentReference = "AgentRef003"
       ),
-      ReturnSummary(
+      ReturnSummaryLegacy(
         returnReference = "REF004",
         utrn = "UTRN004",
         status = "SUBMITTED",
@@ -75,7 +75,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address = "Address004",
         agentReference = "AgentRef004"
       ),
-      ReturnSummary(
+      ReturnSummaryLegacy(
         returnReference = "REF005",
         utrn = "UTRN005",
         status = "ACCEPTED",

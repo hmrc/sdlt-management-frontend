@@ -54,9 +54,9 @@ class AtAGlanceController@Inject()(
 
     (for {
       agents <- stampDutyLandTaxService.getAllAgents(storn)
-      returnsInProgress <- stampDutyLandTaxService.getReturn(storn, "PENDING")
-      submittedReturns <- stampDutyLandTaxService.getReturn(storn, "SUBMITTED")
-      dueForDeletion <- stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
+      returnsInProgress <- stampDutyLandTaxService.getReturnLegacy(storn, "PENDING")
+      submittedReturns <- stampDutyLandTaxService.getReturnLegacy(storn, "SUBMITTED")
+      dueForDeletion <- stampDutyLandTaxService.getReturnLegacy(storn, "DUE_FOR_DELETION")
     } yield {
       Ok(view(
           storn,

@@ -30,10 +30,11 @@ class InProgressReturnsService @Inject()(
                                           val stampDutyLandTaxConnector: StampDutyLandTaxConnector
                                         )(implicit ec: ExecutionContext) {
 
-  def getAllReturns(storn: String)
-                   (implicit hc: HeaderCarrier): Future[Either[Throwable, List[SdltInProgressReturnViewRow]]] = {
+  @deprecated
+  def getAllReturnsLegacy(storn: String)
+                         (implicit hc: HeaderCarrier): Future[Either[Throwable, List[SdltInProgressReturnViewRow]]] = {
     Logger("application").info(s"[InProgressReturnsService][getAll] - get all returns")
-    stampDutyLandTaxConnector.getAllReturns(storn).map { response =>
+    stampDutyLandTaxConnector.getAllReturnsLegacy(storn).map { response =>
       Right(convertResponseToViewRows(response))
     }
   }

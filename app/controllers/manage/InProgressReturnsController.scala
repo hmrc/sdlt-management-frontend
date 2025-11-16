@@ -49,7 +49,7 @@ class InProgressReturnsController @Inject()(
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
-    inProgressReturnsService.getAllReturns(request.storn).map {
+    inProgressReturnsService.getAllReturnsLegacy(request.storn).map {
       case Right(allDataRows) =>
         Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
         pageIndexSelector(index, allDataRows.length) match {

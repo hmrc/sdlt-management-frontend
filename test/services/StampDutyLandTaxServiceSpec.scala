@@ -17,7 +17,7 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.manage.{ReturnSummaryLegacy, SdltReturnRecordResponseLegacy}
 import models.manageAgents.AgentDetailsResponse
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
@@ -42,8 +42,8 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
   private val storn = "STN001"
 
-  private val summaries: List[ReturnSummary] = List(
-    ReturnSummary(
+  private val summaries: List[ReturnSummaryLegacy] = List(
+    ReturnSummaryLegacy(
       returnReference = "RET-001",
       utrn            = "UTRN-001",
       status          = "PENDING",
@@ -52,7 +52,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       address         = "10 Downing Street, London",
       agentReference  = "Smith & Co Solicitors"
     ),
-    ReturnSummary(
+    ReturnSummaryLegacy(
       returnReference = "RET-002",
       utrn            = "UTRN-002",
       status          = "SUBMITTED",
@@ -61,7 +61,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       address         = "221B Baker Street, London",
       agentReference  = "Anderson Legal LLP"
     ),
-    ReturnSummary(
+    ReturnSummaryLegacy(
       returnReference = "RET-003",
       utrn            = "UTRN-003",
       status          = "ACCEPTED",
@@ -70,7 +70,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       address         = "1 Queen’s Way, Birmingham",
       agentReference  = "Harborview Estates"
     ),
-    ReturnSummary(
+    ReturnSummaryLegacy(
       returnReference = "RET-004",
       utrn            = "UTRN-004",
       status          = "STARTED",
@@ -79,7 +79,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       address         = "Some Address",
       agentReference  = "Harborview Estates"
     ),
-    ReturnSummary(
+    ReturnSummaryLegacy(
       returnReference = "RET-005",
       utrn            = "UTRN-005",
       status          = "IN-PROGRESS",
@@ -88,7 +88,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       address         = "Another Address",
       agentReference  = "Harborview Estates"
     ),
-    ReturnSummary(
+    ReturnSummaryLegacy(
       returnReference = "RET-006",
       utrn            = "UTRN-006",
       status          = "DUE_FOR_DELETION",
@@ -99,7 +99,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     )
   )
 
-  private val aggregateResponse = SdltReturnRecordResponse(
+  private val aggregateResponse = SdltReturnRecordResponseLegacy(
     storn               = storn,
     returnSummaryCount  = summaries.size,
     returnSummaryList   = summaries
@@ -109,14 +109,14 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "return only PENDING returns when BE returns Some(response)" in {
       val (service, connector) = newService()
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(aggregateResponse))
 
-      val result = service.getReturn(storn, "PENDING").futureValue
+      val result = service.getReturnLegacy(storn, "PENDING").futureValue
       result.map(_.status).distinct mustBe List("PENDING")
       result.map(_.returnReference) mustBe List("RET-001")
 
-      verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+      verify(connector).getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
   }
@@ -125,25 +125,25 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "return only SUBMITTED returns when BE returns Some(response)" in {
       val (service, connector) = newService()
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(aggregateResponse))
 
-      val result = service.getReturn(storn, "SUBMITTED").futureValue
+      val result = service.getReturnLegacy(storn, "SUBMITTED").futureValue
       result.map(_.status).distinct mustBe List("SUBMITTED")
       result.map(_.returnReference) mustBe List("RET-002")
 
-      verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+      verify(connector).getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
 
     "propagate connector failures" in {
       val (service, connector) = newService()
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
       val ex = intercept[RuntimeException] {
-        service.getReturn(storn, "SUBMITTED").futureValue
+        service.getReturnLegacy(storn, "SUBMITTED").futureValue
       }
       ex.getMessage must include ("boom")
     }
@@ -153,14 +153,14 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "return only ACCEPTED returns" in {
       val (service, connector) = newService()
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(aggregateResponse))
 
-      val result = service.getReturn(storn, "ACCEPTED").futureValue
+      val result = service.getReturnLegacy(storn, "ACCEPTED").futureValue
       result.map(_.status).distinct mustBe List("ACCEPTED")
       result.map(_.returnReference) mustBe List("RET-003")
 
-      verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+      verify(connector).getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
   }
@@ -169,14 +169,14 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "return only STARTED returns" in {
       val (service, connector) = newService()
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(aggregateResponse))
 
-      val result = service.getReturn(storn, "STARTED").futureValue
+      val result = service.getReturnLegacy(storn, "STARTED").futureValue
       result.map(_.status).distinct mustBe List("STARTED")
       result.map(_.returnReference) mustBe List("RET-004")
 
-      verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+      verify(connector).getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
   }
@@ -185,14 +185,14 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "return only IN-PROGRESS returns" in {
       val (service, connector) = newService()
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(aggregateResponse))
 
-      val result = service.getReturn(storn, "IN-PROGRESS").futureValue
+      val result = service.getReturnLegacy(storn, "IN-PROGRESS").futureValue
       result.map(_.status).distinct mustBe List("IN-PROGRESS")
       result.map(_.returnReference) mustBe List("RET-005")
 
-      verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+      verify(connector).getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
   }
@@ -201,14 +201,14 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "return only DUE_FOR_DELETION returns" in {
       val (service, connector) = newService()
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(aggregateResponse))
 
-      val result = service.getReturn(storn, "DUE_FOR_DELETION").futureValue
+      val result = service.getReturnLegacy(storn, "DUE_FOR_DELETION").futureValue
       result.map(_.status).distinct mustBe List("DUE_FOR_DELETION")
       result.map(_.returnReference) mustBe List("RET-006")
 
-      verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+      verify(connector).getAllReturnsLegacy(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
   }
@@ -242,20 +242,20 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         )
       )
 
-      when(connector.getAllAgentDetails(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllAgentDetailsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(payload))
 
       val result = service.getAllAgents(storn).futureValue
       result mustBe payload
 
-      verify(connector).getAllAgentDetails(eqTo(storn))(any[HeaderCarrier])
+      verify(connector).getAllAgentDetailsLegacy(eqTo(storn))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
 
     "propagate failures from the connector" in {
       val (service, connector) = newService()
 
-      when(connector.getAllAgentDetails(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getAllAgentDetailsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
       val ex = intercept[RuntimeException] {
