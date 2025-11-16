@@ -29,15 +29,15 @@ object SdltReturnRecordResponse {
   implicit val format: OFormat[SdltReturnRecordResponse] = Json.format[SdltReturnRecordResponse]
 }
 
-final case class ReturnSummary(
-                                returnReference : String,             // p_return_infos.return_resource_ref  (NOT optional)
-                                utrn            : Option[String],     // p_return_infos.utrn                 (null for IN-PROGRESS)
-                                status          : String,             // p_return_infos.status
-                                dateSubmitted   : Option[LocalDate],  // p_return_infos.submitted_date       (null for IN-PROGRESS)
-                                purchaserName   : String,             // p_return_infos.name
-                                address         : String,             // p_return_infos.address
-                                agentReference  : Option[String]      // p_return_infos.agent                (may be null)
-                              )
+case class ReturnSummary(
+                          returnReference : String,             // p_return_infos.return_resource_ref  (NOT optional)
+                          utrn            : Option[String],     // p_return_infos.utrn                 (null for IN-PROGRESS)
+                          status          : String,             // p_return_infos.status
+                          dateSubmitted   : Option[LocalDate],  // p_return_infos.submitted_date       (null for IN-PROGRESS)
+                          purchaserName   : String,             // p_return_infos.name
+                          address         : String,             // p_return_infos.address
+                          agentReference  : Option[String]      // p_return_infos.agent                (may be null)
+                        )
 
 object ReturnSummary {
   implicit val format: OFormat[ReturnSummary] = Json.format[ReturnSummary]
