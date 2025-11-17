@@ -49,7 +49,7 @@ class TestControllerToBeDeleted @Inject()(
         getAllStartedReturns <- stampDutyLandTaxService.getReturnLegacy(storn, "STARTED")
         getAllSubmittedReturns <- stampDutyLandTaxService.getReturnLegacy(storn, "SUBMITTED")
         getReturnsDueForDeletion <- stampDutyLandTaxService.getReturnLegacy(storn, "DUE_FOR_DELETION")
-        getAllAgents <- stampDutyLandTaxService.getAllAgents(storn)
+        getAllAgents <- stampDutyLandTaxService.getAllAgentsLegacy(storn)
       } yield {
         Ok(Html(
           s"""

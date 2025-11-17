@@ -82,7 +82,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with no data" in new Fixture {
 
-      when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
+      when(mockService.getAllAgentsLegacy(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Nil))
 
       when(mockService.getReturnLegacy(any[String], any[String])(any[HeaderCarrier]))
@@ -110,7 +110,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with data" in new Fixture {
 
-      when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
+      when(mockService.getAllAgentsLegacy(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(expectedAgentData))
 
       when(mockService.getReturnLegacy(any[String], any[String])(any[HeaderCarrier]))
@@ -142,7 +142,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to Journey Recovery for a GET if there is a service level error" in new Fixture {
 
-      when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
+      when(mockService.getAllAgentsLegacy(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(new Error("Test error")))
 
       running(application) {

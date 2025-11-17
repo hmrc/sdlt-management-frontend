@@ -96,7 +96,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
           Future.failed(e)
       }
 
-  def getReturns(status: Option[String], pageType: Option[String], deletionFlag: Boolean = false)
+  def getReturns(status: Option[String], pageType: Option[String], deletionFlag: Boolean)
                 (implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltReturnRecordResponse] =
     http
       .post(getReturnsUrl)

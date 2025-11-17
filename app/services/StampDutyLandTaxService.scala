@@ -43,15 +43,15 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
 
   // TODO: THIS IS USING A DEPRECATED CALL
   @deprecated
-  def getAllAgents(storn: String)
-                  (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
+  def getAllAgentsLegacy(storn: String)
+                        (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
     stampDutyLandTaxConnector
       .getAllAgentDetailsLegacy(storn)
 
   def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltReturnRecordResponse] = {
     for {
-      accepted <- stampDutyLandTaxConnector.getReturns(Some("ACCEPTED"), Some("IN-PROGRESS"))
-      pending  <- stampDutyLandTaxConnector.getReturns(Some("PENDING"),  Some("IN-PROGRESS"))
+      accepted <- stampDutyLandTaxConnector.getReturns(Some("ACCEPTED"), Some("IN-PROGRESS"), deletionFlag = false)
+      pending  <- stampDutyLandTaxConnector.getReturns(Some("PENDING"),  Some("IN-PROGRESS"), deletionFlag = false)
     } yield {
       SdltReturnRecordResponse(
         returnSummaryList =
@@ -62,8 +62,8 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
 
   def getSubmittedReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltReturnRecordResponse] = {
     for {
-      submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"))
-      submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"))
+      submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
+      submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
       SdltReturnRecordResponse(
         returnSummaryList =
@@ -76,7 +76,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getReturns(None, None, deletionFlag = true)
 
-  def getAllAgents(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
+  def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
     stampDutyLandTaxConnector
       .getSdltOrganisation
       .map(_.agents.length)

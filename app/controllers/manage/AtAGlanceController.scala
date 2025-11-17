@@ -53,7 +53,7 @@ class AtAGlanceController@Inject()(
     val name = "David Frank"
 
     (for {
-      agents <- stampDutyLandTaxService.getAllAgents(storn)
+      agents <- stampDutyLandTaxService.getAllAgentsLegacy(storn)
       returnsInProgress <- stampDutyLandTaxService.getReturnLegacy(storn, "PENDING")
       submittedReturns <- stampDutyLandTaxService.getReturnLegacy(storn, "SUBMITTED")
       dueForDeletion <- stampDutyLandTaxService.getReturnLegacy(storn, "DUE_FOR_DELETION")

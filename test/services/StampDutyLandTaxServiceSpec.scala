@@ -17,8 +17,10 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.manage.{ReturnSummaryLegacy, SdltReturnRecordResponseLegacy}
+import models.manage.{ReturnSummaryLegacy, SdltReturnRecordResponse, SdltReturnRecordResponseLegacy}
 import models.manageAgents.AgentDetailsResponse
+import models.requests.DataRequest
+import models.responses.organisation.SdltOrganisationResponse
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -105,7 +107,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     returnSummaryList   = summaries
   )
 
-  "getAllPendingReturns" should {
+  "getAllPendingReturns (legacy)" should {
     "return only PENDING returns when BE returns Some(response)" in {
       val (service, connector) = newService()
 
@@ -121,7 +123,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
-  "getAllSubmittedReturns" should {
+  "getAllSubmittedReturns (legacy)" should {
     "return only SUBMITTED returns when BE returns Some(response)" in {
       val (service, connector) = newService()
 
@@ -149,7 +151,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
-  "getAllAcceptedReturns" should {
+  "getAllAcceptedReturns (legacy)" should {
     "return only ACCEPTED returns" in {
       val (service, connector) = newService()
 
@@ -165,7 +167,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
-  "getAllStartedReturns" should {
+  "getAllStartedReturns (legacy)" should {
     "return only STARTED returns" in {
       val (service, connector) = newService()
 
@@ -181,7 +183,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
-  "getAllInProgressReturns" should {
+  "getAllInProgressReturns (legacy)" should {
     "return only IN-PROGRESS returns" in {
       val (service, connector) = newService()
 
@@ -197,7 +199,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
-  "getReturnsDueForDeletion" should {
+  "getReturnsDueForDeletion (legacy)" should {
     "return only DUE_FOR_DELETION returns" in {
       val (service, connector) = newService()
 
@@ -213,7 +215,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
-  "getAllAgents" should {
+  "getAllAgents (legacy)" should {
     "delegate to connector with the given storn and return the payload" in {
       val (service, connector) = newService()
 
@@ -245,7 +247,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getAllAgentDetailsLegacy(eqTo(storn))(any[HeaderCarrier]))
         .thenReturn(Future.successful(payload))
 
-      val result = service.getAllAgents(storn).futureValue
+      val result = service.getAllAgentsLegacy(storn).futureValue
       result mustBe payload
 
       verify(connector).getAllAgentDetailsLegacy(eqTo(storn))(any[HeaderCarrier])
@@ -259,9 +261,199 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
       val ex = intercept[RuntimeException] {
-        service.getAllAgents(storn).futureValue
+        service.getAllAgentsLegacy(storn).futureValue
       }
       ex.getMessage must include ("boom")
     }
   }
+
+  "getInProgressReturns" should {
+    "merge ACCEPTED and PENDING IN-PROGRESS returns" in {
+      val (service, connector) = newService()
+      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
+
+      val acceptedSummary = ReturnSummaryLegacy(
+        returnReference = "RET-ACC-001",
+        utrn = "UTRN-ACC-001",
+        status = "ACCEPTED",
+        dateSubmitted = LocalDate.parse("2025-10-20"),
+        purchaserName = "Accepted Buyer",
+        address = "1 Accepted Street",
+        agentReference = "Accepted Agent"
+      )
+
+      val pendingSummary = ReturnSummaryLegacy(
+        returnReference = "RET-PEN-001",
+        utrn = "UTRN-PEN-001",
+        status = "PENDING",
+        dateSubmitted = LocalDate.parse("2025-10-21"),
+        purchaserName = "Pending Buyer",
+        address = "2 Pending Street",
+        agentReference = "Pending Agent"
+      )
+
+      val acceptedResponse = SdltReturnRecordResponse(
+        returnSummaryCount = Some(1),
+        returnSummaryList = List(acceptedSummary)
+      )
+
+      val pendingResponse = SdltReturnRecordResponse(
+        returnSummaryCount = Some(1),
+        returnSummaryList = List(pendingSummary)
+      )
+
+      when(connector.getReturns(eqTo(Some("ACCEPTED")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(acceptedResponse))
+
+      when(connector.getReturns(eqTo(Some("PENDING")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(pendingResponse))
+
+      val result = service.getInProgressReturns.futureValue
+
+      result.returnSummaryList must contain theSameElementsInOrderAs List(acceptedSummary, pendingSummary)
+      // we don't care about returnSummaryCount here; service doesn't set it
+      verify(connector).getReturns(eqTo(Some("ACCEPTED")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
+      verify(connector).getReturns(eqTo(Some("PENDING")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
+      verifyNoMoreInteractions(connector)
+    }
+  }
+
+  "getSubmittedReturns" should {
+    "merge SUBMITTED and SUBMITTED_NO_RECEIPT returns" in {
+      val (service, connector) = newService()
+      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
+
+      val submitted = ReturnSummaryLegacy(
+        returnReference = "RET-SUB-001",
+        utrn = "UTRN-SUB-001",
+        status = "SUBMITTED",
+        dateSubmitted = LocalDate.parse("2025-10-22"),
+        purchaserName = "Submitted Buyer",
+        address = "3 Submitted Street",
+        agentReference = "Submitted Agent"
+      )
+
+      val submittedNoReceipt = ReturnSummaryLegacy(
+        returnReference = "RET-SNR-001",
+        utrn = "UTRN-SNR-001",
+        status = "SUBMITTED_NO_RECEIPT",
+        dateSubmitted = LocalDate.parse("2025-10-23"),
+        purchaserName = "No Receipt Buyer",
+        address = "4 NoReceipt Street",
+        agentReference = "NoReceipt Agent"
+      )
+
+      val submittedResponse = SdltReturnRecordResponse(
+        returnSummaryCount = Some(1),
+        returnSummaryList = List(submitted)
+      )
+
+      val submittedNoReceiptResponse = SdltReturnRecordResponse(
+        returnSummaryCount = Some(1),
+        returnSummaryList = List(submittedNoReceipt)
+      )
+
+      when(connector.getReturns(eqTo(Some("SUBMITTED")), eqTo(Some("SUBMITTED")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(submittedResponse))
+
+      when(connector.getReturns(eqTo(Some("SUBMITTED_NO_RECEIPT")), eqTo(Some("SUBMITTED")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(submittedNoReceiptResponse))
+
+      val result = service.getSubmittedReturns.futureValue
+
+      result.returnSummaryList must contain theSameElementsInOrderAs List(submitted, submittedNoReceipt)
+
+      verify(connector)
+        .getReturns(eqTo(Some("SUBMITTED")), eqTo(Some("SUBMITTED")), eqTo(false))(
+          any[HeaderCarrier], any[DataRequest[_]]
+        )
+      verify(connector)
+        .getReturns(eqTo(Some("SUBMITTED_NO_RECEIPT")), eqTo(Some("SUBMITTED")), eqTo(false))(
+          any[HeaderCarrier], any[DataRequest[_]]
+        )
+      verifyNoMoreInteractions(connector)
+    }
+  }
+
+  "getReturnsDueForDeletion" should {
+    "delegate to connector with deletionFlag = true and return the response" in {
+      val (service, connector) = newService()
+      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
+
+      val deletionSummary = ReturnSummaryLegacy(
+        returnReference = "RET-DEL-001",
+        utrn = "UTRN-DEL-001",
+        status = "DUE_FOR_DELETION",
+        dateSubmitted = LocalDate.parse("2025-10-24"),
+        purchaserName = "Delete Buyer",
+        address = "5 Delete Street",
+        agentReference = "Delete Agent"
+      )
+
+      val deletionResponse = SdltReturnRecordResponse(
+        returnSummaryCount = Some(1),
+        returnSummaryList = List(deletionSummary)
+      )
+
+      when(connector.getReturns(eqTo(None), eqTo(None), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(deletionResponse))
+
+      val result = service.getReturnsDueForDeletion.futureValue
+      result mustBe deletionResponse
+
+      verify(connector).getReturns(eqTo(None), eqTo(None), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
+      verifyNoMoreInteractions(connector)
+    }
+  }
+
+  "getAllAgents (new API)" should {
+    "use getSdltOrganisation and return the agents count" in {
+      val (service, connector) = newService()
+      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
+
+      val agents = Seq(
+        AgentDetailsResponse(
+          agentReferenceNumber = "ARN001",
+          agentName = "Acme Property Agents Ltd",
+          addressLine1 = "High Street",
+          addressLine2 = Some("Westminster"),
+          addressLine3 = "London",
+          addressLine4 = Some("Greater London"),
+          postcode = Some("SW1A 2AA"),
+          phone = Some("02079460000"),
+          email = "info@acmeagents.co.uk"
+        ),
+        AgentDetailsResponse(
+          agentReferenceNumber = "ARN002",
+          agentName = "Harborview Estates",
+          addressLine1 = "Queensway",
+          addressLine2 = None,
+          addressLine3 = "Birmingham",
+          addressLine4 = None,
+          postcode = Some("B2 4ND"),
+          phone = Some("01214567890"),
+          email = "info@harborviewestates.co.uk"
+        )
+      )
+
+      val orgResponse = SdltOrganisationResponse(
+        storn = storn,
+        version = 1,
+        isReturnUser = "Y",
+        doNotDisplayWelcomePage = "N",
+        agents = agents
+      )
+
+      when(connector.getSdltOrganisation(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(orgResponse))
+
+      val result = service.getAgentCount.futureValue
+      result mustBe 2
+
+      verify(connector).getSdltOrganisation(any[HeaderCarrier], any[DataRequest[_]])
+      verifyNoMoreInteractions(connector)
+    }
+  }
+
+
 }
