@@ -22,13 +22,13 @@ import java.time.LocalDate
 
 
 case class SdltSubmittedReturnsViewModel(
+                                        returnReference: String,
+                                        utrn: String,
+                                        status: UniversalStatus,
+                                        dateSubmitted: LocalDate,
+                                        purchaserName: String,
                                         address: String,
                                         agentReference: String,
-                                        dateSubmitted: LocalDate,
-                                        utrn: String,
-                                        purchaserName: String,
-                                        status: UniversalStatus,
-                                        returnReference: String
                                       )
 
 object SdltSubmittedReturnsViewModel {
@@ -43,13 +43,13 @@ object SdltSubmittedReturnsViewModel {
           .filter(acceptableStatus.contains(_))
           .map { status =>
             SdltSubmittedReturnsViewModel(
-              address = rec.address,
-              agentReference = rec.agentReference,
-              dateSubmitted = rec.dateSubmitted,
+              returnReference = rec.returnReference,
               utrn = rec.utrn,
-              purchaserName = rec.purchaserName,
               status = status,
-              returnReference = rec.returnReference
+              dateSubmitted = rec.dateSubmitted,
+              purchaserName = rec.purchaserName,
+              address = rec.address,
+              agentReference = rec.agentReference
             )
           }
     }
