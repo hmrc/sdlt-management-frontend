@@ -40,13 +40,11 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
 
   private val base = config.baseUrl("stamp-duty-land-tax")
 
-  // TODO: WRONG CALL
-  @deprecated
+  @deprecated("Use getReturnsUrl")
   private val getAllReturnsUrlLegacy: String => URL = storn =>
     url"$base/stamp-duty-land-tax/manage-returns/get-returns?storn=$storn"
 
-  // TODO: WRONG CALL
-  @deprecated
+  @deprecated("Use getSdltOrganisationUrl")
   private val getAllAgentDetailsUrl: String => URL = storn =>
     url"$base/stamp-duty-land-tax/manage-agents/agent-details/get-all-agents?storn=$storn"
 
@@ -56,8 +54,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
   private val getReturnsUrl: URL =
     url"$base/stamp-duty-land-tax/manage-returns/get-returns"
 
-  // TODO: WRONG CALL
-  @deprecated
+  @deprecated("Use StampDutyLandTaxConnector.getReturns")
   def getAllReturnsLegacy(storn: String)
                          (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponseLegacy] =
     http
@@ -69,8 +66,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
           throw new RuntimeException(e.getMessage)
       }
 
-  // TODO: WRONG CALL
-  @deprecated
+  @deprecated("Use StampDutyLandTaxConnector.getSdltOrganisation")
   def getAllAgentDetailsLegacy(storn: String)
                               (implicit hc: HeaderCarrier): Future[List[AgentDetailsResponse]] =
     http

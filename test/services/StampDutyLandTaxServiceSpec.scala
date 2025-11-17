@@ -17,7 +17,7 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.manage.{ReturnSummaryLegacy, SdltReturnRecordResponse, SdltReturnRecordResponseLegacy}
+import models.manage.{ReturnSummary, ReturnSummaryLegacy, SdltReturnRecordResponse, SdltReturnRecordResponseLegacy}
 import models.manageAgents.AgentDetailsResponse
 import models.requests.DataRequest
 import models.responses.organisation.SdltOrganisationResponse
@@ -272,24 +272,24 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
       implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
-      val acceptedSummary = ReturnSummaryLegacy(
+      val acceptedSummary = ReturnSummary(
         returnReference = "RET-ACC-001",
-        utrn = "UTRN-ACC-001",
+        utrn = Some("UTRN-ACC-001"),
         status = "ACCEPTED",
-        dateSubmitted = LocalDate.parse("2025-10-20"),
+        dateSubmitted = Some(LocalDate.parse("2025-10-20")),
         purchaserName = "Accepted Buyer",
         address = "1 Accepted Street",
-        agentReference = "Accepted Agent"
+        agentReference = Some("Accepted Agent")
       )
 
-      val pendingSummary = ReturnSummaryLegacy(
+      val pendingSummary = ReturnSummary(
         returnReference = "RET-PEN-001",
-        utrn = "UTRN-PEN-001",
+        utrn = Some("UTRN-PEN-001"),
         status = "PENDING",
-        dateSubmitted = LocalDate.parse("2025-10-21"),
+        dateSubmitted = Some(LocalDate.parse("2025-10-21")),
         purchaserName = "Pending Buyer",
         address = "2 Pending Street",
-        agentReference = "Pending Agent"
+        agentReference = Some("Pending Agent")
       )
 
       val acceptedResponse = SdltReturnRecordResponse(
@@ -323,24 +323,24 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
       implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
-      val submitted = ReturnSummaryLegacy(
+      val submitted = ReturnSummary(
         returnReference = "RET-SUB-001",
-        utrn = "UTRN-SUB-001",
+        utrn = Some("UTRN-SUB-001"),
         status = "SUBMITTED",
-        dateSubmitted = LocalDate.parse("2025-10-22"),
+        dateSubmitted = Some(LocalDate.parse("2025-10-22")),
         purchaserName = "Submitted Buyer",
         address = "3 Submitted Street",
-        agentReference = "Submitted Agent"
+        agentReference = Some("Submitted Agent")
       )
 
-      val submittedNoReceipt = ReturnSummaryLegacy(
+      val submittedNoReceipt = ReturnSummary(
         returnReference = "RET-SNR-001",
-        utrn = "UTRN-SNR-001",
+        utrn = Some("UTRN-SNR-001"),
         status = "SUBMITTED_NO_RECEIPT",
-        dateSubmitted = LocalDate.parse("2025-10-23"),
+        dateSubmitted = Some(LocalDate.parse("2025-10-23")),
         purchaserName = "No Receipt Buyer",
         address = "4 NoReceipt Street",
-        agentReference = "NoReceipt Agent"
+        agentReference = Some("NoReceipt Agent")
       )
 
       val submittedResponse = SdltReturnRecordResponse(
@@ -380,14 +380,14 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
       implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
-      val deletionSummary = ReturnSummaryLegacy(
+      val deletionSummary = ReturnSummary(
         returnReference = "RET-DEL-001",
-        utrn = "UTRN-DEL-001",
+        utrn = Some("UTRN-DEL-001"),
         status = "DUE_FOR_DELETION",
-        dateSubmitted = LocalDate.parse("2025-10-24"),
+        dateSubmitted = Some(LocalDate.parse("2025-10-24")),
         purchaserName = "Delete Buyer",
         address = "5 Delete Street",
-        agentReference = "Delete Agent"
+        agentReference = Some("Delete Agent")
       )
 
       val deletionResponse = SdltReturnRecordResponse(

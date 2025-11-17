@@ -20,9 +20,10 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
+
 case class SdltReturnRecordResponse(
                                      returnSummaryCount : Option[Int] = None,         // preferred: use returnSummaryList.length
-                                     returnSummaryList  : List[ReturnSummaryLegacy]
+                                     returnSummaryList  : List[ReturnSummary]
                                    )
 
 object SdltReturnRecordResponse {

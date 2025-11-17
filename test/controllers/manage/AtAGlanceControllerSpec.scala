@@ -18,7 +18,7 @@ package controllers.manage
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.manage.ReturnSummaryLegacy
+import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.manageAgents.AgentDetailsResponse
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
@@ -30,9 +30,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
 import uk.gov.hmrc.http.HeaderCarrier
+
 import java.time.LocalDate
 import scala.concurrent.Future
 import AtAGlanceController.*
+import models.requests.DataRequest
 
 class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
@@ -49,31 +51,16 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     val atAGlanceUrl: String = controllers.manage.routes.AtAGlanceController.onPageLoad().url
 
-    val expectedAgentData: List[AgentDetailsResponse] =
-      (0 to 3).toList.map(index =>
-        AgentDetailsResponse(
-          agentName =             "John Doe",
-          addressLine1 =          "Oak Lane",
-          addressLine2 =          None,
-          addressLine3 =          "London",
-          addressLine4 =          None,
-          postcode =              None,
-          phone =                 None,
-          email =                 "john.doe@example.com",
-          agentReferenceNumber =  "12345"
-        )
-      )
-
-    val expectedReturnsManagementData: List[ReturnSummaryLegacy] =
+    val expectedAcceptedReturns: List[ReturnSummary] =
       (0 to 7).toList.map(index =>
-        ReturnSummaryLegacy(
+        ReturnSummary(
           returnReference = "RETREF003",
-          utrn = "UTRN003",
+          utrn = Some("UTRN003"),
           status = "ACCEPTED",
-          dateSubmitted = LocalDate.parse("2025-04-05"),
+          dateSubmitted = Some(LocalDate.parse("2025-04-05")),
           purchaserName = "Brown",
           address = s"$index Riverside Drive",
-          agentReference = "B4C72F7T3"
+          agentReference = Some("B4C72F7T3")
         )
       )
   }
@@ -82,11 +69,17 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with no data" in new Fixture {
 
-      when(mockService.getAllAgentsLegacy(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Nil))
+      when(mockService.getAgentCount(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(0))
 
-      when(mockService.getReturnLegacy(any[String], any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Nil))
+      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
+
+      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
 
       running(application) {
 
@@ -94,6 +87,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[AtAGlanceView]
+
         val expected = view(
           storn = "STN001",
           name = "David Frank",
@@ -110,11 +104,17 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with data" in new Fixture {
 
-      when(mockService.getAllAgentsLegacy(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(expectedAgentData))
+      when(mockService.getAgentCount(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(4))
 
-      when(mockService.getReturnLegacy(any[String], any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(expectedReturnsManagementData))
+      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
+
+      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(SdltReturnRecordResponse(None, expectedAcceptedReturns)))
 
       running(application) {
 
@@ -126,11 +126,11 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
           storn = "STN001",
           name = "David Frank",
           returnsManagementViewModel(
-            expectedReturnsManagementData.size,
-            expectedReturnsManagementData.size,
-            expectedReturnsManagementData.size
+            expectedAcceptedReturns.size,
+            0,
+            0
           ),
-          agentDetailsViewModel(expectedAgentData.size, appConfig),
+          agentDetailsViewModel(4, appConfig),
           helpAndContactViewModel(appConfig),
           feedbackViewModel(appConfig.feedbackUrl(request))
         )(request, messages(application)).toString
@@ -142,7 +142,16 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to Journey Recovery for a GET if there is a service level error" in new Fixture {
 
-      when(mockService.getAllAgentsLegacy(any[String])(any[HeaderCarrier]))
+      when(mockService.getAgentCount(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(new Error("Test error")))
+
+      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(new Error("Test error")))
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(new Error("Test error")))
+
+      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(new Error("Test error")))
 
       running(application) {

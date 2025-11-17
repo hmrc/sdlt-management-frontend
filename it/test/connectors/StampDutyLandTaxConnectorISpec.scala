@@ -37,9 +37,9 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
   with ApplicationWithWiremock {
 
   private val storn = "STN001"
-  
+
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  
+
   implicit val request: DataRequest[_] = DataRequest(
     request     = FakeRequest(),
     userId      = "some-id",
@@ -54,7 +54,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
 
     val getAllReturnsUrl = s"/stamp-duty-land-tax/manage-returns/get-returns"
 
-    "return SdltReturnRecordResponse when BE returns 200 with valid JSON" in {
+    "return SdltReturnRecordResponse when BE returns OK with valid JSON" in {
       val validJson =
         """{
           |  "storn": "STN001",
@@ -101,7 +101,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       result.returnSummaryList.head.status mustBe "SUBMITTED"
     }
 
-    "fail when BE returns 200 with invalid JSON" in {
+    "fail when BE returns OK with invalid JSON" in {
       stubFor(
         get(urlPathEqualTo(getAllReturnsUrl))
           .withQueryParam("storn", equalTo(storn))
@@ -118,7 +118,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       ex.getMessage.toLowerCase must include ("storn")
     }
 
-    "propagate an upstream error when BE returns 500" in {
+    "propagate an upstream error when BE returns INTERNAL_SERVER_ERROR" in {
       stubFor(
         get(urlPathEqualTo(getAllReturnsUrl))
           .withQueryParam("storn", equalTo(storn))
@@ -140,7 +140,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
 
     val allAgentDetailsUrl = s"/stamp-duty-land-tax/manage-agents/agent-details/get-all-agents"
 
-    "return a list of AgentDetails when BE returns 200 with valid JSON" in {
+    "return a list of AgentDetails when BE returns OK with valid JSON" in {
       stubFor(
         get(urlPathEqualTo(allAgentDetailsUrl))
           .withQueryParam("storn", equalTo(storn))
@@ -204,7 +204,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       result mustBe expected
     }
 
-    "fail when BE returns 200 with invalid JSON" in {
+    "fail when BE returns OK with invalid JSON" in {
       stubFor(
         get(urlPathEqualTo(allAgentDetailsUrl))
           .withQueryParam("storn", equalTo(storn))
@@ -221,7 +221,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       ex.getMessage.toLowerCase must include ("agent")
     }
 
-    "propagate an upstream error when BE returns 500" in {
+    "propagate an upstream error when BE returns INTERNAL_SERVER_ERROR" in {
       stubFor(
         get(urlPathEqualTo(allAgentDetailsUrl))
           .withQueryParam("storn", equalTo(storn))
@@ -243,7 +243,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
 
     val getSdltOrganisationUrl = s"/stamp-duty-land-tax/manage-agents/get-sdlt-organisation"
 
-    "return SdltOrganisationResponse when BE returns 200 with valid JSON" in {
+    "return SdltOrganisationResponse when BE returns OK with valid JSON" in {
       val validJson =
         """{
           |  "storn": "STN001",
@@ -285,7 +285,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       result.agents.head.agentReferenceNumber mustBe "ARN001"
     }
 
-    "fail when BE returns 200 with invalid JSON" in {
+    "fail when BE returns OK with invalid JSON" in {
       stubFor(
         get(urlPathEqualTo(getSdltOrganisationUrl))
           .withQueryParam("storn", equalTo(storn))
@@ -303,7 +303,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       ex.getMessage.toLowerCase must include("storn")
     }
 
-    "propagate an upstream error when BE returns 500" in {
+    "propagate an upstream error when BE returns INTERNAL_SERVER_ERROR" in {
       stubFor(
         get(urlPathEqualTo(getSdltOrganisationUrl))
           .withQueryParam("storn", equalTo(storn))
@@ -326,7 +326,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
 
     val getReturnsUrl = s"/stamp-duty-land-tax/manage-returns/get-returns"
 
-    "return SdltReturnRecordResponse when BE returns 200 with valid JSON" in {
+    "return SdltReturnRecordResponse when BE returns OK with valid JSON" in {
       val validJson =
         """{
           |  "returnSummaryCount": 2,
@@ -362,14 +362,14 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       )
 
       val result: SdltReturnRecordResponse =
-        connector.getReturns(status = Some("PENDING"), pageType = Some("IN-PROGRESS")).futureValue
+        connector.getReturns(status = Some("PENDING"), pageType = Some("IN-PROGRESS"), deletionFlag = false).futureValue
 
       result.returnSummaryCount.get mustBe 2
       result.returnSummaryList.length mustBe 2
       result.returnSummaryList.head.status mustBe "PENDING"
     }
 
-    "fail when BE returns 200 with invalid JSON" in {
+    "fail when BE returns OK with invalid JSON" in {
       stubFor(
         post(urlPathEqualTo(getReturnsUrl))
           .willReturn(
@@ -380,13 +380,13 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       )
 
       val ex = intercept[Exception] {
-        connector.getReturns(status = Some("PENDING"), pageType = Some("IN-PROGRESS")).futureValue
+        connector.getReturns(status = Some("PENDING"), pageType = Some("IN-PROGRESS"), deletionFlag = false).futureValue
       }
 
       ex.getMessage.toLowerCase must include("return")
     }
 
-    "propagate an upstream error when BE returns 500" in {
+    "propagate an upstream error when BE returns INTERNAL_SERVER_ERROR" in {
       stubFor(
         post(urlPathEqualTo(getReturnsUrl))
           .willReturn(
@@ -397,7 +397,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       )
 
       val ex = intercept[Exception] {
-        connector.getReturns(status = Some("PENDING"), pageType = Some("IN-PROGRESS")).futureValue
+        connector.getReturns(status = Some("PENDING"), pageType = Some("IN-PROGRESS"), deletionFlag = false).futureValue
       }
 
       ex.getMessage.toLowerCase must include("500")

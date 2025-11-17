@@ -20,18 +20,19 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-// TODO: THIS LOGIC IMPLEMENTATION IS WRONG DUE TO INCORRECT DOCUMENTATION (wrong models) - THIS WILL BE FIXED IN THE NEXT SPRINT
-
+@deprecated("Use SdltReturnRecordResponse")
 case class SdltReturnRecordResponseLegacy(
                                            storn              : String,
                                            returnSummaryCount : Int,
                                            returnSummaryList  : List[ReturnSummaryLegacy]
                                          )
 
+@deprecated("Use SdltReturnRecordResponse")
 object SdltReturnRecordResponseLegacy {
   implicit val format: OFormat[SdltReturnRecordResponseLegacy] = Json.format[SdltReturnRecordResponseLegacy]
 }
 
+@deprecated("Use ReturnSummary")
 case class ReturnSummaryLegacy(
                                 returnReference : String,
                                 utrn            : String,
@@ -42,6 +43,7 @@ case class ReturnSummaryLegacy(
                                 agentReference  : String
                               )
 
+@deprecated("Use ReturnSummary")
 object ReturnSummaryLegacy {
   implicit val format: OFormat[ReturnSummaryLegacy] = Json.format[ReturnSummaryLegacy]
 }
