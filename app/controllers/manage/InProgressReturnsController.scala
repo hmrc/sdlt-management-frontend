@@ -67,5 +67,4 @@ class InProgressReturnsController @Inject()(
         Redirect(JourneyRecoveryController.onPageLoad())
     }
   }
-
 }

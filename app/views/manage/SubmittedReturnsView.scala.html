@@ -1,0 +1,123 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
+@import views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import viewmodels.manage.SdltSubmittedReturnsViewModel
+
+
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        govukPagination: GovukPagination,
+        govukTable: GovukTable,
+        govukDetails: GovukDetails,
+        govukErrorSummary: GovukErrorSummary,
+        formHelper: FormWithCSRF,
+        p: Paragraph,
+        h1: components.H1,
+        span: components.Span,
+        link: components.Link,
+        hmrcPageHeading: HmrcPageHeading
+)
+@(dataRows:   List[SdltSubmittedReturnsViewModel],
+        pagination: Option[Pagination], paginationInfoText: Option[String]
+)(
+        implicit request: Request[_],
+        messages: Messages
+)
+@purchaserNameLink(row: SdltSubmittedReturnsViewModel)  = {
+    <p class="govuk-body">
+        <a class="govuk-link" href="../manage-returns/submitted-return">@row.purchaserName</a>
+    </p>
+}
+
+@renderTable() = {
+    @govukTable(Table(
+        rows =
+            dataRows.map{ currentRow =>
+                Seq(
+                    TableRow(
+                        content = HtmlContent(purchaserNameLink(currentRow)),
+                    ),
+                    TableRow(
+                        content = Text( currentRow.address )
+                    ),
+                    TableRow(
+                        content = Text( currentRow.utrn )
+                    )
+                )
+            }
+        ,
+        head = Some(Seq(
+            HeadCell(
+                content = Text(messages("manage.submittedReturnsOverview.summary.purchaser"))
+            ),
+            HeadCell(
+                content = Text(messages("manage.submittedReturnsOverview.summary.address"))
+            ),
+            HeadCell(
+                content = Text(messages("manage.submittedReturnsOverview.summary.utrn"))
+            )
+        )),
+    ))
+}
+@layout(
+    pageTitle = titleNoForm(messages("manage.submittedReturnsOverview.title")),
+    showBackLink = false
+) {
+
+    @hmrcPageHeading(PageHeading(
+        text    = messages("manage.submittedReturnsOverview.heading"),
+        section = Some(messages("manage.submittedReturnsOverview.caption")),
+        headingClasses = Some("govuk-heading-l"),
+        captionClasses = Some("govuk-caption-l")
+    ))
+
+    @if(dataRows.isEmpty) {
+
+        @p("manage.submittedReturnsOverview.noReturns.info")
+        @link("manage.submittedReturnsOverview.noReturns.link", "../manage-returns/start-new-return")
+
+    } else {
+
+        @p("manage.submittedReturnsOverview.nonZeroReturns.info")
+
+
+    @paginationInfoText.map(p(_))
+
+    @renderTable()
+
+    @pagination.map(govukPagination(_))
+
+    }
+
+    @request.flash.get("submittedReturnsLimitReached").map { _ =>
+        @govukErrorSummary(
+            ErrorSummary(
+                title = Text(messages("error.summary.title")),
+                errorList = Seq(
+                    ErrorLink(
+                        content = Text(messages("manage.submittedReturnsOverview.limitReached"))
+                    )
+                )
+            )
+        )
+    }
+
+    
+}

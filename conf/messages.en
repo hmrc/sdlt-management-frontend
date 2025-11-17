@@ -118,3 +118,15 @@ manage.homepage.helpAndContact.usefulLinks = Useful links
 
 manage.homepage.feedback.title = Feedback
 manage.homepage.feedback.leaveFeedback = Leave feedback
+manage.submittedReturnsOverview.title = Manage returns – Submitted returns
+manage.submittedReturnsOverview.limitReached = Currently you cannot add any more returns as the limit of 25 returns has been reached. If you wish to add another return you will have to delete one of your existing returns.
+manage.submittedReturnsOverview.heading = Submitted returns
+manage.submittedReturnsOverview.caption = Manage returns
+manage.submittedReturnsOverview.nonZeroReturns.info = Select a submitted return to view the full details. Submitted returns are automatically deleted after 30 days of inactivity. To keep a return active, select and view.
+manage.submittedReturnsOverview.noReturns.info = You have no submitted returns.
+manage.submittedReturnsOverview.noReturns.link = Start a new return
+
+manage.submittedReturnsOverview.summaryInfo = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
+manage.submittedReturnsOverview.summary.purchaser   = Purchaser
+manage.submittedReturnsOverview.summary.address     = Property address
+manage.submittedReturnsOverview.summary.utrn        = UTRN
