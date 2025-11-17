@@ -64,7 +64,7 @@ class AtAGlanceController@Inject()(
           returnsManagementViewModel(returnsInProgress.size, submittedReturns.size, dueForDeletion.size),
           agentDetailsViewModel(agents.size, appConfig),
           helpAndContactViewModel(appConfig),
-          feedbackViewModel(appConfig.feedbackUrl)
+          feedbackViewModel(appConfig.exitSurveyUrl)
           )
         )
     }).recover {
