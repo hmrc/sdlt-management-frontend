@@ -117,7 +117,7 @@ manage.homepage.helpAndContact.howToPay = How to pay
 manage.homepage.helpAndContact.usefulLinks = Useful links
 
 manage.homepage.feedback.title = Feedback
-manage.homepage.feedback.leaveFeedback = Leave feedback (opens in new tab)
+manage.homepage.feedback.leaveFeedback = Leave feedback
 manage.submittedReturnsOverview.title = Manage returns – Submitted returns
 manage.submittedReturnsOverview.limitReached = Currently you cannot add any more returns as the limit of 25 returns has been reached. If you wish to add another return you will have to delete one of your existing returns.
 manage.submittedReturnsOverview.heading = Submitted returns
