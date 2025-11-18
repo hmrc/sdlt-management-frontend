@@ -47,6 +47,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
     val application: Application =
       applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
+        .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
         .build()
 
     implicit val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
@@ -118,7 +119,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and the correct view for a GET with data" in new Fixture {
 
       when(mockAuthConnector.authorise(any(), any())(any[HeaderCarrier], any[ExecutionContext]))
-        .thenReturn(Future.successful(Some("David Frank")))
+        .thenReturn(Future.successful(Some(Name(Some("David Frank"), None))))
 
       when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(expectedAgentData))
