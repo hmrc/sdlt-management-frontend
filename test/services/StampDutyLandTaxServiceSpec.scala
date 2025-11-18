@@ -19,6 +19,7 @@ package services
 import connectors.StampDutyLandTaxConnector
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.manageAgents.AgentDetailsResponse
+import models.responses.SdltOrganisationResponse
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -262,6 +263,67 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         service.getAllAgents(storn).futureValue
       }
       ex.getMessage must include ("boom")
+    }
+  }
+
+  "getAllAgentDetails" should {
+    "delegate to connector with the given storn and return the payload" in {
+
+      val payload: SdltOrganisationResponse =
+        SdltOrganisationResponse(
+          storn = "STN001",
+          version = 1,
+          isReturnUser = "Y",
+          doNotDisplayWelcomePage = "N",
+          agents = Seq(
+            AgentDetailsResponse(
+              agentName = "Smith & Co Solicitors",
+              addressLine1 = "12 High Street",
+              addressLine2 = Some("London"),
+              addressLine3 = "Greater London",
+              addressLine4 = None,
+              postcode = Some("SW1A 1AA"),
+              phone = Some("02071234567"),
+              email = "info@smithco.co.uk",
+              agentReferenceNumber = "ARN001"
+            ),
+            AgentDetailsResponse(
+              agentName = "Anderson Legal LLP",
+              addressLine1 = "45B Baker Street",
+              addressLine2 = None,
+              addressLine3 = "London",
+              addressLine4 = None,
+              postcode = Some("NW1 6XE"),
+              phone = Some("02077644567"),
+              email = "contact@andersonlegal.com",
+              agentReferenceNumber = "ARN002"
+            )
+          )
+        )
+
+      val (service, connector) = newService()
+
+      when(connector.getSdltOrganisation(eqTo(storn))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(payload))
+
+      val result = service.getAllAgentDetails(storn).futureValue
+      result mustBe payload.agents
+
+      verify(connector).getSdltOrganisation(eqTo(storn))(any[HeaderCarrier])
+      verifyNoMoreInteractions(connector)
+    }
+    "propagate failures from the connector" in {
+
+      val (service, connector) = newService()
+
+      when(connector.getSdltOrganisation(eqTo(storn))(any[HeaderCarrier]))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      val ex = intercept[RuntimeException] {
+        service.getAllAgentDetails(storn).futureValue
+      }
+
+      ex.getMessage must include("boom")
     }
   }
 }
