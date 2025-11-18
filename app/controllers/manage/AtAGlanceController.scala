@@ -31,9 +31,6 @@ import controllers.routes.JourneyRecoveryController
 import controllers.manage.routes.*
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import AtAGlanceController.*
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 
 import scala.concurrent.ExecutionContext
 
