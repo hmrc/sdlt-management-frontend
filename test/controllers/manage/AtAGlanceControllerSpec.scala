@@ -119,7 +119,6 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockAuthConnector.authorise(any(), any())(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(Some(Name(Some("TestUser"), None))))
 
-      when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
       when(mockService.getAllAgentDetails(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Nil))
 
@@ -154,11 +153,10 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with data" in new Fixture {
 
-      when(mockService.getAllAgentDetails(any[String])(any[HeaderCarrier]))
       when(mockAuthConnector.authorise(any(), any())(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(Some(Name(Some("David Frank"), None))))
 
-      when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
+      when(mockService.getAllAgentDetails(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(expectedAgentData))
 
       when(mockInProgressService.getAllReturns(any[String])(any[HeaderCarrier]))
