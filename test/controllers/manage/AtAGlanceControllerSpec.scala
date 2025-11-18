@@ -107,7 +107,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
           returnsManagementViewModel(0, 0, 0),
           agentDetailsViewModel(0, appConfig),
           helpAndContactViewModel(appConfig),
-          feedbackViewModel(appConfig.feedbackUrl(request))
+          feedbackViewModel(appConfig.exitSurveyUrl)
         )(request, messages(application)).toString
 
         status(result) mustEqual OK
@@ -142,7 +142,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
           ),
           agentDetailsViewModel(expectedAgentData.size, appConfig),
           helpAndContactViewModel(appConfig),
-          feedbackViewModel(appConfig.feedbackUrl(request))
+          feedbackViewModel(appConfig.exitSurveyUrl)
         )(request, messages(application)).toString
 
         status(result) mustEqual OK
