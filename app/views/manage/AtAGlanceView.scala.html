@@ -28,7 +28,7 @@
 )
 @(
     storn: String,
-    name: String,
+    maybeName: Option[String],
     returnsViewModel: ReturnsManagementViewModel,
     agentsViewModel: AgentDetailsViewModel,
     helpViewModel: HelpAndContactViewModel,
@@ -48,7 +48,9 @@
         text = messages("manage.homepage.heading"),
         headingClasses = Some("govuk-heading-xl govuk-!-margin-bottom-2")
     ))
-    @paragraph(messages("manage.homepage.name", name), extraClasses = "govuk-!-margin-bottom-0")
+    @maybeName.map { name =>
+        @paragraph(messages("manage.homepage.name", name), extraClasses = "govuk-!-margin-bottom-0")
+    }
     @paragraph(messages("manage.homepage.storn", storn))
 
 @gridRow(

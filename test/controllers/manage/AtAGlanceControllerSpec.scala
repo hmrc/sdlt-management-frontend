@@ -30,15 +30,19 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
 import uk.gov.hmrc.http.HeaderCarrier
+
 import java.time.LocalDate
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import AtAGlanceController.*
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.retrieve.Name
 
 class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
   trait Fixture {
 
     val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
+    val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
     val application: Application =
       applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -82,6 +86,9 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with no data" in new Fixture {
 
+      when(mockAuthConnector.authorise(any(), any())(any[HeaderCarrier], any[ExecutionContext]))
+        .thenReturn(Future.successful(Some(Name(Some("TestUser"), None))))
+
       when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Nil))
 
@@ -96,7 +103,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AtAGlanceView]
         val expected = view(
           storn = "STN001",
-          name = "David Frank",
+          maybeName = None,
           returnsManagementViewModel(0, 0, 0),
           agentDetailsViewModel(0, appConfig),
           helpAndContactViewModel(appConfig),
@@ -109,6 +116,9 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return OK and the correct view for a GET with data" in new Fixture {
+
+      when(mockAuthConnector.authorise(any(), any())(any[HeaderCarrier], any[ExecutionContext]))
+        .thenReturn(Future.successful(Some("David Frank")))
 
       when(mockService.getAllAgents(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(expectedAgentData))
@@ -124,7 +134,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AtAGlanceView]
         val expected = view(
           storn = "STN001",
-          name = "David Frank",
+          maybeName = Some("David Frank"),
           returnsManagementViewModel(
             expectedReturnsManagementData.size,
             expectedReturnsManagementData.size,
