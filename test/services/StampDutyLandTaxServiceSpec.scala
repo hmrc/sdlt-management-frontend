@@ -19,6 +19,7 @@ package services
 import connectors.StampDutyLandTaxConnector
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.manageAgents.AgentDetailsResponse
+import models.responses.UniversalStatus.{SUBMITTED, SUBMITTED_NO_RECEIPT}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -262,6 +263,39 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         service.getAllAgents(storn).futureValue
       }
       ex.getMessage must include ("boom")
+    }
+  }
+
+  "getSubmittedReturnsView" should {
+    "return all returns but filter for all SUBMITTED and SUBMITTED_NO_RECEIPT returns when converted to SdltSubmittedReturnsViewModel" in {
+      val (service, connector) = newService()
+
+      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(aggregateResponse))
+
+      val result = service.getSubmittedReturnsView(storn).futureValue
+
+      println(result.map(_.status).distinct)
+      println(SUBMITTED)
+      println(SUBMITTED_NO_RECEIPT)
+
+      val statuses = result.map(_.status).distinct
+      statuses.forall(s => s == SUBMITTED || s == SUBMITTED_NO_RECEIPT) mustBe true
+
+      verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
+      verifyNoMoreInteractions(connector)
+    }
+
+    "propagate failures from the connector" in {
+      val (service, connector) = newService()
+
+      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+        .thenReturn(Future.failed(new RuntimeException("Error: Connector issue")))
+
+      val ex = intercept[RuntimeException] {
+        service.getSubmittedReturnsView(storn).futureValue
+      }
+      ex.getMessage must include("Error: Connector issue")
     }
   }
 }

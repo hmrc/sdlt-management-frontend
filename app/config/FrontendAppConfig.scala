@@ -39,9 +39,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val govUkSDLTGuidanceUrl: String = configuration.get[String]("urls.govUkSDLTGuidance")
   lazy val feedbackFrontend: String = configuration.get[String]("feedback-frontend.host")
 
-  private val agentServiceBaseUrl: String       = configuration.get[Service]("microservice.services.stamp-duty-land-tax-agent")
+  private val agentServiceBaseUrl: String       = configuration.get[String]("stamp-duty-land-tax-agent.host")
   val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/agent-details/start-add-agent"
-  val agentOverviewUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/agent-details/agent-overview?paginationIndex=1"
+  val agentOverviewUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent"
 
   val exitSurveyUrl: String             = s"$feedbackFrontend/feedback/stamp-duty-land-tax"
 
@@ -60,3 +60,4 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   lazy val howToPayUrl: String = configuration.get[String]("urls.howToPay")
 }
+
