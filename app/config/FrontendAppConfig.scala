@@ -41,7 +41,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   private val agentServiceBaseUrl: String       = configuration.get[Service]("microservice.services.stamp-duty-land-tax-agent")
   val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/agent-details/start-add-agent"
-  val agentOverviewUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/agent-details/agent-overview?paginationIndex=1"
+  val agentOverviewUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/"
 
   val exitSurveyUrl: String             = s"$feedbackFrontend/feedback/stamp-duty-land-tax"
 
