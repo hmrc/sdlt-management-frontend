@@ -57,7 +57,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
           throw new RuntimeException(e.getMessage)
       }
 
-  // TODO: REMOVE THIS DEPRECATED CALL
+  @deprecated("Use StampDutyLandTaxConnector.getSdltOrganisation")
   def getAllAgentDetails(storn: String)
                         (implicit hc: HeaderCarrier): Future[List[AgentDetailsResponse]] =
     http
