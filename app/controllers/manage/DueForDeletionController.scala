@@ -54,20 +54,21 @@ class DueForDeletionController @Inject()(
 
       val urlSelector: Int => String = (paginationIndex: Int) => controllers.manage.routes.DueForDeletionController.onPageLoad(Some(paginationIndex)).url
 
-      val allDataRows: Future[List[SdltSubmittedReturnsViewModel]] =
-        Future.successful((0 to 17).toList.map(index =>
-          SdltSubmittedReturnsViewModel(
-            address = s"$index Riverside Drive",
-            agentReference = "B4C72F7T3",
-            dateSubmitted = LocalDate.parse("2025-04-05"),
-            utrn = "UTRN003",
-            purchaserName = "Brown",
-            status = UniversalStatus.SUBMITTED_NO_RECEIPT,
-            returnReference = "RETREF003",
-          )
-        ))
+//      val allDataRows: Future[List[SdltSubmittedReturnsViewModel]] =
+//        Future.successful((0 to 17).toList.map(index =>
+//          SdltSubmittedReturnsViewModel(
+//            address = s"$index Riverside Drive",
+//            agentReference = "B4C72F7T3",
+//            dateSubmitted = LocalDate.parse("2025-04-05"),
+//            utrn = "UTRN003",
+//            purchaserName = "Brown",
+//            status = UniversalStatus.SUBMITTED_NO_RECEIPT,
+//            returnReference = "RETREF003",
+//          )
+//        ))
 
-      allDataRows.map {
+      stampDutyLandTaxService
+        .getSubmittedReturnsView(request.storn).map {
           case allDataRows =>
             pageIndexSelector(paginationIndex, allDataRows.length) match {
               case Right(selectedPageIndex) =>

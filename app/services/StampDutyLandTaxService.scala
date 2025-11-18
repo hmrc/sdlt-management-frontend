@@ -38,7 +38,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
 
       val inProgressReturnsList =
         accepted.returnSummaryList ++ started.returnSummaryList
-      
+
       SdltInProgressReturnViewRow
         .convertResponseToViewRows(
           inProgressReturnsList
@@ -51,10 +51,10 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
       submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
-      
+
       val submittedReturnsList =
         submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList
-      
+
       SdltSubmittedReturnsViewModel
         .convertResponseToSubmittedView(
           submittedReturnsList

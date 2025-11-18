@@ -83,25 +83,32 @@
     showBackLink = false
 ) {
 
+    @hmrcPageHeading(PageHeading(
+        text    = messages("manageReturns.dueDeletionReturns.heading"),
+        section = Some(messages("manageReturns.dueDeletionReturns.caption")),
+        headingClasses = Some("govuk-heading-l"),
+        captionClasses = Some("govuk-caption-l")
+    ))
+
     @defining(
         HtmlFormat.fill(Seq(
-            renderTable(),                               // govukTable Html
+            renderTable(),
             paginationInfoText.map(p(_)).getOrElse(HtmlFormat.empty),
             pagination.map(govukPagination(_)).getOrElse(HtmlFormat.empty)
         ))
     ) { innerHtml =>
 
         @govukTabs(Tabs(
-            id = Some("Submitted"),
+            id = Some("Returns Tabs"),
             items = Seq(
                 TabItem(
-                    id = Some("Purchaser"),
-                    label = "Address",
+                    id = Some(messages("manageReturns.dueDeletionReturns.tabUrl1")),
+                    label = messages("manageReturns.dueDeletionReturns.tabHeading1"),
                     panel = TabPanel(HtmlContent(innerHtml.body))
                 ),
                 TabItem(
-                    id = Some("In-Progress"),
-                    label = "Testing2",
+                    id = Some(messages("manageReturns.dueDeletionReturns.tabUrl2")),
+                    label = messages("manageReturns.dueDeletionReturns.tabHeading2"),
                     panel = TabPanel(HtmlContent(
                         """
                                 <p class="govuk-body">Sbhgfgyhgbhgyitfrcdtcythgjvhyuft7r56detcfg</p>
@@ -111,12 +118,6 @@
         ))
     }
 
-    @hmrcPageHeading(PageHeading(
-        text    = messages("manage.submittedReturnsOverview.heading"),
-        section = Some(messages("manage.submittedReturnsOverview.caption")),
-        headingClasses = Some("govuk-heading-l"),
-        captionClasses = Some("govuk-caption-l")
-    ))
 
     @if(dataRows.isEmpty) {
 

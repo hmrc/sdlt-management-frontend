@@ -130,3 +130,14 @@ manage.submittedReturnsOverview.summaryInfo = Showing <b>{0}</b> to <b>{1}</b> o
 manage.submittedReturnsOverview.summary.purchaser   = Purchaser
 manage.submittedReturnsOverview.summary.address     = Property address
 manage.submittedReturnsOverview.summary.utrn        = UTRN
+
+manageReturns.dueDeletionReturns.heading = Returns due for deletion
+manageReturns.dueDeletionReturns.caption = Manage returns
+manageReturns.dueDeletionReturns.nonZeroReturns.info = Your returns will be deleted within the next 10 days. You will be unable to access them after that. To prevent a return from being deleted, select and view.
+manageReturns.dueDeletionReturns.noReturns.info = You have no returns due for deletion.
+manageReturns.dueDeletionReturns.noReturns.link = Start a new return
+manageReturns.dueDeletionReturns.tabHeading1 = Returns in progress
+manageReturns.dueDeletionReturns.tabHeading2 = Submitted returns
+manageReturns.dueDeletionReturns.tabUrl1 = in-progress-returns
+manageReturns.dueDeletionReturns.tabUrl2 = submitted-returns
+
