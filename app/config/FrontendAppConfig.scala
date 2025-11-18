@@ -37,12 +37,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val loginContinueUrl: String     = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String           = configuration.get[String]("urls.signOut")
   val govUkSDLTGuidanceUrl: String = configuration.get[String]("urls.govUkSDLTGuidance")
+  lazy val feedbackFrontend: String = configuration.get[String]("feedback-frontend.host")
 
   private val agentServiceBaseUrl: String       = configuration.get[Service]("microservice.services.stamp-duty-land-tax-agent").baseUrl
   val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/agent-details/start-add-agent"
   val agentOverviewUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/agent-details/agent-overview?paginationIndex=1"
-  
-  private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
+
+  private val exitSurveyBaseUrl: String = configuration.get[String]("microservice.services.feedback-frontend.host")
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/stamp-duty-land-tax"
 
   val languageTranslationEnabled: Boolean =
