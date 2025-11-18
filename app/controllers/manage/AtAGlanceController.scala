@@ -24,6 +24,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
+import services.InProgressReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
 import controllers.routes.JourneyRecoveryController
@@ -40,6 +41,7 @@ class AtAGlanceController@Inject()(
                                     override val messagesApi: MessagesApi,
                                     val controllerComponents: MessagesControllerComponents,
                                     val authConnector: AuthConnector,
+                                    inProgressService: InProgressReturnsService,
                                     stampDutyLandTaxService: StampDutyLandTaxService,
                                     appConfig: FrontendAppConfig,
                                     identify: IdentifierAction,
@@ -54,12 +56,15 @@ class AtAGlanceController@Inject()(
     val storn = request.storn
 
     (for {
-      agents <- stampDutyLandTaxService.getAllAgents(storn)
-      returnsInProgress <- stampDutyLandTaxService.getReturn(storn, "PENDING")
-      submittedReturns <- stampDutyLandTaxService.getReturn(storn, "SUBMITTED")
+      agents <- stampDutyLandTaxService.getAllAgentDetails(storn)
+      returnsInProgress <- inProgressService.getAllReturns(storn).map { result =>
+        result.toOption.get
+      }
+      submittedReturns <- stampDutyLandTaxService.getSubmittedReturnsView(storn)
       dueForDeletion <- stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
       optName <- authConnector.authorise(EmptyPredicate,Retrievals.name)
     } yield {
+
 
       val maybeName = optName.flatMap(_.name).filterNot(_ == "TestUser")
 

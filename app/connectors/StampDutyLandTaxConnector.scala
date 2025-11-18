@@ -18,6 +18,7 @@ package connectors
 
 import models.manage.SdltReturnRecordResponse
 import models.manageAgents.AgentDetailsResponse
+import models.responses.SdltOrganisationResponse
 import play.api.Logging
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -42,6 +43,9 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
   private val getAllAgentDetailsUrl: String => URL = storn =>
     url"$base/stamp-duty-land-tax/manage-agents/agent-details/get-all-agents?storn=$storn"
 
+  private val getSdltOrganisationUrl: String => URL = storn =>
+    url"$base/stamp-duty-land-tax/manage-agents/get-sdlt-organisation?storn=$storn"
+
   def getAllReturns(storn: String)
                    (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
     http
@@ -53,6 +57,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
           throw new RuntimeException(e.getMessage)
       }
 
+  @deprecated("Use StampDutyLandTaxConnector.getSdltOrganisation")
   def getAllAgentDetails(storn: String)
                         (implicit hc: HeaderCarrier): Future[List[AgentDetailsResponse]] =
     http
@@ -61,6 +66,17 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
       .recover {
         case e: Throwable =>
           logger.error(s"[StampDutyLandTaxConnector][getAllAgentDetails]: ${e.getMessage}")
+          throw new RuntimeException(e.getMessage)
+      }
+
+  def getSdltOrganisation(storn: String)
+                         (implicit hc: HeaderCarrier): Future[SdltOrganisationResponse] =
+    http
+      .get(getSdltOrganisationUrl(storn))
+      .execute[SdltOrganisationResponse]
+      .recover {
+        case e: Throwable =>
+          logger.error(s"[StampDutyLandTaxConnector][getSdltOrganisation]: ${e.getMessage}")
           throw new RuntimeException(e.getMessage)
       }
 }
