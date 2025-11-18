@@ -28,7 +28,7 @@ import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -54,28 +54,29 @@ class AuthenticatedIdentifierAction @Inject()(
         Retrievals.internalId     and
         Retrievals.allEnrolments  and
         Retrievals.affinityGroup  and
-        Retrievals.credentialRole
+        Retrievals.credentialRole and
+        Retrievals.name
       ) {
         //TODO: Add more cases to log and handle error response for missing items eg missing Organisation
-        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Organisation) ~ Some(User) =>
+        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Organisation) ~ Some(User) ~ Some(Name(Some(name), _)) =>
           hasSdltOrgEnrolment(enrolments)
             .map { storn =>
-              block(IdentifierRequest(request, internalId, storn))
+              block(IdentifierRequest(request, internalId, storn, name))
             }
             .getOrElse(
               Future.successful(
                 Redirect(controllers.manage.routes.UnauthorisedOrganisationAffinityController.onPageLoad())
               )
             )
-        case Some(_) ~ _ ~ Some(Organisation) ~ Some(Assistant)                          =>
+        case Some(_) ~ _ ~ Some(Organisation) ~ Some(Assistant) ~ _                      =>
           logger.info("EnrolmentAuthIdentifierAction - Organisation: Assistant login attempt")
           Future.successful(Redirect(controllers.manage.routes.UnauthorisedWrongRoleController.onPageLoad()))
-        case Some(_) ~ _ ~ Some(Individual) ~ _                                          =>
+        case Some(_) ~ _ ~ Some(Individual) ~ _ ~ _                                      =>
           logger.info("EnrolmentAuthIdentifierAction - Individual login attempt")
           Future.successful(
             Redirect(controllers.manage.routes.UnauthorisedIndividualAffinityController.onPageLoad())
           )
-        case Some(_) ~ _ ~ Some(Agent) ~ _                                               =>
+        case Some(_) ~ _ ~ Some(Agent) ~ _ ~ _                                           =>
           logger.info("EnrolmentAuthIdentifierAction - Unauthorised Agent login attempt")
           Future.successful(
             Redirect(controllers.manage.routes.UnauthorisedAgentAffinityController.onPageLoad())

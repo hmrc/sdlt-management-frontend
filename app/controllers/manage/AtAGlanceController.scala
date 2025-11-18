@@ -31,16 +31,12 @@ import controllers.routes.JourneyRecoveryController
 import controllers.manage.routes.*
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import AtAGlanceController.*
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class AtAGlanceController@Inject()(
                                     override val messagesApi: MessagesApi,
                                     val controllerComponents: MessagesControllerComponents,
-                                    val authConnector: AuthConnector,
                                     inProgressService: InProgressReturnsService,
                                     stampDutyLandTaxService: StampDutyLandTaxService,
                                     appConfig: FrontendAppConfig,
@@ -54,6 +50,7 @@ class AtAGlanceController@Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
     val storn = request.storn
+    val name = request.name
 
     (for {
       agents <- stampDutyLandTaxService.getAllAgentDetails(storn)
@@ -62,15 +59,10 @@ class AtAGlanceController@Inject()(
       }
       submittedReturns <- stampDutyLandTaxService.getSubmittedReturnsView(storn)
       dueForDeletion <- stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
-      optName <- authConnector.authorise(EmptyPredicate,Retrievals.name)
     } yield {
-
-
-      val maybeName = optName.flatMap(_.name).filterNot(_ == "TestUser")
-
       Ok(view(
           storn,
-          maybeName,
+          name,
           returnsManagementViewModel(returnsInProgress.size, submittedReturns.size, dueForDeletion.size),
           agentDetailsViewModel(agents.size, appConfig),
           helpAndContactViewModel(appConfig),
