@@ -54,12 +54,19 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     }
   }
 
-  // TODO: THIS IS USING A DEPRECATED CALL
+  // TODO: REMOVE THIS DEPRECATED CALL
   @deprecated
   def getAllAgents(storn: String)
                   (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
     stampDutyLandTaxConnector
       .getAllAgentDetails(storn)
+
+
+  def getAllAgentDetails(storn: String)
+                        (implicit headerCarrier: HeaderCarrier): Future[Seq[AgentDetailsResponse]] =
+    stampDutyLandTaxConnector
+      .getSdltOrganisation(storn)
+      .map(_.agents)
 
   def getSubmittedReturnsView(storn: String)
                    (implicit hc: HeaderCarrier): Future[List[SdltSubmittedReturnsViewModel]] = {
