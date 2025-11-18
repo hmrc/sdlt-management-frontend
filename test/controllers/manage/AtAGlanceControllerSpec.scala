@@ -47,6 +47,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
     val application: Application =
       applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
+        .overrides(bind[InProgressReturnsService].toInstance(mockInProgressService))
         .build()
 
     implicit val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
