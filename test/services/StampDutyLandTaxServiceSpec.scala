@@ -41,11 +41,73 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
   private def newService(): (StampDutyLandTaxService, StampDutyLandTaxConnector) = {
     val connector = mock(classOf[StampDutyLandTaxConnector])
-    val service   = new StampDutyLandTaxService(connector)
+    val service = new StampDutyLandTaxService(connector)
     (service, connector)
   }
 
   private val storn = "STN001"
+
+  private val summaries: List[ReturnSummary] = List(
+    ReturnSummary(
+      returnReference = "RET-001",
+      utrn = Some("UTRN-001"),
+      status = "PENDING",
+      dateSubmitted = Some(LocalDate.parse("2025-10-25")),
+      purchaserName = "John Smith",
+      address = "10 Downing Street, London",
+      agentReference = Some("Smith & Co Solicitors")
+    ),
+    ReturnSummary(
+      returnReference = "RET-002",
+      utrn = Some("UTRN-002"),
+      status = "SUBMITTED",
+      dateSubmitted = Some(LocalDate.parse("2025-10-25")),
+      purchaserName = "Jane Doe",
+      address = "221B Baker Street, London",
+      agentReference = Some("Anderson Legal LLP")
+    ),
+    ReturnSummary(
+      returnReference = "RET-003",
+      utrn = Some("UTRN-003"),
+      status = "ACCEPTED",
+      dateSubmitted = Some(LocalDate.parse("2025-10-25")),
+      purchaserName = "Alice",
+      address = "1 Queen’s Way, Birmingham",
+      agentReference = Some("Harborview Estates")
+    ),
+    ReturnSummary(
+      returnReference = "RET-004",
+      utrn = Some("UTRN-004"),
+      status = "STARTED",
+      dateSubmitted = Some(LocalDate.parse("2025-10-25")),
+      purchaserName = "Bob",
+      address = "Some Address",
+      agentReference = Some("Harborview Estates")
+    ),
+    ReturnSummary(
+      returnReference = "RET-005",
+      utrn = Some("UTRN-005"),
+      status = "IN-PROGRESS",
+      dateSubmitted = Some(LocalDate.parse("2025-10-25")),
+      purchaserName = "Charlie",
+      address = "Another Address",
+      agentReference = Some("Harborview Estates")
+    ),
+    ReturnSummary(
+      returnReference = "RET-006",
+      utrn = Some("UTRN-006"),
+      status = "DUE_FOR_DELETION",
+      dateSubmitted = Some(LocalDate.parse("2025-10-25")),
+      purchaserName = "Eve",
+      address = "Somewhere",
+      agentReference = Some("Harborview Estates")
+    )
+  )
+
+  private val aggregateResponse = SdltReturnRecordResponse(
+    returnSummaryCount = Some(summaries.size),
+    returnSummaryList = summaries
+  )
 
   "getInProgressReturns" should {
     "merge ACCEPTED and STARTED IN-PROGRESS returns" in {
@@ -108,7 +170,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       result must contain theSameElementsAs expected
 
       verify(connector).getReturns(eqTo(Some("ACCEPTED")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
-      verify(connector).getReturns(eqTo(Some("STARTED")),  eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
+      verify(connector).getReturns(eqTo(Some("STARTED")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
       verifyNoMoreInteractions(connector)
     }
   }
@@ -266,34 +328,36 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
   }
 
   "getSubmittedReturnsView" should {
-    "return all returns but filter for all SUBMITTED and SUBMITTED_NO_RECEIPT returns when converted to SdltSubmittedReturnsViewModel" in {
-      val (service, connector) = newService()
+    "getSubmittedReturnsView" should {
+      "return all returns but filter for all SUBMITTED and SUBMITTED_NO_RECEIPT returns when converted to SdltSubmittedReturnsViewModel" in {
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(aggregateResponse))
+        val (service, connector) = newService()
+        implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
-      val result = service.getSubmittedReturnsView(storn).futureValue
+        when(connector.getReturns(any(), any(), any())(any(), any()))
+          .thenReturn(Future.successful(aggregateResponse))
 
-      println(result.map(_.status).distinct)
-      println(SUBMITTED)
-      println(SUBMITTED_NO_RECEIPT)
+        val result = service.getSubmittedReturns.futureValue
 
-      val statuses = result.map(_.status).distinct
-      statuses.forall(s => s == SUBMITTED || s == SUBMITTED_NO_RECEIPT) mustBe true
+        val statuses = result.map(_.status).distinct
+        statuses.forall(s => s == SUBMITTED || s == SUBMITTED_NO_RECEIPT) mustBe true
 
-      verify(connector).getAllReturns(eqTo(storn))(any[HeaderCarrier])
-      verifyNoMoreInteractions(connector)
+        verify(connector, times(2)).getReturns(any(), any(), any())(any(), any())
+        verifyNoMoreInteractions(connector)
+      }
     }
 
     "propagate failures from the connector" in {
       val (service, connector) = newService()
+      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
-      when(connector.getAllReturns(eqTo(storn))(any[HeaderCarrier]))
+      when(connector.getReturns(any(), any(), any())(any(), any()))
         .thenReturn(Future.failed(new RuntimeException("Error: Connector issue")))
 
       val ex = intercept[RuntimeException] {
-        service.getSubmittedReturnsView(storn).futureValue
+        service.getSubmittedReturns.futureValue
       }
+
       ex.getMessage must include("Error: Connector issue")
     }
   }

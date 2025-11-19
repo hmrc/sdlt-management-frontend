@@ -47,12 +47,9 @@ class SubmittedReturnsViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       (0 to 17).toList.map(index =>
         SdltSubmittedReturnsViewModel(
           address = s"$index Riverside Drive",
-          agentReference = "B4C72F7T3",
-          dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = SUBMITTED,
-          returnReference = "RETREF003",
+          status = SUBMITTED
         )
       )
 
@@ -60,12 +57,9 @@ class SubmittedReturnsViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       (0 to 7).toList.map(index =>
         SdltSubmittedReturnsViewModel(
           address = s"$index Riverside Drive",
-          agentReference = "B4C72F7T3",
-          dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = SUBMITTED_NO_RECEIPT,
-          returnReference = "RETREF003",
+          status = SUBMITTED_NO_RECEIPT
         )
       )
 
@@ -126,8 +120,6 @@ class SubmittedReturnsViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
 
       val html = view(expectedDataNoPagination, paginator, paginationText)
       val doc = parseHtml(html)
-
-      println(doc)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
       doc.select(".govuk-pagination").size mustBe 0
