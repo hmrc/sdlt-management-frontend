@@ -17,22 +17,8 @@
 package controllers.actions
 
 import base.SpecBase
-import com.google.inject.Inject
 import config.FrontendAppConfig
-import controllers.routes
-import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.inject.bind
-import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
-import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
-import uk.gov.hmrc.http.HeaderCarrier
 import controllers.actions.TestAuthRetrievals.Ops
-import base.SpecBase
-import com.google.inject.Inject
-import config.FrontendAppConfig
 import controllers.routes
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -44,32 +30,47 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.auth.core.retrieve.~
 
-import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionSpec extends SpecBase {
 
-  val testStorn: String = "STN001"
-
   trait Fixture {
     val mockAuthConnector: AuthConnector = mock[AuthConnector]
+
     val application: Application = applicationBuilder(userAnswers = None)
       .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
       .build()
-    val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-    val appConfig = application.injector.instanceOf[FrontendAppConfig]
-    val emptyEnrolments = Enrolments(Set.empty)
-    val id: String = UUID.randomUUID().toString
 
+    val bodyParsers: BodyParsers.Default = application.injector.instanceOf[BodyParsers.Default]
+    val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
+
+    val emptyEnrolments = Enrolments(Set.empty)
+
+    val orgEnrollment: Enrolment = Enrolment(
+      "IR-SDLT-ORG",
+      Seq(
+        EnrolmentIdentifier("STORN", testStorn)
+      ),
+      "activated",
+      None
+    )
+
+    // TODO: clarify enrollments details for agent
+    val agentEnrollment: Enrolment = Enrolment(
+      "IR-SDLT-AGENT",
+      Seq(
+        EnrolmentIdentifier("STORN", testStorn)
+      ),
+      "activated",
+      None
+    )
+
+    val id: String = UUID.randomUUID().toString
+    val testStorn: String = "STN001"
   }
 
   type RetrievalsType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ Option[CredentialRole]
@@ -78,7 +79,7 @@ class AuthActionSpec extends SpecBase {
     def onPageLoad(): Action[AnyContent] = authAction(_ => Results.Ok)
   }
 
-  "Auth Action" - {
+  "Authentication Action" - {
 
     "when the user hasn't logged in" - {
       "must redirect the user to log in " in new Fixture {
@@ -203,7 +204,26 @@ class AuthActionSpec extends SpecBase {
       }
     }
 
-    "when the user is an agent" - {
+    "user logged in as an agent" - {
+      "and is allowed into the service" - {
+        "must succeed" - {
+          "when the user has a IR-SDLT-AGENT enrolment with the correct activated identifiers" in new Fixture {
+            val enrolments = Enrolments(Set(agentEnrollment))
+            when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+              .thenReturn(
+                Future.successful(Some(id) ~ enrolments ~ Some(Organisation) ~ Some(User))
+              )
+            running(application) {
+              val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+              val controller = new Harness(authAction)
+              val result = controller.onPageLoad()(FakeRequest())
+
+              status(result) mustBe OK
+            }
+          }
+        }
+      }
+      /*
       "must redirect the user to unauthorised agent affinity screen" in new Fixture {
 
         when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
@@ -220,6 +240,7 @@ class AuthActionSpec extends SpecBase {
             .url
         }
       }
+       */
     }
 
     "the user is logged in as an individual" - {
@@ -260,22 +281,11 @@ class AuthActionSpec extends SpecBase {
       }
     }
 
-    "the user is logged in as an organisation User" - {
+    "user is logged in as an organisation" - {
       "and is allowed into the service" - {
         "must succeed" - {
           "when the user has a IR-SDLT-ORG enrolment with the correct activated identifiers" in new Fixture {
-            val enrolments = Enrolments(
-              Set(
-                Enrolment(
-                  "IR-SDLT-ORG",
-                  Seq(
-                    EnrolmentIdentifier("STORN", testStorn)
-                  ),
-                  "activated",
-                  None
-                )
-              )
-            )
+            val enrolments = Enrolments(Set(orgEnrollment))
             when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
               .thenReturn(
                 Future.successful(Some(id) ~ enrolments ~ Some(Organisation) ~ Some(User))
