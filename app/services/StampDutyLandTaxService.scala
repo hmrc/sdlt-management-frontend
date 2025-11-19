@@ -18,17 +18,13 @@ package services
 
 import connectors.StampDutyLandTaxConnector
 import models.manage.ReturnSummary
-import models.manage.{ReturnSummaryLegacy, SdltReturnRecordRequest, SdltReturnRecordResponse, SdltReturnRecordResponseLegacy}
-import models.manageAgents.AgentDetailsResponse
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
-import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
-import models.responses.UniversalStatus.{ACCEPTED, PENDING, SUBMITTED, SUBMITTED_NO_RECEIPT}
+import models.responses.SdltInProgressReturnViewRow
+import models.responses.UniversalStatus
 import uk.gov.hmrc.http.HeaderCarrier
-import viewmodels.manage.SdltSubmittedReturnsViewModel.convertResponseToSubmittedView
 import UniversalStatus.*
 
-import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,14 +35,14 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
   def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltInProgressReturnViewRow]] = {
     for {
       accepted <- stampDutyLandTaxConnector.getReturns(Some("ACCEPTED"), Some("IN-PROGRESS"), deletionFlag = false)
-      pending  <- stampDutyLandTaxConnector.getReturns(Some("PENDING"),  Some("IN-PROGRESS"), deletionFlag = false)
+      started  <- stampDutyLandTaxConnector.getReturns(Some("STARTED"),  Some("IN-PROGRESS"), deletionFlag = false)
     } yield {
 
       val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
-      
+
       val inProgressReturnsList =
-        (accepted.returnSummaryList ++ pending.returnSummaryList)
-          .sortBy(_.dateSubmitted.getOrElse(LocalDate.MAX))
+        (accepted.returnSummaryList ++ started.returnSummaryList)
+          .sortBy(_.purchaserName)
 
       for {
         rec    <- inProgressReturnsList
@@ -69,7 +65,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     } yield {
 
       val acceptableStatus: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
-      
+
       val submittedReturnsList =
         (submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList)
           .sortBy(_.purchaserName)
