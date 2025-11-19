@@ -31,7 +31,6 @@ import controllers.routes.JourneyRecoveryController
 import controllers.manage.routes.*
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import AtAGlanceController.*
-
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -51,8 +50,7 @@ class AtAGlanceController@Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
     val storn = request.storn
-    // TODO : retrieve first and last name of user and pass down to view
-    val name = "David Frank"
+    val name = request.name
 
     (for {
       agents <- stampDutyLandTaxService.getAllAgentDetails(storn)
@@ -62,7 +60,6 @@ class AtAGlanceController@Inject()(
       submittedReturns <- stampDutyLandTaxService.getSubmittedReturnsView(storn)
       dueForDeletion <- stampDutyLandTaxService.getReturn(storn, "DUE_FOR_DELETION")
     } yield {
-
       Ok(view(
           storn,
           name,

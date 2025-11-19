@@ -30,7 +30,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
 import uk.gov.hmrc.http.HeaderCarrier
-
 import java.time.LocalDate
 import scala.concurrent.Future
 import AtAGlanceController.*
@@ -133,7 +132,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AtAGlanceView]
         val expected = view(
           storn = "STN001",
-          name = "David Frank",
+          name = "TestUser",
           returnsManagementViewModel(0, 0, 0),
           agentDetailsViewModel(0, appConfig),
           helpAndContactViewModel(appConfig),
@@ -167,7 +166,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AtAGlanceView]
         val expected = view(
           storn = "STN001",
-          name = "David Frank",
+          name = "TestUser",
           returnsManagementViewModel(
             expectedInProgressData.size,
             expectedSubmittedData.size,
