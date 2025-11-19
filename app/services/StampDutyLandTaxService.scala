@@ -22,11 +22,13 @@ import models.manage.{ReturnSummaryLegacy, SdltReturnRecordRequest, SdltReturnRe
 import models.manageAgents.AgentDetailsResponse
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
-import models.responses.UniversalStatus
-import models.responses.UniversalStatus.{ACCEPTED, PENDING}
+import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
+import models.responses.UniversalStatus.{ACCEPTED, PENDING, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import uk.gov.hmrc.http.HeaderCarrier
 import viewmodels.manage.SdltSubmittedReturnsViewModel.convertResponseToSubmittedView
+import UniversalStatus.*
 
+import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,66 +36,62 @@ import scala.concurrent.{ExecutionContext, Future}
 class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLandTaxConnector)
                                         (implicit executionContext: ExecutionContext) {
 
-  @deprecated
-  def getReturnLegacy(storn: String, status: String)
-                     (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummaryLegacy]] = {
-  stampDutyLandTaxConnector
-    .getAllReturnsLegacy(storn)
-    .map {
-      _.returnSummaryList.filter(_.status == status)
-    }
-  }
-
-  // TODO: THIS IS USING A DEPRECATED CALL
-  @deprecated
-  def getAllAgentsLegacy(storn: String)
-                        (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
-    stampDutyLandTaxConnector
-      .getAllAgentDetails(storn)
-
-
-  def getAllAgentDetails(storn: String)
-                        (implicit headerCarrier: HeaderCarrier): Future[Seq[AgentDetailsResponse]] =
-    stampDutyLandTaxConnector
-      .getSdltOrganisation(storn)
-      .map(_.agents)
-
-  def getSubmittedReturnsView(storn: String)
-                   (implicit hc: HeaderCarrier): Future[List[SdltSubmittedReturnsViewModel]] = {
-    stampDutyLandTaxConnector
-      .getAllReturns(storn).map { response =>
-      convertResponseToSubmittedView(response)
-    }
-  }
-      .getAllAgentDetailsLegacy(storn)
-
-  def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltReturnRecordResponse] = {
+  def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltInProgressReturnViewRow]] = {
     for {
       accepted <- stampDutyLandTaxConnector.getReturns(Some("ACCEPTED"), Some("IN-PROGRESS"), deletionFlag = false)
       pending  <- stampDutyLandTaxConnector.getReturns(Some("PENDING"),  Some("IN-PROGRESS"), deletionFlag = false)
     } yield {
-      SdltReturnRecordResponse(
-        returnSummaryList =
-          accepted.returnSummaryList ++ pending.returnSummaryList
+
+      val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
+      
+      val inProgressReturnsList =
+        (accepted.returnSummaryList ++ pending.returnSummaryList)
+          .sortBy(_.dateSubmitted.getOrElse(LocalDate.MAX))
+
+      for {
+        rec    <- inProgressReturnsList
+        status <- fromString(rec.status)
+        arn    <- rec.agentReference
+        if inProgressReturnStatuses.contains(status)
+      } yield SdltInProgressReturnViewRow(
+        address = rec.address,
+        agentReference = arn,
+        purchaserName = rec.purchaserName,
+        status = status,
       )
     }
   }
 
-  def getSubmittedReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltReturnRecordResponse] = {
+  def getSubmittedReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltSubmittedReturnsViewModel]] = {
     for {
       submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
-      SdltReturnRecordResponse(
-        returnSummaryList =
-          submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList
+
+      val acceptableStatus: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
+      
+      val submittedReturnsList =
+        (submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList)
+          .sortBy(_.purchaserName)
+
+      for {
+        rec    <- submittedReturnsList
+        status <- fromString(rec.status)
+        utrn   <- rec.utrn
+        if acceptableStatus.contains(status)
+      } yield SdltSubmittedReturnsViewModel(
+        address = rec.address,
+        utrn = utrn,
+        purchaserName = rec.purchaserName,
+        status = status
       )
     }
   }
 
-  def getReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltReturnRecordResponse] =
+  def getReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
     stampDutyLandTaxConnector
       .getReturns(None, None, deletionFlag = true)
+      .map(_.returnSummaryList)
 
   def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
     stampDutyLandTaxConnector

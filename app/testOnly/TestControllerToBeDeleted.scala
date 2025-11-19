@@ -21,6 +21,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services.StampDutyLandTaxService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.{Inject, Singleton}
@@ -32,44 +33,28 @@ class TestControllerToBeDeleted @Inject()(
                                             identify: IdentifierAction,
                                             getData: DataRetrievalAction,
                                             requireData: DataRequiredAction,
-                                            requireStorn: IdentifierAction,
                                             stampDutyLandTaxService: StampDutyLandTaxService,
                                             val controllerComponents: MessagesControllerComponents
-                                          )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                          )(implicit executionContext: ExecutionContext, headerCarrier: HeaderCarrier) extends FrontendBaseController with I18nSupport {
 
   //TODO: TO BE DELETED - FOR VISUAL TESTING
 
-  def onPageLoad(storn: String): Action[AnyContent] = (identify andThen getData andThen requireData andThen requireStorn).async {
+  def onPageLoad(storn: String): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
       for {
-        getAllAcceptedReturns <- stampDutyLandTaxService.getReturnLegacy(storn, "ACCEPTED")
-        getAllInProgressReturns <- stampDutyLandTaxService.getReturnLegacy(storn, "IN-PROGRESS")
-        getAllPendingReturns <- stampDutyLandTaxService.getReturnLegacy(storn, "PENDING")
-        getAllStartedReturns <- stampDutyLandTaxService.getReturnLegacy(storn, "STARTED")
-        getAllSubmittedReturns <- stampDutyLandTaxService.getReturnLegacy(storn, "SUBMITTED")
-        getReturnsDueForDeletion <- stampDutyLandTaxService.getReturnLegacy(storn, "DUE_FOR_DELETION")
-        getAllAgents <- stampDutyLandTaxService.getAllAgentsLegacy(storn)
+        getAllInProgressReturns  <- stampDutyLandTaxService.getInProgressReturns
+        getAllSubmittedReturns   <- stampDutyLandTaxService.getSubmittedReturns
+        getReturnsDueForDeletion <- stampDutyLandTaxService.getReturnsDueForDeletion
+        getAgentsCount           <- stampDutyLandTaxService.getAgentCount
       } yield {
         Ok(Html(
           s"""
-             |getAllAgents: $getAllAgents
-             |<br><br>
-             |getAllAcceptedReturns: $getAllAcceptedReturns
-             |<br><br>
              |getAllInProgressReturns: $getAllInProgressReturns
-             |<br><br>
-             |getAllPendingReturns: $getAllPendingReturns
-             |<br><br>
-             |getAllPendingReturns: $getAllPendingReturns
-             |<br><br>
-             |getAllStartedReturns: $getAllStartedReturns
              |<br><br>
              |getAllSubmittedReturns: $getAllSubmittedReturns
              |<br><br>
              |getReturnsDueForDeletion: $getReturnsDueForDeletion
-             |<br><br>
-             |getAllAgents: $getAllAgents
              |""".stripMargin
         ))
       }

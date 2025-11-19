@@ -26,11 +26,8 @@ import java.time.LocalDate
 case class SdltInProgressReturnViewRow(
                                         address: String,
                                         agentReference: String,
-                                        dateSubmitted: LocalDate,
-                                        utrn: String,
                                         purchaserName: String,
-                                        status: UniversalStatus,
-                                        returnReference: String
+                                        status: UniversalStatus
                                       )
 
 object SdltInProgressReturnViewRow {
@@ -40,22 +37,17 @@ object SdltInProgressReturnViewRow {
   private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
 
   def convertResponseToViewRows(response: SdltReturnRecordResponseLegacy): List[SdltInProgressReturnViewRow] = {
-    response.returnSummaryList.flatMap {
-      rec =>
-        fromString(rec.status) // Ignore rows which we fail to convert :: should we fail execution???
-          .filter(inProgressReturnStatuses.contains(_))
-          .map { status =>
-            SdltInProgressReturnViewRow(
-              address = rec.address,
-              agentReference = rec.agentReference,
-              dateSubmitted = rec.dateSubmitted,
-              utrn = rec.utrn,
-              purchaserName = rec.purchaserName,
-              status = status,
-              returnReference = rec.returnReference
-            )
-          }
-    }
+
+    for {
+      rec <- response.returnSummaryList
+      status <- fromString(rec.status)
+      if inProgressReturnStatuses.contains(status)
+    } yield SdltInProgressReturnViewRow(
+      address = rec.address,
+      agentReference = rec.agentReference,
+      purchaserName = rec.purchaserName,
+      status = status,
+    )
   }
 
 }

@@ -23,35 +23,27 @@ import java.time.LocalDate
 
 case class SdltSubmittedReturnsViewModel(
                                         address: String,
-                                        agentReference: String,
-                                        dateSubmitted: LocalDate,
                                         utrn: String,
                                         purchaserName: String,
-                                        status: UniversalStatus,
-                                        returnReference: String
+                                        status: UniversalStatus
                                       )
 
 object SdltSubmittedReturnsViewModel {
   import UniversalStatus.*
 
   private val acceptableStatus : Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
-
-  def convertResponseToSubmittedView(response: SdltReturnRecordResponse): List[SdltSubmittedReturnsViewModel] = {
-    response.returnSummaryList.flatMap {
-      rec =>
-        fromString(rec.status)
-          .filter(acceptableStatus.contains(_))
-          .map { status =>
-            SdltSubmittedReturnsViewModel(
-              address = rec.address,
-              agentReference = rec.agentReference,
-              dateSubmitted = rec.dateSubmitted,
-              utrn = rec.utrn,
-              purchaserName = rec.purchaserName,
-              status = status,
-              returnReference = rec.returnReference
-            )
-          }
-    }
-  }
+  
+    def convertResponseToSubmittedView(response: SdltReturnRecordResponse): List[SdltSubmittedReturnsViewModel] =
+      
+      for {
+        rec    <- response.returnSummaryList
+        status <- fromString(rec.status)
+        utrn   <- rec.utrn
+        if acceptableStatus.contains(status)
+      } yield SdltSubmittedReturnsViewModel(
+        address = rec.address,
+        utrn = utrn,
+        purchaserName = rec.purchaserName,
+        status = status
+      )
 }

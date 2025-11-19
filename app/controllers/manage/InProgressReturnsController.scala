@@ -23,11 +23,12 @@ import models.responses.SdltInProgressReturnViewRow
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
-import services.InProgressReturnsService
+import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PaginationHelper
 import views.html.InProgressReturnView
+
 import scala.concurrent.ExecutionContext
 import javax.inject.*
 
@@ -35,7 +36,7 @@ import javax.inject.*
 class InProgressReturnsController @Inject()(
                                              override val messagesApi: MessagesApi,
                                              val controllerComponents: MessagesControllerComponents,
-                                             val inProgressReturnsService: InProgressReturnsService,
+                                             stampDutyLandTaxService: StampDutyLandTaxService,
                                              identify: IdentifierAction,
                                              getData: DataRetrievalAction,
                                              requireData: DataRequiredAction,
@@ -49,22 +50,18 @@ class InProgressReturnsController @Inject()(
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
-    inProgressReturnsService.getAllReturnsLegacy(request.storn).map {
-      case Right(allDataRows) =>
-        Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
-        pageIndexSelector(index, allDataRows.length) match {
-          case Right(selectedPageIndex) =>
-            val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
-            val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
-            val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
-            Ok(view(rowsForSelectedPage, paginator, paginationText))
-          case Left(error) => // strongly advised to avoid this approach to redirect to itself / implemented as per QA request
-            Logger("application").error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
-            Redirect( urlSelector(1) )
-        }
-      case Left(ex) =>
-        Logger("application").error(s"[InProgressReturnsController][onPageLoad] - pageIndex: $index / error: ${ex}")
-        Redirect(JourneyRecoveryController.onPageLoad())
+    stampDutyLandTaxService.getInProgressReturns map { allDataRows =>
+      Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
+      pageIndexSelector(index, allDataRows.length) match {
+        case Right(selectedPageIndex) =>
+          val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
+          val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
+          val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
+          Ok(view(rowsForSelectedPage, paginator, paginationText))
+        case Left(error) => // strongly advised to avoid this approach to redirect to itself / implemented as per QA request
+          Logger("application").error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
+          Redirect( urlSelector(1) )
+      }
     }
   }
 }

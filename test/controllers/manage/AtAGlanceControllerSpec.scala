@@ -23,7 +23,7 @@ import models.manageAgents.AgentDetailsResponse
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.{InProgressReturnsService, StampDutyLandTaxService}
+import services.StampDutyLandTaxService
 import views.html.manage.AtAGlanceView
 import play.api.inject.bind
 import org.mockito.ArgumentMatchers.any
@@ -85,9 +85,6 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
   "At A Glance Controller" - {
 
     "must return OK and the correct view for a GET with no data" in new Fixture {
-
-      when(mockService.getAllAgentDetails(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Nil))
 
       when(mockInProgressService.getAllReturns(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(List())))

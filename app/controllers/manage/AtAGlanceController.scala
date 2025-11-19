@@ -24,7 +24,6 @@ import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
-import services.InProgressReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
 import controllers.routes.JourneyRecoveryController
@@ -38,7 +37,6 @@ import scala.concurrent.ExecutionContext
 class AtAGlanceController@Inject()(
                                     override val messagesApi: MessagesApi,
                                     val controllerComponents: MessagesControllerComponents,
-                                    inProgressService: InProgressReturnsService,
                                     stampDutyLandTaxService: StampDutyLandTaxService,
                                     appConfig: FrontendAppConfig,
                                     identify: IdentifierAction,
@@ -64,7 +62,7 @@ class AtAGlanceController@Inject()(
       Ok(view(
           storn,
           name,
-          returnsManagementViewModel(returnsInProgress.returnSummaryList.length, submittedReturns.returnSummaryList.length, dueForDeletion.returnSummaryList.length),
+          returnsManagementViewModel(returnsInProgress.length, submittedReturns.length, dueForDeletion.length),
           agentDetailsViewModel(agentsCount, appConfig),
           helpAndContactViewModel(appConfig),
           feedbackViewModel(appConfig.exitSurveyUrl)

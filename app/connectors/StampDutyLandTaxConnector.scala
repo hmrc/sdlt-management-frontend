@@ -20,7 +20,6 @@ import models.manage.{SdltReturnRecordRequest, SdltReturnRecordResponse, SdltRet
 import models.manageAgents.AgentDetailsResponse
 import models.requests.DataRequest
 import models.responses.organisation.SdltOrganisationResponse
-import models.responses.SdltOrganisationResponse
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -41,43 +40,11 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
 
   private val base = config.baseUrl("stamp-duty-land-tax")
 
-  @deprecated("Use getReturnsUrl")
-  private val getAllReturnsUrlLegacy: String => URL = storn =>
-    url"$base/stamp-duty-land-tax/manage-returns/get-returns?storn=$storn"
-
-  @deprecated("Use getSdltOrganisationUrl")
-  private val getAllAgentDetailsUrl: String => URL = storn =>
-    url"$base/stamp-duty-land-tax/manage-agents/agent-details/get-all-agents?storn=$storn"
-
   private val getSdltOrganisationUrl: String => URL = storn =>
     url"$base/stamp-duty-land-tax/manage-agents/get-sdlt-organisation?storn=$storn"
 
   private val getReturnsUrl: URL =
     url"$base/stamp-duty-land-tax/manage-returns/get-returns"
-
-  @deprecated("Use StampDutyLandTaxConnector.getReturns")
-  def getAllReturnsLegacy(storn: String)
-                         (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponseLegacy] =
-    http
-      .get(getAllReturnsUrlLegacy(storn))
-      .execute[SdltReturnRecordResponseLegacy]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[StampDutyLandTaxConnector][getAllReturns]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
-
-  @deprecated("Use StampDutyLandTaxConnector.getSdltOrganisation")
-  def getAllAgentDetailsLegacy(storn: String)
-                              (implicit hc: HeaderCarrier): Future[List[AgentDetailsResponse]] =
-    http
-      .get(getAllAgentDetailsUrl(storn))
-      .execute[List[AgentDetailsResponse]]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[StampDutyLandTaxConnector][getAllAgentDetails]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
-      }
 
   def getSdltOrganisation(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltOrganisationResponse] =
     http

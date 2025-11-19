@@ -27,7 +27,6 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.InProgressReturnsService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.PaginationHelper
