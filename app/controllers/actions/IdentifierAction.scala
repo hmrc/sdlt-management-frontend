@@ -91,8 +91,11 @@ class AuthenticatedIdentifierAction @Inject()(
     }
   }
 
+  // TODO: enabled agents
+  private val permittedEnrolments = Seq("IR-SDLT-ORG") //, "IR-SDLT-AGENT")
+
   private def hasSdltOrgEnrolment[A](enrolments: Set[Enrolment]): Option[String] =
-    enrolments.find(_.key == "IR-SDLT-ORG") match {
+    enrolments.find(enrolment => permittedEnrolments.contains(enrolment.key) ) match {
       case Some(enrolment) =>
         val storn = enrolment.identifiers.find(id => id.key == "STORN").map(_.value)
         val isActivated = enrolment.isActivated
@@ -105,4 +108,5 @@ class AuthenticatedIdentifierAction @Inject()(
         }
       case _ => None
     }
+
 }
