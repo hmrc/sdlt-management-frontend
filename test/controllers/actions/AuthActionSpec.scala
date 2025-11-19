@@ -50,7 +50,7 @@ class AuthActionSpec extends SpecBase {
 
     val emptyEnrolments = Enrolments(Set.empty)
 
-    val orgEnrollment: Enrolment = Enrolment(
+    val orgActiveEnrollment: Enrolment = Enrolment(
       "IR-SDLT-ORG",
       Seq(
         EnrolmentIdentifier("STORN", testStorn)
@@ -58,15 +58,26 @@ class AuthActionSpec extends SpecBase {
       "activated",
       None
     )
-
     // TODO: clarify enrollments details for agent
-    val agentEnrollment: Enrolment = Enrolment(
+    val agentActiveEnrollment: Enrolment = Enrolment(
       "IR-SDLT-AGENT",
       Seq(
         EnrolmentIdentifier("STORN", testStorn)
       ),
       "activated",
       None
+    )
+    val agentInActiveEnrollment = Enrolments(
+      Set(
+        Enrolment(
+          "IR-SDLT-AGENT",
+          Seq(
+            EnrolmentIdentifier("STORN", testStorn)
+          ),
+          "inactivated",
+          None
+        )
+      )
     )
 
     val id: String = UUID.randomUUID().toString
@@ -165,8 +176,8 @@ class AuthActionSpec extends SpecBase {
           redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
         }
       }
-    }
 
+    }
 
     "the user has an unsupported affinity group" - {
 
@@ -204,14 +215,14 @@ class AuthActionSpec extends SpecBase {
       }
     }
 
-    "user logged in as an agent" - {
+    "user logged in as an AGENT" - {
       "and is allowed into the service" - {
         "must succeed" - {
           "when the user has a IR-SDLT-AGENT enrolment with the correct activated identifiers" in new Fixture {
-            val enrolments = Enrolments(Set(agentEnrollment))
-            when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+            val enrollments = Enrolments(Set(agentActiveEnrollment))
+            when(mockAuthConnector.authorise[RetrievalsType](any(), any() )(any(), any()))
               .thenReturn(
-                Future.successful(Some(id) ~ enrolments ~ Some(Organisation) ~ Some(User))
+                Future.successful(Some(id) ~ enrollments ~ Some(Agent) ~ Some(User))
               )
             running(application) {
               val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
@@ -223,27 +234,29 @@ class AuthActionSpec extends SpecBase {
           }
         }
       }
-      /*
-      "must redirect the user to unauthorised agent affinity screen" in new Fixture {
 
-        when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
-          .thenReturn(Future.successful(Some(id) ~ emptyEnrolments ~ Some(Agent) ~ None))
-
-        running(application) {
-          val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
-          val controller = new Harness(authAction)
-          val result = controller.onPageLoad()(FakeRequest())
-
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe controllers.manage.routes.UnauthorisedAgentAffinityController
-            .onPageLoad()
-            .url
+      "when there is an inactive IR-SDLT-AGENT enrolment" - new Fixture {
+        "must redirect to unauthorised organisation affinity screen" in {
+          when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+            .thenReturn(
+              Future.successful(Some(id) ~ agentInActiveEnrollment ~ Some(Agent) ~ Some(User))
+            )
+          running(application) {
+            val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+            val controller = new Harness(authAction)
+            val result = controller.onPageLoad()(FakeRequest())
+            status(result) mustBe SEE_OTHER
+            redirectLocation(
+              result
+            ).value mustBe controllers.manage.routes.UnauthorisedOrganisationAffinityController
+              .onPageLoad()
+              .url
+          }
         }
       }
-       */
     }
 
-    "the user is logged in as an individual" - {
+    "the user is logged in as an INDIVIDUAL" - {
       "fail and redirect to unauthorised individual affinity screen" in new Fixture {
         when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
           .thenReturn(
@@ -262,7 +275,7 @@ class AuthActionSpec extends SpecBase {
       }
     }
 
-    "the user is logged in as an organisation assistant" - {
+    "the user is logged in as an ORGANISATION assistant" - {
       "fail and redirect to unauthorised wrong role screen" in new Fixture {
         when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
           .thenReturn(
@@ -281,14 +294,15 @@ class AuthActionSpec extends SpecBase {
       }
     }
 
-    "user is logged in as an organisation" - {
+    "user is logged in as an ORGANISATION" - {
+
       "and is allowed into the service" - {
         "must succeed" - {
-          "when the user has a IR-SDLT-ORG enrolment with the correct activated identifiers" in new Fixture {
-            val enrolments = Enrolments(Set(orgEnrollment))
+          "when the user has an activated IR-SDLT-ORG enrolment" in new Fixture {
+            val enrollment = Enrolments(Set(orgActiveEnrollment))
             when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
               .thenReturn(
-                Future.successful(Some(id) ~ enrolments ~ Some(Organisation) ~ Some(User))
+                Future.successful(Some(id) ~ enrollment ~ Some(Organisation) ~ Some(User))
               )
             running(application) {
               val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
@@ -303,7 +317,7 @@ class AuthActionSpec extends SpecBase {
 
       "and is not allowed into the service" - {
 
-        "when there is no IR-SDLT-ORG enrolment" - {
+        "when there is no [IR-SDLT-ORG or IR-SDLT-AGENT] enrolment" - {
 
           "must redirect to unauthorised organisation affinity screen" in new Fixture {
 

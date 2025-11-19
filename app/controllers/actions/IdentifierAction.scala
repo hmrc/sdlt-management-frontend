@@ -51,13 +51,15 @@ class AuthenticatedIdentifierAction @Inject()(
 
     authorised(defaultPredicate)
       .retrieve(
-        Retrievals.internalId     and
-        Retrievals.allEnrolments  and
-        Retrievals.affinityGroup  and
-        Retrievals.credentialRole
+        Retrievals.internalId and
+          Retrievals.allEnrolments and
+          Retrievals.affinityGroup and
+          Retrievals.credentialRole
       ) {
         //TODO: Add more cases to log and handle error response for missing items eg missing Organisation
-        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Organisation) ~ Some(User) =>
+
+        // TODO: add test coverage around affinity groups
+        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Organisation|Agent) ~ Some(User) =>
           hasSdltOrgEnrolment(enrolments)
             .map { storn =>
               block(IdentifierRequest(request, internalId, storn))
@@ -67,23 +69,23 @@ class AuthenticatedIdentifierAction @Inject()(
                 Redirect(controllers.manage.routes.UnauthorisedOrganisationAffinityController.onPageLoad())
               )
             )
-        case Some(_) ~ _ ~ Some(Organisation) ~ Some(Assistant)                          =>
+        case Some(_) ~ _ ~ Some(Organisation) ~ Some(Assistant) =>
           logger.info("EnrolmentAuthIdentifierAction - Organisation: Assistant login attempt")
           Future.successful(Redirect(controllers.manage.routes.UnauthorisedWrongRoleController.onPageLoad()))
-        case Some(_) ~ _ ~ Some(Individual) ~ _                                          =>
+        case Some(_) ~ _ ~ Some(Individual) ~ _ =>
           logger.info("EnrolmentAuthIdentifierAction - Individual login attempt")
           Future.successful(
             Redirect(controllers.manage.routes.UnauthorisedIndividualAffinityController.onPageLoad())
           )
-        case Some(_) ~ _ ~ Some(Agent) ~ _                                               =>
+        case Some(_) ~ _ ~ Some(Agent) ~ _ =>
           logger.info("EnrolmentAuthIdentifierAction - Unauthorised Agent login attempt")
           Future.successful(
             Redirect(controllers.manage.routes.UnauthorisedAgentAffinityController.onPageLoad())
           )
-        case _                                                                           =>
+        case _ =>
           logger.warn("EnrolmentAuthIdentifierAction - Unable to retrieve internal id or affinity group")
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
-    } recover {
+      } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>
@@ -91,21 +93,27 @@ class AuthenticatedIdentifierAction @Inject()(
     }
   }
 
-  private val permittedEnrolments = Seq("IR-SDLT-ORG", "IR-SDLT-AGENT")
+  private val permittedSDLTEnrolments = Seq("IR-SDLT-ORG", "IR-SDLT-AGENT")
+
+  private val enrolementStornExtractor: Enrolment => Option[String] = (enrolment: Enrolment) =>
+    enrolment.identifiers
+      .find(id => id.key == "STORN")
+      //.filter(enrolment => permittedSDLTEnrolments.contains(enrolment.key)) // one more check for enrolment
+      .map(_.value)
 
   private def hasSdltOrgEnrolment[A](enrolments: Set[Enrolment]): Option[String] =
-    enrolments.find(enrolment => permittedEnrolments.contains(enrolment.key) ) match {
+    enrolments.find(enrolment => permittedSDLTEnrolments.contains(enrolment.key)) match {
       case Some(enrolment) =>
-        val storn: Option[String] = enrolment.identifiers.find(id => id.key == "STORN").map(_.value)
-        val isActivated = enrolment.isActivated
-        (storn, isActivated) match {
+        (enrolementStornExtractor(enrolment), enrolment.isActivated) match {
           case (Some(storn), true) =>
             Some(storn)
           case _ =>
-            logger.error("EnrolmentAuthIdentifierAction - Unable to retrieve sdlt enrolments")
+            logger.error("[EnrolmentAuthIdentifierAction] - Unable to retrieve sdlt enrolments")
             None
         }
-      case _ => None
+      case _ =>
+        logger.error("[EnrolmentAuthIdentifierAction] - enrollment not found")
+        None
     }
 
 }
