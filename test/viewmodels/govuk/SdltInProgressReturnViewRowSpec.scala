@@ -17,7 +17,7 @@
 package viewmodels.govuk
 
 import forms.mappings.Mappings
-import models.manage.{ReturnSummaryLegacy, SdltReturnRecordResponseLegacy}
+import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.responses.SdltInProgressReturnViewRow
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
@@ -29,60 +29,58 @@ import java.time.LocalDate
 
 class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Mappings with OptionValues {
 
-  val responseWithEmptySummary: SdltReturnRecordResponseLegacy = SdltReturnRecordResponseLegacy(
-    storn = "STORN1",
-    returnSummaryCount = 0,
+  val responseWithEmptySummary: SdltReturnRecordResponse = SdltReturnRecordResponse(
+    returnSummaryCount = Some(0),
     returnSummaryList = List.empty
   )
 
-  val responseWithData: SdltReturnRecordResponseLegacy = SdltReturnRecordResponseLegacy(
-    storn = "STORN1",
-    returnSummaryCount = 0,
+  val responseWithData: SdltReturnRecordResponse = SdltReturnRecordResponse(
+    returnSummaryCount = Some(0),
     returnSummaryList = List(
-      ReturnSummaryLegacy(
+      ReturnSummary(
         returnReference = "REF001",
-        utrn = "UTRN001",
+        utrn = Some("UTRN001"),
         status = "PENDING",
-        dateSubmitted = LocalDate.parse("2025-01-02"),
+        dateSubmitted = Some(LocalDate.parse("2025-01-02")),
         purchaserName = "Name001",
         address = "Address001",
-        agentReference = "AgentRef001"
+        agentReference = Some("AgentRef001")
       ),
-      ReturnSummaryLegacy(
+      ReturnSummary(
         returnReference = "REF002",
-        utrn = "UTRN002",
+        utrn = Some("UTRN002"),
         status = "VALIDATED",
-        dateSubmitted = LocalDate.parse("2025-01-02"),
+        dateSubmitted = Some(LocalDate.parse("2025-01-02")),
         purchaserName = "Name002",
         address = "Address002",
-        agentReference = "AgentRef002"
+        agentReference = Some("AgentRef002")
       ),
-      ReturnSummaryLegacy(
+      ReturnSummary(
         returnReference = "REF003",
-        utrn = "UTRN003",
+        utrn = Some("UTRN003"),
         status = "STARTED",
-        dateSubmitted = LocalDate.parse("2025-01-02"),
+        dateSubmitted = Some(LocalDate.parse("2025-01-02")),
         purchaserName = "Name003",
         address = "Address003",
-        agentReference = "AgentRef003"
+        agentReference = Some("AgentRef003")
       ),
-      ReturnSummaryLegacy(
+      ReturnSummary(
         returnReference = "REF004",
-        utrn = "UTRN004",
+        utrn = Some("UTRN004"),
         status = "SUBMITTED",
-        dateSubmitted = LocalDate.parse("2025-01-02"),
+        dateSubmitted = Some(LocalDate.parse("2025-01-02")),
         purchaserName = "Name004",
         address = "Address004",
-        agentReference = "AgentRef004"
+        agentReference = Some("AgentRef004")
       ),
-      ReturnSummaryLegacy(
+      ReturnSummary(
         returnReference = "REF005",
-        utrn = "UTRN005",
+        utrn = Some("UTRN005"),
         status = "ACCEPTED",
-        dateSubmitted = LocalDate.parse("2025-01-02"),
+        dateSubmitted = Some(LocalDate.parse("2025-01-02")),
         purchaserName = "Name005",
         address = "Address005",
-        agentReference = "AgentRef005"
+        agentReference = Some("AgentRef005")
       )
     )
 
@@ -92,27 +90,25 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
     SdltInProgressReturnViewRow(
       "Address003",
       "AgentRef003",
-      LocalDate.parse("2025-01-02"),
-      "UTRN003",
-      "Name003", STARTED,
-      "REF003"),
+      "Name003",
+      STARTED
+    ),
     SdltInProgressReturnViewRow(
       "Address005",
       "AgentRef005",
-      LocalDate.parse("2025-01-02"),
-      "UTRN005",
-      "Name005", ACCEPTED,
-      "REF005")
+      "Name005",
+      ACCEPTED
+    )
   )
 
   "Response model conversion" - {
     "empty response return empty list" in {
-      val result: List[SdltInProgressReturnViewRow] = convertResponseToViewRows(responseWithEmptySummary)
+      val result: List[SdltInProgressReturnViewRow] = convertResponseToViewRows(responseWithEmptySummary.returnSummaryList)
       result mustBe empty
     }
 
     "response with some data return expected data rows" in {
-      val result: List[SdltInProgressReturnViewRow] = convertResponseToViewRows(responseWithData)
+      val result: List[SdltInProgressReturnViewRow] = convertResponseToViewRows(responseWithData.returnSummaryList)
       result mustBe expectedDataRows
     }
 

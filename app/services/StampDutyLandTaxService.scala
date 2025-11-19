@@ -21,9 +21,7 @@ import models.manage.ReturnSummary
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
 import models.responses.SdltInProgressReturnViewRow
-import models.responses.UniversalStatus
 import uk.gov.hmrc.http.HeaderCarrier
-import UniversalStatus.*
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,23 +36,14 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
       started  <- stampDutyLandTaxConnector.getReturns(Some("STARTED"),  Some("IN-PROGRESS"), deletionFlag = false)
     } yield {
 
-      val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
-
       val inProgressReturnsList =
         (accepted.returnSummaryList ++ started.returnSummaryList)
           .sortBy(_.purchaserName)
-
-      for {
-        rec    <- inProgressReturnsList
-        status <- fromString(rec.status)
-        arn    <- rec.agentReference
-        if inProgressReturnStatuses.contains(status)
-      } yield SdltInProgressReturnViewRow(
-        address = rec.address,
-        agentReference = arn,
-        purchaserName = rec.purchaserName,
-        status = status,
-      )
+      
+      SdltInProgressReturnViewRow
+        .convertResponseToViewRows(
+          inProgressReturnsList
+        )
     }
   }
 
@@ -64,23 +53,15 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
 
-      val acceptableStatus: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
 
       val submittedReturnsList =
         (submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList)
           .sortBy(_.purchaserName)
 
-      for {
-        rec    <- submittedReturnsList
-        status <- fromString(rec.status)
-        utrn   <- rec.utrn
-        if acceptableStatus.contains(status)
-      } yield SdltSubmittedReturnsViewModel(
-        address = rec.address,
-        utrn = utrn,
-        purchaserName = rec.purchaserName,
-        status = status
-      )
+      SdltSubmittedReturnsViewModel
+        .convertResponseToSubmittedView(
+          submittedReturnsList
+        )
     }
   }
 

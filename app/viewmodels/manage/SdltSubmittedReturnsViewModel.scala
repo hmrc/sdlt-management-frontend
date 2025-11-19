@@ -15,11 +15,8 @@
  */
 
 package viewmodels.manage
-import models.manage.SdltReturnRecordResponse
+import models.manage.ReturnSummary
 import models.responses.UniversalStatus
-
-import java.time.LocalDate
-
 
 case class SdltSubmittedReturnsViewModel(
                                         address: String,
@@ -33,10 +30,10 @@ object SdltSubmittedReturnsViewModel {
 
   private val acceptableStatus : Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
   
-    def convertResponseToSubmittedView(response: SdltReturnRecordResponse): List[SdltSubmittedReturnsViewModel] =
+    def convertResponseToSubmittedView(submittedReturns: List[ReturnSummary]): List[SdltSubmittedReturnsViewModel] =
       
       for {
-        rec    <- response.returnSummaryList
+        rec    <- submittedReturns
         status <- fromString(rec.status)
         utrn   <- rec.utrn
         if acceptableStatus.contains(status)

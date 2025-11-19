@@ -37,6 +37,7 @@ import AtAGlanceController.*
 import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
+import models.responses.UniversalStatus.{STARTED, SUBMITTED}
 
 class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
@@ -53,56 +54,23 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
     val atAGlanceUrl: String = controllers.manage.routes.AtAGlanceController.onPageLoad().url
 
-    val expectedAgentData: List[AgentDetailsResponse] =
-      (0 to 3).toList.map(index =>
-        AgentDetailsResponse(
-          agentName =             "John Doe",
-          addressLine1 =          "Oak Lane",
-          addressLine2 =          None,
-          addressLine3 =          "London",
-          addressLine4 =          None,
-          postcode =              None,
-          phone =                 None,
-          email =                 "john.doe@example.com",
-          agentReferenceNumber =  "12345"
-        )
-      )
-
-    val expectedAcceptedReturns: List[ReturnSummary] =
-      (0 to 7).toList.map(index =>
-        ReturnSummary(
-          returnReference = "RETREF003",
-          utrn = Some("UTRN003"),
-          status = "ACCEPTED",
-          dateSubmitted = Some(LocalDate.parse("2025-04-05")),
-          purchaserName = "Brown",
-          address = s"$index Riverside Drive",
-          agentReference = Some("B4C72F7T3")
-        )
-      )
   }
 
   "At A Glance Controller" - {
 
     "must return OK and the correct view for a GET with no data" in new Fixture {
 
-      when(mockInProgressService.getAllReturns(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(List())))
-
-      when(mockService.getSubmittedReturnsView(any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Nil))
-
       when(mockService.getAgentCount(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(0))
 
       when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
+        .thenReturn(Future.successful(Nil))
 
       when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
+        .thenReturn(Future.successful(Nil))
 
       when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
+        .thenReturn(Future.successful(Nil))
 
       running(application) {
 
@@ -131,13 +99,13 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(4))
 
       when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
+        .thenReturn(Future.successful(List(SdltSubmittedReturnsViewModel(address = "10 Downing Street", utrn = "XA1243523", purchaserName = "John Doe", status = SUBMITTED))))
 
       when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(SdltReturnRecordResponse(None, Nil)))
+        .thenReturn(Future.successful(Nil))
 
       when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(SdltReturnRecordResponse(None, expectedAcceptedReturns)))
+        .thenReturn(Future.successful(List(SdltInProgressReturnViewRow(address = "10 Downing Street", agentReference = "ARN0001", purchaserName = "Joe Bloggs", status = STARTED))))
 
       running(application) {
 
@@ -149,9 +117,9 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
           storn = "STN001",
           name = "David Frank",
           returnsManagementViewModel(
-            expectedAcceptedReturns.size,
-            0,
-            0
+            inProgress = 1,
+            submitted = 1,
+            dueForDeletion = 0
           ),
           agentDetailsViewModel(4, appConfig),
           helpAndContactViewModel(appConfig),

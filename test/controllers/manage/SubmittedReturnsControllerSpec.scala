@@ -17,6 +17,7 @@
 package controllers.manage
 
 import base.SpecBase
+import models.requests.DataRequest
 import models.responses.UniversalStatus
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -54,12 +55,9 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       (0 to 7).toList.map(index =>
         SdltSubmittedReturnsViewModel(
           address = s"$index Riverside Drive",
-          agentReference = "B4C72F7T3",
-          dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.SUBMITTED,
-          returnReference = "RETREF003",
+          status = UniversalStatus.SUBMITTED
         )
       )
 
@@ -67,12 +65,9 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       (0 to 17).toList.map(index =>
         SdltSubmittedReturnsViewModel(
           address = s"$index Riverside Drive",
-          agentReference = "B4C72F7T3",
-          dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.SUBMITTED_NO_RECEIPT,
-          returnReference = "RETREF003",
+          status = UniversalStatus.SUBMITTED_NO_RECEIPT
         )
       )
 
@@ -85,7 +80,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET request" in new Fixture {
 
-      when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(expectedEmptyData))
 
       running(application) {
@@ -98,7 +93,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(List[SdltSubmittedReturnsViewModel](), None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturnsView(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
     }
 
@@ -107,16 +102,13 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         (0 to 7).toList.map(index =>
           SdltSubmittedReturnsViewModel(
             address = s"$index Riverside Drive",
-            agentReference = "B4C72F7T3",
-            dateSubmitted = LocalDate.parse("2025-04-05"),
             utrn = "UTRN003",
             purchaserName = "Brown",
-            status = UniversalStatus.SUBMITTED,
-            returnReference = "RETREF003",
+            status = UniversalStatus.SUBMITTED
           )
         )
 
-      when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(actualDataNoPagination))
 
       running(application) {
@@ -129,7 +121,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedDataNoPagination, None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturnsView(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
     }
 
@@ -142,16 +134,13 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       (0 to 17).toList.map(index =>
         SdltSubmittedReturnsViewModel(
           address = s"$index Riverside Drive",
-          agentReference = "B4C72F7T3",
-          dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.SUBMITTED_NO_RECEIPT,
-          returnReference = "RETREF003",
+          status = UniversalStatus.SUBMITTED_NO_RECEIPT
         )
       )
 
-      when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(actualDataPagination))
 
 
@@ -165,8 +154,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedDataPagination.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturnsView(any())(any[HeaderCarrier])
-
+        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
     }
 
@@ -179,16 +167,13 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       (0 to 17).toList.map(index =>
         SdltSubmittedReturnsViewModel(
           address = s"$index Riverside Drive",
-          agentReference = "B4C72F7T3",
-          dateSubmitted = LocalDate.parse("2025-04-05"),
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.SUBMITTED_NO_RECEIPT,
-          returnReference = "RETREF003",
+          status = UniversalStatus.SUBMITTED_NO_RECEIPT
         )
       )
 
-      when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(actualDataPagination))
 
       running(application) {
@@ -201,7 +186,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedDataPagination.takeRight(expectedDataPagination.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturnsView(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
 
     }
@@ -213,17 +198,14 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         (0 to 17).toList.map(index =>
           SdltSubmittedReturnsViewModel(
             address = s"$index Riverside Drive",
-            agentReference = "B4C72F7T3",
-            dateSubmitted = LocalDate.parse("2025-04-05"),
             utrn = "UTRN003",
             purchaserName = "Brown",
-            status = UniversalStatus.SUBMITTED_NO_RECEIPT,
-            returnReference = "RETREF003",
+            status = UniversalStatus.SUBMITTED_NO_RECEIPT
           )
         )
       }
 
-      when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(actualDataPagination))
 
 
@@ -237,14 +219,14 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe onwardRoute.url
 
-        verify(mockService, times(1)).getSubmittedReturnsView(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
 
     }
 
     "redirect to JourneyRecovery if error occurs during returns retrieval" in new Fixture {
 
-      when(mockService.getSubmittedReturnsView(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(new Error("Error")))
 
       running(application) {

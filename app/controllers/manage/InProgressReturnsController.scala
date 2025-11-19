@@ -20,7 +20,7 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import controllers.routes.JourneyRecoveryController
 import models.requests.DataRequest
 import models.responses.SdltInProgressReturnViewRow
-import play.api.Logger
+import play.api.{Logger, Logging}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
@@ -42,7 +42,7 @@ class InProgressReturnsController @Inject()(
                                              requireData: DataRequiredAction,
                                              stornRequiredAction: StornRequiredAction,
                                              view: InProgressReturnView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PaginationHelper {
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PaginationHelper with Logging {
 
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
@@ -62,6 +62,10 @@ class InProgressReturnsController @Inject()(
           Logger("application").error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
           Redirect( urlSelector(1) )
       }
+    } recover {
+      case ex =>
+        logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
+        Redirect(JourneyRecoveryController.onPageLoad())
     }
   }
 }

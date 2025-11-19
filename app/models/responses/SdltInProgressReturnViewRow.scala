@@ -16,12 +16,7 @@
 
 package models.responses
 
-import models.manage.SdltReturnRecordResponseLegacy
-import models.responses.UniversalStatus.{ACCEPTED, PENDING, SUBMITTED}
-import play.api.i18n.Messages
-import play.api.libs.json.{Json, OFormat}
-
-import java.time.LocalDate
+import models.manage.ReturnSummary
 
 case class SdltInProgressReturnViewRow(
                                         address: String,
@@ -36,18 +31,18 @@ object SdltInProgressReturnViewRow {
 
   private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
 
-  def convertResponseToViewRows(response: SdltReturnRecordResponseLegacy): List[SdltInProgressReturnViewRow] = {
+  def convertResponseToViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
 
     for {
-      rec <- response.returnSummaryList
+      rec    <- inProgressReturnsList
       status <- fromString(rec.status)
+      arn    <- rec.agentReference
       if inProgressReturnStatuses.contains(status)
     } yield SdltInProgressReturnViewRow(
       address = rec.address,
-      agentReference = rec.agentReference,
+      agentReference = arn,
       purchaserName = rec.purchaserName,
       status = status,
     )
   }
-
 }
