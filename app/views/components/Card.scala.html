@@ -17,23 +17,27 @@
 @this()
 
 @(
-    title: String,
-    links: Seq[(String, String)]
+        title: String,
+        links: Seq[(String, String)],
+        isNewTab:Boolean = false
 )(implicit messages: Messages)
 
-    <div class="govuk-grid-column-one-half">
-        <div class="govuk-summary-card" style="min-height: 290px;">
-            <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-heading-m govuk-!-margin-bottom-8">@title</h2>
-            </div>
-            <div class="govuk-summary-card__content">
-                <ul class="govuk-list">
-                    @for((text, call) <- links) {
-                    <li class="govuk-!-margin-bottom-2">
-                        <a href="@call" class="govuk-link">@text</a>
-                    </li>
-                    }
-                </ul>
-            </div>
+<div class="govuk-grid-column-one-half">
+    <div class="govuk-summary-card" style="min-height: 290px;">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-heading-m govuk-!-margin-bottom-8">@title</h2>
+        </div>
+        <div class="govuk-summary-card__content">
+            <ul class="govuk-list">
+            @for((text, call) <- links) {
+                <li class="govuk-!-margin-bottom-2">
+                    <a href="@call" class="govuk-link" @if(isNewTab) {
+                        rel="noreferrer noopener" target="_blank" }>
+                    @text
+                    </a>
+                </li>
+            }
+            </ul>
         </div>
     </div>
+</div>

@@ -24,6 +24,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
+import services.InProgressReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
 import controllers.routes.JourneyRecoveryController
@@ -37,6 +38,7 @@ import scala.concurrent.ExecutionContext
 class AtAGlanceController@Inject()(
                                     override val messagesApi: MessagesApi,
                                     val controllerComponents: MessagesControllerComponents,
+                                    inProgressService: InProgressReturnsService,
                                     stampDutyLandTaxService: StampDutyLandTaxService,
                                     appConfig: FrontendAppConfig,
                                     identify: IdentifierAction,
@@ -58,15 +60,17 @@ class AtAGlanceController@Inject()(
       submittedReturns  <- stampDutyLandTaxService.getSubmittedReturns
       dueForDeletion    <- stampDutyLandTaxService.getReturnsDueForDeletion
     } yield {
+
       Ok(view(
           storn,
           name,
           returnsManagementViewModel(returnsInProgress.returnSummaryList.length, submittedReturns.returnSummaryList.length, dueForDeletion.returnSummaryList.length),
           agentDetailsViewModel(agentsCount, appConfig),
           helpAndContactViewModel(appConfig),
-          feedbackViewModel(appConfig.feedbackUrl)
-      ))
-    }) recover {
+          feedbackViewModel(appConfig.exitSurveyUrl)
+          )
+        )
+    }).recover {
         case ex =>
           logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
           Redirect(JourneyRecoveryController.onPageLoad())
@@ -80,7 +84,7 @@ object AtAGlanceController {
     inProgress,
     InProgressReturnsController.onPageLoad(Some(1)).url,
     submitted,
-    SubmittedReturnsController.onPageLoad().url,
+    SubmittedReturnsController.onPageLoad(Some(1)).url,
     dueForDeletion,
     DueForDeletionController.onPageLoad().url,
     "#"

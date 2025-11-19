@@ -23,7 +23,7 @@ import models.manageAgents.AgentDetailsResponse
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.StampDutyLandTaxService
+import services.{InProgressReturnsService, StampDutyLandTaxService}
 import views.html.manage.AtAGlanceView
 import play.api.inject.bind
 import org.mockito.ArgumentMatchers.any
@@ -34,6 +34,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import java.time.LocalDate
 import scala.concurrent.Future
 import AtAGlanceController.*
+import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
+import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
 
 class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
@@ -50,6 +52,21 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
     implicit val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
 
     val atAGlanceUrl: String = controllers.manage.routes.AtAGlanceController.onPageLoad().url
+
+    val expectedAgentData: List[AgentDetailsResponse] =
+      (0 to 3).toList.map(index =>
+        AgentDetailsResponse(
+          agentName =             "John Doe",
+          addressLine1 =          "Oak Lane",
+          addressLine2 =          None,
+          addressLine3 =          "London",
+          addressLine4 =          None,
+          postcode =              None,
+          phone =                 None,
+          email =                 "john.doe@example.com",
+          agentReferenceNumber =  "12345"
+        )
+      )
 
     val expectedAcceptedReturns: List[ReturnSummary] =
       (0 to 7).toList.map(index =>
@@ -68,6 +85,15 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
   "At A Glance Controller" - {
 
     "must return OK and the correct view for a GET with no data" in new Fixture {
+
+      when(mockService.getAllAgentDetails(any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Nil))
+
+      when(mockInProgressService.getAllReturns(any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(List())))
+
+      when(mockService.getSubmittedReturnsView(any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Nil))
 
       when(mockService.getAgentCount(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(0))
@@ -94,7 +120,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
           returnsManagementViewModel(0, 0, 0),
           agentDetailsViewModel(0, appConfig),
           helpAndContactViewModel(appConfig),
-          feedbackViewModel(appConfig.feedbackUrl(request))
+          feedbackViewModel(appConfig.exitSurveyUrl)
         )(request, messages(application)).toString
 
         status(result) mustEqual OK
@@ -132,7 +158,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
           ),
           agentDetailsViewModel(4, appConfig),
           helpAndContactViewModel(appConfig),
-          feedbackViewModel(appConfig.feedbackUrl(request))
+          feedbackViewModel(appConfig.exitSurveyUrl)
         )(request, messages(application)).toString
 
         status(result) mustEqual OK

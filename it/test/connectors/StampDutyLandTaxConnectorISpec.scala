@@ -23,11 +23,13 @@ import models.manage.{SdltReturnRecordResponse, SdltReturnRecordResponseLegacy}
 import models.manageAgents.AgentDetailsResponse
 import models.requests.DataRequest
 import models.responses.organisation.SdltOrganisationResponse
+import models.responses.SdltOrganisationResponse
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.*
 import play.api.test.FakeRequest
+import play.api.http.Status.*
 import uk.gov.hmrc.http.HeaderCarrier
 
 class StampDutyLandTaxConnectorISpec extends AnyWordSpec

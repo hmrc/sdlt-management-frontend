@@ -17,12 +17,15 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
+import models.manage.ReturnSummary
 import models.manage.{ReturnSummaryLegacy, SdltReturnRecordRequest, SdltReturnRecordResponse, SdltReturnRecordResponseLegacy}
 import models.manageAgents.AgentDetailsResponse
+import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
 import models.responses.UniversalStatus
 import models.responses.UniversalStatus.{ACCEPTED, PENDING}
 import uk.gov.hmrc.http.HeaderCarrier
+import viewmodels.manage.SdltSubmittedReturnsViewModel.convertResponseToSubmittedView
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,6 +49,22 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
   def getAllAgentsLegacy(storn: String)
                         (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
     stampDutyLandTaxConnector
+      .getAllAgentDetails(storn)
+
+
+  def getAllAgentDetails(storn: String)
+                        (implicit headerCarrier: HeaderCarrier): Future[Seq[AgentDetailsResponse]] =
+    stampDutyLandTaxConnector
+      .getSdltOrganisation(storn)
+      .map(_.agents)
+
+  def getSubmittedReturnsView(storn: String)
+                   (implicit hc: HeaderCarrier): Future[List[SdltSubmittedReturnsViewModel]] = {
+    stampDutyLandTaxConnector
+      .getAllReturns(storn).map { response =>
+      convertResponseToSubmittedView(response)
+    }
+  }
       .getAllAgentDetailsLegacy(storn)
 
   def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltReturnRecordResponse] = {
