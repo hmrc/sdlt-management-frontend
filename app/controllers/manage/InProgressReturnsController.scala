@@ -20,7 +20,7 @@ import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierA
 import controllers.routes.JourneyRecoveryController
 import models.requests.DataRequest
 import models.responses.SdltInProgressReturnViewRow
-import play.api.{Logger, Logging}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
@@ -51,7 +51,7 @@ class InProgressReturnsController @Inject()(
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
     stampDutyLandTaxService.getInProgressReturns map { allDataRows =>
-      Logger("application").info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
+      logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
       pageIndexSelector(index, allDataRows.length) match {
         case Right(selectedPageIndex) =>
           val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
@@ -59,7 +59,7 @@ class InProgressReturnsController @Inject()(
           val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
           Ok(view(rowsForSelectedPage, paginator, paginationText))
         case Left(error) => // strongly advised to avoid this approach to redirect to itself / implemented as per QA request
-          Logger("application").error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
+          logger.error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
           Redirect( urlSelector(1) )
       }
     } recover {
