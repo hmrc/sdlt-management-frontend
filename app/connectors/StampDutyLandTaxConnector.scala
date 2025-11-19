@@ -17,7 +17,6 @@
 package connectors
 
 import models.manage.{SdltReturnRecordRequest, SdltReturnRecordResponse}
-import models.manageAgents.AgentDetailsResponse
 import models.requests.DataRequest
 import models.responses.organisation.SdltOrganisationResponse
 import play.api.Logging
