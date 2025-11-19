@@ -45,7 +45,7 @@
 @renderTable() = {
     @govukTable(Table(
         rows =
-        dataRows.map{ currentRow =>
+        dataRows.sortBy(_.purchaserName).map{ currentRow =>
             Seq(
                 TableRow(
                     content = HtmlContent(purchaserNameLink(currentRow)),
