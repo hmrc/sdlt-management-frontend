@@ -21,7 +21,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services.StampDutyLandTaxService
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.{Inject, Singleton}
@@ -35,7 +34,7 @@ class TestControllerToBeDeleted @Inject()(
                                             requireData: DataRequiredAction,
                                             stampDutyLandTaxService: StampDutyLandTaxService,
                                             val controllerComponents: MessagesControllerComponents
-                                          )(implicit executionContext: ExecutionContext, headerCarrier: HeaderCarrier) extends FrontendBaseController with I18nSupport {
+                                          )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   //TODO: TO BE DELETED - FOR VISUAL TESTING
 
