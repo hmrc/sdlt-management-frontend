@@ -18,7 +18,8 @@ package controllers.manage
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import controllers.manage.routes.{DueForDeletionController, InProgressReturnsController, SubmittedReturnsController}
+import models.manage.{AtAGlanceViewModel, ReturnSummary, SdltReturnRecordResponse}
 import models.manageAgents.AgentDetailsResponse
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
@@ -33,9 +34,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
 import scala.concurrent.Future
-import AtAGlanceController.*
 import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
-import viewmodels.manage.SdltSubmittedReturnsViewModel
+import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel, SdltSubmittedReturnsViewModel}
 import models.requests.DataRequest
 import models.responses.UniversalStatus.{STARTED, SUBMITTED}
 
@@ -79,14 +79,31 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
         val view = application.injector.instanceOf[AtAGlanceView]
 
-        val expected = view(
+        val expected: String = view(AtAGlanceViewModel(
           storn = "STN001",
           name = "David Frank",
-          returnsManagementViewModel(0, 0, 0),
-          agentDetailsViewModel(0, appConfig),
-          helpAndContactViewModel(appConfig),
-          feedbackViewModel(appConfig.exitSurveyUrl)
-        )(request, messages(application)).toString
+          returns = ReturnsManagementViewModel(
+            inProgressReturnsCount = 0,
+            inProgressReturnsUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
+            submittedReturnsCount = 0,
+            submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
+            dueForDeletionReturnsCount = 0,
+            dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
+            startReturnUrl = "#"
+          ),
+          agentDetails = AgentDetailsViewModel(
+            agentsCount = 0,
+            agentsUrl = appConfig.agentOverviewUrl,
+            addAgentUrl = appConfig.startAddAgentUrl
+          ),
+          helpAndContact = HelpAndContactViewModel(
+            helpUrl = "#",
+            contactUrl = "#",
+            howToPayUrl = appConfig.howToPayUrl,
+            usefulLinksUrl = "#"
+          ),
+          feedback = FeedbackViewModel(feedbackUrl = appConfig.exitSurveyUrl)
+        ))(request, messages(application)).toString
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual expected
@@ -113,18 +130,32 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[AtAGlanceView]
-        val expected = view(
+
+        val expected: String = view(AtAGlanceViewModel(
           storn = "STN001",
           name = "David Frank",
-          returnsManagementViewModel(
-            inProgress = 1,
-            submitted = 1,
-            dueForDeletion = 0
+          returns = ReturnsManagementViewModel(
+            inProgressReturnsCount = 1,
+            inProgressReturnsUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
+            submittedReturnsCount = 1,
+            submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
+            dueForDeletionReturnsCount = 0,
+            dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
+            startReturnUrl = "#"
           ),
-          agentDetailsViewModel(4, appConfig),
-          helpAndContactViewModel(appConfig),
-          feedbackViewModel(appConfig.exitSurveyUrl)
-        )(request, messages(application)).toString
+          agentDetails = AgentDetailsViewModel(
+            agentsCount = 4,
+            agentsUrl = appConfig.agentOverviewUrl,
+            addAgentUrl = appConfig.startAddAgentUrl
+          ),
+          helpAndContact = HelpAndContactViewModel(
+            helpUrl = "#",
+            contactUrl = "#",
+            howToPayUrl = appConfig.howToPayUrl,
+            usefulLinksUrl = "#"
+          ),
+          feedback = FeedbackViewModel(feedbackUrl = appConfig.exitSurveyUrl)
+        ))(request, messages(application)).toString
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual expected

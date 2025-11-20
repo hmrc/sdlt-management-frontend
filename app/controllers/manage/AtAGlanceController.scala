@@ -30,6 +30,7 @@ import controllers.routes.JourneyRecoveryController
 import controllers.manage.routes.*
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import AtAGlanceController.*
+import models.manage.AtAGlanceViewModel
 
 import scala.concurrent.ExecutionContext
 
@@ -38,17 +39,15 @@ class AtAGlanceController@Inject()(
                                     override val messagesApi: MessagesApi,
                                     val controllerComponents: MessagesControllerComponents,
                                     stampDutyLandTaxService: StampDutyLandTaxService,
-                                    appConfig: FrontendAppConfig,
                                     identify: IdentifierAction,
                                     getData: DataRetrievalAction,
                                     view: AtAGlanceView,
                                     requireData: DataRequiredAction,
                                     stornRequiredAction: StornRequiredAction,
-                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                  )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
-    val storn = request.storn
     // TODO : retrieve first and last name of user and pass down to view
     val name = "David Frank"
 
@@ -60,48 +59,19 @@ class AtAGlanceController@Inject()(
     } yield {
 
       Ok(view(
-          storn,
-          name,
-          returnsManagementViewModel(returnsInProgress.length, submittedReturns.length, dueForDeletion.length),
-          agentDetailsViewModel(agentsCount, appConfig),
-          helpAndContactViewModel(appConfig),
-          feedbackViewModel(appConfig.exitSurveyUrl)
-          )
+        AtAGlanceViewModel(
+          storn = request.storn,
+          name = name,
+          inProgressReturns = returnsInProgress,
+          submittedReturns = submittedReturns,
+          dueForDeletionReturns = dueForDeletion,
+          agentsCount = agentsCount
         )
+      ))
     }).recover {
         case ex =>
           logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
           Redirect(JourneyRecoveryController.onPageLoad())
     }
   }
-}
-
-object AtAGlanceController {
-
-  def returnsManagementViewModel(inProgress: Int, submitted: Int, dueForDeletion: Int): ReturnsManagementViewModel = ReturnsManagementViewModel(
-    inProgress,
-    InProgressReturnsController.onPageLoad(Some(1)).url,
-    submitted,
-    SubmittedReturnsController.onPageLoad(Some(1)).url,
-    dueForDeletion,
-    DueForDeletionController.onPageLoad().url,
-    "#"
-  )
-
-  def agentDetailsViewModel(agents: Int, appConfig: FrontendAppConfig): AgentDetailsViewModel = AgentDetailsViewModel(
-    agents,
-    appConfig.agentOverviewUrl,
-    appConfig.startAddAgentUrl
-  )
-
-  def helpAndContactViewModel(appConfig: FrontendAppConfig): HelpAndContactViewModel = HelpAndContactViewModel(
-    "#",
-    "#",
-    appConfig.howToPayUrl,
-    "#"
-  )
-
-  def feedbackViewModel(feedbackUrl: String): FeedbackViewModel = FeedbackViewModel(
-    feedbackUrl
-  )
 }
