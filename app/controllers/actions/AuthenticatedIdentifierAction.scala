@@ -59,8 +59,8 @@ class AuthenticatedIdentifierAction @Inject()(
           handleValidEnrollments(block)(request, internalId, enrolments)
         case Some(internalId) ~ Enrolments(enrolments) ~ Some(Agent) ~ Some(User) if enrolments.exists(_.key == agentEnrollment) =>
           handleValidEnrollments(block)(request, internalId, enrolments)
-        case Some(_) ~ _ ~ Some(Organisation) ~ Some(Assistant) => // Not sure if this is really applicable anymore
-          logger.error("[AuthenticatedIdentifierAction][authorised] - Organisation: Assistant login attempt")
+        case Some(_) ~ _ ~ Some(Organisation|Agent) ~ Some(Assistant) => // Not sure if this is really applicable anymore
+          logger.error("[AuthenticatedIdentifierAction][authorised] - [Organisation|Agent]: Assistant login attempt")
           Future.successful(
             Redirect(controllers.manage.routes.UnauthorisedWrongRoleController.onPageLoad()))
         case Some(_) ~ _ ~ Some(Individual) ~ _ =>
