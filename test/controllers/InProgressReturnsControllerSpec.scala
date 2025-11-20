@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import models.requests.DataRequest
 import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -27,7 +28,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.InProgressReturnsService
+import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.PaginationHelper
@@ -43,10 +44,10 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
   trait Fixture extends PaginationHelper {
     val rowsPerPage: Int = 10
 
-    val mockService: InProgressReturnsService = mock[InProgressReturnsService]
+    val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
 
     val application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-      .overrides(bind[InProgressReturnsService].toInstance(mockService))
+      .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
       .build()
 
     val expectedEmptyData: List[SdltInProgressReturnViewRow] = List[SdltInProgressReturnViewRow]()
@@ -56,11 +57,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         SdltInProgressReturnViewRow(
           address = s"$index Riverside Drive",
           agentReference = "B4C72F7T3",
-          dateSubmitted = LocalDate.parse("2025-04-05"),
-          utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.ACCEPTED,
-          returnReference = "RETREF003",
+          status = UniversalStatus.ACCEPTED
         )
       )
 
@@ -69,11 +67,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         SdltInProgressReturnViewRow(
           address = s"$index Riverside Drive",
           agentReference = "B4C72F7T3",
-          dateSubmitted = LocalDate.parse("2025-04-05"),
-          utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.ACCEPTED,
-          returnReference = "RETREF003",
+          status = UniversalStatus.ACCEPTED
         )
       )
 
@@ -82,11 +77,10 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
   "InProgress Returns Controller " - {
 
-    // happy path
     "return OK for GET:: show empty screen" in new Fixture {
 
-      when(mockService.getAllReturns(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(expectedEmptyData)))
+      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(expectedEmptyData))
 
       running(application) {
 
@@ -98,7 +92,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(List[SdltInProgressReturnViewRow](), None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
     }
 
@@ -108,16 +102,13 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           SdltInProgressReturnViewRow(
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
-            dateSubmitted = LocalDate.parse("2025-04-05"),
-            utrn = "UTRN003",
             purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED,
-            returnReference = "RETREF003",
+            status = UniversalStatus.ACCEPTED
           )
         )
 
-      when(mockService.getAllReturns(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(expectedDataPaginationOff)))
+      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(expectedDataPaginationOff))
 
       running(application) {
 
@@ -129,7 +120,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(actualDataPaginationOff, None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
     }
 
@@ -139,16 +130,13 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           SdltInProgressReturnViewRow(
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
-            dateSubmitted = LocalDate.parse("2025-04-05"),
-            utrn = "UTRN003",
             purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED,
-            returnReference = "RETREF003",
+            status = UniversalStatus.ACCEPTED
           )
         )
 
-      when(mockService.getAllReturns(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
+      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(expectedDataPaginationOn))
 
       val selectedPageIndex: Int = 1
       val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length, urlSelector )(messages(application))
@@ -164,7 +152,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(actualDataPaginationOn.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]])
 
       }
     }
@@ -175,18 +163,15 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           SdltInProgressReturnViewRow(
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
-            dateSubmitted = LocalDate.parse("2025-04-05"),
-            utrn = "UTRN003",
             purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED,
-            returnReference = "RETREF003",
+            status = UniversalStatus.ACCEPTED
           )
         )
       }
 
       val selectedPageIndex: Int = 2
-      when(mockService.getAllReturns(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(expectedDataPaginationOn)))
+      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(expectedDataPaginationOn))
 
 
       val paginator: Option[Pagination] = createPagination(selectedPageIndex,
@@ -203,7 +188,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(actualDataPaginationOn.takeRight(actualDataPaginationOn.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
 
     }
@@ -215,17 +200,14 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           SdltInProgressReturnViewRow(
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
-            dateSubmitted = LocalDate.parse("2025-04-05"),
-            utrn = "UTRN003",
             purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED,
-            returnReference = "RETREF003",
+            status = UniversalStatus.ACCEPTED
           )
         )
       }
 
-      when(mockService.getAllReturns(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(actualDataPaginationOn)))
+      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(actualDataPaginationOn))
 
       running(application) {
 
@@ -237,7 +219,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe "/stamp-duty-land-tax-management/manage-returns/in-progress-returns?index=1"
 
-        verify(mockService, times(1)).getAllReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
 
     }
@@ -245,8 +227,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     // error case #1
     "return SEE_OTHER on GET :: service level error" in new Fixture {
 
-      when(mockService.getAllReturns(any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(new Error("SomeError"))))
+      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
 
       running(application) {
 

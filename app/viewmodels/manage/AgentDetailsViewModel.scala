@@ -17,7 +17,7 @@
 package viewmodels.manage
 
 case class AgentDetailsViewModel(
-                       agents: Int,
-                       agentsUrl: String,
-                       addAgentUrl: String
+                                  agentsCount: Int,
+                                  agentsUrl: String,
+                                  addAgentUrl: String
                        )
