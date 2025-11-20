@@ -333,7 +333,7 @@ class AuthActionSpec extends SpecBase {
               status(result) mustBe SEE_OTHER
               redirectLocation(
                 result
-              ).value mustBe controllers.manage.routes.UnauthorisedOrganisationAffinityController
+              ).value mustBe controllers.routes.UnauthorisedController
                 .onPageLoad()
                 .url
             }
