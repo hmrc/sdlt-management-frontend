@@ -16,21 +16,13 @@
 
 package models.responses
 
-import models.manage.SdltReturnRecordResponse
-import models.responses.UniversalStatus.{ACCEPTED, PENDING, SUBMITTED}
-import play.api.i18n.Messages
-import play.api.libs.json.{Json, OFormat}
-
-import java.time.LocalDate
+import models.manage.ReturnSummary
 
 case class SdltInProgressReturnViewRow(
                                         address: String,
                                         agentReference: String,
-                                        dateSubmitted: LocalDate,
-                                        utrn: String,
                                         purchaserName: String,
-                                        status: UniversalStatus,
-                                        returnReference: String
+                                        status: UniversalStatus
                                       )
 
 object SdltInProgressReturnViewRow {
@@ -39,23 +31,18 @@ object SdltInProgressReturnViewRow {
 
   private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
 
-  def convertResponseToViewRows(response: SdltReturnRecordResponse): List[SdltInProgressReturnViewRow] = {
-    response.returnSummaryList.flatMap {
-      rec =>
-        fromString(rec.status) // Ignore rows which we fail to convert :: should we fail execution???
-          .filter(inProgressReturnStatuses.contains(_))
-          .map { status =>
-            SdltInProgressReturnViewRow(
-              address = rec.address,
-              agentReference = rec.agentReference,
-              dateSubmitted = rec.dateSubmitted,
-              utrn = rec.utrn,
-              purchaserName = rec.purchaserName,
-              status = status,
-              returnReference = rec.returnReference
-            )
-          }
-    }
-  }
+  def convertResponseToViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
 
+    for {
+      rec    <- inProgressReturnsList
+      status <- fromString(rec.status)
+      arn    <- rec.agentReference
+      if inProgressReturnStatuses.contains(status)
+    } yield SdltInProgressReturnViewRow(
+      address = rec.address,
+      agentReference = arn,
+      purchaserName = rec.purchaserName,
+      status = status,
+    )
+  }
 }

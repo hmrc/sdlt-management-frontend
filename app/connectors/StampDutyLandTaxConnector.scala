@@ -16,14 +16,18 @@
 
 package connectors
 
-import models.manage.SdltReturnRecordResponse
-import models.manageAgents.AgentDetailsResponse
-import models.responses.SdltOrganisationResponse
+import models.manage.{SdltReturnRecordRequest, SdltReturnRecordResponse}
+import models.requests.DataRequest
+import models.responses.organisation.SdltOrganisationResponse
 import play.api.Logging
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import scala.util.control.NonFatal
 
 import java.net.URL
 import javax.inject.Inject
@@ -35,48 +39,41 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
 
   private val base = config.baseUrl("stamp-duty-land-tax")
 
-  // TODO: THIS LOGIC IMPLEMENTATION IS WRONG DUE TO INCORRECT DOCUMENTATION (wrong models) - THIS WILL BE FIXED IN THE NEXT SPRINT
-
-  private val getAllReturnsUrl: String => URL = storn =>
-    url"$base/stamp-duty-land-tax/manage-returns/get-returns?storn=$storn"
-
-  private val getAllAgentDetailsUrl: String => URL = storn =>
-    url"$base/stamp-duty-land-tax/manage-agents/agent-details/get-all-agents?storn=$storn"
-
   private val getSdltOrganisationUrl: String => URL = storn =>
     url"$base/stamp-duty-land-tax/manage-agents/get-sdlt-organisation?storn=$storn"
 
-  def getAllReturns(storn: String)
-                   (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
+  private val getReturnsUrl: URL =
+    url"$base/stamp-duty-land-tax/manage-returns/get-returns"
+
+  def getSdltOrganisation(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltOrganisationResponse] =
     http
-      .get(getAllReturnsUrl(storn))
-      .execute[SdltReturnRecordResponse]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[StampDutyLandTaxConnector][getAllReturns]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
+      .get(getSdltOrganisationUrl(request.storn))
+      .execute[Either[UpstreamErrorResponse, SdltOrganisationResponse]]
+      .flatMap {
+        case Right(resp) => Future.successful(resp)
+        case Left(error) => Future.failed(error)
+      }
+      .recoverWith {
+        case NonFatal(e) =>
+          logger.error(s"[StampDutyLandTaxConnector][getSdltOrganisation] failed for storn ${request.storn}: ${e.getMessage}", e)
+          Future.failed(e)
       }
 
-  @deprecated("Use StampDutyLandTaxConnector.getSdltOrganisation")
-  def getAllAgentDetails(storn: String)
-                        (implicit hc: HeaderCarrier): Future[List[AgentDetailsResponse]] =
+  def getReturns(status: Option[String], pageType: Option[String], deletionFlag: Boolean)
+                (implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltReturnRecordResponse] =
     http
-      .get(getAllAgentDetailsUrl(storn))
-      .execute[List[AgentDetailsResponse]]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[StampDutyLandTaxConnector][getAllAgentDetails]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
+      .post(getReturnsUrl)
+      .withBody(Json.toJson(
+        SdltReturnRecordRequest(request.storn, status, deletionFlag, pageType))
+      )
+      .execute[Either[UpstreamErrorResponse, SdltReturnRecordResponse]]
+      .flatMap {
+        case Right(resp) => Future.successful(resp)
+        case Left(error) => Future.failed(error)
       }
-
-  def getSdltOrganisation(storn: String)
-                         (implicit hc: HeaderCarrier): Future[SdltOrganisationResponse] =
-    http
-      .get(getSdltOrganisationUrl(storn))
-      .execute[SdltOrganisationResponse]
-      .recover {
-        case e: Throwable =>
-          logger.error(s"[StampDutyLandTaxConnector][getSdltOrganisation]: ${e.getMessage}")
-          throw new RuntimeException(e.getMessage)
+      .recoverWith {
+        case NonFatal(e) =>
+          logger.error(s"[StampDutyLandTaxConnector][getReturns] failed for storn ${request.storn}: ${e.getMessage}", e)
+          Future.failed(e)
       }
 }

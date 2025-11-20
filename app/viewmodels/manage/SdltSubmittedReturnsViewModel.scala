@@ -15,43 +15,32 @@
  */
 
 package viewmodels.manage
-import models.manage.SdltReturnRecordResponse
+import models.manage.ReturnSummary
 import models.responses.UniversalStatus
 
-import java.time.LocalDate
-
-
 case class SdltSubmittedReturnsViewModel(
-                                        returnReference: String,
-                                        utrn: String,
-                                        status: UniversalStatus,
-                                        dateSubmitted: LocalDate,
-                                        purchaserName: String,
                                         address: String,
-                                        agentReference: String,
+                                        utrn: String,
+                                        purchaserName: String,
+                                        status: UniversalStatus
                                       )
 
 object SdltSubmittedReturnsViewModel {
   import UniversalStatus.*
 
   private val acceptableStatus : Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
-
-  def convertResponseToSubmittedView(response: SdltReturnRecordResponse): List[SdltSubmittedReturnsViewModel] = {
-    response.returnSummaryList.flatMap {
-      rec =>
-        fromString(rec.status)
-          .filter(acceptableStatus.contains(_))
-          .map { status =>
-            SdltSubmittedReturnsViewModel(
-              returnReference = rec.returnReference,
-              utrn = rec.utrn,
-              status = status,
-              dateSubmitted = rec.dateSubmitted,
-              purchaserName = rec.purchaserName,
-              address = rec.address,
-              agentReference = rec.agentReference
-            )
-          }
-    }
-  }
+  
+    def convertResponseToSubmittedView(submittedReturns: List[ReturnSummary]): List[SdltSubmittedReturnsViewModel] =
+      
+      for {
+        rec    <- submittedReturns
+        status <- fromString(rec.status)
+        utrn   <- rec.utrn
+        if acceptableStatus.contains(status)
+      } yield SdltSubmittedReturnsViewModel(
+        address = rec.address,
+        utrn = utrn,
+        purchaserName = rec.purchaserName,
+        status = status
+      )
 }

@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package models.responses
+package models.manage
 
-import models.manageAgents.AgentDetailsResponse
-import play.api.libs.json.*
+import play.api.libs.json.{Json, OFormat}
 
-case class SdltOrganisationResponse(
-                                     storn                   : String,
-                                     version                 : Int,
-                                     isReturnUser            : String,
-                                     doNotDisplayWelcomePage : String,
-                                     agents                  : Seq[AgentDetailsResponse]
+import java.time.LocalDate
+
+case class SdltReturnRecordRequest(
+                                     storn        : String,
+                                     status       : Option[String],
+                                     deletionFlag : Boolean,
+                                     pageType     : Option[String],
+                                     pageNumber   : Option[String] = None
                                    )
 
-object SdltOrganisationResponse {
-  implicit val format: OFormat[SdltOrganisationResponse] = Json.format[SdltOrganisationResponse]
+object SdltReturnRecordRequest {
+  implicit val format: OFormat[SdltReturnRecordRequest] = Json.format[SdltReturnRecordRequest]
 }

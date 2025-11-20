@@ -30,69 +30,60 @@ import java.time.LocalDate
 class SdltSubmittedReturnsViewModelSpec extends AnyFreeSpec with Matchers with Mappings with OptionValues {
 
   val emptyBEResponse: SdltReturnRecordResponse = SdltReturnRecordResponse(
-    storn = "STORN1",
-    returnSummaryCount = 0,
+    returnSummaryCount = Some(0),
     returnSummaryList = List.empty
   )
 
   val populatedBEResponse: SdltReturnRecordResponse = SdltReturnRecordResponse(
-    storn = "STORN1",
-    returnSummaryCount = 0,
+    returnSummaryCount = Some(0),
     returnSummaryList = List(
       ReturnSummary(
         returnReference = "returnReference1",
-        utrn = "UTRN1",
+        utrn = Some("UTRN1"),
         status = "SUBMITTED",
-        dateSubmitted = LocalDate.parse("2025-01-02"),
+        dateSubmitted = Some(LocalDate.parse("2025-01-02")),
         purchaserName = "purchaserName1",
         address = "propertyAddress1",
-        agentReference = "agentReference1"
+        agentReference = Some("agentReference1")
       ),
       ReturnSummary(
         returnReference = "returnReference2",
-        utrn = "UTRN2",
+        utrn = Some("UTRN2"),
         status = "SUBMITTED_NO_RECEIPT",
-        dateSubmitted = LocalDate.parse("2025-01-02"),
+        dateSubmitted = Some(LocalDate.parse("2025-01-02")),
         purchaserName = "purchaserName2",
         address = "propertyAddress2",
-        agentReference = "agentReference2"
+        agentReference = Some("agentReference2")
       )
     )
   )
 
   val expectedDataRows: List[SdltSubmittedReturnsViewModel] = List(
     SdltSubmittedReturnsViewModel(
-      "returnReference1",
-      "UTRN1",
-      SUBMITTED,
-      LocalDate.parse("2025-01-02"),
-      "purchaserName1",
-      "propertyAddress1",
-      "agentReference1"),
+      address = "propertyAddress1",
+      utrn = "UTRN1",
+      purchaserName = "purchaserName1",
+      status = SUBMITTED
+    ),
     SdltSubmittedReturnsViewModel(
-      "returnReference2",
-      "UTRN2",
-      SUBMITTED_NO_RECEIPT,
-      LocalDate.parse("2025-01-02"),
-      "purchaserName2",
-      "propertyAddress2",
-      "agentReference2"),
+      address = "propertyAddress2",
+      utrn = "UTRN2",
+      purchaserName = "purchaserName2",
+      status = SUBMITTED_NO_RECEIPT
+    )
   )
-  
 
   "Convert the be data model to the view model" - {
     "when there is data received from the be, it will be converted to the view model" in {
-      
-      val result = convertResponseToSubmittedView(populatedBEResponse)
+
+      val result = convertResponseToSubmittedView(populatedBEResponse.returnSummaryList)
       result mustBe expectedDataRows
     }
 
     "when there is no data received from the be, the view model should be empty" in {
-      
-      val result = convertResponseToSubmittedView(emptyBEResponse)
+
+      val result = convertResponseToSubmittedView(emptyBEResponse.returnSummaryList)
       result mustBe empty
     }
-
   }
-
 }

@@ -20,11 +20,9 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-// TODO: THIS LOGIC IMPLEMENTATION IS WRONG DUE TO INCORRECT DOCUMENTATION (wrong models) - THIS WILL BE FIXED IN THE NEXT SPRINT
 
 case class SdltReturnRecordResponse(
-                                     storn              : String,
-                                     returnSummaryCount : Int,
+                                     returnSummaryCount : Option[Int] = None,         // preferred: use returnSummaryList.length
                                      returnSummaryList  : List[ReturnSummary]
                                    )
 
@@ -33,13 +31,13 @@ object SdltReturnRecordResponse {
 }
 
 case class ReturnSummary(
-                          returnReference : String,
-                          utrn            : String,
-                          status          : String,
-                          dateSubmitted   : LocalDate,
-                          purchaserName   : String,
-                          address         : String,
-                          agentReference  : String
+                          returnReference : String,             // p_return_infos.return_resource_ref  (NOT optional)
+                          utrn            : Option[String],     // p_return_infos.utrn                 (null for IN-PROGRESS)
+                          status          : String,             // p_return_infos.status
+                          dateSubmitted   : Option[LocalDate],  // p_return_infos.submitted_date       (null for IN-PROGRESS)
+                          purchaserName   : String,             // p_return_infos.name
+                          address         : String,             // p_return_infos.address
+                          agentReference  : Option[String]      // p_return_infos.agent                (may be null)
                         )
 
 object ReturnSummary {

@@ -18,6 +18,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @import viewmodels.manage.*
+@import models.manage.AtAGlanceViewModel
 
 @this(
         layout: templates.Layout,
@@ -27,12 +28,7 @@
         gridRow: components.GridRow
 )
 @(
-    storn: String,
-    name: String,
-    returnsViewModel: ReturnsManagementViewModel,
-    agentsViewModel: AgentDetailsViewModel,
-    helpViewModel: HelpAndContactViewModel,
-    feedbackViewModel: FeedbackViewModel
+    viewModel: AtAGlanceViewModel
 )(
         implicit request: Request[_],
         messages: Messages
@@ -48,24 +44,24 @@
         text = messages("manage.homepage.heading"),
         headingClasses = Some("govuk-heading-xl govuk-!-margin-bottom-2")
     ))
-    @paragraph(messages("manage.homepage.name", name), extraClasses = "govuk-!-margin-bottom-0")
-    @paragraph(messages("manage.homepage.storn", storn))
+    @paragraph(messages("manage.homepage.name", viewModel.name), extraClasses = "govuk-!-margin-bottom-0")
+    @paragraph(messages("manage.homepage.storn", viewModel.storn))
 
 @gridRow(
     card(
         messages("manage.homepage.returnsManagement.title"),
         Seq(
-            messages("manage.homepage.returnsManagement.returnsInProgress.withNum", returnsViewModel.inProgress) -> returnsViewModel.inProgressUrl,
-            messages("manage.homepage.returnsManagement.submittedReturns.withNum", returnsViewModel.submitted) -> returnsViewModel.submittedUrl,
-            messages("manage.homepage.returnsManagement.returnsDueForDeletion.withNum", returnsViewModel.dueForDeletion) -> returnsViewModel.dueForDeletionUrl,
-            messages("manage.homepage.returnsManagement.startNewReturn") -> returnsViewModel.startReturnUrl
+            messages("manage.homepage.returnsManagement.returnsInProgress.withNum", viewModel.returns.inProgressReturnsCount) -> viewModel.returns.inProgressReturnsUrl,
+            messages("manage.homepage.returnsManagement.submittedReturns.withNum", viewModel.returns.submittedReturnsCount) -> viewModel.returns.submittedReturnsUrl,
+            messages("manage.homepage.returnsManagement.returnsDueForDeletion.withNum", viewModel.returns.dueForDeletionReturnsCount) -> viewModel.returns.dueForDeletionUrl,
+            messages("manage.homepage.returnsManagement.startNewReturn") -> viewModel.returns.startReturnUrl
         )
     ),
     card(
         messages("manage.homepage.agentDetails.title"),
         Seq(
-            messages("manage.homepage.agentDetails.manageAgents.withNum", agentsViewModel.agents) -> agentsViewModel.agentsUrl,
-            messages("manage.homepage.agentDetails.addNewAgent") -> agentsViewModel.addAgentUrl
+            messages("manage.homepage.agentDetails.manageAgents.withNum", viewModel.agentDetails.agentsCount) -> viewModel.agentDetails.agentsUrl,
+            messages("manage.homepage.agentDetails.addNewAgent") -> viewModel.agentDetails.addAgentUrl
         )
     )
 )
@@ -74,16 +70,16 @@
     card(
         messages("manage.homepage.helpAndContact.title"),
         Seq(
-            messages("manage.homepage.helpAndContact.help") -> helpViewModel.helpUrl,
-            messages("manage.homepage.helpAndContact.contactHMRC") -> helpViewModel.contactUrl,
-            messages("manage.homepage.helpAndContact.howToPay") -> helpViewModel.howToPayUrl,
-            messages("manage.homepage.helpAndContact.usefulLinks") -> helpViewModel.usefulLinksUrl
+            messages("manage.homepage.helpAndContact.help") -> viewModel.helpAndContact.helpUrl,
+            messages("manage.homepage.helpAndContact.contactHMRC") -> viewModel.helpAndContact.contactUrl,
+            messages("manage.homepage.helpAndContact.howToPay") -> viewModel.helpAndContact.howToPayUrl,
+            messages("manage.homepage.helpAndContact.usefulLinks") -> viewModel.helpAndContact.usefulLinksUrl
         )
     ),
     card(
         messages("manage.homepage.feedback.title"),
         Seq(
-            messages("manage.homepage.feedback.leaveFeedback") -> feedbackViewModel.feedbackUrl,
+            messages("manage.homepage.feedback.leaveFeedback") -> viewModel.feedback.feedbackUrl,
         ),
         isNewTab = true
     )

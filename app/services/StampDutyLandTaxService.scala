@@ -18,10 +18,10 @@ package services
 
 import connectors.StampDutyLandTaxConnector
 import models.manage.ReturnSummary
-import models.manageAgents.AgentDetailsResponse
 import viewmodels.manage.SdltSubmittedReturnsViewModel
+import models.requests.DataRequest
+import models.responses.SdltInProgressReturnViewRow
 import uk.gov.hmrc.http.HeaderCarrier
-import viewmodels.manage.SdltSubmittedReturnsViewModel.convertResponseToSubmittedView
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,49 +30,45 @@ import scala.concurrent.{ExecutionContext, Future}
 class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLandTaxConnector)
                                         (implicit executionContext: ExecutionContext) {
 
-  // TODO: THIS LOGIC IMPLEMENTATION IS WRONG DUE TO INCORRECT DOCUMENTATION (wrong models) - THIS WILL BE FIXED IN THE NEXT SPRINT
+  def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltInProgressReturnViewRow]] = {
+    for {
+      accepted <- stampDutyLandTaxConnector.getReturns(Some("ACCEPTED"), Some("IN-PROGRESS"), deletionFlag = false)
+      started  <- stampDutyLandTaxConnector.getReturns(Some("STARTED"),  Some("IN-PROGRESS"), deletionFlag = false)
+    } yield {
 
-  private val VALID_STATUSES: Set[String] = Set(
-    "PENDING",
-    "ACCEPTED",
-    "STARTED",
-    "IN-PROGRESS",
-    "ACCEPTED",
-    "FATAL_ERROR",
-    "DEPARTMENTAL_ERROR",
-    "SUBMITTED",
-    "DUE_FOR_DELETION",    // TODO: THIS IS AN INCORRECT WORKAROUND DUE TO INCORRECT DOCUMENTATION
-    "SUBMITTED_NO_RECEIPT"
-  )
-
-  def getReturn(storn: String, status: String)
-               (implicit headerCarrier: HeaderCarrier): Future[List[ReturnSummary]] = {
-  stampDutyLandTaxConnector
-    .getAllReturns(storn)
-    .map {
-      _.returnSummaryList.filter(_.status == status)
+      val inProgressReturnsList =
+        accepted.returnSummaryList ++ started.returnSummaryList
+      
+      SdltInProgressReturnViewRow
+        .convertResponseToViewRows(
+          inProgressReturnsList
+        )
     }
   }
 
-  // TODO: REMOVE THIS DEPRECATED CALL
-  @deprecated
-  def getAllAgents(storn: String)
-                  (implicit headerCarrier: HeaderCarrier): Future[List[AgentDetailsResponse]] =
-    stampDutyLandTaxConnector
-      .getAllAgentDetails(storn)
-
-
-  def getAllAgentDetails(storn: String)
-                        (implicit headerCarrier: HeaderCarrier): Future[Seq[AgentDetailsResponse]] =
-    stampDutyLandTaxConnector
-      .getSdltOrganisation(storn)
-      .map(_.agents)
-
-  def getSubmittedReturnsView(storn: String)
-                   (implicit hc: HeaderCarrier): Future[List[SdltSubmittedReturnsViewModel]] = {
-    stampDutyLandTaxConnector
-      .getAllReturns(storn).map { response =>
-      convertResponseToSubmittedView(response)
+  def getSubmittedReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltSubmittedReturnsViewModel]] = {
+    for {
+      submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
+      submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
+    } yield {
+      
+      val submittedReturnsList =
+        submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList
+      
+      SdltSubmittedReturnsViewModel
+        .convertResponseToSubmittedView(
+          submittedReturnsList
+        )
     }
   }
+
+  def getReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+    stampDutyLandTaxConnector
+      .getReturns(None, None, deletionFlag = true)
+      .map(_.returnSummaryList)
+
+  def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
+    stampDutyLandTaxConnector
+      .getSdltOrganisation
+      .map(_.agents.length)
 }
