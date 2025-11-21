@@ -25,7 +25,7 @@ import views.html.manage.UnauthorisedOrgView
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class UnauthorisedOrganisationAffinityController @Inject() ( // TODO: rename to ~OrAgentAffinityGroup
+class UnauthorisedOrganisationAffinityController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: UnauthorisedOrgView
 )(implicit appConfig: FrontendAppConfig)
