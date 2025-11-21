@@ -16,7 +16,17 @@
 
 package controllers.actions
 
-import models.requests.IdentifierRequest
-import play.api.mvc.{ActionBuilder, ActionFunction, AnyContent, Request}
 
-trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.Retrieval
+import uk.gov.hmrc.http.HeaderCarrier
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+class FakeFailingAuthConnector @Inject()(exceptionToReturn: Throwable) extends AuthConnector {
+
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
+    Future.failed(exceptionToReturn)
+}
