@@ -74,8 +74,10 @@ class AuthenticatedIdentifierAction @Inject()(
             Redirect(routes.UnauthorisedController.onPageLoad()))
       } recover {
       case _: NoActiveSession =>
+        logger.error("[AuthenticatedIdentifierAction][authorised] - recover::NoActiveSession")
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>
+        logger.error("[AuthenticatedIdentifierAction][authorised] - recover::AuthorisationException")
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }
@@ -101,6 +103,7 @@ class AuthenticatedIdentifierAction @Inject()(
       .find(id => id.key == "STORN")
       .map(_.value)
 
+  // Always expect enrolments in the input set :: expect STORN key to be the same for Agent and Org
   private def checkEnrollments[A](enrolments: Set[Enrolment]): Option[String] =
     enrolments.find(enrolment => Set(orgEnrollment, agentEnrollment).contains(enrolment.key)) match {
       case Some(enrolment) =>
@@ -108,14 +111,14 @@ class AuthenticatedIdentifierAction @Inject()(
           case (Some(storn), true) =>
             Some(storn)
           case (Some(_), false) =>
-            logger.error("[EnrolmentAuthIdentifierAction] - Inactive enrollment")
+            logger.error("[AuthenticatedIdentifierAction][checkEnrollments] - Inactive enrollment")
             None
           case _ =>
-            logger.error("[EnrolmentAuthIdentifierAction] - Unable to retrieve sdlt enrolments")
+            logger.error("[AuthenticatedIdentifierAction][checkEnrollments] - Unable to retrieve sdlt enrolments")
             None
         }
       case _ =>
-        logger.error("[EnrolmentAuthIdentifierAction] - enrollment not found")
+        logger.error("[AuthenticatedIdentifierAction][checkEnrollments] - enrollment not found")
         None
     }
 
