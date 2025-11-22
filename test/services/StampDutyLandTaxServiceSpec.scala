@@ -18,11 +18,11 @@ package services
 
 import connectors.StampDutyLandTaxConnector
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
-import models.manageAgents.AgentDetailsResponse
+import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
 import models.responses.SdltInProgressReturnViewRow
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
-import models.responses.organisation.SdltOrganisationResponse
+import models.responses
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -284,37 +284,47 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
       val agents = Seq(
-        AgentDetailsResponse(
-          agentReferenceNumber = "ARN001",
-          agentName = "Acme Property Agents Ltd",
-          addressLine1 = "High Street",
-          addressLine2 = Some("Westminster"),
-          addressLine3 = "London",
-          addressLine4 = Some("Greater London"),
+        CreatedAgent(
+          storn = storn,
+          agentId = None,
+          name = "Acme Property Agents Ltd",
+          houseNumber = None,
+          address1 = "High Street",
+          address2 = Some("Westminster"),
+          address3 = Some("London"),
+          address4 = Some("Greater London"),
           postcode = Some("SW1A 2AA"),
-          phone = Some("02079460000"),
-          email = "info@acmeagents.co.uk"
+          phone = "02079460000",
+          email = "info@acmeagents.co.uk",
+          dxAddress = None,
+          agentResourceReference = "ARN001"
         ),
-        AgentDetailsResponse(
-          agentReferenceNumber = "ARN002",
-          agentName = "Harborview Estates",
-          addressLine1 = "Queensway",
-          addressLine2 = None,
-          addressLine3 = "Birmingham",
-          addressLine4 = None,
+        CreatedAgent(
+          storn = storn,
+          agentId = None,
+          name = "Harborview Estates",
+          houseNumber = None,
+          address1 = "Queensway",
+          address2 = None,
+          address3 = Some("Birmingham"),
+          address4 = None,
           postcode = Some("B2 4ND"),
-          phone = Some("01214567890"),
-          email = "info@harborviewestates.co.uk"
+          phone = "01214567890",
+          email = "info@harborviewestates.co.uk",
+          dxAddress = None,
+          agentResourceReference = "ARN002"
         )
       )
 
-      val orgResponse = SdltOrganisationResponse(
-        storn = storn,
-        version = 1,
-        isReturnUser = "Y",
-        doNotDisplayWelcomePage = "N",
-        agents = agents
-      )
+      val orgResponse: SdltOrganisationResponse =
+        SdltOrganisationResponse(
+          storn = storn,
+          version = Some("1"),
+          isReturnUser = Some("Y"),
+          doNotDisplayWelcomePage = Some("N"),
+          agents = agents
+        )
+
 
       when(connector.getSdltOrganisation(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(orgResponse))
