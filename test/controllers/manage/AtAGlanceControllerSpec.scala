@@ -19,8 +19,7 @@ package controllers.manage
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.manage.routes.{DueForDeletionController, InProgressReturnsController, SubmittedReturnsController}
-import models.manage.{AtAGlanceViewModel, ReturnSummary, SdltReturnRecordResponse}
-import models.manageAgents.AgentDetailsResponse
+import models.manage.AtAGlanceViewModel
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -32,7 +31,6 @@ import org.mockito.Mockito.when
 import play.api.Application
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.LocalDate
 import scala.concurrent.Future
 import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel, SdltSubmittedReturnsViewModel}

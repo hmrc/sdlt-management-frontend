@@ -17,8 +17,8 @@
 package connectors
 
 import models.manage.{SdltReturnRecordRequest, SdltReturnRecordResponse}
+import models.organisation.SdltOrganisationResponse
 import models.requests.DataRequest
-import models.responses.organisation.SdltOrganisationResponse
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -27,8 +27,8 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import scala.util.control.NonFatal
 
+import scala.util.control.NonFatal
 import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
