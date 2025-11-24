@@ -83,8 +83,8 @@ class AuthenticatedIdentifierAction @Inject()(
   }
 
   private def handleValidEnrollments[A](block: IdentifierRequest[A] => Future[Result])
-                                       (request: Request[A], internalId: String, enrolments: Set[Enrolment]) = {
-    checkEnrollments(enrolments)
+                                       (request: Request[A], internalId: String, enrollments: Set[Enrolment]) = {
+    checkEnrollments(enrollments)
       .map { storn =>
         block(IdentifierRequest(request, internalId, storn))
       }
