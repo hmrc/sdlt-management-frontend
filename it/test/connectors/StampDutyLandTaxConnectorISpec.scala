@@ -20,13 +20,11 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalTo, get,
 import itutil.ApplicationWithWiremock
 import models.UserAnswers
 import models.manage.SdltReturnRecordResponse
-import models.manageAgents.AgentDetailsResponse
+import models.organisation.SdltOrganisationResponse
 import models.requests.DataRequest
-import models.responses.organisation.SdltOrganisationResponse
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.http.Status.*
 import play.api.test.FakeRequest
 import play.api.http.Status.*
 import uk.gov.hmrc.http.HeaderCarrier
@@ -59,17 +57,18 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       val validJson =
         """{
           |  "storn": "STN001",
-          |  "version": 1,
+          |  "version": "1",
           |  "isReturnUser": "Y",
           |  "doNotDisplayWelcomePage": "N",
           |  "agents": [
           |    {
-          |      "agentReferenceNumber": "ARN001",
-          |      "agentName": "Acme Property Agents Ltd",
-          |      "addressLine1": "High Street",
-          |      "addressLine2": "Westminster",
-          |      "addressLine3": "London",
-          |      "addressLine4": "Greater London",
+          |      "storn": "STN001",
+          |      "agentResourceReference": "ARN001",
+          |      "name": "Acme Property Agents Ltd",
+          |      "address1": "High Street",
+          |      "address2": "Westminster",
+          |      "address3": "London",
+          |      "address4": "Greater London",
           |      "postcode": "SW1A 2AA",
           |      "phone": "02079460000",
           |      "email": "info@acmeagents.co.uk"
@@ -90,11 +89,11 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       val result: SdltOrganisationResponse = connector.getSdltOrganisation.futureValue
 
       result.storn mustBe "STN001"
-      result.version mustBe 1
-      result.isReturnUser mustBe "Y"
-      result.doNotDisplayWelcomePage mustBe "N"
+      result.version mustBe Some("1")
+      result.isReturnUser mustBe Some("Y")
+      result.doNotDisplayWelcomePage mustBe Some("N")
       result.agents.length mustBe 1
-      result.agents.head.agentReferenceNumber mustBe "ARN001"
+      result.agents.head.agentResourceReference mustBe "ARN001"
     }
 
     "fail when BE returns OK with invalid JSON" in {
