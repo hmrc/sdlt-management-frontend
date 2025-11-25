@@ -86,7 +86,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
             submittedReturnsCount = 0,
             submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
             dueForDeletionReturnsCount = 0,
-            dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
+            dueForDeletionUrl = DueForDeletionController.onPageLoad(Some(1)).url,
             startReturnUrl = "#"
           ),
           agentDetails = AgentDetailsViewModel(
@@ -138,7 +138,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
             submittedReturnsCount = 1,
             submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
             dueForDeletionReturnsCount = 0,
-            dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
+            dueForDeletionUrl = DueForDeletionController.onPageLoad(Some(1)).url,
             startReturnUrl = "#"
           ),
           agentDetails = AgentDetailsViewModel(

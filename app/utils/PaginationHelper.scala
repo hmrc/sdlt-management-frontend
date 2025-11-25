@@ -16,7 +16,10 @@
 
 package utils
 
+import models.requests.DataRequest
+import models.responses.SdltInProgressReturnViewRow
 import play.api.i18n.Messages
+import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
 trait PaginationHelper {
@@ -138,4 +141,28 @@ trait PaginationHelper {
         List.empty
     }
   }
+  
+  def paginateList[A](allDataRows: List[A], paginationIndex: Option[Int], urlSelector: Int => String)(implicit request: DataRequest[_], messages: Messages): Either[String, (
+    (List[A], Option[Pagination], Option[String]))] = {
+    
+    val selectedPageIndex: Int = paginationIndex.getOrElse(1)
+    
+    val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
+    val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
+    val rowsForSelectedPage: List[A] = getSelectedPageRows(allDataRows, selectedPageIndex)
+
+    Right(allDataRows, paginator, paginationText)
+    
+  }
+
+  def paginateIfValidPageIndex[A](rowsOpt: Option[List[A]], paginationIndex: Option[Int], urlSelector: Int => String)
+                        (implicit req: DataRequest[_], messages: Messages): Option[Either[String, (
+    (List[A], Option[Pagination], Option[String]))]] =
+    rowsOpt.filter(_.nonEmpty).flatMap { rows =>
+      pageIndexSelector(paginationIndex, rows.length) match {
+        case Right(validIndex) => Some(paginateList(rows, Some(validIndex), urlSelector))
+        case Left(error) => Some(Left("PaginationIndexError: " + error))
+
+      }
+    }
 }

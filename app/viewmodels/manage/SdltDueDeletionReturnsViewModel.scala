@@ -15,15 +15,15 @@
  */
 
 package viewmodels.manage
-import models.manage.SdltReturnRecordResponse
-import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
+import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.responses.{PaginatedInProgressReturnsViewModel, SdltInProgressReturnViewRow, UniversalStatus}
 
 import java.time.LocalDate
 
 
 case class SdltDueDeletionReturnsViewModel(
-                                          inProgressReturns: List[SdltInProgressReturnViewRow],
-                                          submittedReturns: List[SdltSubmittedReturnsViewModel]
+                                          inProgressReturns: Option[PaginatedInProgressReturnsViewModel],
+                                          submittedReturns: Option[PaginatedSubmittedReturnsViewModel]
                                         )
 
 object SdltDueDeletionReturnsViewModel {
@@ -32,37 +32,35 @@ object SdltDueDeletionReturnsViewModel {
   private val acceptableInProgressStatus : Seq[UniversalStatus] = Seq(ACCEPTED, PENDING)
   private val acceptableSubmittedStatus : Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
 
-  def convertResponseToDueDeletionView(response: SdltReturnRecordResponse): List[SdltDueDeletionReturnsViewModel] = {
-    response.returnSummaryList.flatMap {
-      case inProgress: SdltInProgressReturnViewRow =>
-        fromString(inProgress.status)
-          .filter(acceptableInProgressStatus.contains(_))
-          .map { status =>
-            SdltInProgressReturnViewRow(
-              address = inProgress.address,
-              agentReference = inProgress.agentReference,
-              dateSubmitted = inProgress.dateSubmitted,
-              utrn = inProgress.utrn,
-              purchaserName = inProgress.purchaserName,
-              status = status,
-              returnReference = inProgress.returnReference
-            )
-          }
-      case submitted: SdltSubmittedReturnsViewModel =>
-        fromString(submitted.status)
-          .filter(acceptableSubmittedStatus.contains(_))
-          .map { status =>
-            SdltSubmittedReturnsViewModel(
-              address = submitted.address,
-              agentReference = submitted.agentReference,
-              dateSubmitted = submitted.dateSubmitted,
-              utrn = submitted.utrn,
-              purchaserName = submitted.purchaserName,
-              status = status,
-              returnReference = submitted.returnReference
-            )
-          }
-      case _ => None
-    }
-  }
+//  def convertResponseToDueForDeletionView(returns: List[ReturnSummary]): SdltDueDeletionReturnsViewModel =
+//
+//    val inProgress =
+//      for {
+//      rec <- returns
+//      status <- fromString(rec.status)
+//      utrn <- rec.utrn
+//      if acceptableInProgressStatus.contains(status)
+//    } yield
+//      SdltInProgressReturnViewRow(
+//        address = rec.address,
+//        utrn = utrn,
+//        purchaserName = rec.purchaserName,
+//        status = status
+//      )
+//
+//    val submitted =
+//      for {
+//      rec <- returns
+//      status <- fromString(rec.status)
+//      utrn <- rec.utrn
+//      if acceptableSubmittedStatus.contains(status)
+//    } yield 
+//      SdltSubmittedReturnsViewModel(
+//        address = rec.address,
+//        utrn = utrn,
+//        purchaserName = rec.purchaserName,
+//        status = status
+//      )
+//    SdltDueDeletionReturnsViewModel(Some(inProgress), Some(submitted))
+//    
 }

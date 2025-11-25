@@ -18,6 +18,10 @@
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import viewmodels.manage.SdltSubmittedReturnsViewModel
+@import viewmodels.manage.SdltDueDeletionReturnsViewModel
+@import models.responses.PaginatedInProgressReturnsViewModel
+@import viewmodels.manage.PaginatedSubmittedReturnsViewModel
+@import models.responses.SdltInProgressReturnViewRow
 
 
 @this(
@@ -35,31 +39,36 @@
         link: components.Link,
         hmrcPageHeading: HmrcPageHeading
 )
-@(dataRows:   List[SdltSubmittedReturnsViewModel], pagination: Option[Pagination], paginationInfoText: Option[String]
+@(dataRows:   PaginatedInProgressReturnsViewModel, dataRowsB:   PaginatedSubmittedReturnsViewModel
 )(
         implicit request: Request[_],
         messages: Messages
 )
 
-@purchaserNameLink(row: SdltSubmittedReturnsViewModel)  = {
+@import viewmodels.manage.PaginatedSubmittedReturnsViewModel
+@purchaserNameLinkB(row: SdltSubmittedReturnsViewModel)  = {
     <p class="govuk-body">
         <a class="govuk-link" href="../manage-returns/submitted-return">@row.purchaserName</a>
     </p>
 }
+@purchaserNameLink(row: SdltInProgressReturnViewRow)  = {
+    <p class="govuk-body">
+        <a class="govuk-link" href="../manage-returns/in-progress-return">@row.purchaserName</a>
+    </p>
+}
 
-@renderTable() = {
+@renderInProgressTable() = {
+@h1("manageReturns.dueDeletionReturns.tabHeading1")
+@dataRows.urlSelector.map(p(_)).getOrElse(HtmlFormat.empty)
 @govukTable(Table(
     rows =
-        dataRows.map{ currentRow =>
+        dataRows.inProgressReturnsViewModel.sortBy(_.purchaserName).map{ currentRow =>
             Seq(
                 TableRow(
                     content = HtmlContent(purchaserNameLink(currentRow)),
                 ),
                 TableRow(
                     content = Text( currentRow.address )
-                ),
-                TableRow(
-                    content = Text( currentRow.utrn )
                 )
             )
         }
@@ -70,78 +79,106 @@
         ),
         HeadCell(
             content = Text(messages("manage.submittedReturnsOverview.summary.address"))
+        )
+    )),
+))
+}
+
+
+@renderSubmittedTable() = {
+@h1("manageReturns.dueDeletionReturns.tabHeading2")
+@dataRowsB.urlSelector.map(p(_)).getOrElse(HtmlFormat.empty)
+@govukTable(Table(
+    rows =
+        dataRowsB.submittedReturnsViewModel.sortBy(_.purchaserName).map{ currentRow =>
+            Seq(
+                TableRow(
+                    content = HtmlContent(purchaserNameLinkB(currentRow)),
+                ),
+                TableRow(
+                    content = Text( currentRow.address )
+                )
+            )
+        }
+    ,
+    head = Some(Seq(
+        HeadCell(
+            content = Text(messages("manage.submittedReturnsOverview.summary.purchaser"))
         ),
         HeadCell(
-            content = Text(messages("manage.submittedReturnsOverview.summary.utrn"))
+            content = Text(messages("manage.submittedReturnsOverview.summary.address"))
         )
     )),
 ))
 }
 
 @layout(
-    pageTitle = titleNoForm(messages("manage.submittedReturnsOverview.title")),
-    showBackLink = false
+    pageTitle = titleNoForm(messages("manage.submittedReturnsOverview.title"))
 ) {
 
     @hmrcPageHeading(PageHeading(
-        text    = messages("manageReturns.dueDeletionReturns.heading"),
+        text = messages("manageReturns.dueDeletionReturns.heading"),
         section = Some(messages("manageReturns.dueDeletionReturns.caption")),
         headingClasses = Some("govuk-heading-l"),
         captionClasses = Some("govuk-caption-l")
     ))
 
+    @p("manageReturns.dueDeletionReturns.nonZeroReturns.info")
+
     @defining(
         HtmlFormat.fill(Seq(
-            renderTable(),
-            paginationInfoText.map(p(_)).getOrElse(HtmlFormat.empty),
-            pagination.map(govukPagination(_)).getOrElse(HtmlFormat.empty)
+            renderInProgressTable(),
+            dataRows.paginator.map(govukPagination(_)).getOrElse(HtmlFormat.empty)
         ))
-    ) { innerHtml =>
+    ) { inProgressHtml =>
 
-        @govukTabs(Tabs(
-            id = Some("Returns Tabs"),
-            items = Seq(
-                TabItem(
-                    id = Some(messages("manageReturns.dueDeletionReturns.tabUrl1")),
-                    label = messages("manageReturns.dueDeletionReturns.tabHeading1"),
-                    panel = TabPanel(HtmlContent(innerHtml.body))
-                ),
-                TabItem(
-                    id = Some(messages("manageReturns.dueDeletionReturns.tabUrl2")),
-                    label = messages("manageReturns.dueDeletionReturns.tabHeading2"),
-                    panel = TabPanel(HtmlContent(
-                        """
-                                <p class="govuk-body">Sbhgfgyhgbhgyitfrcdtcythgjvhyuft7r56detcfg</p>
-                              """))
+        @defining(
+            HtmlFormat.fill(Seq(
+                renderSubmittedTable(),
+                dataRowsB.paginator.map(govukPagination(_)).getOrElse(HtmlFormat.empty)
+            ))
+        ) { submittedHtml =>
+
+            @govukTabs(Tabs(
+                id = Some("Returns Tabs"),
+                items = Seq(
+                    TabItem(
+                        id = Some(messages("manageReturns.dueDeletionReturns.tabUrl1")),
+                        label = messages("manageReturns.dueDeletionReturns.tabHeading1"),
+                        panel = TabPanel(HtmlContent(inProgressHtml.body))
+                    ),
+                    TabItem(
+                        id = Some(messages("manageReturns.dueDeletionReturns.tabUrl2")),
+                        label = messages("manageReturns.dueDeletionReturns.tabHeading2"),
+                        panel = TabPanel(HtmlContent(submittedHtml.body))
+                    )
                 )
-            )
-        ))
-    }
+            ))
+        }
 
 
-    @if(dataRows.isEmpty) {
+        @if(dataRows.inProgressReturnsViewModel.isEmpty) {
 
-        @p("manage.submittedReturnsOverview.noReturns.info")
-        @link("manage.submittedReturnsOverview.noReturns.link", "../manage-returns/start-new-return")
+            @p("manage.submittedReturnsOverview.noReturns.info")
+            @link("manage.submittedReturnsOverview.noReturns.link", "../manage-returns/start-new-return")
 
-    } else {
+        } else {
 
-        @p("manage.submittedReturnsOverview.nonZeroReturns.info")
+            @p("manage.submittedReturnsOverview.nonZeroReturns.info")
 
-    }
+        }
 
-    @request.flash.get("submittedReturnsLimitReached").map { _ =>
-        @govukErrorSummary(
-            ErrorSummary(
-                title = Text(messages("error.summary.title")),
-                errorList = Seq(
-                    ErrorLink(
-                        content = Text(messages("manage.submittedReturnsOverview.limitReached"))
+        @request.flash.get("submittedReturnsLimitReached").map { _ =>
+            @govukErrorSummary(
+                ErrorSummary(
+                    title = Text(messages("error.summary.title")),
+                    errorList = Seq(
+                        ErrorLink(
+                            content = Text(messages("manage.submittedReturnsOverview.limitReached"))
+                        )
                     )
                 )
             )
-        )
+        }
     }
-
-
 }

@@ -140,4 +140,6 @@ manageReturns.dueDeletionReturns.tabHeading1 = Returns in progress
 manageReturns.dueDeletionReturns.tabHeading2 = Submitted returns
 manageReturns.dueDeletionReturns.tabUrl1 = in-progress-returns
 manageReturns.dueDeletionReturns.tabUrl2 = submitted-returns
+manageReturns.dueDeletionReturns.tab1Info = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
+manageReturns.dueDeletionReturns.tab2Info = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
 

@@ -17,6 +17,7 @@
 package viewmodels.manage
 import models.manage.ReturnSummary
 import models.responses.UniversalStatus
+import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
 
 case class SdltSubmittedReturnsViewModel(
                                         address: String,
@@ -29,9 +30,9 @@ object SdltSubmittedReturnsViewModel {
   import UniversalStatus.*
 
   private val acceptableStatus : Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
-  
+
     def convertResponseToSubmittedView(submittedReturns: List[ReturnSummary]): List[SdltSubmittedReturnsViewModel] =
-      
+
       for {
         rec    <- submittedReturns
         status <- fromString(rec.status)
@@ -44,3 +45,11 @@ object SdltSubmittedReturnsViewModel {
         status = status
       )
 }
+
+case class PaginatedSubmittedReturnsViewModel(
+                                          submittedReturnsViewModel: List[SdltSubmittedReturnsViewModel],
+                                          paginator: Option[Pagination],
+                                          urlSelector: Option[String]
+                                        )
+
+object PaginatedSubmittedReturnsViewModel {}

@@ -49,7 +49,7 @@ object AtAGlanceViewModel {
           submittedReturnsCount = submittedReturns.length,
           submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
           dueForDeletionReturnsCount = dueForDeletionReturns.length,
-          dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
+          dueForDeletionUrl = DueForDeletionController.onPageLoad(Some(1)).url,
           startReturnUrl = "#"
         ),
       agentDetails =
