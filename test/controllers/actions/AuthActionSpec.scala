@@ -17,41 +17,20 @@
 package controllers.actions
 
 import base.SpecBase
-import com.google.inject.Inject
 import config.FrontendAppConfig
-import controllers.routes
-import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.inject.bind
-import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
-import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
-import uk.gov.hmrc.http.HeaderCarrier
-
 import controllers.actions.TestAuthRetrievals.Ops
-import base.SpecBase
-import com.google.inject.Inject
-import config.FrontendAppConfig
 import controllers.routes
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
-import uk.gov.hmrc.http.HeaderCarrier
-
-import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import uk.gov.hmrc.auth.core.retrieve.~
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -59,15 +38,51 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionSpec extends SpecBase {
 
-  private val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  private val application                      = applicationBuilder(userAnswers = None)
-    .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
-    .build()
-  private val bodyParsers                      = application.injector.instanceOf[BodyParsers.Default]
-  private val appConfig                        = application.injector.instanceOf[FrontendAppConfig]
-  private val emptyEnrolments                  = Enrolments(Set.empty)
-  private val id: String                       = UUID.randomUUID().toString
-  private val testStorn: String                = "STN001"
+  trait Fixture {
+    val mockAuthConnector: AuthConnector = mock[AuthConnector]
+
+    val application: Application = applicationBuilder(userAnswers = None)
+      .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
+      .build()
+
+    val bodyParsers: BodyParsers.Default = application.injector.instanceOf[BodyParsers.Default]
+    val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
+
+    val emptyEnrolments = Enrolments(Set.empty)
+
+    val orgActiveEnrollment: Enrolment = Enrolment(
+      "IR-SDLT-ORG",
+      Seq(
+        EnrolmentIdentifier("STORN", testStorn)
+      ),
+      "activated",
+      None
+    )
+    // TODO: clarify enrollments details for agent
+    val agentActiveEnrollment: Enrolment = Enrolment(
+      "IR-SDLT-AGENT",
+      Seq(
+        EnrolmentIdentifier("STORN", testStorn)
+      ),
+      "activated",
+      None
+    )
+    val agentInActiveEnrollment = Enrolments(
+      Set(
+        Enrolment(
+          "IR-SDLT-AGENT",
+          Seq(
+            EnrolmentIdentifier("STORN", testStorn)
+          ),
+          "inactivated",
+          None
+        )
+      )
+    )
+
+    val id: String = UUID.randomUUID().toString
+    val testStorn: String = "STN001"
+  }
 
   type RetrievalsType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ Option[CredentialRole]
 
@@ -75,17 +90,13 @@ class AuthActionSpec extends SpecBase {
     def onPageLoad(): Action[AnyContent] = authAction(_ => Results.Ok)
   }
 
-  "Auth Action" - {
+  "Authentication Action" - {
 
     "when the user hasn't logged in" - {
-
-      "must redirect the user to log in " in {
-
-        val application = applicationBuilder(userAnswers = None).build()
-
+      "must redirect the user to log in " in new Fixture {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-          val appConfig   = application.injector.instanceOf[FrontendAppConfig]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
           val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new MissingBearerToken), appConfig, bodyParsers)
           val controller = new Harness(authAction)
@@ -98,14 +109,10 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user's session has expired" - {
-
-      "must redirect the user to log in " in {
-
-        val application = applicationBuilder(userAnswers = None).build()
-
+      "must redirect the user to log in " in new Fixture {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-          val appConfig   = application.injector.instanceOf[FrontendAppConfig]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
           val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new BearerTokenExpired), appConfig, bodyParsers)
           val controller = new Harness(authAction)
@@ -119,13 +126,11 @@ class AuthActionSpec extends SpecBase {
 
     "the user doesn't have sufficient enrolments" - {
 
-      "must redirect the user to the unauthorised page" in {
-
-        val application = applicationBuilder(userAnswers = None).build()
+      "must redirect the user to the unauthorised page" in new Fixture {
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-          val appConfig   = application.injector.instanceOf[FrontendAppConfig]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
           val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new InsufficientEnrolments), appConfig, bodyParsers)
           val controller = new Harness(authAction)
@@ -139,13 +144,11 @@ class AuthActionSpec extends SpecBase {
 
     "the user doesn't have sufficient confidence level" - {
 
-      "must redirect the user to the unauthorised page" in {
-
-        val application = applicationBuilder(userAnswers = None).build()
+      "must redirect the user to the unauthorised page" in new Fixture {
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-          val appConfig   = application.injector.instanceOf[FrontendAppConfig]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
           val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new InsufficientConfidenceLevel), appConfig, bodyParsers)
           val controller = new Harness(authAction)
@@ -159,13 +162,11 @@ class AuthActionSpec extends SpecBase {
 
     "the user used an unaccepted auth provider" - {
 
-      "must redirect the user to the unauthorised page" in {
-
-        val application = applicationBuilder(userAnswers = None).build()
+      "must redirect the user to the unauthorised page" in new Fixture {
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-          val appConfig   = application.injector.instanceOf[FrontendAppConfig]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
           val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new UnsupportedAuthProvider), appConfig, bodyParsers)
           val controller = new Harness(authAction)
@@ -175,17 +176,16 @@ class AuthActionSpec extends SpecBase {
           redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
         }
       }
+
     }
 
     "the user has an unsupported affinity group" - {
 
-      "must redirect the user to the unauthorised page" in {
-
-        val application = applicationBuilder(userAnswers = None).build()
+      "must redirect the user to the unauthorised page" in new Fixture {
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-          val appConfig   = application.injector.instanceOf[FrontendAppConfig]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
           val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new UnsupportedAffinityGroup), appConfig, bodyParsers)
           val controller = new Harness(authAction)
@@ -199,13 +199,11 @@ class AuthActionSpec extends SpecBase {
 
     "the user has an unsupported credential role" - {
 
-      "must redirect the user to the unauthorised page" in {
-
-        val application = applicationBuilder(userAnswers = None).build()
+      "must redirect the user to the unauthorised page" in new Fixture {
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-          val appConfig   = application.injector.instanceOf[FrontendAppConfig]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
           val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new UnsupportedCredentialRole), appConfig, bodyParsers)
           val controller = new Harness(authAction)
@@ -217,25 +215,49 @@ class AuthActionSpec extends SpecBase {
       }
     }
 
-    "when the user is an agent" - {
-      "must redirect the user to unauthorised agent affinity screen" in {
-        when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
-          .thenReturn(Future.successful(Some(id) ~ emptyEnrolments ~ Some(Agent) ~ None))
-        running(application) {
-          val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
-          val controller = new Harness(authAction)
-          val result = controller.onPageLoad()(FakeRequest())
+    "user logged in as an AGENT" - {
+      "and is allowed into the service" - {
+        "must succeed" - {
+          "when the user has a IR-SDLT-AGENT enrolment with the correct activated identifiers" in new Fixture {
+            val enrollments = Enrolments(Set(agentActiveEnrollment))
+            when(mockAuthConnector.authorise[RetrievalsType](any(), any() )(any(), any()))
+              .thenReturn(
+                Future.successful(Some(id) ~ enrollments ~ Some(Agent) ~ Some(User))
+              )
+            running(application) {
+              val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+              val controller = new Harness(authAction)
+              val result = controller.onPageLoad()(FakeRequest())
 
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe controllers.manage.routes.UnauthorisedAgentAffinityController
-            .onPageLoad()
-            .url
+              status(result) mustBe OK
+            }
+          }
+        }
+      }
+
+      "when there is an inactive IR-SDLT-AGENT enrolment" - new Fixture {
+        "must redirect to unauthorised organisation affinity screen" in {
+          when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+            .thenReturn(
+              Future.successful(Some(id) ~ agentInActiveEnrollment ~ Some(Agent) ~ Some(User))
+            )
+          running(application) {
+            val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+            val controller = new Harness(authAction)
+            val result = controller.onPageLoad()(FakeRequest())
+            status(result) mustBe SEE_OTHER
+            redirectLocation(
+              result
+            ).value mustBe controllers.manage.routes.UnauthorisedOrganisationAffinityController
+              .onPageLoad()
+              .url
+          }
         }
       }
     }
 
-    "the user is logged in as an individual" - {
-      "fail and redirect to unauthorised individual affinity screen" in {
+    "the user is logged in as an INDIVIDUAL" - {
+      "fail and redirect to unauthorised individual affinity screen" in new Fixture {
         when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
           .thenReturn(
             Future.successful(Some(id) ~ emptyEnrolments ~ Some(Individual) ~ Some(Assistant))
@@ -253,8 +275,8 @@ class AuthActionSpec extends SpecBase {
       }
     }
 
-    "the user is logged in as an organisation assistant" - {
-      "fail and redirect to unauthorised wrong role screen" in {
+    "the user is logged in as an ORGANISATION assistant" - {
+      "fail and redirect to unauthorised wrong role screen" in new Fixture {
         when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
           .thenReturn(
             Future.successful(Some(id) ~ emptyEnrolments ~ Some(Organisation) ~ Some(Assistant))
@@ -272,25 +294,15 @@ class AuthActionSpec extends SpecBase {
       }
     }
 
-    "the user is logged in as an organisation User" - {
+    "user is logged in as an ORGANISATION" - {
+
       "and is allowed into the service" - {
         "must succeed" - {
-          "when the user has a IR-SDLT-ORG enrolment with the correct activated identifiers" in {
-            val enrolments = Enrolments(
-              Set(
-                Enrolment(
-                  "IR-SDLT-ORG",
-                  Seq(
-                    EnrolmentIdentifier("STORN", testStorn)
-                  ),
-                  "activated",
-                  None
-                )
-              )
-            )
+          "when the user has an activated IR-SDLT-ORG enrolment" in new Fixture {
+            val enrollment = Enrolments(Set(orgActiveEnrollment))
             when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
               .thenReturn(
-                Future.successful(Some(id) ~ enrolments ~ Some(Organisation) ~ Some(User))
+                Future.successful(Some(id) ~ enrollment ~ Some(Organisation) ~ Some(User))
               )
             running(application) {
               val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
@@ -304,8 +316,11 @@ class AuthActionSpec extends SpecBase {
       }
 
       "and is not allowed into the service" - {
-        "when there is no IR-SDLT-ORG enrolment" - {
-          "must redirect to unauthorised organisation affinity screen" in {
+
+        "when there is no [IR-SDLT-ORG or IR-SDLT-AGENT] enrolment" - {
+
+          "must redirect to unauthorised organisation affinity screen" in new Fixture {
+
             when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
               .thenReturn(
                 Future.successful(Some(id) ~ emptyEnrolments ~ Some(Organisation) ~ Some(User))
@@ -318,13 +333,15 @@ class AuthActionSpec extends SpecBase {
               status(result) mustBe SEE_OTHER
               redirectLocation(
                 result
-              ).value mustBe controllers.manage.routes.UnauthorisedOrganisationAffinityController
+              ).value mustBe controllers.routes.UnauthorisedController
                 .onPageLoad()
                 .url
             }
           }
+
         }
-        "when there is an inactive IR-SDLT-ORG enrolment" - {
+
+        "when there is an inactive IR-SDLT-ORG enrolment" - new Fixture {
           "must redirect to unauthorised organisation affinity screen" in {
             val enrolments = Enrolments(
               Set(
@@ -359,7 +376,8 @@ class AuthActionSpec extends SpecBase {
     }
 
     "Unable to retrieve internal id or affinity group" - {
-      "fail and redirect to Unauthorised screen" in {
+
+      "fail and redirect to Unauthorised screen" in new Fixture {
         when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
           .thenReturn(Future.successful(None ~ emptyEnrolments ~ None ~ None))
         running(application) {
@@ -372,12 +390,7 @@ class AuthActionSpec extends SpecBase {
         }
       }
     }
+
   }
-}
 
-class FakeFailingAuthConnector @Inject()(exceptionToReturn: Throwable) extends AuthConnector {
-  val serviceUrl: String = ""
-
-  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
-    Future.failed(exceptionToReturn)
 }
