@@ -18,7 +18,7 @@ package controllers.manage
 
 import base.SpecBase
 import config.FrontendAppConfig
-import controllers.manage.routes.{DueForDeletionController, InProgressReturnsController, SubmittedReturnsController}
+import controllers.manage.routes.{DueForDeletionReturnsController, InProgressReturnsController, SubmittedReturnsController}
 import models.manage.AtAGlanceViewModel
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
@@ -86,7 +86,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
             submittedReturnsCount = 0,
             submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
             dueForDeletionReturnsCount = 0,
-            dueForDeletionUrl = DueForDeletionController.onPageLoad(Some(1)).url,
+            dueForDeletionUrl = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
             startReturnUrl = "#"
           ),
           agentDetails = AgentDetailsViewModel(
@@ -138,7 +138,7 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
             submittedReturnsCount = 1,
             submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
             dueForDeletionReturnsCount = 0,
-            dueForDeletionUrl = DueForDeletionController.onPageLoad(Some(1)).url,
+            dueForDeletionUrl = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
             startReturnUrl = "#"
           ),
           agentDetails = AgentDetailsViewModel(

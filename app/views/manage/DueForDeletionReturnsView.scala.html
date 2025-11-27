@@ -1,0 +1,183 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
+@import views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import models.responses.{PaginatedInProgressReturnsViewModel, SdltInProgressReturnViewRow}
+@import viewmodels.manage.{PaginatedSubmittedReturnsViewModel, SdltSubmittedReturnsViewModel}
+
+
+
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton,
+        govukPagination: GovukPagination,
+        govukTable: GovukTable,
+        govukDetails: GovukDetails,
+        govukTabs: GovukTabs,
+        govukErrorSummary: GovukErrorSummary,
+        formHelper: FormWithCSRF,
+        p: Paragraph,
+        h2: components.H2,
+        span: components.Span,
+        link: components.Link,
+        hmrcPageHeading: HmrcPageHeading
+)
+@(inProgressData:   PaginatedInProgressReturnsViewModel, submittedData:   PaginatedSubmittedReturnsViewModel
+)(
+        implicit request: Request[_],
+        messages: Messages
+)
+
+@submittedPurchaserNameLink(row: SdltSubmittedReturnsViewModel)  = {
+    <p class="govuk-body">
+        <a class="govuk-link" href="../manage-returns/submitted-return">@row.purchaserName</a>
+    </p>
+}
+@inProgressPurchaserNameLink(row: SdltInProgressReturnViewRow)  = {
+    <p class="govuk-body">
+        <a class="govuk-link" href="../manage-returns/in-progress-returns">@row.purchaserName</a>
+    </p>
+}
+
+@renderInProgressTable() = {
+@h2("manageReturns.dueDeletionReturns.inProgressTab.heading")
+@inProgressData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
+@govukTable(Table(
+    rows =
+        inProgressData.inProgressReturnsViewModel.sortBy(_.purchaserName).map{ currentRow =>
+            Seq(
+                TableRow(
+                    content = HtmlContent(inProgressPurchaserNameLink(currentRow)),
+                ),
+                TableRow(
+                    content = Text( currentRow.address )
+                )
+            )
+        }
+    ,
+    head = Some(Seq(
+        HeadCell(
+            content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.purchaser"))
+        ),
+        HeadCell(
+            content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.address"))
+        )
+    )),
+))
+}
+
+
+@renderSubmittedTable() = {
+@h2("manageReturns.dueDeletionReturns.submittedTab.heading")
+@submittedData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
+@govukTable(Table(
+    rows =
+        submittedData.submittedReturnsViewModel.sortBy(_.purchaserName).map{ currentRow =>
+            Seq(
+                TableRow(
+                    content = HtmlContent(submittedPurchaserNameLink(currentRow)),
+                ),
+                TableRow(
+                    content = Text( currentRow.address )
+                ),
+                TableRow(
+                    content = Text( currentRow.utrn )
+                )
+            )
+        }
+    ,
+    head = Some(Seq(
+        HeadCell(
+            content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.purchaser"))
+        ),
+        HeadCell(
+            content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.address"))
+        ),
+        HeadCell(
+            content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.utrn"))
+        )
+    )),
+))
+}
+
+@layout(
+    pageTitle = titleNoForm(messages("manageReturns.dueDeletionReturns.title"))
+) {
+
+    @hmrcPageHeading(PageHeading(
+        text = messages("manageReturns.dueDeletionReturns.heading"),
+        section = Some(messages("manageReturns.dueDeletionReturns.caption")),
+        headingClasses = Some("govuk-heading-l"),
+        captionClasses = Some("govuk-caption-l")
+    ))
+
+    @defining(
+        HtmlFormat.fill(Seq(
+            renderInProgressTable(),
+            inProgressData.paginator.map(govukPagination(_)).getOrElse(HtmlFormat.empty)
+        ))
+    ) { inProgressHtml =>
+
+        @defining(
+            HtmlFormat.fill(Seq(
+                renderSubmittedTable(),
+                submittedData.paginator.map(govukPagination(_)).getOrElse(HtmlFormat.empty)
+            ))
+        ) { submittedHtml =>
+
+            @if(inProgressData.inProgressReturnsViewModel.isEmpty && submittedData.submittedReturnsViewModel.isEmpty) {
+
+            @p("manageReturns.dueDeletionReturns.noReturns.info")
+            @link("manage.submittedReturnsOverview.noReturns.link", "../manage-returns/start-new-return")
+
+            } else {
+
+            @p("manageReturns.dueDeletionReturns.nonZeroReturns.info")
+                
+
+            @govukTabs(Tabs(
+                id = Some("due-for-deletion-returns"),
+                items = Seq(
+                    TabItem(
+                        id = Some(messages("manageReturns.dueDeletionReturns.inProgressTab.url")),
+                        label = messages("manageReturns.dueDeletionReturns.inProgressTab.heading"),
+                        panel = {
+                            if(inProgressHtml.body.trim.isEmpty) {
+                                TabPanel(messages("manageReturns.dueDeletionReturns.inProgressTab.noReturns.info"))
+                            } else {
+                                TabPanel(HtmlContent(inProgressHtml.body))
+                            }
+                        }
+                    ),
+                    TabItem(
+                        id = Some(messages("manageReturns.dueDeletionReturns.submittedTab.url")),
+                        label = messages("manageReturns.dueDeletionReturns.submittedTab.heading"),
+                        panel = {
+                            if(submittedHtml.body.trim.isEmpty) {
+                                TabPanel(messages("manageReturns.dueDeletionReturns.submittedTab.noReturns.info"))
+                            } else {
+                                TabPanel(HtmlContent(submittedHtml.body))
+                            }
+                        }
+                    )
+                )
+            ))
+        }
+        }
+    }
+}

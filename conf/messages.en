@@ -132,14 +132,24 @@ manage.submittedReturnsOverview.summary.address     = Property address
 manage.submittedReturnsOverview.summary.utrn        = UTRN
 
 manageReturns.dueDeletionReturns.heading = Returns due for deletion
+manageReturns.dueDeletionReturns.title = Manage returns – Returns due for deletion
 manageReturns.dueDeletionReturns.caption = Manage returns
 manageReturns.dueDeletionReturns.nonZeroReturns.info = Your returns will be deleted within the next 10 days. You will be unable to access them after that. To prevent a return from being deleted, select and view.
 manageReturns.dueDeletionReturns.noReturns.info = You have no returns due for deletion.
 manageReturns.dueDeletionReturns.noReturns.link = Start a new return
-manageReturns.dueDeletionReturns.tabHeading1 = Returns in progress
-manageReturns.dueDeletionReturns.tabHeading2 = Submitted returns
-manageReturns.dueDeletionReturns.tabUrl1 = in-progress-returns
-manageReturns.dueDeletionReturns.tabUrl2 = submitted-returns
-manageReturns.dueDeletionReturns.tab1Info = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
-manageReturns.dueDeletionReturns.tab2Info = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
+
+manageReturns.dueDeletionReturns.inProgressTab.heading          = Returns in progress
+manageReturns.dueDeletionReturns.inProgressTab.url              = in-progress-returns
+manageReturns.dueDeletionReturns.inProgressTab.purchaser        = Purchaser
+manageReturns.dueDeletionReturns.inProgressTab.address          = Property address
+manageReturns.dueDeletionReturns.inProgressTab.noReturns.info   = You have no returns in progress.
+manageReturns.dueDeletionReturns.inProgressTab.info             = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
+
+manageReturns.dueDeletionReturns.submittedTab.heading          = Submitted returns
+manageReturns.dueDeletionReturns.submittedTab.url              = submitted-returns
+manageReturns.dueDeletionReturns.submittedTab.purchaser        = Purchaser
+manageReturns.dueDeletionReturns.submittedTab.address          = Property address
+manageReturns.dueDeletionReturns.submittedTab.utrn             = UTRN
+manageReturns.dueDeletionReturns.submittedTab.noReturns.info   = You have no submitted returns.
+manageReturns.dueDeletionReturns.submittedTab.info             = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
 

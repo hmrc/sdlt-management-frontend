@@ -17,8 +17,10 @@
 package controllers.manage
 
 import base.SpecBase
+import generators.ModelGenerators
+import models.manage.ReturnSummary
 import models.requests.DataRequest
-import models.responses.{PaginatedInProgressReturnsViewModel, SdltInProgressReturnViewRow, UniversalStatus}
+import models.responses.PaginatedInProgressReturnsViewModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,234 +34,256 @@ import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.PaginationHelper
-import viewmodels.manage.{PaginatedSubmittedReturnsViewModel, SdltSubmittedReturnsViewModel}
-import views.html.manage.DueDeletion
+import viewmodels.manage.PaginatedSubmittedReturnsViewModel
+import views.html.manage.DueForDeletionReturnsView
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
-class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar {
+class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar with ModelGenerators {
 
   trait Fixture extends PaginationHelper {
-    val rowsPerPage: Int = 10
-
     val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
 
     val application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
       .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
       .build()
+
+    //Return Summaries
+    val paginatedInProgressAndSubmitted = generateReturnSummaries(0, 27)
+
+    val noPaginationInProgressAndSubmitted = generateReturnSummaries(0, 7)
+
+    val emptyReturnSummary = List[ReturnSummary]()
+
+    val paginatedInProgressNoPaginationSubmitted = {
+      generateReturnSummaries(0, 17, _ => "STARTED") ++
+        generateReturnSummaries(0, 7, _ => "SUBMITTED")
+    }
+
+    // No paginated lists
+    val dataNoPaginationInProgressEmptyPagination =
+      noPaginationInProgressAndSubmitted.filter(_.status == "STARTED").map(toInProgressViewRows)
+
+    val dataNoPaginationSubmittedEmptyPagination =
+      noPaginationInProgressAndSubmitted.filter(_.status == "SUBMITTED").map(toSubmittedViewRows)
+
+    // Half paginated lists
+    val dataNoPaginationSubmittedHalfPagination =
+      paginatedInProgressNoPaginationSubmitted.filter(_.status == "SUBMITTED").map(toSubmittedViewRows)
+
+    val dataPaginationInProgressHalfPagination =
+      paginatedInProgressNoPaginationSubmitted.filter(_.status == "STARTED").map(toInProgressViewRows)
+
+    //Fully paginated lists
+    val dataInProgressPaginationFullPagination =
+      paginatedInProgressAndSubmitted.filter(_.status == "STARTED").map(toInProgressViewRows)
+
+    val dataSubmittedPaginationFullPagination =
+      paginatedInProgressAndSubmitted.filter(_.status == "SUBMITTED").map(toSubmittedViewRows)
+
+
+    val inProgressUrlSelector: Int => String = (inProgressIndex: Int) =>
+      s"${
+        controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(
+          Some(inProgressIndex),
+          Some(1)
+        ).url
+      }#in-progress-returns"
+
+    val submittedUrlSelector: Int => String = (submittedIndex: Int) =>
+      s"${
+        controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(
+          Some(1),
+          Some(submittedIndex)
+        ).url
+      }#submitted-returns"
+
+    lazy val DueForDeletionReturnsControllerRoute = controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url
+    def onwardRoute = Call("GET", "/stamp-duty-land-tax-management/manage-returns/returns-due-for-deletion?inProgressIndex=1&submittedIndex=1")
   }
 
-//    val expectedEmptyData: List[SdltSubmittedReturnsViewModel] = List[SdltSubmittedReturnsViewModel]()
-//
-//    val expectedDataNoPagination: List[SdltSubmittedReturnsViewModel] =
-//      (0 to 7).toList.map(index =>
-//        SdltSubmittedReturnsViewModel(
-//          address = s"$index Riverside Drive",
-//          utrn = "UTRN003",
-//          purchaserName = "Brown",
-//          status = UniversalStatus.SUBMITTED
-//        )
-//      )
-//
-//    val expectedDataPagination: List[SdltSubmittedReturnsViewModel] =
-//      (0 to 17).toList.map(index =>
-//        SdltSubmittedReturnsViewModel(
-//          address = s"$index Riverside Drive",
-//          utrn = "UTRN003",
-//          purchaserName = "Brown",
-//          status = UniversalStatus.SUBMITTED_NO_RECEIPT
-//        )
-//      )
-//
-//    val expectedDataNoPaginationInProgress: List[SdltInProgressReturnViewRow] =
-//      (0 to 7).toList.map(index =>
-//        SdltInProgressReturnViewRow(
-//          address = s"$index Riverside Drive",
-//          agentReference = "AGTREF003",
-//          purchaserName = "Brown",
-//          status = UniversalStatus.ACCEPTED
-//        )
-//      )
-//
-//    val expectedDataPaginationInProgress: List[SdltInProgressReturnViewRow] =
-//      (0 to 17).toList.map(index =>
-//        SdltInProgressReturnViewRow(
-//          address = s"$index Riverside Drive",
-//          agentReference = "AGTREF003",
-//          purchaserName = "Brown",
-//          status = UniversalStatus.PENDING
-//        )
-//      )
-//
-//    val urlSelector: Int => String = (selectedPageIndex: Int) => controllers.manage.routes.DueForDeletionController.onPageLoad(Some(selectedPageIndex)).url
-//        lazy val DueForDeletionReturnsControllerRoute = controllers.manage.routes.DueForDeletionController.onPageLoad(None).url
-//    def onwardRoute = Call("GET", "/stamp-duty-land-tax-management/manage-returns/due-for-deletion?paginationIndex=1")
-//  }
-//
-//  "DueForDeletionReturnsController " - {
-//
-//    "must return OK and the correct view for a GET request" in new Fixture {
-//
-//      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-//        .thenReturn(Future.successful(expectedEmptyData))
-//
-//      running(application) {
-//
-//        val request = FakeRequest(GET, DueForDeletionReturnsControllerRoute)
-//
-//        val result = route(application, request).value
-//        val view = application.injector.instanceOf[DueDeletion]
-//
-//        status(result) mustEqual OK
-//        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(), PaginatedSubmittedReturnsViewModel())(request, messages(application)).toString
-//
-//        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
-//      }
-//    }
-//
-//    "must return OK and the correct view for a GET request with no pagination" in new Fixture {
-//      val actualDataNoPagination: List[SdltSubmittedReturnsViewModel] =
-//        (0 to 7).toList.map(index =>
-//          SdltSubmittedReturnsViewModel(
-//            address = s"$index Riverside Drive",
-//            utrn = "UTRN003",
-//            purchaserName = "Brown",
-//            status = UniversalStatus.SUBMITTED
-//          )
-//        )
-//
-//      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-//        .thenReturn(Future.successful(actualDataNoPagination))
-//
-//      running(application) {
-//
-//        val request = FakeRequest(GET, SubmittedControllerRoute)
-//
-//        val result = route(application, request).value
-//        val view = application.injector.instanceOf[SubmittedReturnsView]
-//
-//        status(result) mustEqual OK
-//        contentAsString(result) mustEqual view(expectedDataNoPagination, None, None)(request, messages(application)).toString
-//
-//        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
-//      }
-//    }
-//
-//    "must return OK and the correct view for a GET request with pagination" in new Fixture {
-//      val selectedPageIndex: Int = 1
-//      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPagination.length, urlSelector)(messages(application))
-//      val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPagination)(messages(application))
-//
-//      val actualDataPagination: List[SdltSubmittedReturnsViewModel] =
-//      (0 to 17).toList.map(index =>
-//        SdltSubmittedReturnsViewModel(
-//          address = s"$index Riverside Drive",
-//          utrn = "UTRN003",
-//          purchaserName = "Brown",
-//          status = UniversalStatus.SUBMITTED_NO_RECEIPT
-//        )
-//      )
-//
-//      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-//        .thenReturn(Future.successful(actualDataPagination))
-//
-//
-//      running(application) {
-//
-//        val request = FakeRequest(GET, SubmittedControllerRoute)
-//
-//        val result = route(application, request).value
-//        val view = application.injector.instanceOf[SubmittedReturnsView]
-//
-//        status(result) mustEqual OK
-//        contentAsString(result) mustEqual view(expectedDataPagination.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
-//
-//        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
-//      }
-//    }
-//
-//    "must return OK and the correct view for a GET request with pagination Page 2" in new Fixture {
-//      val selectedPageIndex: Int = 2
-//      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPagination.length, urlSelector)(messages(application))
-//      val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPagination)(messages(application))
-//
-//      val actualDataPagination: List[SdltSubmittedReturnsViewModel] =
-//      (0 to 17).toList.map(index =>
-//        SdltSubmittedReturnsViewModel(
-//          address = s"$index Riverside Drive",
-//          utrn = "UTRN003",
-//          purchaserName = "Brown",
-//          status = UniversalStatus.SUBMITTED_NO_RECEIPT
-//        )
-//      )
-//
-//      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-//        .thenReturn(Future.successful(actualDataPagination))
-//
-//      running(application) {
-//
-//        val request = FakeRequest(GET, SubmittedControllerRoute + s"?paginationIndex=$selectedPageIndex")
-//
-//        val result = route(application, request).value
-//        val view = application.injector.instanceOf[SubmittedReturnsView]
-//
-//        status(result) mustEqual OK
-//        contentAsString(result) mustEqual view(expectedDataPagination.takeRight(expectedDataPagination.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
-//
-//        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
-//      }
-//
-//    }
-//
-//    "must redirect to paginationIndex=1 for a GET request when pagination index is out of scope" in new Fixture {
-//      val invalidPageIndex: Int = 100
-//
-//      val actualDataPagination: List[SdltSubmittedReturnsViewModel] = {
-//        (0 to 17).toList.map(index =>
-//          SdltSubmittedReturnsViewModel(
-//            address = s"$index Riverside Drive",
-//            utrn = "UTRN003",
-//            purchaserName = "Brown",
-//            status = UniversalStatus.SUBMITTED_NO_RECEIPT
-//          )
-//        )
-//      }
-//
-//      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-//        .thenReturn(Future.successful(actualDataPagination))
-//
-//
-//      running(application) {
-//
-//        val request = FakeRequest(GET, SubmittedControllerRoute + s"?paginationIndex=$invalidPageIndex")
-//
-//        val result = route(application, request).value
-//        val view = application.injector.instanceOf[SubmittedReturnsView]
-//
-//        status(result) mustEqual SEE_OTHER
-//        redirectLocation(result).value mustBe onwardRoute.url
-//
-//        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
-//      }
-//
-//    }
-//
-//    "redirect to JourneyRecovery if error occurs during returns retrieval" in new Fixture {
-//
-//      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-//        .thenReturn(Future.successful(new Error("Error")))
-//
-//      running(application) {
-//
-//        val request = FakeRequest(GET, SubmittedControllerRoute)
-//
-//        val result = route(application, request).value
-//
-//        status(result) mustEqual SEE_OTHER
-//        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-//      }
-//    }
-//  }
+  "DueForDeletionReturnsController " - {
+
+    "must return OK and the correct view for a GET request with data" in new Fixture {
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(noPaginationInProgressAndSubmitted))
+
+      running(application) {
+
+        val request = FakeRequest(GET, DueForDeletionReturnsControllerRoute)
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[DueForDeletionReturnsView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(dataNoPaginationInProgressEmptyPagination, None, None),
+          PaginatedSubmittedReturnsViewModel(dataNoPaginationSubmittedEmptyPagination, None, None))(request, messages(application)).toString
+
+        verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+
+      }
+    }
+
+    "must return OK and the correct view for a GET request without data" in new Fixture {
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(emptyReturnSummary))
+
+      running(application) {
+
+        val request = FakeRequest(GET, DueForDeletionReturnsControllerRoute)
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[DueForDeletionReturnsView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(List.empty, None, None),
+          PaginatedSubmittedReturnsViewModel(List.empty, None, None))(request, messages(application)).toString
+
+        verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+
+      }
+    }
+
+    "must return OK and the correct view for a GET request when one tab does not have pagination" in new Fixture {
+      val inProgressPageIndex: Int = 1
+      val inProgressPaginator: Option[Pagination] =
+        createPagination(inProgressPageIndex, dataPaginationInProgressHalfPagination.length, inProgressUrlSelector)(messages(application))
+      val inProgressPaginationText: Option[String] = getPaginationInfoText(inProgressPageIndex, dataPaginationInProgressHalfPagination)(messages(application))
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
+
+      running(application) {
+
+        val request = FakeRequest(GET, DueForDeletionReturnsControllerRoute)
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[DueForDeletionReturnsView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(dataPaginationInProgressHalfPagination, inProgressPaginator, inProgressPaginationText),
+         PaginatedSubmittedReturnsViewModel(dataNoPaginationSubmittedHalfPagination, None, None))(request, messages(application)).toString
+
+        verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+      }
+    }
+
+    "must return OK and the correct view for a GET request when both tabs do not have pagination" in new Fixture {
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(noPaginationInProgressAndSubmitted))
+
+      running(application) {
+
+        val request = FakeRequest(GET, DueForDeletionReturnsControllerRoute)
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[DueForDeletionReturnsView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(dataNoPaginationInProgressEmptyPagination, None, None),
+          PaginatedSubmittedReturnsViewModel(dataNoPaginationSubmittedEmptyPagination, None, None))(request, messages(application)).toString
+
+        verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+      }
+    }
+
+    "must return OK and the correct view for a GET request when both tabs have pagination" in new Fixture {
+      val pageIndex: Int = 1
+      val inProgressPaginator: Option[Pagination] =
+        createPagination(pageIndex, dataInProgressPaginationFullPagination.length, inProgressUrlSelector)(messages(application))
+      val submittedPaginator: Option[Pagination] =
+        createPagination(pageIndex, dataSubmittedPaginationFullPagination.length, submittedUrlSelector)(messages(application))
+
+      val inProgressPaginationText: Option[String] = getPaginationInfoText(pageIndex, dataInProgressPaginationFullPagination)(messages(application))
+      val submittedPaginationText: Option[String] = getPaginationInfoText(pageIndex, dataSubmittedPaginationFullPagination)(messages(application))
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(paginatedInProgressAndSubmitted))
+
+      running(application) {
+
+        val request = FakeRequest(GET, DueForDeletionReturnsControllerRoute)
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[DueForDeletionReturnsView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(dataInProgressPaginationFullPagination, inProgressPaginator, inProgressPaginationText),
+          PaginatedSubmittedReturnsViewModel(dataSubmittedPaginationFullPagination, submittedPaginator, submittedPaginationText))(request, messages(application)).toString
+
+        verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+      }
+    }
+
+    "must return OK and the correct view for a GET request with pagination Page 2" in new Fixture {
+      val inProgressPageIndex: Int = 2
+      val inProgressPaginator: Option[Pagination] =
+        createPagination(inProgressPageIndex, dataPaginationInProgressHalfPagination.length, inProgressUrlSelector)(messages(application))
+
+      val inProgressPaginationText: Option[String] = getPaginationInfoText(inProgressPageIndex, dataPaginationInProgressHalfPagination)(messages(application))
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
+
+      running(application) {
+
+        val request = FakeRequest(GET, controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(2), Some(1)).url)
+
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[DueForDeletionReturnsView]
+
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(dataPaginationInProgressHalfPagination, inProgressPaginator, inProgressPaginationText),
+          PaginatedSubmittedReturnsViewModel(dataNoPaginationSubmittedHalfPagination, None, None))(request, messages(application)).toString
+
+        verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+      }
+
+    }
+
+    "must redirect to pageIndex=1 for a GET request when pageindex is out of scope" in new Fixture {
+      val invalidPageIndex: Int = 100
+      val inProgressPaginator: Option[Pagination] =
+        createPagination(invalidPageIndex, dataPaginationInProgressHalfPagination.length, inProgressUrlSelector)(messages(application))
+
+      val inProgressPaginationText: Option[String] = getPaginationInfoText(invalidPageIndex, dataPaginationInProgressHalfPagination)(messages(application))
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
+
+      running(application) {
+
+        val request = FakeRequest(GET, controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(100), Some(1)).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe onwardRoute.url
+
+        verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+      }
+
+    }
+
+    "redirect to JourneyRecovery if error occurs during returns retrieval" in new Fixture {
+
+      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(new Error("Error")))
+
+      running(application) {
+
+        val request = FakeRequest(GET, DueForDeletionReturnsControllerRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+  }
 
 }

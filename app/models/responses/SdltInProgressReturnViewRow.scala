@@ -51,7 +51,7 @@ object SdltInProgressReturnViewRow {
 case class PaginatedInProgressReturnsViewModel(
                                                inProgressReturnsViewModel: List[SdltInProgressReturnViewRow],
                                                paginator: Option[Pagination],
-                                               urlSelector: Option[String]
+                                               paginationText: Option[String]
                                              )
 
 object PaginatedInProgressReturnsViewModel {

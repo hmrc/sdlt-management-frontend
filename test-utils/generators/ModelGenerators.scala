@@ -16,9 +16,45 @@
 
 package generators
 
-import models._
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
+import models.*
+import models.manage.ReturnSummary
+import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
+import viewmodels.manage.SdltSubmittedReturnsViewModel
+
+import java.time.LocalDate
 
 trait ModelGenerators {
+  def generateReturnSummaries(
+                               start: Int,
+                               end: Int,
+                               statusPattern: Int => String = index => if (index % 2 == 0) "STARTED" else "SUBMITTED"
+                             ): List[ReturnSummary] = {
+    (start to end).toList.map { index =>
+      ReturnSummary(
+        returnReference = s"ABC123-$index",
+        utrn = Some(s"UTRN${1000 + index}"),
+        status = statusPattern(index),
+        dateSubmitted = Some(LocalDate.now().minusDays(index.toLong)),
+        purchaserName = "Brown",
+        address = s"$index Riverside Drive",
+        agentReference = Some("AGTREF003")
+      )
+    }
+  }
+
+  def toInProgressViewRows(rs: ReturnSummary): SdltInProgressReturnViewRow =
+    SdltInProgressReturnViewRow(
+      address = rs.address,
+      agentReference = rs.agentReference.getOrElse(""),
+      purchaserName = rs.purchaserName,
+      status = UniversalStatus.STARTED
+    )
+
+  def toSubmittedViewRows(rs: ReturnSummary): SdltSubmittedReturnsViewModel =
+    SdltSubmittedReturnsViewModel(
+      address = rs.address,
+      utrn = rs.utrn.getOrElse(""),
+      purchaserName = rs.purchaserName,
+      status = UniversalStatus.SUBMITTED
+    )
 }

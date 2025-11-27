@@ -49,7 +49,7 @@ object SdltSubmittedReturnsViewModel {
 case class PaginatedSubmittedReturnsViewModel(
                                           submittedReturnsViewModel: List[SdltSubmittedReturnsViewModel],
                                           paginator: Option[Pagination],
-                                          urlSelector: Option[String]
+                                          paginationText: Option[String]
                                         )
 
 object PaginatedSubmittedReturnsViewModel {}
