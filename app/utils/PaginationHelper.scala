@@ -151,7 +151,7 @@ trait PaginationHelper {
     val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
     val rowsForSelectedPage: List[A] = getSelectedPageRows(allDataRows, selectedPageIndex)
 
-    Right(allDataRows, paginator, paginationText)
+    Right(rowsForSelectedPage, paginator, paginationText)
     
   }
 
