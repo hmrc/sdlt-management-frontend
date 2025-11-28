@@ -20,7 +20,7 @@ import base.SpecBase
 import generators.ModelGenerators
 import models.manage.ReturnSummary
 import models.requests.DataRequest
-import models.responses.PaginatedInProgressReturnsViewModel
+import models.responses.{PaginatedInProgressReturnsViewModel, SdltInProgressReturnViewRow}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -34,7 +34,7 @@ import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.PaginationHelper
-import viewmodels.manage.PaginatedSubmittedReturnsViewModel
+import viewmodels.manage.{PaginatedSubmittedReturnsViewModel, SdltSubmittedReturnsViewModel}
 import views.html.manage.DueForDeletionReturnsView
 
 import scala.concurrent.Future
@@ -113,10 +113,13 @@ class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar wit
     }
 
     "must return OK and the correct view for a GET request when one tab does not have pagination" in new Fixture {
-      val inProgressPageIndex: Int = 1
+      val selectedPageIndex: Int = 1
       val inProgressPaginator: Option[Pagination] =
-        createPagination(inProgressPageIndex, dataPaginationInProgressHalfPagination.length, inProgressUrlSelector)(messages(application))
-      val inProgressPaginationText: Option[String] = getPaginationInfoText(inProgressPageIndex, dataPaginationInProgressHalfPagination)(messages(application))
+        createPagination(selectedPageIndex, dataPaginationInProgressHalfPagination.length, inProgressUrlSelector)(messages(application))
+      val inProgressPaginationText: Option[String] = getPaginationInfoText(selectedPageIndex, dataPaginationInProgressHalfPagination)(messages(application))
+      val inProgressRowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(dataPaginationInProgressHalfPagination, selectedPageIndex)
+
+      val submittedRowsForSelectedPage: List[SdltSubmittedReturnsViewModel] = getSelectedPageRows(dataNoPaginationSubmittedHalfPagination, selectedPageIndex)
 
       when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
@@ -129,14 +132,17 @@ class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar wit
         val view = application.injector.instanceOf[DueForDeletionReturnsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(dataPaginationInProgressHalfPagination, inProgressPaginator, inProgressPaginationText),
-         PaginatedSubmittedReturnsViewModel(dataNoPaginationSubmittedHalfPagination, None, None))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(inProgressRowsForSelectedPage, inProgressPaginator, inProgressPaginationText),
+         PaginatedSubmittedReturnsViewModel(submittedRowsForSelectedPage, None, None))(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
       }
     }
 
     "must return OK and the correct view for a GET request when both tabs do not have pagination" in new Fixture {
+      val selectedPageIndex: Int = 1
+      val inProgressRowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(dataNoPaginationInProgressEmptyPagination, selectedPageIndex)
+      val submittedRowsForSelectedPage: List[SdltSubmittedReturnsViewModel] = getSelectedPageRows(dataNoPaginationSubmittedEmptyPagination, selectedPageIndex)
 
       when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(noPaginationInProgressAndSubmitted))
@@ -149,8 +155,8 @@ class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar wit
         val view = application.injector.instanceOf[DueForDeletionReturnsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(dataNoPaginationInProgressEmptyPagination, None, None),
-          PaginatedSubmittedReturnsViewModel(dataNoPaginationSubmittedEmptyPagination, None, None))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(inProgressRowsForSelectedPage, None, None),
+          PaginatedSubmittedReturnsViewModel(submittedRowsForSelectedPage, None, None))(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
       }
@@ -166,6 +172,9 @@ class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar wit
       val inProgressPaginationText: Option[String] = getPaginationInfoText(pageIndex, dataInProgressPaginationFullPagination)(messages(application))
       val submittedPaginationText: Option[String] = getPaginationInfoText(pageIndex, dataSubmittedPaginationFullPagination)(messages(application))
 
+      val inProgressRowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(dataInProgressPaginationFullPagination, pageIndex)
+      val submittedRowsForSelectedPage: List[SdltSubmittedReturnsViewModel] = getSelectedPageRows(dataSubmittedPaginationFullPagination, pageIndex)
+
       when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(paginatedInProgressAndSubmitted))
 
@@ -177,8 +186,8 @@ class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar wit
         val view = application.injector.instanceOf[DueForDeletionReturnsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(dataInProgressPaginationFullPagination, inProgressPaginator, inProgressPaginationText),
-          PaginatedSubmittedReturnsViewModel(dataSubmittedPaginationFullPagination, submittedPaginator, submittedPaginationText))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(inProgressRowsForSelectedPage, inProgressPaginator, inProgressPaginationText),
+          PaginatedSubmittedReturnsViewModel(submittedRowsForSelectedPage, submittedPaginator, submittedPaginationText))(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
       }
@@ -186,10 +195,14 @@ class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar wit
 
     "must return OK and the correct view for a GET request with pagination Page 2" in new Fixture {
       val inProgressPageIndex: Int = 2
+      val submittedPageIndex: Int = 1
       val inProgressPaginator: Option[Pagination] =
         createPagination(inProgressPageIndex, dataPaginationInProgressHalfPagination.length, inProgressUrlSelector)(messages(application))
 
       val inProgressPaginationText: Option[String] = getPaginationInfoText(inProgressPageIndex, dataPaginationInProgressHalfPagination)(messages(application))
+
+      val inProgressRowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(dataPaginationInProgressHalfPagination, inProgressPageIndex)
+      val submittedRowsForSelectedPage: List[SdltSubmittedReturnsViewModel] = getSelectedPageRows(dataNoPaginationSubmittedHalfPagination, submittedPageIndex)
 
       when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
@@ -203,8 +216,8 @@ class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar wit
 
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(dataPaginationInProgressHalfPagination, inProgressPaginator, inProgressPaginationText),
-          PaginatedSubmittedReturnsViewModel(dataNoPaginationSubmittedHalfPagination, None, None))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(PaginatedInProgressReturnsViewModel(inProgressRowsForSelectedPage, inProgressPaginator, inProgressPaginationText),
+          PaginatedSubmittedReturnsViewModel(submittedRowsForSelectedPage, None, None))(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
       }
