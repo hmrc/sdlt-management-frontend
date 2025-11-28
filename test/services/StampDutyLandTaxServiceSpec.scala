@@ -252,28 +252,71 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
       implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
-      val deletionSummary = ReturnSummary(
-        returnReference = "RET-DEL-001",
-        utrn = Some("UTRN-DEL-001"),
-        status = "SUBMITTED",
-        dateSubmitted = Some(LocalDate.parse("2025-10-24")),
-        purchaserName = "Delete Buyer",
-        address = "5 Delete Street",
-        agentReference = Some("Delete Agent")
+      val submittedDeletionSummary =
+        ReturnSummary(
+          returnReference = "RET-DEL-001",
+          utrn = Some("UTRN-DEL-001"),
+          status = "SUBMITTED",
+          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
+          purchaserName = "Delete Buyer",
+          address = "5 Delete Street",
+          agentReference = Some("Delete Agent")
+        )
+
+      val inProgressDeletionSummary =
+        ReturnSummary(
+          returnReference = "RET-DEL-001",
+          utrn = Some("UTRN-DEL-001"),
+          status = "SUBMITTED",
+          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
+          purchaserName = "Delete Buyer",
+          address = "5 Delete Street",
+          agentReference = Some("Delete Agent")
+        )
+
+      val deletionSummary = List(
+        ReturnSummary(
+          returnReference = "RET-DEL-001",
+          utrn = Some("UTRN-DEL-001"),
+          status = "SUBMITTED",
+          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
+          purchaserName = "Delete Buyer",
+          address = "5 Delete Street",
+          agentReference = Some("Delete Agent")
+        ),
+        ReturnSummary(
+          returnReference = "RET-DEL-001",
+          utrn = Some("UTRN-DEL-001"),
+          status = "SUBMITTED",
+          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
+          purchaserName = "Delete Buyer",
+          address = "5 Delete Street",
+          agentReference = Some("Delete Agent")
+        )
       )
 
-      val deletionResponse = SdltReturnRecordResponse(
+      val submittedDeletionResponse = SdltReturnRecordResponse(
         returnSummaryCount = Some(1),
-        returnSummaryList = List(deletionSummary)
+        returnSummaryList = List(submittedDeletionSummary)
       )
 
-      when(connector.getReturns(eqTo(None), eqTo(None), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(deletionResponse))
+      val inProgressDeletionResponse = SdltReturnRecordResponse(
+        returnSummaryCount = Some(1),
+        returnSummaryList = List(inProgressDeletionSummary)
+      )
+
+      when(connector.getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(submittedDeletionResponse))
+
+      when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(inProgressDeletionResponse))
 
       val result = service.getReturnsDueForDeletion.futureValue
-      result mustBe deletionResponse.returnSummaryList
 
-      verify(connector).getReturns(eqTo(None), eqTo(None), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
+      result must contain theSameElementsAs deletionSummary
+
+      verify(connector).getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
+      verify(connector).getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
       verifyNoMoreInteractions(connector)
     }
   }

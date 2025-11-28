@@ -59,7 +59,7 @@
 @inProgressData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
 @govukTable(Table(
     rows =
-        inProgressData.inProgressReturnsViewModel.sortBy(_.purchaserName).map{ currentRow =>
+        inProgressData.inProgressReturnsViewModel.map{ currentRow =>
             Seq(
                 TableRow(
                     content = HtmlContent(inProgressPurchaserNameLink(currentRow)),
@@ -87,7 +87,7 @@
 @submittedData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
 @govukTable(Table(
     rows =
-        submittedData.submittedReturnsViewModel.sortBy(_.purchaserName).map{ currentRow =>
+        submittedData.submittedReturnsViewModel.map{ currentRow =>
             Seq(
                 TableRow(
                     content = HtmlContent(submittedPurchaserNameLink(currentRow)),
