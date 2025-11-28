@@ -57,4 +57,37 @@ trait ModelGenerators {
       purchaserName = rs.purchaserName,
       status = UniversalStatus.SUBMITTED
     )
+
+  //Return Summaries
+  val paginatedInProgressAndSubmitted = generateReturnSummaries(0, 27)
+
+  val noPaginationInProgressAndSubmitted = generateReturnSummaries(0, 7)
+
+  val emptyReturnSummary = List[ReturnSummary]()
+
+  val paginatedInProgressNoPaginationSubmitted = {
+    generateReturnSummaries(0, 17, _ => "STARTED") ++
+      generateReturnSummaries(0, 7, _ => "SUBMITTED")
+  }
+
+  // No paginated lists
+  val dataNoPaginationInProgressEmptyPagination =
+    noPaginationInProgressAndSubmitted.filter(_.status == "STARTED").map(toInProgressViewRows)
+
+  val dataNoPaginationSubmittedEmptyPagination =
+    noPaginationInProgressAndSubmitted.filter(_.status == "SUBMITTED").map(toSubmittedViewRows)
+
+  // Half paginated lists
+  val dataNoPaginationSubmittedHalfPagination =
+    paginatedInProgressNoPaginationSubmitted.filter(_.status == "SUBMITTED").map(toSubmittedViewRows)
+
+  val dataPaginationInProgressHalfPagination =
+    paginatedInProgressNoPaginationSubmitted.filter(_.status == "STARTED").map(toInProgressViewRows)
+
+  //Fully paginated lists
+  val dataInProgressPaginationFullPagination =
+    paginatedInProgressAndSubmitted.filter(_.status == "STARTED").map(toInProgressViewRows)
+
+  val dataSubmittedPaginationFullPagination =
+    paginatedInProgressAndSubmitted.filter(_.status == "SUBMITTED").map(toSubmittedViewRows)
 }
