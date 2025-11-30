@@ -18,11 +18,12 @@ package utils
 
 import models.requests.DataRequest
 import models.responses.SdltInProgressReturnViewRow
+import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
-trait PaginationHelper {
+trait PaginationHelper extends Logging {
 
   private val ROWS_ON_PAGE = 10
   private val DEFAULT_PAGE_INDEX = 1
@@ -155,14 +156,29 @@ trait PaginationHelper {
     
   }
 
-  def paginateIfValidPageIndex[A](rowsOpt: Option[List[A]], paginationIndex: Option[Int], urlSelector: Int => String)
-                        (implicit req: DataRequest[_], messages: Messages): Option[Either[String, (
-    (List[A], Option[Pagination], Option[String]))]] =
-    rowsOpt.filter(_.nonEmpty).flatMap { rows =>
-      pageIndexSelector(paginationIndex, rows.length) match {
-        case Right(validIndex) => Some(paginateList(rows, Some(validIndex), urlSelector))
-        case Left(error) => Some(Left("PaginationIndexError: " + error))
-
-      }
+  def paginateIfValidPageIndex[A](
+                                   rowsOpt: Option[List[A]],
+                                   paginationIndex: Option[Int],
+                                   urlSelector: Int => String
+                                 )(
+                                   implicit req: DataRequest[_],
+                                   messages: Messages
+                                 ): Option[Either[String, (List[A], Option[Pagination], Option[String])]] = {
+    rowsOpt match {
+      case None => None
+      case Some(Nil) => Some(Right((Nil, None, None)))
+      case Some(rows) =>
+        val safeIndex: Int =
+          pageIndexSelector(paginationIndex, rows.length) match {
+            case Right(validIndex) => validIndex
+            case Left(error) =>
+              logger.warn(
+                s"[paginateIfValidPageIndex] Invalid page index '$paginationIndex' " +
+                  s"for ${rows.length} rows: ${error.getMessage}. Falling back to page 1."
+              )
+              DEFAULT_PAGE_INDEX
+          }
+        Some(paginateList(rows, Some(safeIndex), urlSelector))
     }
+  }
 }

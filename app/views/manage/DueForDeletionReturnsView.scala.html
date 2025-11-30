@@ -39,7 +39,7 @@
 
 @renderInProgressTable() = {
     @h2("manageReturns.dueDeletionReturns.inProgressTab.heading")
-    @inProgressData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
+    @inProgressData.paginationText.map(p(_))
     @govukTable(Table(
         rows = inProgressData.inProgressReturnsViewModel.map { currentRow =>
             Seq(
@@ -52,12 +52,12 @@
             HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.address")))
         ))
     ))
+    @inProgressData.paginator.map(govukPagination(_))
 }
-
 
 @renderSubmittedTable() = {
     @h2("manageReturns.dueDeletionReturns.submittedTab.heading")
-    @submittedData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
+    @submittedData.paginationText.map(p(_))
     @govukTable(Table(
         rows = submittedData.submittedReturnsViewModel.map{ currentRow =>
             Seq(
@@ -72,6 +72,7 @@
             HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.utrn")))
         ))
     ))
+    @submittedData.paginator.map(govukPagination(_))
 }
 
 @layout(
@@ -85,56 +86,35 @@
         captionClasses = Some("govuk-caption-l")
     ))
 
-    @defining(
-        HtmlFormat.fill(Seq(
-            renderInProgressTable(),
-            inProgressData.paginator.map(govukPagination(_)).getOrElse(HtmlFormat.empty)
-        ))
-    ) { inProgressHtml =>
+    @if(inProgressData.inProgressReturnsViewModel.isEmpty && submittedData.submittedReturnsViewModel.isEmpty) {
 
-        @defining(
-            HtmlFormat.fill(Seq(
-                renderSubmittedTable(),
-                submittedData.paginator.map(govukPagination(_)).getOrElse(HtmlFormat.empty)
-            ))
-        ) { submittedHtml =>
+        @p("manageReturns.dueDeletionReturns.noReturns.info")
+        @link("manage.submittedReturnsOverview.noReturns.link", "#")
 
-            @if(inProgressData.inProgressReturnsViewModel.isEmpty && submittedData.submittedReturnsViewModel.isEmpty) {
+    } else {
 
-            @p("manageReturns.dueDeletionReturns.noReturns.info")
-            @link("manage.submittedReturnsOverview.noReturns.link", "../manage-returns/start-new-return")
-
-            } else {
-
-            @p("manageReturns.dueDeletionReturns.nonZeroReturns.info")
-
-            @govukTabs(Tabs(
-                id = Some("due-for-deletion-returns"),
-                items = Seq(
+        @govukTabs(Tabs(
+            id = Some("updates-and-deadlines-tabs"),
+            items = Seq(
+                Option.when(inProgressData.inProgressReturnsViewModel.nonEmpty)(
                     TabItem(
-                        id = Some(messages("manageReturns.dueDeletionReturns.inProgressTab.url")),
+                        id = Some("in-progress-due-for-deletion-returns"),
                         label = messages("manageReturns.dueDeletionReturns.inProgressTab.heading"),
-                        panel = {
-                            if(inProgressHtml.body.trim.isEmpty) {
-                                TabPanel(messages("manageReturns.dueDeletionReturns.inProgressTab.noReturns.info"))
-                            } else {
-                                TabPanel(HtmlContent(inProgressHtml.body))
-                            }
-                        }
-                    ),
+                        panel = TabPanel(
+                            content = HtmlContent(renderInProgressTable())
+                        )
+                    )
+                ),
+                Option.when(submittedData.submittedReturnsViewModel.nonEmpty)(
                     TabItem(
-                        id = Some(messages("manageReturns.dueDeletionReturns.submittedTab.url")),
+                        id = Some("submitted-due-for-deletion-returns"),
                         label = messages("manageReturns.dueDeletionReturns.submittedTab.heading"),
-                        panel = {
-                            if(submittedHtml.body.trim.isEmpty) {
-                                TabPanel(messages("manageReturns.dueDeletionReturns.submittedTab.noReturns.info"))
-                            } else {
-                                TabPanel(HtmlContent(submittedHtml.body))
-                            }
-                        }
+                        panel = TabPanel(
+                            content = HtmlContent(renderSubmittedTable())
+                        )
                     )
                 )
-            ))}
-        }
+            ).flatten
+        ))
     }
 }
