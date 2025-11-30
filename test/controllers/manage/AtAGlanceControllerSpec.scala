@@ -67,7 +67,10 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(Nil))
 
-      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(Nil))
+
+      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(Nil))
 
       running(application) {
@@ -116,7 +119,10 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(List(SdltSubmittedReturnsViewModel(address = "10 Downing Street", utrn = "XA1243523", purchaserName = "John Doe", status = SUBMITTED))))
 
-      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(Nil))
+
+      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(Nil))
 
       when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
@@ -168,9 +174,12 @@ class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(new Error("Test error")))
 
-      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(new Error("Test error")))
 
+      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(new Error("Test error")))
+      
       when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(new Error("Test error")))
 
