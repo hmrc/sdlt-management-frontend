@@ -42,10 +42,11 @@ class TestControllerToBeDeleted @Inject()(
     implicit request =>
 
       for {
-        getAllInProgressReturns  <- stampDutyLandTaxService.getInProgressReturns
-        getAllSubmittedReturns   <- stampDutyLandTaxService.getSubmittedReturns
-        getReturnsDueForDeletion <- stampDutyLandTaxService.getReturnsDueForDeletion
-        getAgentsCount           <- stampDutyLandTaxService.getAgentCount
+        getAllInProgressReturns         <- stampDutyLandTaxService.getInProgressReturns
+        getAllSubmittedReturns          <- stampDutyLandTaxService.getSubmittedReturns
+        submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion
+        inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion
+        getAgentsCount                  <- stampDutyLandTaxService.getAgentCount
       } yield {
         Ok(Html(
           s"""
@@ -53,7 +54,7 @@ class TestControllerToBeDeleted @Inject()(
              |<br><br>
              |getAllSubmittedReturns: $getAllSubmittedReturns
              |<br><br>
-             |getReturnsDueForDeletion: $getReturnsDueForDeletion
+             |getReturnsDueForDeletion: ${(submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion).sortBy(_.purchaserName)}
              |""".stripMargin
         ))
       }

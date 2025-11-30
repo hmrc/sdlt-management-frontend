@@ -62,32 +62,24 @@ class DueForDeletionReturnsController @Inject()(
         inProgressIndex, Some(submittedIndex)).url}#submitted-returns"
 
 
-      stampDutyLandTaxService.getReturnsDueForDeletion().map { response =>
-
-        val rawDeletionInProgressReturns = convertResponseToViewRows(response)
-        val rawDeletionSubmittedReturns = convertResponseToSubmittedView(response)
-        val inProgressPaginatedView = paginateIfValidPageIndex(Some(rawDeletionInProgressReturns), inProgressIndex, inProgressUrlSelector)
-        val submittedPaginatedView = paginateIfValidPageIndex(Some(rawDeletionSubmittedReturns), submittedIndex, submittedUrlSelector)
-
-        if (inProgressPaginatedView.exists(_.isLeft) || submittedPaginatedView.exists(_.isLeft)) {
-          Logger("application").error(s"[DueForDeletionReturnsController][onPageLoad] - Pagination Index Error")
-          Redirect(outOfScopeUrlSelector(1))
-        } else {
-              val paginatedInProgressReturns = inProgressPaginatedView.flatMap {
-                case Right((rowsP, paginatorP, paginationTextP)) =>
-                  Some(PaginatedInProgressReturnsViewModel(rowsP, paginatorP, paginationTextP))
-                case _ => None
-              }.getOrElse(PaginatedInProgressReturnsViewModel(List.empty, None, None))
-
-              val paginatedSubmittedReturns = submittedPaginatedView.flatMap {
-                case Right((rowsS, paginatorS, paginationTextS)) =>
-                  Some(PaginatedSubmittedReturnsViewModel(rowsS, paginatorS, paginationTextS))
-                case _ => None
-              }.getOrElse(PaginatedSubmittedReturnsViewModel(List.empty, None, None))
-
-              Ok(view(paginatedInProgressReturns, paginatedSubmittedReturns))
+      (for {
+        submitted                 <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion
+        submittedReturns           = convertResponseToSubmittedView(submitted)
+        submittedPaginatedView     = paginateIfValidPageIndex(Some(submittedReturns), submittedIndex, submittedUrlSelector)
+        inProgress                <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion
+        inProgressReturns          = convertResponseToViewRows(inProgress)
+        inProgressPaginatedView    = paginateIfValidPageIndex(Some(inProgressReturns), inProgressIndex, inProgressUrlSelector)
+        paginatedInProgressReturns = inProgressPaginatedView.collectFirst { case Right((rows, paginator, paginationText)) => PaginatedInProgressReturnsViewModel(rows, paginator, paginationText) }
+        paginatedSubmittedReturns  = submittedPaginatedView.collectFirst { case Right((rows, paginator, paginationText)) => PaginatedSubmittedReturnsViewModel(rows, paginator, paginationText) }
+      } yield {
+        (paginatedInProgressReturns, paginatedSubmittedReturns) match {
+          case ( Some(inProgressViewModel), Some(submittedViewModel) ) =>
+            Ok(view(inProgressViewModel, submittedViewModel))
+          case _                                                       =>
+            Logger("application").error(s"[DueForDeletionReturnsController][onPageLoad] - Pagination Index Error")
+            Redirect(outOfScopeUrlSelector(1))
         }
-      } recover {
+      }) recover {
         case ex =>
           logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)
           Redirect(JourneyRecoveryController.onPageLoad())

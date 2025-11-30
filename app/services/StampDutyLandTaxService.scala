@@ -62,15 +62,20 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     }
   }
 
-  def getReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] = {
-    for {
-      submitted   <- stampDutyLandTaxConnector.getReturns(None, Some("SUBMITTED"),   deletionFlag = true)
-      inProgress  <- stampDutyLandTaxConnector.getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
-    } yield {
-      submitted.returnSummaryList ++ inProgress.returnSummaryList
+  def getInProgressReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+    stampDutyLandTaxConnector
+      .getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
+      .map(_.returnSummaryList
         .sortBy(_.returnReference)
-    }
-  }
+      )
+
+
+  def getSubmittedReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+    stampDutyLandTaxConnector
+      .getReturns(None, Some("SUBMITTED"), deletionFlag = true)
+      .map(_.returnSummaryList
+        .sortBy(_.returnReference)
+      )
 
   def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
     stampDutyLandTaxConnector
