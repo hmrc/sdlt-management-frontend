@@ -21,9 +21,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import controllers.routes.JourneyRecoveryController
-import models.manage.ReturnSummary
-import models.responses.SdltInProgressReturnViewRow.convertResponseToViewRows
-import models.responses.{PaginatedInProgressReturnsViewModel, SdltInProgressReturnViewRow}
 import play.api.{Logger, Logging}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
 
@@ -31,12 +28,13 @@ import javax.inject.{Inject, Singleton}
 import navigation.Navigator
 import utils.PaginationHelper
 import services.StampDutyLandTaxService
-import viewmodels.manage.{PaginatedSubmittedReturnsViewModel, SdltSubmittedReturnsViewModel}
-import viewmodels.manage.SdltSubmittedReturnsViewModel.convertResponseToSubmittedView
+import viewmodels.manage.deletedReturns.SdltDeletedSubmittedReturnsViewModel._
+import viewmodels.manage.deletedReturns.SdltDeletedInProgressReturnViewRow._
+import viewmodels.manage.deletedReturns.PaginatedDeletedSubmittedReturnsViewModel
+import viewmodels.manage.deletedReturns.PaginatedDeletedInProgressReturnsViewModel
 import views.html.manage.DueForDeletionReturnsView
 
-import java.time.LocalDate
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class DueForDeletionReturnsController @Inject()(
@@ -61,33 +59,24 @@ class DueForDeletionReturnsController @Inject()(
       val submittedUrlSelector: Int => String = (submittedIndex: Int) => s"${controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(
         inProgressIndex, Some(submittedIndex)).url}#submitted-returns"
 
-
-      stampDutyLandTaxService.getReturnsDueForDeletion().map { response =>
-
-        val rawDeletionInProgressReturns = convertResponseToViewRows(response)
-        val rawDeletionSubmittedReturns = convertResponseToSubmittedView(response)
-        val inProgressPaginatedView = paginateIfValidPageIndex(Some(rawDeletionInProgressReturns), inProgressIndex, inProgressUrlSelector)
-        val submittedPaginatedView = paginateIfValidPageIndex(Some(rawDeletionSubmittedReturns), submittedIndex, submittedUrlSelector)
-
-        if (inProgressPaginatedView.exists(_.isLeft) || submittedPaginatedView.exists(_.isLeft)) {
-          Logger("application").error(s"[DueForDeletionReturnsController][onPageLoad] - Pagination Index Error")
-          Redirect(outOfScopeUrlSelector(1))
-        } else {
-              val paginatedInProgressReturns = inProgressPaginatedView.flatMap {
-                case Right((rowsP, paginatorP, paginationTextP)) =>
-                  Some(PaginatedInProgressReturnsViewModel(rowsP, paginatorP, paginationTextP))
-                case _ => None
-              }.getOrElse(PaginatedInProgressReturnsViewModel(List.empty, None, None))
-
-              val paginatedSubmittedReturns = submittedPaginatedView.flatMap {
-                case Right((rowsS, paginatorS, paginationTextS)) =>
-                  Some(PaginatedSubmittedReturnsViewModel(rowsS, paginatorS, paginationTextS))
-                case _ => None
-              }.getOrElse(PaginatedSubmittedReturnsViewModel(List.empty, None, None))
-
-              Ok(view(paginatedInProgressReturns, paginatedSubmittedReturns))
+      (for {
+        submitted                 <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion
+        submittedReturnsRows       = convertResponseToSubmittedView(submitted)
+        submittedPaginatedView     = paginateIfValidPageIndex(Some(submittedReturnsRows), submittedIndex, submittedUrlSelector)
+        inProgress                <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion
+        inProgressReturnsRows      = convertResponseToViewRows(inProgress)
+        inProgressPaginatedView    = paginateIfValidPageIndex(Some(inProgressReturnsRows), inProgressIndex, inProgressUrlSelector)
+        paginatedInProgressReturns = inProgressPaginatedView.collectFirst { case Right((rows, paginator, paginationText)) => PaginatedDeletedInProgressReturnsViewModel(rows, paginator, paginationText) }
+        paginatedSubmittedReturns  = submittedPaginatedView.collectFirst { case Right((rows, paginator, paginationText)) => PaginatedDeletedSubmittedReturnsViewModel(rows, paginator, paginationText) }
+      } yield {
+        (paginatedInProgressReturns, paginatedSubmittedReturns) match {
+          case (Some(inProgressViewModel), Some(submittedViewModel)) =>
+            Ok(view(inProgressViewModel, submittedViewModel))
+          case _ =>
+            Logger("application").error(s"[DueForDeletionReturnsController][onPageLoad] - Pagination Index Error")
+            Redirect(outOfScopeUrlSelector(1))
         }
-      } recover {
+      }) recover {
         case ex =>
           logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)
           Redirect(JourneyRecoveryController.onPageLoad())

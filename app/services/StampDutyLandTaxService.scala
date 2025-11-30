@@ -37,7 +37,8 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     } yield {
 
       val inProgressReturnsList =
-        accepted.returnSummaryList ++ started.returnSummaryList
+        (accepted.returnSummaryList ++ started.returnSummaryList)
+          .sortBy(_.purchaserName)
 
       SdltInProgressReturnViewRow
         .convertResponseToViewRows(
@@ -53,7 +54,8 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     } yield {
 
       val submittedReturnsList =
-        submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList
+        (submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList)
+          .sortBy(_.purchaserName)
 
       SdltSubmittedReturnsViewModel
         .convertResponseToSubmittedView(
@@ -62,15 +64,19 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     }
   }
 
-  def getReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] = {
-    for {
-      submitted   <- stampDutyLandTaxConnector.getReturns(None, Some("SUBMITTED"),   deletionFlag = true)
-      inProgress  <- stampDutyLandTaxConnector.getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
-    } yield {
-      submitted.returnSummaryList ++ inProgress.returnSummaryList
-        .sortBy(_.returnReference)
-    }
-  }
+  def getInProgressReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+    stampDutyLandTaxConnector
+      .getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
+      .map(_.returnSummaryList
+        .sortBy(_.purchaserName)
+      )
+
+  def getSubmittedReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+    stampDutyLandTaxConnector
+      .getReturns(None, Some("SUBMITTED"), deletionFlag = true)
+      .map(_.returnSummaryList
+        .sortBy(_.purchaserName)
+      )
 
   def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
     stampDutyLandTaxConnector

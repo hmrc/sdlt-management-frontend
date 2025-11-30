@@ -52,10 +52,12 @@ class AtAGlanceController@Inject()(
     val name = "David Frank"
 
     (for {
-      agentsCount       <- stampDutyLandTaxService.getAgentCount
-      returnsInProgress <- stampDutyLandTaxService.getInProgressReturns
-      submittedReturns  <- stampDutyLandTaxService.getSubmittedReturns
-      dueForDeletion    <- stampDutyLandTaxService.getReturnsDueForDeletion
+      agentsCount                     <- stampDutyLandTaxService.getAgentCount
+      returnsInProgress               <- stampDutyLandTaxService.getInProgressReturns
+      submittedReturns                <- stampDutyLandTaxService.getSubmittedReturns
+      submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion
+      inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion
+      returnsDueForDeletion            = (submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion).sortBy(_.purchaserName)
     } yield {
 
       Ok(view(
@@ -64,11 +66,11 @@ class AtAGlanceController@Inject()(
           name = name,
           inProgressReturns = returnsInProgress,
           submittedReturns = submittedReturns,
-          dueForDeletionReturns = dueForDeletion,
+          dueForDeletionReturns = returnsDueForDeletion,
           agentsCount = agentsCount
         )
       ))
-    }).recover {
+    }) recover {
         case ex =>
           logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
           Redirect(JourneyRecoveryController.onPageLoad())

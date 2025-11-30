@@ -53,7 +53,3 @@ case class PaginatedInProgressReturnsViewModel(
                                                paginator: Option[Pagination],
                                                paginationText: Option[String]
                                              )
-
-object PaginatedInProgressReturnsViewModel {
-  
-}

@@ -51,5 +51,3 @@ case class PaginatedSubmittedReturnsViewModel(
                                           paginator: Option[Pagination],
                                           paginationText: Option[String]
                                         )
-
-object PaginatedSubmittedReturnsViewModel {}

@@ -17,102 +17,61 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
-@import models.responses.{PaginatedInProgressReturnsViewModel, SdltInProgressReturnViewRow}
-@import viewmodels.manage.{PaginatedSubmittedReturnsViewModel, SdltSubmittedReturnsViewModel}
-
-
+@import viewmodels.manage.deletedReturns._
 
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton,
-        govukPagination: GovukPagination,
         govukTable: GovukTable,
-        govukDetails: GovukDetails,
+        govukPagination: GovukPagination,
         govukTabs: GovukTabs,
-        govukErrorSummary: GovukErrorSummary,
-        formHelper: FormWithCSRF,
         p: Paragraph,
         h2: components.H2,
-        span: components.Span,
         link: components.Link,
         hmrcPageHeading: HmrcPageHeading
 )
-@(inProgressData:   PaginatedInProgressReturnsViewModel, submittedData:   PaginatedSubmittedReturnsViewModel
+@(
+        inProgressData: PaginatedDeletedInProgressReturnsViewModel,
+        submittedData:  PaginatedDeletedSubmittedReturnsViewModel
 )(
         implicit request: Request[_],
         messages: Messages
 )
 
-@submittedPurchaserNameLink(row: SdltSubmittedReturnsViewModel)  = {
-    <p class="govuk-body">
-        <a class="govuk-link" href="../manage-returns/submitted-return">@row.purchaserName</a>
-    </p>
-}
-@inProgressPurchaserNameLink(row: SdltInProgressReturnViewRow)  = {
-    <p class="govuk-body">
-        <a class="govuk-link" href="../manage-returns/in-progress-returns">@row.purchaserName</a>
-    </p>
-}
-
 @renderInProgressTable() = {
-@h2("manageReturns.dueDeletionReturns.inProgressTab.heading")
-@inProgressData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
-@govukTable(Table(
-    rows =
-        inProgressData.inProgressReturnsViewModel.map{ currentRow =>
+    @h2("manageReturns.dueDeletionReturns.inProgressTab.heading")
+    @inProgressData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
+    @govukTable(Table(
+        rows = inProgressData.inProgressReturnsViewModel.map { currentRow =>
             Seq(
-                TableRow(
-                    content = HtmlContent(inProgressPurchaserNameLink(currentRow)),
-                ),
-                TableRow(
-                    content = Text( currentRow.address )
-                )
+                TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#")) ),
+                TableRow(content = Text( currentRow.address ))
             )
-        }
-    ,
-    head = Some(Seq(
-        HeadCell(
-            content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.purchaser"))
-        ),
-        HeadCell(
-            content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.address"))
-        )
-    )),
-))
+        },
+        head = Some(Seq(
+            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.purchaser"))),
+            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.address")))
+        ))
+    ))
 }
 
 
 @renderSubmittedTable() = {
-@h2("manageReturns.dueDeletionReturns.submittedTab.heading")
-@submittedData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
-@govukTable(Table(
-    rows =
-        submittedData.submittedReturnsViewModel.map{ currentRow =>
+    @h2("manageReturns.dueDeletionReturns.submittedTab.heading")
+    @submittedData.paginationText.map(p(_)).getOrElse(HtmlFormat.empty)
+    @govukTable(Table(
+        rows = submittedData.submittedReturnsViewModel.map{ currentRow =>
             Seq(
-                TableRow(
-                    content = HtmlContent(submittedPurchaserNameLink(currentRow)),
-                ),
-                TableRow(
-                    content = Text( currentRow.address )
-                ),
-                TableRow(
-                    content = Text( currentRow.utrn )
-                )
+                TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#") )),
+                TableRow(content = Text( currentRow.address )),
+                TableRow(content = Text( currentRow.utrn ))
             )
-        }
-    ,
-    head = Some(Seq(
-        HeadCell(
-            content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.purchaser"))
-        ),
-        HeadCell(
-            content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.address"))
-        ),
-        HeadCell(
-            content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.utrn"))
-        )
-    )),
-))
+        },
+        head = Some(Seq(
+            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.purchaser"))),
+            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.address"))),
+            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.utrn")))
+        ))
+    ))
 }
 
 @layout(
@@ -148,7 +107,6 @@
             } else {
 
             @p("manageReturns.dueDeletionReturns.nonZeroReturns.info")
-                
 
             @govukTabs(Tabs(
                 id = Some("due-for-deletion-returns"),
@@ -176,8 +134,7 @@
                         }
                     )
                 )
-            ))
-        }
+            ))}
         }
     }
 }
