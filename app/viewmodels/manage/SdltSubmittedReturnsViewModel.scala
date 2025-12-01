@@ -29,9 +29,9 @@ object SdltSubmittedReturnsViewModel {
   import UniversalStatus.*
 
   private val acceptableStatus : Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
-  
+
     def convertResponseToSubmittedView(submittedReturns: List[ReturnSummary]): List[SdltSubmittedReturnsViewModel] =
-      
+
       for {
         rec    <- submittedReturns
         status <- fromString(rec.status)

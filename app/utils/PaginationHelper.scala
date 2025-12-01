@@ -16,10 +16,14 @@
 
 package utils
 
+import models.requests.DataRequest
+import models.responses.SdltInProgressReturnViewRow
+import play.api.Logging
 import play.api.i18n.Messages
+import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
-trait PaginationHelper {
+trait PaginationHelper extends Logging {
 
   private val ROWS_ON_PAGE = 10
   private val DEFAULT_PAGE_INDEX = 1
@@ -138,4 +142,42 @@ trait PaginationHelper {
         List.empty
     }
   }
+  
+  def paginateList[A](allDataRows: List[A], paginationIndex: Option[Int], urlSelector: Int => String)(implicit request: DataRequest[_], messages: Messages): Either[String, (
+    (List[A], Option[Pagination], Option[String]))] = {
+    
+    val selectedPageIndex: Int = paginationIndex.getOrElse(1)
+    
+    val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
+    val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
+    val rowsForSelectedPage: List[A] = getSelectedPageRows(allDataRows, selectedPageIndex)
+
+    Right(rowsForSelectedPage, paginator, paginationText)
+    
+  }
+
+  def paginateIfValidPageIndex[A](
+                                   rowsOpt: Option[List[A]],
+                                   paginationIndex: Option[Int],
+                                   urlSelector: Int => String
+                                 )(
+                                   implicit req: DataRequest[_],
+                                   messages: Messages
+                                 ): Option[Either[String, (List[A], Option[Pagination], Option[String])]] =
+    rowsOpt match {
+      case None       => None
+      case Some(Nil)  => Some(Right((Nil, None, None)))
+      case Some(rows) =>
+        pageIndexSelector(paginationIndex, rows.length) match {
+          case Right(validIndex) =>
+            Some(paginateList(rows, Some(validIndex), urlSelector))
+
+          case Left(error) =>
+            logger.warn(
+              s"[paginateIfValidPageIndex] Invalid page index '$paginationIndex' " +
+                s"for ${rows.length} rows: ${error.getMessage}."
+            )
+            Some(Left(error.getMessage))
+        }
+    }
 }

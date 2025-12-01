@@ -27,8 +27,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
-                                       (implicit executionContext: ExecutionContext) {
+class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLandTaxConnector)
+                                        (implicit executionContext: ExecutionContext) {
 
   def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltInProgressReturnViewRow]] = {
     for {
@@ -46,12 +46,13 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
 
   def getSubmittedReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltSubmittedReturnsViewModel]] = {
     for {
-      submitted <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"), Some("SUBMITTED"), deletionFlag = false)
+      submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
 
       val submittedReturnsList =
-        submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList
+        (submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList)
+          .sortBy(_.purchaserName)
 
       SdltSubmittedReturnsViewModel
         .convertResponseToSubmittedView(
@@ -60,10 +61,19 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     }
   }
 
-  def getReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+  def getInProgressReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
     stampDutyLandTaxConnector
-      .getReturns(None, None, deletionFlag = true)
-      .map(_.returnSummaryList)
+      .getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
+      .map(_.returnSummaryList
+        .sortBy(_.purchaserName)
+      )
+
+  def getSubmittedReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+    stampDutyLandTaxConnector
+      .getReturns(None, Some("SUBMITTED"), deletionFlag = true)
+      .map(_.returnSummaryList
+        .sortBy(_.purchaserName)
+      )
 
   def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
     stampDutyLandTaxConnector

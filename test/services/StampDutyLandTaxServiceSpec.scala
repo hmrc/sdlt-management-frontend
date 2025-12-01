@@ -238,33 +238,68 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
-  "getReturnsDueForDeletion" should {
-    "delegate to connector with deletionFlag = true and return the response" in {
+  "getSubmittedReturnsDueForDeletion" should {
+    "call the connector with deletionFlag = true for SUBMITTED and return the response" in {
       val (service, connector) = newService()
       implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
-      val deletionSummary = ReturnSummary(
-        returnReference = "RET-DEL-001",
-        utrn = Some("UTRN-DEL-001"),
-        status = "SUBMITTED",
-        dateSubmitted = Some(LocalDate.parse("2025-10-24")),
-        purchaserName = "Delete Buyer",
-        address = "5 Delete Street",
-        agentReference = Some("Delete Agent")
-      )
+      val submittedDeletionSummary =
+        ReturnSummary(
+          returnReference = "RET-DEL-001",
+          utrn = Some("UTRN-DEL-001"),
+          status = "SUBMITTED",
+          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
+          purchaserName = "Delete Buyer",
+          address = "5 Delete Street",
+          agentReference = Some("Delete Agent")
+        )
 
-      val deletionResponse = SdltReturnRecordResponse(
+      val submittedDeletionResponse = SdltReturnRecordResponse(
         returnSummaryCount = Some(1),
-        returnSummaryList = List(deletionSummary)
+        returnSummaryList = List(submittedDeletionSummary)
       )
 
-      when(connector.getReturns(eqTo(None), eqTo(None), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(deletionResponse))
+      when(connector.getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(submittedDeletionResponse))
 
-      val result = service.getReturnsDueForDeletion.futureValue
-      result mustBe deletionResponse.returnSummaryList
+      val result = service.getSubmittedReturnsDueForDeletion.futureValue
 
-      verify(connector).getReturns(eqTo(None), eqTo(None), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
+      result must contain theSameElementsAs List(submittedDeletionSummary)
+
+      verify(connector).getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
+      verifyNoMoreInteractions(connector)
+    }
+  }
+
+  "getInProgressReturnsDueForDeletion" should {
+    "call the connector with deletionFlag = true for IN-PROGRESS and return the response" in {
+      val (service, connector) = newService()
+      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
+
+      val inProgressDeletionSummary =
+        ReturnSummary(
+          returnReference = "RET-DEL-002",
+          utrn = Some("UTRN-DEL-002"),
+          status = "IN-PROGRESS",
+          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
+          purchaserName = "In Progress Buyer",
+          address = "6 Delete Street",
+          agentReference = Some("Delete Agent 2")
+        )
+
+      val inProgressDeletionResponse = SdltReturnRecordResponse(
+        returnSummaryCount = Some(1),
+        returnSummaryList = List(inProgressDeletionSummary)
+      )
+
+      when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(inProgressDeletionResponse))
+
+      val result = service.getInProgressReturnsDueForDeletion.futureValue
+
+      result must contain theSameElementsAs List(inProgressDeletionSummary)
+
+      verify(connector).getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
       verifyNoMoreInteractions(connector)
     }
   }

@@ -22,58 +22,35 @@
 
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton,
         govukPagination: GovukPagination,
         govukTable: GovukTable,
-        govukDetails: GovukDetails,
-        govukErrorSummary: GovukErrorSummary,
-        formHelper: FormWithCSRF,
         p: Paragraph,
-        h1: components.H1,
-        span: components.Span,
         link: components.Link,
         hmrcPageHeading: HmrcPageHeading
 )
-@(dataRows:   List[SdltSubmittedReturnsViewModel],
-        pagination: Option[Pagination], paginationInfoText: Option[String]
+@(
+        dataRows: List[SdltSubmittedReturnsViewModel],
+        pagination: Option[Pagination],
+        paginationInfoText: Option[String]
 )(
         implicit request: Request[_],
         messages: Messages
 )
-@purchaserNameLink(row: SdltSubmittedReturnsViewModel)  = {
-    <p class="govuk-body">
-        <a class="govuk-link" href="../manage-returns/submitted-return">@row.purchaserName</a>
-    </p>
-}
 
 @renderTable() = {
     @govukTable(Table(
-        rows =
-            dataRows.sortBy(_.purchaserName).map{ currentRow =>
-                Seq(
-                    TableRow(
-                        content = HtmlContent(purchaserNameLink(currentRow)),
-                    ),
-                    TableRow(
-                        content = Text( currentRow.address )
-                    ),
-                    TableRow(
-                        content = Text( currentRow.utrn )
-                    )
-                )
-            }
-        ,
-        head = Some(Seq(
-            HeadCell(
-                content = Text(messages("manage.submittedReturnsOverview.summary.purchaser"))
-            ),
-            HeadCell(
-                content = Text(messages("manage.submittedReturnsOverview.summary.address"))
-            ),
-            HeadCell(
-                content = Text(messages("manage.submittedReturnsOverview.summary.utrn"))
+        rows = dataRows.map{ currentRow =>
+            Seq(
+                TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#") )),
+                TableRow(content = Text( currentRow.address )),
+                TableRow(content = Text( currentRow.utrn ))
             )
-        )),
+        },
+        head = Some(Seq(
+            HeadCell(content = Text(messages("manage.submittedReturnsOverview.summary.purchaser"))),
+            HeadCell(content = Text(messages("manage.submittedReturnsOverview.summary.address"))),
+            HeadCell(content = Text(messages("manage.submittedReturnsOverview.summary.utrn")))
+        ))
     ))
 }
 @layout(
@@ -95,28 +72,8 @@
     } else {
 
         @p("manage.submittedReturnsOverview.nonZeroReturns.info")
-
-
-    @paginationInfoText.map(p(_))
-
-    @renderTable()
-
-    @pagination.map(govukPagination(_))
-
+        @paginationInfoText.map(p(_))
+        @renderTable()
+        @pagination.map(govukPagination(_))
     }
-
-    @request.flash.get("submittedReturnsLimitReached").map { _ =>
-        @govukErrorSummary(
-            ErrorSummary(
-                title = Text(messages("error.summary.title")),
-                errorList = Seq(
-                    ErrorLink(
-                        content = Text(messages("manage.submittedReturnsOverview.limitReached"))
-                    )
-                )
-            )
-        )
-    }
-
-    
 }
