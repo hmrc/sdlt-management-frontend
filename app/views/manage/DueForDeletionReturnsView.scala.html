@@ -98,7 +98,7 @@
             items = Seq(
                 Option.when(inProgressData.inProgressReturnsViewModel.nonEmpty)(
                     TabItem(
-                        id = Some("in-progress-due-for-deletion-returns"),
+                        id = Some("in-progress"),
                         label = messages("manageReturns.dueDeletionReturns.inProgressTab.heading"),
                         panel = TabPanel(
                             content = HtmlContent(renderInProgressTable())
@@ -107,7 +107,7 @@
                 ),
                 Option.when(submittedData.submittedReturnsViewModel.nonEmpty)(
                     TabItem(
-                        id = Some("submitted-due-for-deletion-returns"),
+                        id = Some("submitted"),
                         label = messages("manageReturns.dueDeletionReturns.submittedTab.heading"),
                         panel = TabPanel(
                             content = HtmlContent(renderSubmittedTable())
