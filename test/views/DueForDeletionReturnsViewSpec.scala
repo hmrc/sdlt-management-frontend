@@ -25,7 +25,6 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
 import utils.PaginationHelper
 import viewmodels.manage.deletedReturns._
 import views.html.manage.DueForDeletionReturnsView

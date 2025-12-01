@@ -89,9 +89,11 @@
     @if(inProgressData.inProgressReturnsViewModel.isEmpty && submittedData.submittedReturnsViewModel.isEmpty) {
 
         @p("manageReturns.dueDeletionReturns.noReturns.info")
-        @link("manage.submittedReturnsOverview.noReturns.link", "#")
+        @link("manageReturns.dueDeletionReturns.noReturns.link", "#")
 
     } else {
+
+        @p("manageReturns.dueDeletionReturns.nonZeroReturns.info")
 
         @govukTabs(Tabs(
             id = Some("updates-and-deadlines-tabs"),
