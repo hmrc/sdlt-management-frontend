@@ -32,7 +32,10 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
 
   def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltInProgressReturnViewRow]] = {
     for {
-      inProgress <- stampDutyLandTaxConnector.getReturns(None, Some("IN-PROGRESS"), deletionFlag = false)
+      inProgress <- stampDutyLandTaxConnector.getReturns(
+        status = None,
+        pageType = Some("IN-PROGRESS"),
+        deletionFlag = false)
     } yield {
       SdltInProgressReturnViewRow
         .convertResponseToViewRows(
