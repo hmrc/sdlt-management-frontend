@@ -53,11 +53,11 @@ class DueForDeletionReturnsController @Inject()(
 
       val outOfScopeUrlSelector: Int => String = (paginationIndex: Int) => controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url
 
-      val inProgressUrlSelector: Int => String =
+      lazy val inProgressUrlSelector: Int => String =
         (inProgressIndex: Int) =>
           s"${controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(inProgressIndex), submittedIndex).url}#in-progress"
 
-      val submittedUrlSelector: Int => String =
+      lazy val submittedUrlSelector: Int => String =
         (submittedIndex: Int) =>
           s"${controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(submittedIndex)).url}#submitted"
 

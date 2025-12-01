@@ -35,6 +35,7 @@ import utils.PaginationHelper
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import views.html.manage.SubmittedReturnsView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {

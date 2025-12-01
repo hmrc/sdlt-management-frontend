@@ -17,7 +17,6 @@
 package models.responses
 
 import models.manage.ReturnSummary
-import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
 
 case class SdltInProgressReturnViewRow(
                                         address: String,
@@ -47,9 +46,3 @@ object SdltInProgressReturnViewRow {
     )
   }
 }
-
-case class PaginatedInProgressReturnsViewModel(
-                                               inProgressReturnsViewModel: List[SdltInProgressReturnViewRow],
-                                               paginator: Option[Pagination],
-                                               paginationText: Option[String]
-                                             )
