@@ -247,8 +247,8 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
-  "getReturnsDueForDeletion" should {
-    "delegate to connector with deletionFlag = true and return the response" in {
+  "getSubmittedReturnsDueForDeletion" should {
+    "call the connector with deletionFlag = true for SUBMITTED and return the response" in {
       val (service, connector) = newService()
       implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
@@ -263,59 +263,51 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           agentReference = Some("Delete Agent")
         )
 
-      val inProgressDeletionSummary =
-        ReturnSummary(
-          returnReference = "RET-DEL-001",
-          utrn = Some("UTRN-DEL-001"),
-          status = "SUBMITTED",
-          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
-          purchaserName = "Delete Buyer",
-          address = "5 Delete Street",
-          agentReference = Some("Delete Agent")
-        )
-
-      val deletionSummary = List(
-        ReturnSummary(
-          returnReference = "RET-DEL-001",
-          utrn = Some("UTRN-DEL-001"),
-          status = "SUBMITTED",
-          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
-          purchaserName = "Delete Buyer",
-          address = "5 Delete Street",
-          agentReference = Some("Delete Agent")
-        ),
-        ReturnSummary(
-          returnReference = "RET-DEL-001",
-          utrn = Some("UTRN-DEL-001"),
-          status = "SUBMITTED",
-          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
-          purchaserName = "Delete Buyer",
-          address = "5 Delete Street",
-          agentReference = Some("Delete Agent")
-        )
-      )
-
       val submittedDeletionResponse = SdltReturnRecordResponse(
         returnSummaryCount = Some(1),
         returnSummaryList = List(submittedDeletionSummary)
       )
+
+      when(connector.getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(submittedDeletionResponse))
+
+      val result = service.getSubmittedReturnsDueForDeletion.futureValue
+
+      result must contain theSameElementsAs List(submittedDeletionSummary)
+
+      verify(connector).getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
+      verifyNoMoreInteractions(connector)
+    }
+  }
+
+  "getInProgressReturnsDueForDeletion" should {
+    "call the connector with deletionFlag = true for IN-PROGRESS and return the response" in {
+      val (service, connector) = newService()
+      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
+
+      val inProgressDeletionSummary =
+        ReturnSummary(
+          returnReference = "RET-DEL-002",
+          utrn = Some("UTRN-DEL-002"),
+          status = "IN-PROGRESS",
+          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
+          purchaserName = "In Progress Buyer",
+          address = "6 Delete Street",
+          agentReference = Some("Delete Agent 2")
+        )
 
       val inProgressDeletionResponse = SdltReturnRecordResponse(
         returnSummaryCount = Some(1),
         returnSummaryList = List(inProgressDeletionSummary)
       )
 
-      when(connector.getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(submittedDeletionResponse))
-
       when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(inProgressDeletionResponse))
 
       val result = service.getInProgressReturnsDueForDeletion.futureValue
 
-      result must contain theSameElementsAs deletionSummary
+      result must contain theSameElementsAs List(inProgressDeletionSummary)
 
-      verify(connector).getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
       verify(connector).getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
       verifyNoMoreInteractions(connector)
     }
