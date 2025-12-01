@@ -27,34 +27,29 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLandTaxConnector)
-                                        (implicit executionContext: ExecutionContext) {
+class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
+                                       (implicit executionContext: ExecutionContext) {
 
   def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltInProgressReturnViewRow]] = {
     for {
-      accepted <- stampDutyLandTaxConnector.getReturns(Some("ACCEPTED"), Some("IN-PROGRESS"), deletionFlag = false)
-      started  <- stampDutyLandTaxConnector.getReturns(Some("STARTED"),  Some("IN-PROGRESS"), deletionFlag = false)
+      inProgress <- stampDutyLandTaxConnector.getReturns(None, Some("IN-PROGRESS"), deletionFlag = false)
     } yield {
-
-      val inProgressReturnsList =
-        accepted.returnSummaryList ++ started.returnSummaryList
-      
       SdltInProgressReturnViewRow
         .convertResponseToViewRows(
-          inProgressReturnsList
+          inProgress.returnSummaryList
         )
     }
   }
 
   def getSubmittedReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltSubmittedReturnsViewModel]] = {
     for {
-      submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
+      submitted <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"), Some("SUBMITTED"), deletionFlag = false)
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
-      
+
       val submittedReturnsList =
         submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList
-      
+
       SdltSubmittedReturnsViewModel
         .convertResponseToSubmittedView(
           submittedReturnsList
