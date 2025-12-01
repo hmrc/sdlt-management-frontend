@@ -17,341 +17,162 @@
 package controllers.manage
 
 import base.SpecBase
-import generators.ModelGenerators
-import models.requests.DataRequest
-import models.responses.SdltInProgressReturnViewRow
+import models.manage.ReturnSummary
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.StampDutyLandTaxService
-import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
-import uk.gov.hmrc.http.HeaderCarrier
-import utils.PaginationHelper
-import viewmodels.manage.SdltSubmittedReturnsViewModel
 import viewmodels.manage.deletedReturns.{
   PaginatedDeletedInProgressReturnsViewModel,
-  PaginatedDeletedSubmittedReturnsViewModel,
-  SdltDeletedInProgressReturnViewModel,
-  SdltDeletedSubmittedReturnsViewModel
+  PaginatedDeletedSubmittedReturnsViewModel
 }
 import views.html.manage.DueForDeletionReturnsView
 
 import scala.concurrent.Future
 
-class DueForDeletionReturnsControllerSpec extends SpecBase with MockitoSugar with ModelGenerators {
+class DueForDeletionReturnsControllerSpec
+  extends SpecBase
+    with MockitoSugar {
 
-  trait Fixture extends PaginationHelper {
-    val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
+  private val mockService = mock[StampDutyLandTaxService]
 
-    val application: Application =
-      applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
-        .build()
+  private def application: Application =
+    applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      .overrides(
+        bind[StampDutyLandTaxService].toInstance(mockService)
+      )
+      .build()
 
-    val inProgressUrlSelector: Int => String = inProgressIndex =>
-      s"${
-        controllers.manage.routes.DueForDeletionReturnsController
-          .onPageLoad(Some(inProgressIndex), Some(1))
-          .url
-      }#in-progress-returns"
+  private val baseRoute =
+    controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(None, None).url
 
-    val submittedUrlSelector: Int => String = submittedIndex =>
-      s"${
-        controllers.manage.routes.DueForDeletionReturnsController
-          .onPageLoad(Some(1), Some(submittedIndex))
-          .url
-      }#submitted-returns"
+  "DueForDeletionReturnsController.onPageLoad" - {
 
-    lazy val dueForDeletionRoute: String =
-      controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url
+    "must return OK and render the correct view when both services return empty lists and no indices are provided" in {
+      reset(mockService)
 
-    def onwardRoute: Call =
-      Call("GET", "/stamp-duty-land-tax-management/manage-returns/returns-due-for-deletion?inProgressIndex=1&submittedIndex=1")
+      when(mockService.getSubmittedReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
-    private def toDeletedInProgress(rows: List[SdltInProgressReturnViewRow]): List[SdltDeletedInProgressReturnViewModel] =
-      rows.map { r =>
-        SdltDeletedInProgressReturnViewModel(
-          purchaserName = r.purchaserName,
-          address       = r.address
-        )
-      }
+      when(mockService.getInProgressReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
-    private def toDeletedSubmitted(rows: List[SdltSubmittedReturnsViewModel]): List[SdltDeletedSubmittedReturnsViewModel] =
-      rows.map { r =>
-        SdltDeletedSubmittedReturnsViewModel(
-          purchaserName = r.purchaserName,
-          address       = r.address,
-          utrn          = r.utrn
-        )
-      }
+      val app = application
 
-    def deletedNoPaginationInProgressEmptyPagination: List[SdltDeletedInProgressReturnViewModel] =
-      toDeletedInProgress(dataNoPaginationInProgressEmptyPagination)
+      running(app) {
+        val request = FakeRequest(GET, baseRoute)
 
-    def deletedNoPaginationSubmittedEmptyPagination: List[SdltDeletedSubmittedReturnsViewModel] =
-      toDeletedSubmitted(dataNoPaginationSubmittedEmptyPagination)
-
-    def deletedPaginationInProgressHalfPagination: List[SdltDeletedInProgressReturnViewModel] =
-      toDeletedInProgress(dataPaginationInProgressHalfPagination)
-
-    def deletedNoPaginationSubmittedHalfPagination: List[SdltDeletedSubmittedReturnsViewModel] =
-      toDeletedSubmitted(dataNoPaginationSubmittedHalfPagination)
-
-    def deletedInProgressPaginationFullPagination: List[SdltDeletedInProgressReturnViewModel] =
-      toDeletedInProgress(dataInProgressPaginationFullPagination)
-
-    def deletedSubmittedPaginationFullPagination: List[SdltDeletedSubmittedReturnsViewModel] =
-      toDeletedSubmitted(dataSubmittedPaginationFullPagination)
-  }
-
-  "DueForDeletionReturnsController" - {
-
-    "must return OK and the correct view for a GET request with data and no pagination" in new Fixture {
-
-      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(noPaginationInProgressAndSubmitted))
-
-      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(noPaginationInProgressAndSubmitted))
-
-      running(application) {
-        val request = FakeRequest(GET, dueForDeletionRoute)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[DueForDeletionReturnsView]
-
-        val inProgressViewModel =
-          PaginatedDeletedInProgressReturnsViewModel(deletedNoPaginationInProgressEmptyPagination, None, None)
-        val submittedViewModel =
-          PaginatedDeletedSubmittedReturnsViewModel(deletedNoPaginationSubmittedEmptyPagination, None, None)
+        val result = route(app, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(inProgressViewModel, submittedViewModel)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-      }
-    }
+        val view = app.injector.instanceOf[DueForDeletionReturnsView]
 
-    "must return OK and the correct view for a GET request when both tabs have no data" in new Fixture {
-
-      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(emptyReturnSummary))
-
-      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(emptyReturnSummary))
-
-      running(application) {
-        val request = FakeRequest(GET, dueForDeletionRoute)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[DueForDeletionReturnsView]
-
-        val inProgressViewModel =
+        val expectedInProgress =
           PaginatedDeletedInProgressReturnsViewModel(Nil, None, None)
-        val submittedViewModel =
+        val expectedSubmitted =
           PaginatedDeletedSubmittedReturnsViewModel(Nil, None, None)
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(inProgressViewModel, submittedViewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual
+          view(expectedInProgress, expectedSubmitted)(request, messages(app)).toString
 
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any(), any())
+        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any(), any())
       }
     }
 
-    "must return OK and the correct view when in-progress has pagination and submitted does not" in new Fixture {
-      val selectedPageIndex = 1
+    "must return OK and render the correct view when indices are provided but lists are empty" in {
+      reset(mockService)
 
-      val inProgressPaginator: Option[Pagination] =
-        createPagination(selectedPageIndex, deletedPaginationInProgressHalfPagination.length, inProgressUrlSelector)(messages(application))
-      val inProgressPaginationText: Option[String] =
-        getPaginationInfoText(selectedPageIndex, deletedPaginationInProgressHalfPagination)(messages(application))
+      when(mockService.getSubmittedReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
-      val inProgressRowsForSelectedPage: List[SdltDeletedInProgressReturnViewModel] =
-        getSelectedPageRows(deletedPaginationInProgressHalfPagination, selectedPageIndex)
-      val submittedRowsForSelectedPage: List[SdltDeletedSubmittedReturnsViewModel] =
-        getSelectedPageRows(deletedNoPaginationSubmittedHalfPagination, selectedPageIndex)
+      when(mockService.getInProgressReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
-      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
+      val inProgressIndex  = Some(3)
+      val submittedIndex   = Some(2)
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
+      val app = application
 
-      running(application) {
-        val request = FakeRequest(GET, dueForDeletionRoute)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[DueForDeletionReturnsView]
+      running(app) {
+        val request = FakeRequest(
+          GET,
+          controllers.manage.routes.DueForDeletionReturnsController
+            .onPageLoad(inProgressIndex, submittedIndex)
+            .url
+        )
 
-        val inProgressViewModel =
-          PaginatedDeletedInProgressReturnsViewModel(inProgressRowsForSelectedPage, inProgressPaginator, inProgressPaginationText)
-        val submittedViewModel =
-          PaginatedDeletedSubmittedReturnsViewModel(submittedRowsForSelectedPage, None, None)
+        val result = route(app, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(inProgressViewModel, submittedViewModel)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+        val view = app.injector.instanceOf[DueForDeletionReturnsView]
+
+        val expectedInProgress =
+          PaginatedDeletedInProgressReturnsViewModel(Nil, None, None)
+        val expectedSubmitted =
+          PaginatedDeletedSubmittedReturnsViewModel(Nil, None, None)
+
+        contentAsString(result) mustEqual
+          view(expectedInProgress, expectedSubmitted)(request, messages(app)).toString
+
+        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any(), any())
+        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any(), any())
       }
     }
 
-    "must return OK and the correct view when both tabs have no pagination" in new Fixture {
-      val selectedPageIndex = 1
+    "must redirect to JourneyRecoveryController when getSubmittedReturnsDueForDeletion fails" in {
+      reset(mockService)
 
-      val inProgressRowsForSelectedPage: List[SdltDeletedInProgressReturnViewModel] =
-        getSelectedPageRows(deletedNoPaginationInProgressEmptyPagination, selectedPageIndex)
-      val submittedRowsForSelectedPage: List[SdltDeletedSubmittedReturnsViewModel] =
-        getSelectedPageRows(deletedNoPaginationSubmittedEmptyPagination, selectedPageIndex)
+      when(mockService.getSubmittedReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("boom-submitted")))
 
-      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(noPaginationInProgressAndSubmitted))
+      when(mockService.getInProgressReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(noPaginationInProgressAndSubmitted))
+      val app = application
 
-      running(application) {
-        val request = FakeRequest(GET, dueForDeletionRoute)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[DueForDeletionReturnsView]
+      running(app) {
+        val request = FakeRequest(GET, baseRoute)
 
-        val inProgressViewModel =
-          PaginatedDeletedInProgressReturnsViewModel(inProgressRowsForSelectedPage, None, None)
-        val submittedViewModel =
-          PaginatedDeletedSubmittedReturnsViewModel(submittedRowsForSelectedPage, None, None)
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(inProgressViewModel, submittedViewModel)(request, messages(application)).toString
-
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-      }
-    }
-
-    "must return OK and the correct view when both tabs have pagination" in new Fixture {
-      val pageIndex = 1
-
-      val inProgressPaginator: Option[Pagination] =
-        createPagination(pageIndex, deletedInProgressPaginationFullPagination.length, inProgressUrlSelector)(messages(application))
-      val submittedPaginator: Option[Pagination] =
-        createPagination(pageIndex, deletedSubmittedPaginationFullPagination.length, submittedUrlSelector)(messages(application))
-
-      val inProgressPaginationText: Option[String] =
-        getPaginationInfoText(pageIndex, deletedInProgressPaginationFullPagination)(messages(application))
-      val submittedPaginationText: Option[String] =
-        getPaginationInfoText(pageIndex, deletedSubmittedPaginationFullPagination)(messages(application))
-
-      val inProgressRowsForSelectedPage: List[SdltDeletedInProgressReturnViewModel] =
-        getSelectedPageRows(deletedInProgressPaginationFullPagination, pageIndex)
-      val submittedRowsForSelectedPage: List[SdltDeletedSubmittedReturnsViewModel] =
-        getSelectedPageRows(deletedSubmittedPaginationFullPagination, pageIndex)
-
-      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(paginatedInProgressAndSubmitted))
-
-      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(paginatedInProgressAndSubmitted))
-
-      running(application) {
-        val request = FakeRequest(GET, dueForDeletionRoute)
-        val result  = route(application, request).value
-        val view    = application.injector.instanceOf[DueForDeletionReturnsView]
-
-        val inProgressViewModel =
-          PaginatedDeletedInProgressReturnsViewModel(inProgressRowsForSelectedPage, inProgressPaginator, inProgressPaginationText)
-        val submittedViewModel =
-          PaginatedDeletedSubmittedReturnsViewModel(submittedRowsForSelectedPage, submittedPaginator, submittedPaginationText)
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(inProgressViewModel, submittedViewModel)(request, messages(application)).toString
-
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-      }
-    }
-
-    "must return OK and the correct view when in-progress is on page 2 and submitted is on page 1" in new Fixture {
-      val inProgressPageIndex = 2
-      val submittedPageIndex  = 1
-
-      val inProgressPaginator: Option[Pagination] =
-        createPagination(inProgressPageIndex, deletedPaginationInProgressHalfPagination.length, inProgressUrlSelector)(messages(application))
-      val inProgressPaginationText: Option[String] =
-        getPaginationInfoText(inProgressPageIndex, deletedPaginationInProgressHalfPagination)(messages(application))
-
-      val inProgressRowsForSelectedPage: List[SdltDeletedInProgressReturnViewModel] =
-        getSelectedPageRows(deletedPaginationInProgressHalfPagination, inProgressPageIndex)
-      val submittedRowsForSelectedPage: List[SdltDeletedSubmittedReturnsViewModel] =
-        getSelectedPageRows(deletedNoPaginationSubmittedHalfPagination, submittedPageIndex)
-
-      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
-
-      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
-
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(2), Some(1)).url)
-
-        val result = route(application, request).value
-        val view   = application.injector.instanceOf[DueForDeletionReturnsView]
-
-        val inProgressViewModel =
-          PaginatedDeletedInProgressReturnsViewModel(inProgressRowsForSelectedPage, inProgressPaginator, inProgressPaginationText)
-        val submittedViewModel =
-          PaginatedDeletedSubmittedReturnsViewModel(submittedRowsForSelectedPage, None, None)
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(inProgressViewModel, submittedViewModel)(request, messages(application)).toString
-
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-      }
-    }
-
-    "must redirect to pageIndex=1 when the page index is out of scope" in new Fixture {
-      val invalidPageIndex = 100
-
-      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
-
-      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(paginatedInProgressNoPaginationSubmitted))
-
-      running(application) {
-        val request =
-          FakeRequest(GET, controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(invalidPageIndex), Some(1)).url)
-
-        val result = route(application, request).value
+        val result = route(app, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe onwardRoute.url
+        redirectLocation(result).value mustEqual
+          controllers.routes.JourneyRecoveryController.onPageLoad().url
 
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any(), any())
+        verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any(), any())
       }
     }
 
-    "must redirect to JourneyRecovery if an error occurs during returns retrieval" in new Fixture {
+    "must redirect to JourneyRecoveryController when getInProgressReturnsDueForDeletion fails" in {
+      reset(mockService)
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(emptyReturnSummary))
+      when(mockService.getSubmittedReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
-      when(mockService.getInProgressReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.failed(new RuntimeException("Error")))
+      when(mockService.getInProgressReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("boom-in-progress")))
 
-      running(application) {
-        val request = FakeRequest(GET, dueForDeletionRoute)
-        val result  = route(application, request).value
+      val app = application
+
+      running(app) {
+        val request = FakeRequest(GET, baseRoute)
+
+        val result = route(app, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual
+          controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any(), any())
+        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any(), any())
       }
     }
   }

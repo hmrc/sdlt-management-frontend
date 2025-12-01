@@ -73,7 +73,7 @@ class DueForDeletionReturnsController @Inject()(
           case (Some(inProgressViewModel), Some(submittedViewModel)) =>
             Ok(view(inProgressViewModel, submittedViewModel))
           case _ =>
-            Logger("application").error(s"[DueForDeletionReturnsController][onPageLoad] - Pagination Index Error")
+            logger.warn(s"[DueForDeletionReturnsController][onPageLoad] - Pagination Index Error")
             Redirect(outOfScopeUrlSelector(1))
         }
       }) recover {
