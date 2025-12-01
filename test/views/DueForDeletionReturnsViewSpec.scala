@@ -132,7 +132,7 @@ class DueForDeletionReturnsViewSpec
       tabLabels.first().text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
 
       val inProgressHeaders =
-        doc.select("#in-progress-due-for-deletion-returns")
+        doc.select("#in-progress")
           .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
 
       inProgressHeaders.size() mustBe 2
@@ -140,12 +140,12 @@ class DueForDeletionReturnsViewSpec
       inProgressHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.address")
 
       val inProgressRowsEls =
-        doc.select("#in-progress-due-for-deletion-returns")
+        doc.select("#in-progress")
           .select("tbody.govuk-table__body tr.govuk-table__row")
 
       inProgressRowsEls.size() mustBe inProgressRows.size
 
-      doc.select("#submitted-due-for-deletion-returns").size() mustBe 0
+      doc.select("#submitted").size() mustBe 0
     }
 
     "render only the submitted tab and table when only submitted data is present" in new Setup {
@@ -163,7 +163,7 @@ class DueForDeletionReturnsViewSpec
       tabLabels.first().text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
 
       val submittedHeaders =
-        doc.select("#submitted-due-for-deletion-returns")
+        doc.select("#submitted")
           .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
 
       submittedHeaders.size() mustBe 3
@@ -172,12 +172,12 @@ class DueForDeletionReturnsViewSpec
       submittedHeaders.get(2).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.utrn")
 
       val submittedRowsEls =
-        doc.select("#submitted-due-for-deletion-returns")
+        doc.select("#submitted")
           .select("tbody.govuk-table__body tr.govuk-table__row")
 
       submittedRowsEls.size() mustBe submittedRows.size
 
-      doc.select("#in-progress-due-for-deletion-returns").size() mustBe 0
+      doc.select("#in-progress").size() mustBe 0
     }
 
     "render both in-progress and submitted tabs and tables when both have data" in new Setup {
@@ -197,9 +197,9 @@ class DueForDeletionReturnsViewSpec
       tabLabels.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
       tabLabels.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
 
-      doc.select("#in-progress-due-for-deletion-returns table.govuk-table").size() mustBe 1
+      doc.select("#in-progress table.govuk-table").size() mustBe 1
 
-      doc.select("#submitted-due-for-deletion-returns table.govuk-table").size() mustBe 1
+      doc.select("#submitted table.govuk-table").size() mustBe 1
     }
   }
 }
