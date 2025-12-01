@@ -18,169 +18,152 @@ package controllers.manage
 
 import base.SpecBase
 import config.FrontendAppConfig
-import controllers.manage.routes.{DueForDeletionController, InProgressReturnsController, SubmittedReturnsController}
-import models.manage.AtAGlanceViewModel
+import models.manage.{AtAGlanceViewModel, ReturnSummary}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.Application
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
+import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import views.html.manage.AtAGlanceView
-import play.api.inject.bind
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import play.api.Application
-import uk.gov.hmrc.http.HeaderCarrier
+import controllers.manage.routes.*
 
 import scala.concurrent.Future
-import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
-import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel, SdltSubmittedReturnsViewModel}
-import models.requests.DataRequest
-import models.responses.UniversalStatus.{STARTED, SUBMITTED}
 
-class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
+class AtAGlanceControllerSpec
+  extends SpecBase
+    with MockitoSugar {
 
-  trait Fixture {
+  private val mockService = mock[StampDutyLandTaxService]
 
-    val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
+  private def application: Application =
+    applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      .overrides(
+        bind[StampDutyLandTaxService].toInstance(mockService)
+      )
+      .build()
 
-    val application: Application =
-      applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
-        .build()
+  private val routeUrl =
+    AtAGlanceController.onPageLoad().url
 
-    implicit val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
+  "AtAGlanceController.onPageLoad" - {
 
-    val atAGlanceUrl: String = controllers.manage.routes.AtAGlanceController.onPageLoad().url
+    "must return OK and render the correct view when all service calls succeed" in {
+      reset(mockService)
 
-  }
+      val agentsCount                     = 0
+      val returnsInProgress               = Nil
+      val submittedReturns                = Nil
+      val submittedReturnsDueForDeletion  = List.empty[ReturnSummary]
+      val inProgressReturnsDueForDeletion = List.empty[ReturnSummary]
+      val combinedDueForDeletion          = (submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion)
+        .sortBy(_.purchaserName)
 
-  "At A Glance Controller" - {
+      when(mockService.getAgentCount(any(), any()))
+        .thenReturn(Future.successful(agentsCount))
 
-    "must return OK and the correct view for a GET with no data" in new Fixture {
+      when(mockService.getInProgressReturns(any(), any()))
+        .thenReturn(Future.successful(returnsInProgress))
 
-      when(mockService.getAgentCount(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(0))
+      when(mockService.getSubmittedReturns(any(), any()))
+        .thenReturn(Future.successful(submittedReturns))
 
-      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(Nil))
+      when(mockService.getSubmittedReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(submittedReturnsDueForDeletion))
 
-      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(Nil))
+      when(mockService.getInProgressReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(inProgressReturnsDueForDeletion))
 
-      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(Nil))
+      val app = application
 
-      running(application) {
+      running(app) {
+        implicit val appConfig: FrontendAppConfig =
+          app.injector.instanceOf[FrontendAppConfig]
 
-        val request = FakeRequest(GET, atAGlanceUrl)
-        val result = route(application, request).value
+        val request = FakeRequest(GET, routeUrl)
 
-        val view = application.injector.instanceOf[AtAGlanceView]
-
-        val expected: String = view(AtAGlanceViewModel(
-          storn = "STN001",
-          name = "David Frank",
-          returns = ReturnsManagementViewModel(
-            inProgressReturnsCount = 0,
-            inProgressReturnsUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
-            submittedReturnsCount = 0,
-            submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
-            dueForDeletionReturnsCount = 0,
-            dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
-            startReturnUrl = "#"
-          ),
-          agentDetails = AgentDetailsViewModel(
-            agentsCount = 0,
-            agentsUrl = appConfig.agentOverviewUrl,
-            addAgentUrl = appConfig.startAddAgentUrl
-          ),
-          helpAndContact = HelpAndContactViewModel(
-            helpUrl = "#",
-            contactUrl = "#",
-            howToPayUrl = appConfig.howToPayUrl,
-            usefulLinksUrl = "#"
-          ),
-          feedback = FeedbackViewModel(feedbackUrl = appConfig.exitSurveyUrl)
-        ))(request, messages(application)).toString
+        val result = route(app, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual expected
+
+        val view = app.injector.instanceOf[AtAGlanceView]
+
+        val expectedModel = AtAGlanceViewModel(
+          storn = "STN001",
+          name  = "David Frank",
+          returns = ReturnsManagementViewModel(
+            inProgressReturnsCount   = returnsInProgress.length,
+            inProgressReturnsUrl     = InProgressReturnsController.onPageLoad(Some(1)).url,
+            submittedReturnsCount    = submittedReturns.length,
+            submittedReturnsUrl      = SubmittedReturnsController.onPageLoad(Some(1)).url,
+            dueForDeletionReturnsCount = combinedDueForDeletion.length,
+            dueForDeletionUrl        = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
+            startReturnUrl           = "#"
+          ),
+          agentDetails = AgentDetailsViewModel(
+            agentsCount   = agentsCount,
+            agentsUrl     = appConfig.agentOverviewUrl,
+            addAgentUrl   = appConfig.startAddAgentUrl
+          ),
+          helpAndContact = HelpAndContactViewModel(
+            helpUrl        = "#",
+            contactUrl     = "#",
+            howToPayUrl    = appConfig.howToPayUrl,
+            usefulLinksUrl = "#"
+          ),
+          feedback = FeedbackViewModel(
+            feedbackUrl = appConfig.exitSurveyUrl
+          )
+        )
+
+        contentAsString(result) mustEqual
+          view(expectedModel)(request, messages(app)).toString
+
+        verify(mockService, times(1)).getAgentCount(any(), any())
+        verify(mockService, times(1)).getInProgressReturns(any(), any())
+        verify(mockService, times(1)).getSubmittedReturns(any(), any())
+        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any(), any())
+        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any(), any())
       }
     }
 
-    "must return OK and the correct view for a GET with data" in new Fixture {
+    "must redirect to JourneyRecoveryController when any service call fails (e.g. getAgentCount)" in {
+      reset(mockService)
 
-      when(mockService.getAgentCount(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(4))
+      when(mockService.getAgentCount(any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("boom-agents")))
 
-      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(List(SdltSubmittedReturnsViewModel(address = "10 Downing Street", utrn = "XA1243523", purchaserName = "John Doe", status = SUBMITTED))))
-
-      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getInProgressReturns(any(), any()))
         .thenReturn(Future.successful(Nil))
 
-      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(List(SdltInProgressReturnViewRow(address = "10 Downing Street", agentReference = "ARN0001", purchaserName = "Joe Bloggs", status = STARTED))))
+      when(mockService.getSubmittedReturns(any(), any()))
+        .thenReturn(Future.successful(Nil))
 
-      running(application) {
+      when(mockService.getSubmittedReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(Nil))
 
-        val request = FakeRequest(GET, atAGlanceUrl)
-        val result = route(application, request).value
+      when(mockService.getInProgressReturnsDueForDeletion(any(), any()))
+        .thenReturn(Future.successful(Nil))
 
-        val view = application.injector.instanceOf[AtAGlanceView]
+      val app = application
 
-        val expected: String = view(AtAGlanceViewModel(
-          storn = "STN001",
-          name = "David Frank",
-          returns = ReturnsManagementViewModel(
-            inProgressReturnsCount = 1,
-            inProgressReturnsUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
-            submittedReturnsCount = 1,
-            submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
-            dueForDeletionReturnsCount = 0,
-            dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
-            startReturnUrl = "#"
-          ),
-          agentDetails = AgentDetailsViewModel(
-            agentsCount = 4,
-            agentsUrl = appConfig.agentOverviewUrl,
-            addAgentUrl = appConfig.startAddAgentUrl
-          ),
-          helpAndContact = HelpAndContactViewModel(
-            helpUrl = "#",
-            contactUrl = "#",
-            howToPayUrl = appConfig.howToPayUrl,
-            usefulLinksUrl = "#"
-          ),
-          feedback = FeedbackViewModel(feedbackUrl = appConfig.exitSurveyUrl)
-        ))(request, messages(application)).toString
+      running(app) {
+        val request = FakeRequest(GET, routeUrl)
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual expected
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET if there is a service level error" in new Fixture {
-
-      when(mockService.getAgentCount(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(new Error("Test error")))
-
-      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(new Error("Test error")))
-
-      when(mockService.getReturnsDueForDeletion(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(new Error("Test error")))
-
-      when(mockService.getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(new Error("Test error")))
-
-      running(application) {
-
-        val request = FakeRequest(GET, atAGlanceUrl)
-        val result = route(application, request).value
+        val result = route(app, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual
+          controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockService, times(1)).getAgentCount(any(), any())
+        verify(mockService, times(0)).getInProgressReturns(any(), any())
+        verify(mockService, times(0)).getSubmittedReturns(any(), any())
+        verify(mockService, times(0)).getSubmittedReturnsDueForDeletion(any(), any())
+        verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any(), any())
       }
     }
   }

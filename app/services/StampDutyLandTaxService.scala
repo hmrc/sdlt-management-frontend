@@ -37,8 +37,9 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     } yield {
 
       val inProgressReturnsList =
-        accepted.returnSummaryList ++ started.returnSummaryList
-      
+        (accepted.returnSummaryList ++ started.returnSummaryList)
+          .sortBy(_.purchaserName)
+
       SdltInProgressReturnViewRow
         .convertResponseToViewRows(
           inProgressReturnsList
@@ -51,10 +52,11 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
       submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
-      
+
       val submittedReturnsList =
-        submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList
-      
+        (submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList)
+          .sortBy(_.purchaserName)
+
       SdltSubmittedReturnsViewModel
         .convertResponseToSubmittedView(
           submittedReturnsList
@@ -62,10 +64,19 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     }
   }
 
-  def getReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+  def getInProgressReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
     stampDutyLandTaxConnector
-      .getReturns(None, None, deletionFlag = true)
-      .map(_.returnSummaryList)
+      .getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
+      .map(_.returnSummaryList
+        .sortBy(_.purchaserName)
+      )
+
+  def getSubmittedReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+    stampDutyLandTaxConnector
+      .getReturns(None, Some("SUBMITTED"), deletionFlag = true)
+      .map(_.returnSummaryList
+        .sortBy(_.purchaserName)
+      )
 
   def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
     stampDutyLandTaxConnector

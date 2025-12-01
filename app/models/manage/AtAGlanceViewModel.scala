@@ -17,7 +17,7 @@
 package models.manage
 
 import config.FrontendAppConfig
-import controllers.manage.routes.{DueForDeletionController, InProgressReturnsController, SubmittedReturnsController}
+import controllers.manage.routes.{DueForDeletionReturnsController, InProgressReturnsController, SubmittedReturnsController}
 import models.responses.SdltInProgressReturnViewRow
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel, SdltSubmittedReturnsViewModel}
 
@@ -49,7 +49,7 @@ object AtAGlanceViewModel {
           submittedReturnsCount = submittedReturns.length,
           submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
           dueForDeletionReturnsCount = dueForDeletionReturns.length,
-          dueForDeletionUrl = DueForDeletionController.onPageLoad().url,
+          dueForDeletionUrl = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
           startReturnUrl = "#"
         ),
       agentDetails =
