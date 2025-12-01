@@ -311,7 +311,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(inProgressDeletionResponse))
 
-      val result = service.getReturnsDueForDeletion.futureValue
+      val result = service.getInProgressReturnsDueForDeletion.futureValue
 
       result must contain theSameElementsAs deletionSummary
 
