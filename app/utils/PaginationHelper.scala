@@ -163,22 +163,21 @@ trait PaginationHelper extends Logging {
                                  )(
                                    implicit req: DataRequest[_],
                                    messages: Messages
-                                 ): Option[Either[String, (List[A], Option[Pagination], Option[String])]] = {
+                                 ): Option[Either[String, (List[A], Option[Pagination], Option[String])]] =
     rowsOpt match {
-      case None => None
-      case Some(Nil) => Some(Right((Nil, None, None)))
+      case None       => None
+      case Some(Nil)  => Some(Right((Nil, None, None)))
       case Some(rows) =>
-        val safeIndex: Int =
-          pageIndexSelector(paginationIndex, rows.length) match {
-            case Right(validIndex) => validIndex
-            case Left(error) =>
-              logger.warn(
-                s"[paginateIfValidPageIndex] Invalid page index '$paginationIndex' " +
-                  s"for ${rows.length} rows: ${error.getMessage}. Falling back to page 1."
-              )
-              DEFAULT_PAGE_INDEX
-          }
-        Some(paginateList(rows, Some(safeIndex), urlSelector))
+        pageIndexSelector(paginationIndex, rows.length) match {
+          case Right(validIndex) =>
+            Some(paginateList(rows, Some(validIndex), urlSelector))
+
+          case Left(error) =>
+            logger.warn(
+              s"[paginateIfValidPageIndex] Invalid page index '$paginationIndex' " +
+                s"for ${rows.length} rows: ${error.getMessage}."
+            )
+            Some(Left(error.getMessage))
+        }
     }
-  }
 }
