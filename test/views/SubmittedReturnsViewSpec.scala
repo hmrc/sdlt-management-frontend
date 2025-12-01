@@ -33,8 +33,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.twirl.api.Html
 
-import java.time.LocalDate
-
 class SubmittedReturnsViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
 
   lazy val SubmittedControllerRoute = controllers.manage.routes.SubmittedReturnsController.onPageLoad(None).url

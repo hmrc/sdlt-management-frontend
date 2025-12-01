@@ -35,7 +35,6 @@ import utils.PaginationHelper
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import views.html.manage.SubmittedReturnsView
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
 class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
@@ -214,7 +213,6 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, SubmittedControllerRoute + s"?paginationIndex=$invalidPageIndex")
 
         val result = route(application, request).value
-        val view = application.injector.instanceOf[SubmittedReturnsView]
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe onwardRoute.url

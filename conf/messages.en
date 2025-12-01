@@ -139,14 +139,12 @@ manageReturns.dueDeletionReturns.noReturns.info = You have no returns due for de
 manageReturns.dueDeletionReturns.noReturns.link = Start a new return
 
 manageReturns.dueDeletionReturns.inProgressTab.heading          = Returns in progress
-manageReturns.dueDeletionReturns.inProgressTab.url              = in-progress-returns
 manageReturns.dueDeletionReturns.inProgressTab.purchaser        = Purchaser
 manageReturns.dueDeletionReturns.inProgressTab.address          = Property address
 manageReturns.dueDeletionReturns.inProgressTab.noReturns.info   = You have no returns in progress.
 manageReturns.dueDeletionReturns.inProgressTab.info             = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
 
 manageReturns.dueDeletionReturns.submittedTab.heading          = Submitted returns
-manageReturns.dueDeletionReturns.submittedTab.url              = submitted-returns
 manageReturns.dueDeletionReturns.submittedTab.purchaser        = Purchaser
 manageReturns.dueDeletionReturns.submittedTab.address          = Property address
 manageReturns.dueDeletionReturns.submittedTab.utrn             = UTRN
