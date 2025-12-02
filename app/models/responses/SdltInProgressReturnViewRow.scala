@@ -49,7 +49,7 @@ object SdltInProgressReturnViewRow extends Logging {
             )
           )
         case Left(ex) =>
-          logger.info(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
+          logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
           None
       }
     }
