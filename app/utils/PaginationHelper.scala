@@ -17,10 +17,8 @@
 package utils
 
 import models.requests.DataRequest
-import models.responses.SdltInProgressReturnViewRow
 import play.api.Logging
 import play.api.i18n.Messages
-import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
 trait PaginationHelper extends Logging {
@@ -94,7 +92,7 @@ trait PaginationHelper extends Logging {
 
   private def getPageCount(records: Int): Int = {
     if (records % ROWS_ON_PAGE == 0) {
-      records / ROWS_ON_PAGE + 1
+      records / ROWS_ON_PAGE
     } else {
       (records / ROWS_ON_PAGE) + 1
     }
