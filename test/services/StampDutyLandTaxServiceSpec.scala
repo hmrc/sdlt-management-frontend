@@ -376,7 +376,8 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         val result = service.getSubmittedReturns.futureValue
 
         val statuses = result.map(_.status).distinct
-        statuses.forall(s => s == SUBMITTED || s == SUBMITTED_NO_RECEIPT) mustBe true
+        // TODO: again, we are not expected to filter data within our logic / all to be done by Oracle SP
+        statuses.forall(s => s == SUBMITTED || s == SUBMITTED_NO_RECEIPT) mustBe false
 
         verify(connector, times(2)).getReturns(any(), any(), any())(any(), any())
         verifyNoMoreInteractions(connector)
