@@ -71,7 +71,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
       .getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
       .map(
         res => {
-          logger.info(s"[StampDutyLandTaxService][getInProgressReturnsDueForDeletion] - " + s"response r/count: ${res} :: ${res.returnSummaryList.length}")
+          logger.info(s"[StampDutyLandTaxService][getInProgressReturnsDueForDeletion] - " + s"response r/count: ${res.returnSummaryList.length}")
           res.returnSummaryList.sortBy(_.purchaserName)
         })
   }
@@ -80,7 +80,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getReturns(None, Some("SUBMITTED"), deletionFlag = true)
       .map(res => {
-        logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - " + s"response r/count: ${res} :: ${res.returnSummaryList.length}")
+        logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - " + s"response r/count: ${res.returnSummaryList.length}")
         res.returnSummaryList
           .sortBy(_.purchaserName)
       })
