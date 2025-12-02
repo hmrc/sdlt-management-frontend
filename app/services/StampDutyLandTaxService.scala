@@ -38,7 +38,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
         pageType = Some("IN-PROGRESS"),
         deletionFlag = false)
     } yield {
-      logger.info(s"[StampDutyLandTaxService][getInProgressReturns] - " +
+      logger.info(s"[StampDutyLandTaxService][getInProgressReturns] - ${request}::" +
         s"response r/count: ${inProgress.returnSummaryCount} :: ${inProgress.returnSummaryList.length}")
       SdltInProgressReturnViewRow
         .convertResponseToViewRows(
@@ -52,7 +52,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
       submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
-      logger.info(s"[StampDutyLandTaxService][getSubmittedReturns] - " +
+      logger.info(s"[StampDutyLandTaxService][getSubmittedReturns] - ${request}::" +
         s"response r/count: ${submitted.returnSummaryList.length} :: ${submittedNoReceipt.returnSummaryList.length}")
 
       val submittedReturnsList =
@@ -71,7 +71,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
       .getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
       .map(
         res => {
-          logger.info(s"[StampDutyLandTaxService][getInProgressReturnsDueForDeletion] - " + s"response r/count: ${res.returnSummaryList.length}")
+          logger.info(s"[StampDutyLandTaxService][getInProgressReturnsDueForDeletion] - ${request}::response r/count: ${res.returnSummaryList.length}")
           res.returnSummaryList.sortBy(_.purchaserName)
         })
   }
@@ -80,7 +80,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     stampDutyLandTaxConnector
       .getReturns(None, Some("SUBMITTED"), deletionFlag = true)
       .map(res => {
-        logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - " + s"response r/count: ${res.returnSummaryList.length}")
+        logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - ${request}::response r/count: ${res.returnSummaryList.length}")
         res.returnSummaryList
           .sortBy(_.purchaserName)
       })
