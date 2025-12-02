@@ -49,13 +49,13 @@ object SdltInProgressReturnViewRow extends Logging {
             )
           )
         case Left(ex) =>
-          logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
+          logger.info(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
           None
       }
     }
     res
       .flatten
-      .filter(rec => inProgressReturnStatuses.contains(rec.status))
+      //.filter(rec => inProgressReturnStatuses.contains(rec.status))
   }
 
 }
