@@ -15,32 +15,47 @@
  */
 
 package viewmodels.manage
+
 import models.manage.ReturnSummary
 import models.responses.UniversalStatus
+import play.api.Logging
 
 case class SdltSubmittedReturnsViewModel(
-                                        address: String,
-                                        utrn: String,
-                                        purchaserName: String,
-                                        status: UniversalStatus
-                                      )
+                                          address: String,
+                                          utrn: String,
+                                          purchaserName: String,
+                                          status: UniversalStatus
+                                        )
 
-object SdltSubmittedReturnsViewModel {
+object SdltSubmittedReturnsViewModel extends Logging {
+
   import UniversalStatus.*
 
-  private val acceptableStatus : Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
+  private val acceptableStatus: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
 
-    def convertResponseToSubmittedView(submittedReturns: List[ReturnSummary]): List[SdltSubmittedReturnsViewModel] =
+  def convertResponseToSubmittedView(submittedReturns: List[ReturnSummary]): List[SdltSubmittedReturnsViewModel] = {
+    val res = for {
+      rec <- submittedReturns
+      st = fromString(rec.status)
+      utrn <- rec.utrn
+      if acceptableStatus.contains(st)
+    } yield st match {
+      case Right(status) =>
+        Some(
+          SdltSubmittedReturnsViewModel(
+            address = rec.address,
+            utrn = utrn,
+            purchaserName = rec.purchaserName,
+            status = status
+          )
+        )
+      case Left(ex) =>
+        logger.error(s"[SdltSubmittedReturnsViewModel][convertResponseToSubmittedView] - conversion from: ${rec} failure: $ex")
+        None
+    }
 
-      for {
-        rec    <- submittedReturns
-        status <- fromString(rec.status)
-        utrn   <- rec.utrn
-        if acceptableStatus.contains(status)
-      } yield SdltSubmittedReturnsViewModel(
-        address = rec.address,
-        utrn = utrn,
-        purchaserName = rec.purchaserName,
-        status = status
-      )
+
+
+    res.flatten
+  }
 }
