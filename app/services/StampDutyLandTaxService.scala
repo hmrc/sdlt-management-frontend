@@ -21,6 +21,7 @@ import models.manage.ReturnSummary
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
 import models.responses.SdltInProgressReturnViewRow
+import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
@@ -28,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLandTaxConnector)
-                                        (implicit executionContext: ExecutionContext) {
+                                        (implicit executionContext: ExecutionContext) extends Logging{
 
   def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltInProgressReturnViewRow]] = {
     for {
@@ -37,6 +38,8 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
         pageType = Some("IN-PROGRESS"),
         deletionFlag = false)
     } yield {
+      logger.info(s"[StampDutyLandTaxService][getInProgressReturns] - ${request}::" +
+        s"response r/count: ${inProgress.returnSummaryCount} :: ${inProgress.returnSummaryList.length}")
       SdltInProgressReturnViewRow
         .convertResponseToViewRows(
           inProgress.returnSummaryList
@@ -49,6 +52,8 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
       submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
+      logger.info(s"[StampDutyLandTaxService][getSubmittedReturns] - ${request}::" +
+        s"response r/count: ${submitted.returnSummaryList.length} :: ${submittedNoReceipt.returnSummaryList.length}")
 
       val submittedReturnsList =
         (submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList)
@@ -61,19 +66,24 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
     }
   }
 
-  def getInProgressReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+  def getInProgressReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] = {
     stampDutyLandTaxConnector
       .getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
-      .map(_.returnSummaryList
-        .sortBy(_.purchaserName)
-      )
+      .map(
+        res => {
+          logger.info(s"[StampDutyLandTaxService][getInProgressReturnsDueForDeletion] - ${request}::response r/count: ${res.returnSummaryList.length}")
+          res.returnSummaryList.sortBy(_.purchaserName)
+        })
+  }
 
   def getSubmittedReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
     stampDutyLandTaxConnector
       .getReturns(None, Some("SUBMITTED"), deletionFlag = true)
-      .map(_.returnSummaryList
-        .sortBy(_.purchaserName)
-      )
+      .map(res => {
+        logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - ${request}::response r/count: ${res.returnSummaryList.length}")
+        res.returnSummaryList
+          .sortBy(_.purchaserName)
+      })
 
   def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
     stampDutyLandTaxConnector
