@@ -59,7 +59,7 @@ class InProgressReturnsController @Inject()(
           val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
           logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${rowsForSelectedPage.length}")
           Ok(view(rowsForSelectedPage, paginator, paginationText))
-        case Left(error) if error.getMessage.contains("PageIndex selected is out of scope") =>
+        case Left(error) if !error.getMessage.contains("PageIndex selected is out of scope") =>
           logger.error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
           Redirect( urlSelector(1) )
         case Left(error) =>
