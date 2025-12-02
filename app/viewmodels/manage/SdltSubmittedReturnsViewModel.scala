@@ -38,7 +38,6 @@ object SdltSubmittedReturnsViewModel extends Logging {
       rec <- submittedReturns
       st = fromString(rec.status)
       utrn <- rec.utrn
-      if acceptableStatus.contains(st)
     } yield st match {
       case Right(status) =>
         Some(
@@ -53,9 +52,8 @@ object SdltSubmittedReturnsViewModel extends Logging {
         logger.error(s"[SdltSubmittedReturnsViewModel][convertResponseToSubmittedView] - conversion from: ${rec} failure: $ex")
         None
     }
-
-
-
-    res.flatten
+    res
+      .flatten
+      .filter(rec => acceptableStatus.contains(rec.status))
   }
 }

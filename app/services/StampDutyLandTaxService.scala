@@ -41,7 +41,7 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
       logger.info(s"[StampDutyLandTaxService][getInProgressReturns] - ${request}::" +
         s"response r/count: ${inProgress.returnSummaryCount} :: ${inProgress.returnSummaryList.length}")
       SdltInProgressReturnViewRow
-        .convertResponseToViewRows(
+        .convertResponseToReturnViewRows(
           inProgress.returnSummaryList
         )
     }

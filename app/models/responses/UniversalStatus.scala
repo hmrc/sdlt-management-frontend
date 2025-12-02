@@ -41,7 +41,7 @@ object UniversalStatus {
       case "SUBMITTED_NO_RECEIPT" => Right(UniversalStatus.SUBMITTED_NO_RECEIPT)
       case "DEPARTMENTAL_ERROR" => Right(UniversalStatus.DEPARTMENTAL_ERROR)
       case "FATAL_ERROR" => Right(UniversalStatus.FATAL_ERROR)
-      case status => 
+      case status =>
         Left(s"Unable to convert status: $status")
     }
   }
