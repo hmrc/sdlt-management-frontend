@@ -55,7 +55,7 @@ object SdltInProgressReturnViewRow extends Logging {
     }
     res
       .flatten
-      .filter(rec => inProgressReturnStatuses.contains(rec.status))
+      //.filter(rec => inProgressReturnStatuses.contains(rec.status))
   }
 
 }

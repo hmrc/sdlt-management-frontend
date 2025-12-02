@@ -54,6 +54,6 @@ object SdltSubmittedReturnsViewModel extends Logging {
     }
     res
       .flatten
-      .filter(rec => acceptableStatus.contains(rec.status))
+      //.filter(rec => acceptableStatus.contains(rec.status))
   }
 }

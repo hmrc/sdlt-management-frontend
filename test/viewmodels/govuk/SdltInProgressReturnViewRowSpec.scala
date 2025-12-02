@@ -23,7 +23,7 @@ import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import models.responses.SdltInProgressReturnViewRow.*
-import models.responses.UniversalStatus.{ACCEPTED, PENDING, STARTED}
+import models.responses.UniversalStatus.{ACCEPTED, PENDING, STARTED, SUBMITTED, VALIDATED}
 
 import java.time.LocalDate
 
@@ -86,19 +86,13 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
 
   )
 
+  // TODO: tidy up data a bit to be aligned with InProgressReturns actual
   val expectedDataRows: List[SdltInProgressReturnViewRow] = List(
-    SdltInProgressReturnViewRow(
-      "Address003",
-      "AgentRef003",
-      "Name003",
-      STARTED
-    ),
-    SdltInProgressReturnViewRow(
-      "Address005",
-      "AgentRef005",
-      "Name005",
-      ACCEPTED
-    )
+    SdltInProgressReturnViewRow("Address001", "AgentRef001", "Name001", PENDING),
+    SdltInProgressReturnViewRow("Address002", "AgentRef002", "Name002", VALIDATED),
+    SdltInProgressReturnViewRow("Address003", "AgentRef003", "Name003", STARTED),
+    SdltInProgressReturnViewRow("Address004", "AgentRef004", "Name004", SUBMITTED),
+    SdltInProgressReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED)
   )
 
   "Response model conversion" - {
