@@ -83,8 +83,6 @@ class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
         urlNext = "prevLink")
         .toList.nonEmpty mustBe true
     }
-
-
   }
 
   "pageIndexSelector" - {
@@ -297,5 +295,4 @@ class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
       inner.isLeft mustBe true
     }
   }
-
 }
