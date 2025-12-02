@@ -134,21 +134,13 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         agentReference = Some("Pending Agent")
       )
 
-      val acceptedResponse = SdltReturnRecordResponse(
+      val inProgressReturnsResponse = SdltReturnRecordResponse(
         returnSummaryCount = Some(1),
-        returnSummaryList = List(acceptedSummary)
+        returnSummaryList = List(acceptedSummary, pendingSummary)
       )
 
-      val pendingResponse = SdltReturnRecordResponse(
-        returnSummaryCount = Some(1),
-        returnSummaryList = List(pendingSummary)
-      )
-
-      when(connector.getReturns(eqTo(Some("ACCEPTED")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(acceptedResponse))
-
-      when(connector.getReturns(eqTo(Some("STARTED")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(pendingResponse))
+      when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(inProgressReturnsResponse))
 
       val result = service.getInProgressReturns.futureValue
 
@@ -169,8 +161,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
       result must contain theSameElementsAs expected
 
-      verify(connector).getReturns(eqTo(Some("ACCEPTED")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
-      verify(connector).getReturns(eqTo(Some("STARTED")), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
+      verify(connector).getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
       verifyNoMoreInteractions(connector)
     }
   }

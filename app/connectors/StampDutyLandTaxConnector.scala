@@ -64,7 +64,12 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
     http
       .post(getReturnsUrl)
       .withBody(Json.toJson(
-        SdltReturnRecordRequest(request.storn, status, deletionFlag, pageType))
+        SdltReturnRecordRequest(
+          storn = request.storn,
+          status = status,
+          deletionFlag = deletionFlag,
+          pageType = pageType,
+          pageNumber = None))
       )
       .execute[Either[UpstreamErrorResponse, SdltReturnRecordResponse]]
       .flatMap {

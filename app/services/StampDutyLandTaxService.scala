@@ -32,17 +32,14 @@ class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLan
 
   def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltInProgressReturnViewRow]] = {
     for {
-      accepted <- stampDutyLandTaxConnector.getReturns(Some("ACCEPTED"), Some("IN-PROGRESS"), deletionFlag = false)
-      started  <- stampDutyLandTaxConnector.getReturns(Some("STARTED"),  Some("IN-PROGRESS"), deletionFlag = false)
+      inProgress <- stampDutyLandTaxConnector.getReturns(
+        status = None,
+        pageType = Some("IN-PROGRESS"),
+        deletionFlag = false)
     } yield {
-
-      val inProgressReturnsList =
-        (accepted.returnSummaryList ++ started.returnSummaryList)
-          .sortBy(_.purchaserName)
-
       SdltInProgressReturnViewRow
         .convertResponseToViewRows(
-          inProgressReturnsList
+          inProgress.returnSummaryList
         )
     }
   }
