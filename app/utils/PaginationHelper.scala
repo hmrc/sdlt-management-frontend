@@ -92,13 +92,9 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  private def getPageCount(records: Int): Int = {
-    if (records % ROWS_ON_PAGE == 0) {
-      records / ROWS_ON_PAGE + 1
-    } else {
-      (records / ROWS_ON_PAGE) + 1
-    }
-  }
+  private def getPageCount(records: Int): Int =
+    if (records <= 0) 0
+    else (records + ROWS_ON_PAGE - 1) / ROWS_ON_PAGE
 
   // TODO: add test coverage
   def pageIndexSelector(userInputPageInput: Option[Int], rowsCount: Int): Either[Throwable, Int] = {
