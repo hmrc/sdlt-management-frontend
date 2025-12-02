@@ -57,7 +57,7 @@ object SdltInProgressReturnViewRowGenSpec extends Properties("SdltInProgressRetu
   // Verify that we can only get recs with these 2 statuses
   property("convertReturnsResponseToViewRows") = forAll(syntheticResponse) { returnSummary =>
     val response: SdltReturnRecordResponse = convertToResponse(returnSummary)
-    val result = convertResponseToViewRows(response.returnSummaryList)
+    val result = convertResponseToReturnViewRows(response.returnSummaryList)
     result.nonEmpty && result.map(_.status).toSet == Set(ACCEPTED, STARTED)
   }
 

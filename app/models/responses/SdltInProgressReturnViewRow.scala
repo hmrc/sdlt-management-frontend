@@ -17,6 +17,7 @@
 package models.responses
 
 import models.manage.ReturnSummary
+import play.api.{Logger, Logging}
 
 case class SdltInProgressReturnViewRow(
                                         address: String,
@@ -25,24 +26,36 @@ case class SdltInProgressReturnViewRow(
                                         status: UniversalStatus
                                       )
 
-object SdltInProgressReturnViewRow {
+object SdltInProgressReturnViewRow extends Logging {
 
   import UniversalStatus.*
 
   private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
 
-  def convertResponseToViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
-
-    for {
-      rec    <- inProgressReturnsList
-      status <- fromString(rec.status)
-      arn    <- rec.agentReference
-      if inProgressReturnStatuses.contains(status)
-    } yield SdltInProgressReturnViewRow(
-      address = rec.address,
-      agentReference = arn,
-      purchaserName = rec.purchaserName,
-      status = status,
-    )
+  def convertResponseToReturnViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
+    val res = for {
+      rec <- inProgressReturnsList
+      st = fromString(rec.status)
+      arn <- rec.agentReference
+    } yield {
+      st match {
+        case Right(status) =>
+          Some(
+            SdltInProgressReturnViewRow(
+              address = rec.address,
+              agentReference = arn,
+              purchaserName = rec.purchaserName,
+              status = status,
+            )
+          )
+        case Left(ex) =>
+          logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
+          None
+      }
+    }
+    res
+      .flatten
+      .filter(rec => inProgressReturnStatuses.contains(rec.status))
   }
+
 }
