@@ -73,6 +73,7 @@ trait PaginationHelper extends Logging {
     }
   }
 
+  // TODO: this would be effectively wrong in the new way of pagination
   def getPaginationInfoText[A](paginationIndex: Int, itemList: Seq[A])
                               (implicit messages: Messages): Option[String] = {
 
@@ -90,11 +91,13 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  private def getPageCount(records: Int): Int = {
-    if (records % ROWS_ON_PAGE == 0) {
-      records / ROWS_ON_PAGE
+  def getPageCount(totalRecCount: Int): Int = {
+    if (totalRecCount <= 0) {
+      1
+    } else if (totalRecCount % ROWS_ON_PAGE == 0) {
+      totalRecCount / ROWS_ON_PAGE
     } else {
-      (records / ROWS_ON_PAGE) + 1
+      (totalRecCount / ROWS_ON_PAGE) + 1
     }
   }
 

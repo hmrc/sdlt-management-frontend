@@ -20,7 +20,7 @@ import connectors.StampDutyLandTaxConnector
 import models.manage.ReturnSummary
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
-import models.responses.SdltInProgressReturnViewRow
+import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -28,28 +28,31 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class StampDutyLandTaxService @Inject() (stampDutyLandTaxConnector: StampDutyLandTaxConnector)
-                                        (implicit executionContext: ExecutionContext) extends Logging{
+class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
+                                       (implicit executionContext: ExecutionContext) extends Logging {
 
-  def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltInProgressReturnViewRow]] = {
+  def getInProgressReturnsViewModel(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltInProgressReturnViewModel] = {
     for {
-      inProgress <- stampDutyLandTaxConnector.getReturns(
+      inProgressResponse <- stampDutyLandTaxConnector.getReturns(
         status = None,
         pageType = Some("IN-PROGRESS"),
         deletionFlag = false)
     } yield {
       logger.info(s"[StampDutyLandTaxService][getInProgressReturns] - ${request}::" +
-        s"response r/count: ${inProgress.returnSummaryCount} :: ${inProgress.returnSummaryList.length}")
-      SdltInProgressReturnViewRow
-        .convertResponseToReturnViewRows(
-          inProgress.returnSummaryList
-        )
+        s"response r/count: ${inProgressResponse.returnSummaryCount} :: ${inProgressResponse.returnSummaryList.length}")
+      SdltInProgressReturnViewModel(
+        rows = SdltInProgressReturnViewRow
+          .convertResponseToReturnViewRows(
+            inProgressResponse.returnSummaryList
+          ),
+        totalRowCount = inProgressResponse.returnSummaryCount
+      )
     }
   }
 
   def getSubmittedReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltSubmittedReturnsViewModel]] = {
     for {
-      submitted          <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"),            Some("SUBMITTED"), deletionFlag = false)
+      submitted <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"), Some("SUBMITTED"), deletionFlag = false)
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
     } yield {
       logger.info(s"[StampDutyLandTaxService][getSubmittedReturns] - ${request}::" +

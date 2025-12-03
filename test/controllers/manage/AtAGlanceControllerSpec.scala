@@ -30,6 +30,7 @@ import services.StampDutyLandTaxService
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import views.html.manage.AtAGlanceView
 import controllers.manage.routes.*
+import models.responses.SdltInProgressReturnViewModel
 
 import scala.concurrent.Future
 
@@ -54,19 +55,23 @@ class AtAGlanceControllerSpec
     "must return OK and render the correct view when all service calls succeed" in {
       reset(mockService)
 
-      val agentsCount                     = 0
-      val returnsInProgress               = Nil
-      val submittedReturns                = Nil
-      val submittedReturnsDueForDeletion  = List.empty[ReturnSummary]
+      val agentsCount = 0
+      val returnsInProgressViewModel = SdltInProgressReturnViewModel(
+        rows = List.empty,
+        totalRowCount = Some(0)
+      )
+
+      val submittedReturns = Nil
+      val submittedReturnsDueForDeletion = List.empty[ReturnSummary]
       val inProgressReturnsDueForDeletion = List.empty[ReturnSummary]
-      val combinedDueForDeletion          = (submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion)
+      val combinedDueForDeletion = (submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion)
         .sortBy(_.purchaserName)
 
       when(mockService.getAgentCount(any(), any()))
         .thenReturn(Future.successful(agentsCount))
 
-      when(mockService.getInProgressReturns(any(), any()))
-        .thenReturn(Future.successful(returnsInProgress))
+      when(mockService.getInProgressReturnsViewModel(any(), any()))
+        .thenReturn(Future.successful(returnsInProgressViewModel))
 
       when(mockService.getSubmittedReturns(any(), any()))
         .thenReturn(Future.successful(submittedReturns))
@@ -93,25 +98,25 @@ class AtAGlanceControllerSpec
 
         val expectedModel = AtAGlanceViewModel(
           storn = "STN001",
-          name  = "David Frank",
+          name = "David Frank",
           returns = ReturnsManagementViewModel(
-            inProgressReturnsCount   = returnsInProgress.length,
-            inProgressReturnsUrl     = InProgressReturnsController.onPageLoad(Some(1)).url,
-            submittedReturnsCount    = submittedReturns.length,
-            submittedReturnsUrl      = SubmittedReturnsController.onPageLoad(Some(1)).url,
+            inProgressReturnsCount = returnsInProgressViewModel.totalRowCount.getOrElse(0),
+            inProgressReturnsUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
+            submittedReturnsCount = submittedReturns.length,
+            submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
             dueForDeletionReturnsCount = combinedDueForDeletion.length,
-            dueForDeletionUrl        = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
-            startReturnUrl           = "#"
+            dueForDeletionUrl = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
+            startReturnUrl = "#"
           ),
           agentDetails = AgentDetailsViewModel(
-            agentsCount   = agentsCount,
-            agentsUrl     = appConfig.agentOverviewUrl,
-            addAgentUrl   = appConfig.startAddAgentUrl
+            agentsCount = agentsCount,
+            agentsUrl = appConfig.agentOverviewUrl,
+            addAgentUrl = appConfig.startAddAgentUrl
           ),
           helpAndContact = HelpAndContactViewModel(
-            helpUrl        = "#",
-            contactUrl     = "#",
-            howToPayUrl    = appConfig.howToPayUrl,
+            helpUrl = "#",
+            contactUrl = "#",
+            howToPayUrl = appConfig.howToPayUrl,
             usefulLinksUrl = "#"
           ),
           feedback = FeedbackViewModel(
@@ -123,7 +128,7 @@ class AtAGlanceControllerSpec
           view(expectedModel)(request, messages(app)).toString
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(1)).getInProgressReturns(any(), any())
+        verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())
         verify(mockService, times(1)).getSubmittedReturns(any(), any())
         verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any(), any())
         verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any(), any())
@@ -136,7 +141,7 @@ class AtAGlanceControllerSpec
       when(mockService.getAgentCount(any(), any()))
         .thenReturn(Future.failed(new RuntimeException("boom-agents")))
 
-      when(mockService.getInProgressReturns(any(), any()))
+      when(mockService.getInProgressReturnsViewModel(any(), any()))
         .thenReturn(Future.successful(Nil))
 
       when(mockService.getSubmittedReturns(any(), any()))
@@ -160,7 +165,7 @@ class AtAGlanceControllerSpec
           controllers.routes.JourneyRecoveryController.onPageLoad().url
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(0)).getInProgressReturns(any(), any())
+        verify(mockService, times(0)).getInProgressReturnsViewModel(any(), any())
         verify(mockService, times(0)).getSubmittedReturns(any(), any())
         verify(mockService, times(0)).getSubmittedReturnsDueForDeletion(any(), any())
         verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any(), any())

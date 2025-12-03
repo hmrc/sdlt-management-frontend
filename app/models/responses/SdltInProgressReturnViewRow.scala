@@ -17,7 +17,9 @@
 package models.responses
 
 import models.manage.ReturnSummary
-import play.api.{Logger, Logging}
+import play.api.{Logging}
+
+case class SdltInProgressReturnViewModel(rows: List[SdltInProgressReturnViewRow], totalRowCount: Option[Int])
 
 case class SdltInProgressReturnViewRow(
                                         address: String,
