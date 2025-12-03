@@ -20,7 +20,7 @@ import connectors.StampDutyLandTaxConnector
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
-import models.responses.SdltInProgressReturnViewRow
+import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow}
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import models.responses
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -134,17 +134,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         agentReference = Some("Pending Agent")
       )
 
-      val inProgressReturnsResponse = SdltReturnRecordResponse(
-        returnSummaryCount = Some(1),
-        returnSummaryList = List(acceptedSummary, pendingSummary)
-      )
-
-      when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(inProgressReturnsResponse))
-
-      val result = service.getInProgressReturns.futureValue
-
-      val expected = List(
+      val dataRows = List(
         SdltInProgressReturnViewRow(
           address = "1 Accepted Street",
           agentReference = "Accepted Agent",
@@ -159,7 +149,23 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         )
       )
 
-      result must contain theSameElementsAs expected
+      val inProgressReturnsResponse = SdltReturnRecordResponse(
+        returnSummaryCount = Some(dataRows.length),
+        returnSummaryList = List(acceptedSummary, pendingSummary)
+      )
+
+      when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
+        .thenReturn(Future.successful(inProgressReturnsResponse))
+
+      val result = service.getInProgressReturns.futureValue
+
+      val expected = SdltInProgressReturnViewModel(
+        rows = dataRows,
+        totalRowCount = Some(dataRows.length)
+      )
+
+      result.totalRowCount mustBe expected.totalRowCount
+      result.rows must contain theSameElementsAs expected.rows
 
       verify(connector).getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
       verifyNoMoreInteractions(connector)
@@ -398,4 +404,5 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       ex.getMessage must include("Error: Connector issue")
     }
   }
+
 }

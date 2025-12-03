@@ -73,6 +73,7 @@ trait PaginationHelper extends Logging {
     }
   }
 
+  // TODO: this would be effectively wrong in the new way of pagination
   def getPaginationInfoText[A](paginationIndex: Int, itemList: Seq[A])
                               (implicit messages: Messages): Option[String] = {
 

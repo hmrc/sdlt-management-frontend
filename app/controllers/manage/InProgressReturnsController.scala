@@ -50,13 +50,13 @@ class InProgressReturnsController @Inject()(
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
-    stampDutyLandTaxService.getInProgressReturns map { allDataRows =>
+    stampDutyLandTaxService.getInProgressReturns map { viewModel =>
       logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
-      pageIndexSelector(index, allDataRows.length) match {
+      pageIndexSelector(index, viewModel.totalRowCount.getOrElse(0)) match {
         case Right(selectedPageIndex) =>
-          val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
-          val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
-          val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
+          val paginator: Option[Pagination] = createPagination(selectedPageIndex, viewModel.totalRowCount.getOrElse(0), urlSelector)
+          val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, viewModel.rows )
+          val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(viewModel.rows, selectedPageIndex)
           logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${rowsForSelectedPage.length}")
           Ok(view(rowsForSelectedPage, paginator, paginationText))
 // TODO: disable page index redirect / need to be fix as part of tech debt or bug fix story: TBC
