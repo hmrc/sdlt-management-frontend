@@ -69,7 +69,7 @@ class InProgressReturnsController @Inject()(
       }
     } recover {
       case ex =>
-        logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
+        logger.error("[InProgressReturnsController][onPageLoad] Unexpected failure", ex)
         Redirect(JourneyRecoveryController.onPageLoad())
     }
   }

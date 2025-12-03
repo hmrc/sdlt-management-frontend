@@ -71,7 +71,14 @@ class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
         .toList.nonEmpty mustBe true
     }
 
-
+    "Calc number of pages::pagination:: all cases" in new PaginationHelper {
+      getPageCount(0) mustBe 0
+      getPageCount(-1) mustBe 0
+      getPageCount(117) mustBe 12
+      getPageCount(121) mustBe 13
+      getPageCount(10) mustBe 0
+      getPageCount(11) mustBe 1
+    }
   }
 
 }
