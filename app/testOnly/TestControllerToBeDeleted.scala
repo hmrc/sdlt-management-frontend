@@ -42,7 +42,7 @@ class TestControllerToBeDeleted @Inject()(
     implicit request =>
 
       for {
-        getAllInProgressReturns         <- stampDutyLandTaxService.getInProgressReturnsViewModel
+        getAllInProgressReturns         <- stampDutyLandTaxService.getInProgressReturnsViewModel(None)
         getAllSubmittedReturns          <- stampDutyLandTaxService.getSubmittedReturns
         inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion
         submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion
