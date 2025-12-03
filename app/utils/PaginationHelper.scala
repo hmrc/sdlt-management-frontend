@@ -92,7 +92,7 @@ trait PaginationHelper extends Logging {
 
   def getPageCount(totalRecCount: Int): Int = {
     if (totalRecCount <= 0) {
-      0
+      1
     } else if (totalRecCount % ROWS_ON_PAGE == 0) {
       totalRecCount / ROWS_ON_PAGE + 1
     } else {
