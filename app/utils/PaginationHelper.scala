@@ -28,13 +28,8 @@ trait PaginationHelper extends Logging {
 
   def generatePaginationItems(paginationIndex: Int, numberOfPages: Int,
                               urlSelector: Int => String): Seq[PaginationItem] = {
-    val actualNumberOfPages = if (numberOfPages > 15) { // limit number of page items
-      10
-    } else {
-      numberOfPages
-    }
     Range
-      .inclusive(paginationIndex, actualNumberOfPages)
+      .inclusive(paginationIndex, numberOfPages) // This a primitive fix:: we might apply sliding logic in the future
       .map(pageIndex =>
         PaginationItem(
           href = urlSelector(pageIndex),

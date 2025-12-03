@@ -17,7 +17,7 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.manage.ReturnSummary
+import models.manage.{ReturnSummary, SdltReturnRecordRequest}
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
 import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow}
@@ -31,15 +31,19 @@ import scala.concurrent.{ExecutionContext, Future}
 class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
                                        (implicit executionContext: ExecutionContext) extends Logging {
 
-  def getInProgressReturnsViewModel(pageInde: Option[Int])
-        (implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltInProgressReturnViewModel] = {
+  def getInProgressReturnsViewModel(pageIndex: Option[Int])
+                                   (implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltInProgressReturnViewModel] = {
+    val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
+      storn = request.storn,
+      status = None,
+      deletionFlag = false,
+      pageType = Some("IN-PROGRESS"),
+      pageNumber = pageIndex.map(_.toString))
+    logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - data request:: ${dataRequest}")
     for {
-      inProgressResponse <- stampDutyLandTaxConnector.getReturns(
-        status = None,
-        pageType = Some("IN-PROGRESS"),
-        deletionFlag = false)
+      inProgressResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
     } yield {
-      logger.info(s"[StampDutyLandTaxService][getInProgressReturns] - ${request}::" +
+      logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - ${request}::" +
         s"response r/count: ${inProgressResponse.returnSummaryCount} :: ${inProgressResponse.returnSummaryList.length}")
       SdltInProgressReturnViewModel(
         rows = SdltInProgressReturnViewRow
@@ -53,8 +57,20 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
 
   def getSubmittedReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltSubmittedReturnsViewModel]] = {
     for {
-      submitted <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED"), Some("SUBMITTED"), deletionFlag = false)
-      submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(Some("SUBMITTED_NO_RECEIPT"), Some("SUBMITTED"), deletionFlag = false)
+      submitted <- stampDutyLandTaxConnector.getReturns(
+        SdltReturnRecordRequest(
+          storn = request.storn,
+          deletionFlag = false,
+          status = Some("SUBMITTED"),
+          pageType = Some("SUBMITTED"), pageNumber = Some("1"))
+      )
+      submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(
+        SdltReturnRecordRequest(
+          storn = request.storn,
+          deletionFlag = false,
+          status = Some("SUBMITTED_NO_RECEIPT"),
+          pageType = Some("SUBMITTED"), pageNumber = Some("1"))
+      )
     } yield {
       logger.info(s"[StampDutyLandTaxService][getSubmittedReturns] - ${request}::" +
         s"response r/count: ${submitted.returnSummaryList.length} :: ${submittedNoReceipt.returnSummaryList.length}")
@@ -72,7 +88,13 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
 
   def getInProgressReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] = {
     stampDutyLandTaxConnector
-      .getReturns(None, Some("IN-PROGRESS"), deletionFlag = true)
+      .getReturns(
+        SdltReturnRecordRequest(
+          storn = request.storn,
+          deletionFlag = true,
+          status = Some("IN-PROGRESS"),
+          pageType = None, pageNumber = Some("1"))
+      )
       .map(
         res => {
           logger.info(s"[StampDutyLandTaxService][getInProgressReturnsDueForDeletion] - ${request}::response r/count: ${res.returnSummaryList.length}")
@@ -82,7 +104,13 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
 
   def getSubmittedReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
     stampDutyLandTaxConnector
-      .getReturns(None, Some("SUBMITTED"), deletionFlag = true)
+      .getReturns(
+        SdltReturnRecordRequest(
+          storn = request.storn,
+          deletionFlag = true,
+          status = Some("IN-SUBMITTED"),
+          pageType = None, pageNumber = Some("1"))
+      )
       .map(res => {
         logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - ${request}::response r/count: ${res.returnSummaryList.length}")
         res.returnSummaryList
