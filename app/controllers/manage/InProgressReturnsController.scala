@@ -50,7 +50,7 @@ class InProgressReturnsController @Inject()(
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
-    stampDutyLandTaxService.getInProgressReturns map { viewModel =>
+    stampDutyLandTaxService.getInProgressReturnsViewModel map { viewModel =>
       logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
       pageIndexSelector(index, viewModel.totalRowCount.getOrElse(0)) match {
         case Right(selectedPageIndex) =>

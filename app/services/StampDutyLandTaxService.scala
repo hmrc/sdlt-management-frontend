@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
                                        (implicit executionContext: ExecutionContext) extends Logging {
 
-  def getInProgressReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltInProgressReturnViewModel] = {
+  def getInProgressReturnsViewModel(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltInProgressReturnViewModel] = {
     for {
       inProgressResponse <- stampDutyLandTaxConnector.getReturns(
         status = None,

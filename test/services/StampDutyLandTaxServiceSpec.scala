@@ -157,7 +157,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(inProgressReturnsResponse))
 
-      val result = service.getInProgressReturns.futureValue
+      val result = service.getInProgressReturnsViewModel.futureValue
 
       val expected = SdltInProgressReturnViewModel(
         rows = dataRows,
