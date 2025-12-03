@@ -37,15 +37,13 @@ object SdltInProgressReturnViewRow extends Logging {
   def convertResponseToReturnViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
     val res = for {
       rec <- inProgressReturnsList
-      st = fromString(rec.status)
-      arn <- rec.agentReference
     } yield {
-      st match {
+      fromString(rec.status) match {
         case Right(status) =>
           Some(
             SdltInProgressReturnViewRow(
               address = rec.address,
-              agentReference = arn,
+              agentReference = rec.agentReference.getOrElse(""),
               purchaserName = rec.purchaserName,
               status = status,
             )
@@ -57,7 +55,7 @@ object SdltInProgressReturnViewRow extends Logging {
     }
     res
       .flatten
-      //.filter(rec => inProgressReturnStatuses.contains(rec.status))
+      .filter(rec => inProgressReturnStatuses.contains(rec.status))
   }
 
 }
