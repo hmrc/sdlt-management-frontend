@@ -217,7 +217,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe "/stamp-duty-land-tax-management/manage-returns/in-progress-returns?index=1"
+        redirectLocation(result).value mustBe "/stamp-duty-land-tax-management/there-is-a-problem"
 
         verify(mockService, times(1)).getInProgressReturns(any[HeaderCarrier], any[DataRequest[_]])
       }
@@ -240,8 +240,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
-
-    // error case #?? pagination errors?
   }
 
 }
