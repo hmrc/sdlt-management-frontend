@@ -19,7 +19,7 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalTo, get, post, stubFor, urlPathEqualTo}
 import itutil.ApplicationWithWiremock
 import models.UserAnswers
-import models.manage.SdltReturnRecordResponse
+import models.manage.{SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.SdltOrganisationResponse
 import models.requests.DataRequest
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -40,10 +40,10 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   implicit val request: DataRequest[_] = DataRequest(
-    request     = FakeRequest(),
-    userId      = "some-id",
+    request = FakeRequest(),
+    userId = "some-id",
     userAnswers = UserAnswers(id = "id"),
-    storn       = storn
+    storn = storn
   )
 
   private val connector: StampDutyLandTaxConnector =
@@ -172,8 +172,15 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
           )
       )
 
+      val dataRequest = SdltReturnRecordRequest(
+        storn = storn,
+        status = Some("PENDING"),
+        deletionFlag = false,
+        pageType = Some("IN-PROGRESS"),
+        pageNumber = Some("1"))
+
       val result: SdltReturnRecordResponse =
-        connector.getReturns(status = Some("PENDING"), pageType = Some("IN-PROGRESS"), deletionFlag = false).futureValue
+        connector.getReturns(dataRequest).futureValue
 
       result.returnSummaryCount.get mustBe 2
       result.returnSummaryList.length mustBe 2
@@ -181,6 +188,13 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
     }
 
     "fail when BE returns OK with invalid JSON" in {
+      val dataRequest = SdltReturnRecordRequest(
+        storn = storn,
+        status = Some("PENDING"),
+        deletionFlag = false,
+        pageType = Some("IN-PROGRESS"),
+        pageNumber = Some("1"))
+
       stubFor(
         post(urlPathEqualTo(getReturnsUrl))
           .willReturn(
@@ -191,7 +205,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       )
 
       val ex = intercept[Exception] {
-        connector.getReturns(status = Some("PENDING"), pageType = Some("IN-PROGRESS"), deletionFlag = false).futureValue
+        connector.getReturns(dataRequest).futureValue
       }
 
       ex.getMessage.toLowerCase must include("return")
@@ -207,8 +221,15 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
           )
       )
 
+      val dataRequest = SdltReturnRecordRequest(
+        storn = storn,
+        status = Some("PENDING"),
+        deletionFlag = false,
+        pageType = Some("IN-PROGRESS"),
+        pageNumber = Some("1"))
+
       val ex = intercept[Exception] {
-        connector.getReturns(status = Some("PENDING"), pageType = Some("IN-PROGRESS"), deletionFlag = false).futureValue
+        connector.getReturns(dataRequest).futureValue
       }
 
       ex.getMessage.toLowerCase must include("500")
