@@ -87,33 +87,36 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     }
   }
 
-  def getInProgressReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] = {
+  def getInProgressReturnsDueForDeletion(storn: String)
+                                        (implicit hc: HeaderCarrier): Future[List[ReturnSummary]] = {
     stampDutyLandTaxConnector
       .getReturns(
         SdltReturnRecordRequest(
-          storn = request.storn,
+          storn = storn,
           deletionFlag = true,
           status = Some("IN-PROGRESS"),
           pageType = None, pageNumber = Some("1"))
       )
       .map(
         res => {
-          logger.info(s"[StampDutyLandTaxService][getInProgressReturnsDueForDeletion] - ${request}::response r/count: ${res.returnSummaryList.length}")
+          logger.info(s"[StampDutyLandTaxService][getInProgressReturnsDueForDeletion] - ${storn}::response r/count: ${res.returnSummaryList.length}")
           res.returnSummaryList.sortBy(_.purchaserName)
         })
   }
 
-  def getSubmittedReturnsDueForDeletion(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[ReturnSummary]] =
+  def getSubmittedReturnsDueForDeletion(storn: String)
+                                       (implicit hc: HeaderCarrier): Future[List[ReturnSummary]] =
     stampDutyLandTaxConnector
       .getReturns(
         SdltReturnRecordRequest(
-          storn = request.storn,
+          storn = storn,
           deletionFlag = true,
-          status = Some("IN-SUBMITTED"),
-          pageType = None, pageNumber = Some("1"))
+          status = None,
+          pageType = Some("SUBMITTED"),
+          pageNumber = Some("1"))
       )
       .map(res => {
-        logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - ${request}::response r/count: ${res.returnSummaryList.length}")
+        logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - ${storn}::response r/count: ${res.returnSummaryList.length}")
         res.returnSummaryList
           .sortBy(_.purchaserName)
       })
