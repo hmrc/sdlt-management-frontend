@@ -52,7 +52,7 @@ class InProgressReturnsController @Inject()(
 
     stampDutyLandTaxService.getInProgressReturnsViewModel(index) map { viewModel =>
       logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
-      val totalRowsCount = 10000
+      val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
       pageIndexSelector(index, totalRowsCount) match {
         case Right(selectedPageIndex) =>
           val paginator: Option[Pagination] = createPagination(selectedPageIndex, totalRowsCount, urlSelector)
