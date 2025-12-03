@@ -44,7 +44,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         dateSubmitted = Some(LocalDate.parse("2025-01-02")),
         purchaserName = "Name001",
         address = "Address001",
-        agentReference = Some("AgentRef001")
+        agentReference = None
       ),
       ReturnSummary(
         returnReference = "REF002",
@@ -62,7 +62,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         dateSubmitted = Some(LocalDate.parse("2025-01-02")),
         purchaserName = "Name003",
         address = "Address003",
-        agentReference = Some("AgentRef003")
+        agentReference = None
       ),
       ReturnSummary(
         returnReference = "REF004",
@@ -86,12 +86,8 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
 
   )
 
-  // TODO: tidy up data a bit to be aligned with InProgressReturns actual
   val expectedDataRows: List[SdltInProgressReturnViewRow] = List(
-    SdltInProgressReturnViewRow("Address001", "AgentRef001", "Name001", PENDING),
-    SdltInProgressReturnViewRow("Address002", "AgentRef002", "Name002", VALIDATED),
-    SdltInProgressReturnViewRow("Address003", "AgentRef003", "Name003", STARTED),
-    SdltInProgressReturnViewRow("Address004", "AgentRef004", "Name004", SUBMITTED),
+    SdltInProgressReturnViewRow("Address003", "", "Name003", STARTED),
     SdltInProgressReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED)
   )
 

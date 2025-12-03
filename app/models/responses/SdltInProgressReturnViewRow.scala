@@ -43,7 +43,7 @@ object SdltInProgressReturnViewRow extends Logging {
           Some(
             SdltInProgressReturnViewRow(
               address = rec.address,
-              agentReference = rec.agentReference.getOrElse(""),
+              agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
               purchaserName = rec.purchaserName,
               status = status,
             )
