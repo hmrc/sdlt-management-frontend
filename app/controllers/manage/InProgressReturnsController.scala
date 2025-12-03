@@ -50,11 +50,12 @@ class InProgressReturnsController @Inject()(
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
-    stampDutyLandTaxService.getInProgressReturnsViewModel map { viewModel =>
+    stampDutyLandTaxService.getInProgressReturnsViewModel(request.storn, index) map { viewModel =>
       logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
-      pageIndexSelector(index, viewModel.totalRowCount.getOrElse(0)) match {
+      val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
+      pageIndexSelector(index, totalRowsCount) match {
         case Right(selectedPageIndex) =>
-          val paginator: Option[Pagination] = createPagination(selectedPageIndex, viewModel.totalRowCount.getOrElse(0), urlSelector)
+          val paginator: Option[Pagination] = createPagination(selectedPageIndex, totalRowsCount, urlSelector)
           val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, viewModel.rows )
           val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(viewModel.rows, selectedPageIndex)
           logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${rowsForSelectedPage.length}")

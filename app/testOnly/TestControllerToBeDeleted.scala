@@ -42,10 +42,10 @@ class TestControllerToBeDeleted @Inject()(
     implicit request =>
 
       for {
-        getAllInProgressReturns         <- stampDutyLandTaxService.getInProgressReturnsViewModel
-        getAllSubmittedReturns          <- stampDutyLandTaxService.getSubmittedReturns
-        inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion
-        submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion
+        getAllInProgressReturns         <- stampDutyLandTaxService.getInProgressReturnsViewModel(storn, None)
+        getAllSubmittedReturns          <- stampDutyLandTaxService.getSubmittedReturns(storn)
+        inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion(storn)
+        submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion(storn)
         getAgentsCount                  <- stampDutyLandTaxService.getAgentCount
       } yield {
         Ok(Html(

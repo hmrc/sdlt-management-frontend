@@ -79,7 +79,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET request" in new Fixture {
 
-      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(expectedEmptyData))
 
       running(application) {
@@ -92,7 +92,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(List[SdltSubmittedReturnsViewModel](), None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
       }
     }
 
@@ -107,7 +107,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(actualDataNoPagination))
 
       running(application) {
@@ -120,7 +120,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedDataNoPagination, None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
       }
     }
 
@@ -139,7 +139,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(actualDataPagination))
 
 
@@ -153,7 +153,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedDataPagination.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
       }
     }
 
@@ -172,7 +172,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(actualDataPagination))
 
       running(application) {
@@ -185,7 +185,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedDataPagination.takeRight(expectedDataPagination.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
       }
 
     }
@@ -204,7 +204,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       }
 
-      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(actualDataPagination))
 
 
@@ -217,14 +217,14 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe onwardRoute.url
 
-        verify(mockService, times(1)).getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
       }
 
     }
 
     "redirect to JourneyRecovery if error occurs during returns retrieval" in new Fixture {
 
-      when(mockService.getSubmittedReturns(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(new Error("Error")))
 
       running(application) {

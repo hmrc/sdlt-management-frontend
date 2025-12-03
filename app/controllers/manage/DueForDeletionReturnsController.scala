@@ -63,11 +63,11 @@ class DueForDeletionReturnsController @Inject()(
           s"${DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(submittedIndex)).url}#submitted"
 
       (for {
-        submitted                 <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion
+        submitted                 <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion(request.storn)
         submittedReturnsRows       = convertResponseToSubmittedView(submitted)
         submittedPaginatedView     = paginateIfValidPageIndex(Some(submittedReturnsRows), submittedIndex, submittedUrlSelector)
         paginatedSubmittedReturns  = submittedPaginatedView.collectFirst { case Right((rows, paginator, paginationText)) => PaginatedDeletedSubmittedReturnsViewModel(rows, paginator, paginationText) }
-        inProgress                <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion
+        inProgress                <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion(request.storn)
         inProgressReturnsRows      = convertResponseToViewRows(inProgress)
         inProgressPaginatedView    = paginateIfValidPageIndex(Some(inProgressReturnsRows), inProgressIndex, inProgressUrlSelector)
         paginatedInProgressReturns = inProgressPaginatedView.collectFirst { case Right((rows, paginator, paginationText)) => PaginatedDeletedInProgressReturnsViewModel(rows, paginator, paginationText) }

@@ -29,7 +29,7 @@ trait PaginationHelper extends Logging {
   def generatePaginationItems(paginationIndex: Int, numberOfPages: Int,
                               urlSelector: Int => String): Seq[PaginationItem] = {
     Range
-      .inclusive(1, numberOfPages)
+      .inclusive(paginationIndex, numberOfPages) // This a primitive fix:: we might apply sliding logic in the future
       .map(pageIndex =>
         PaginationItem(
           href = urlSelector(pageIndex),
