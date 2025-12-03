@@ -94,8 +94,9 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = true,
-          status = Some("IN-PROGRESS"),
-          pageType = None, pageNumber = Some("1"))
+          status = None,
+          pageType = Some("IN-PROGRESS"),
+          pageNumber = Some("1"))
       )
       .map(
         res => {
