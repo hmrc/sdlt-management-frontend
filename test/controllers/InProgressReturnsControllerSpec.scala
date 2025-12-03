@@ -89,7 +89,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
     "return OK for GET:: show empty screen" in new Fixture {
 
-      when(mockService.getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModelNoRows))
 
       running(application) {
@@ -102,7 +102,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(List[SdltInProgressReturnViewRow](), None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier])
       }
     }
 
@@ -117,7 +117,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      when(mockService.getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModelPaginationOff))
 
       running(application) {
@@ -130,7 +130,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(actualDataPaginationOff, None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier])
       }
     }
 
@@ -145,7 +145,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      when(mockService.getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModelPaginationOn))
 
       val selectedPageIndex: Int = 1
@@ -162,7 +162,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(actualDataPaginationOn.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier])
 
       }
     }
@@ -180,7 +180,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       }
 
       val selectedPageIndex: Int = 2
-      when(mockService.getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModelPaginationOn))
 
 
@@ -198,7 +198,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(actualDataPaginationOn.takeRight(actualDataPaginationOn.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier])
       }
 
     }
@@ -220,7 +220,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         totalRowCount = Some(actualDataPaginationOn.length)
       )
 
-      when(mockService.getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModelActual))
 
       running(application) {
@@ -233,14 +233,14 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe "/stamp-duty-land-tax-management/there-is-a-problem"
 
-        verify(mockService, times(1)).getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]])
+        verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier])
       }
 
     }
 
     // error case #1
     "return SEE_OTHER on GET :: service level error" in new Fixture {
-      when(mockService.getInProgressReturnsViewModel(any())(any[HeaderCarrier], any[DataRequest[_]]))
+      when(mockService.getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier]))
         .thenReturn(Future.failed(new RuntimeException("boom")))
       running(application) {
         val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)

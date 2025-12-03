@@ -53,8 +53,8 @@ class AtAGlanceController@Inject()(
 
     (for {
       agentsCount                     <- stampDutyLandTaxService.getAgentCount
-      returnsInProgress               <- stampDutyLandTaxService.getInProgressReturnsViewModel(None)
-      submittedReturns                <- stampDutyLandTaxService.getSubmittedReturns
+      returnsInProgress               <- stampDutyLandTaxService.getInProgressReturnsViewModel(request.storn, None)
+      submittedReturns                <- stampDutyLandTaxService.getSubmittedReturns(request.storn)
       submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion
       inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion
       returnsDueForDeletion            = (submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion).sortBy(_.purchaserName)

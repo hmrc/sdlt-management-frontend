@@ -51,7 +51,7 @@ class SubmittedReturnsController @Inject()(
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
       stampDutyLandTaxService
-        .getSubmittedReturns map {
+        .getSubmittedReturns(request.storn) map {
           allDataRows =>
             pageIndexSelector(paginationIndex, allDataRows.length) match {
               case Right(selectedPageIndex) =>

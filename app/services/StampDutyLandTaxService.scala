@@ -31,10 +31,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
                                        (implicit executionContext: ExecutionContext) extends Logging {
 
-  def getInProgressReturnsViewModel(pageIndex: Option[Int])
-                                   (implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltInProgressReturnViewModel] = {
+  def getInProgressReturnsViewModel(storn: String, pageIndex: Option[Int])
+                                   (implicit hc: HeaderCarrier): Future[SdltInProgressReturnViewModel] = {
     val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-      storn = request.storn,
+      storn = storn,
       status = None,
       deletionFlag = false,
       pageType = Some("IN-PROGRESS"),
@@ -43,7 +43,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     for {
       inProgressResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
     } yield {
-      logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - ${request}::" +
+      logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - ${storn}::" +
         s"response r/count: ${inProgressResponse.returnSummaryCount} :: ${inProgressResponse.returnSummaryList.length}")
       SdltInProgressReturnViewModel(
         rows = SdltInProgressReturnViewRow
@@ -55,24 +55,25 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     }
   }
 
-  def getSubmittedReturns(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[List[SdltSubmittedReturnsViewModel]] = {
+  def getSubmittedReturns(storn: String)
+                         (implicit hc: HeaderCarrier): Future[List[SdltSubmittedReturnsViewModel]] = {
     for {
       submitted <- stampDutyLandTaxConnector.getReturns(
         SdltReturnRecordRequest(
-          storn = request.storn,
+          storn = storn,
           deletionFlag = false,
           status = Some("SUBMITTED"),
           pageType = Some("SUBMITTED"), pageNumber = Some("1"))
       )
       submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(
         SdltReturnRecordRequest(
-          storn = request.storn,
+          storn = storn,
           deletionFlag = false,
           status = Some("SUBMITTED_NO_RECEIPT"),
           pageType = Some("SUBMITTED"), pageNumber = Some("1"))
       )
     } yield {
-      logger.info(s"[StampDutyLandTaxService][getSubmittedReturns] - ${request}::" +
+      logger.info(s"[StampDutyLandTaxService][getSubmittedReturns] - ${storn}::" +
         s"response r/count: ${submitted.returnSummaryList.length} :: ${submittedNoReceipt.returnSummaryList.length}")
 
       val submittedReturnsList =
