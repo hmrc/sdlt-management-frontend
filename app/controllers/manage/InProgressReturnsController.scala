@@ -57,9 +57,8 @@ class InProgressReturnsController @Inject()(
         case Right(selectedPageIndex) =>
           val paginator: Option[Pagination] = createPagination(selectedPageIndex, totalRowsCount, urlSelector)
           val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, viewModel.rows )
-          val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(viewModel.rows, selectedPageIndex)
-          logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${rowsForSelectedPage.length}")
-          Ok(view(rowsForSelectedPage, paginator, paginationText))
+          logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
+          Ok(view(viewModel.rows, paginator, paginationText))
 // TODO: disable page index redirect / need to be fix as part of tech debt or bug fix story: TBC
 //        case Left(error) if error.getMessage.contains("PageIndex selected is out of scope") =>
 //          logger.error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")

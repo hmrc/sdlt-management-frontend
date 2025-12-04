@@ -26,10 +26,18 @@ trait PaginationHelper extends Logging {
   private val ROWS_ON_PAGE = 10
   private val DEFAULT_PAGE_INDEX = 1
 
+  private def slidingTopIndex(paginationIndex: Int, numberOfPages: Int): Int = {
+    if (numberOfPages - paginationIndex > 10) {
+      paginationIndex + 5
+    } else {
+      numberOfPages
+    }
+  }
+
   def generatePaginationItems(paginationIndex: Int, numberOfPages: Int,
                               urlSelector: Int => String): Seq[PaginationItem] = {
     Range
-      .inclusive(paginationIndex, numberOfPages) // This a primitive fix:: we might apply sliding logic in the future
+      .inclusive(paginationIndex, slidingTopIndex(paginationIndex, numberOfPages)) // This a primitive fix:: we might apply sliding logic in the future
       .map(pageIndex =>
         PaginationItem(
           href = urlSelector(pageIndex),
@@ -113,7 +121,7 @@ trait PaginationHelper extends Logging {
           Right(attemptToSelectIndex)
         }
       }
-      .getOrElse( Right(DEFAULT_PAGE_INDEX) )
+      .getOrElse(Right(DEFAULT_PAGE_INDEX))
   }
 
   def createPagination(pageIndex: Int, totalRowsCount: Int, urlSelector: Int => String)
@@ -135,6 +143,7 @@ trait PaginationHelper extends Logging {
     }
   }
 
+  @deprecated("Will be removed as not required::pagination is done on the DB level")
   def getSelectedPageRows[A](allDataRows: List[A], pageIndex: Int): List[A] = {
     allDataRows.grouped(ROWS_ON_PAGE).toSeq.lift(pageIndex - 1) match {
       case Some(sliceData) =>
@@ -143,18 +152,18 @@ trait PaginationHelper extends Logging {
         List.empty
     }
   }
-  
+
   def paginateList[A](allDataRows: List[A], paginationIndex: Option[Int], urlSelector: Int => String)(implicit request: DataRequest[_], messages: Messages): Either[String, (
     (List[A], Option[Pagination], Option[String]))] = {
-    
+
     val selectedPageIndex: Int = paginationIndex.getOrElse(1)
-    
+
     val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
     val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
     val rowsForSelectedPage: List[A] = getSelectedPageRows(allDataRows, selectedPageIndex)
 
     Right(rowsForSelectedPage, paginator, paginationText)
-    
+
   }
 
   def paginateIfValidPageIndex[A](
@@ -166,8 +175,8 @@ trait PaginationHelper extends Logging {
                                    messages: Messages
                                  ): Option[Either[String, (List[A], Option[Pagination], Option[String])]] =
     rowsOpt match {
-      case None       => None
-      case Some(Nil)  => Some(Right((Nil, None, None)))
+      case None => None
+      case Some(Nil) => Some(Right((Nil, None, None)))
       case Some(rows) =>
         pageIndexSelector(paginationIndex, rows.length) match {
           case Right(validIndex) =>

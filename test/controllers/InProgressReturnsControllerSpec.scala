@@ -82,6 +82,14 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       rows = expectedDataPaginationOn,
       totalRowCount = Some(expectedDataPaginationOn.length))
 
+    val viewModelPaginationOnPage1: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
+      rows = expectedDataPaginationOn.take(rowsPerPage),
+      totalRowCount = Some(expectedDataPaginationOn.length))
+
+    val viewModelPaginationOnPage2: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
+      rows = expectedDataPaginationOn.takeRight(7),
+      totalRowCount = Some(expectedDataPaginationOn.length))
+
     val urlSelector: Int => String = (selectedPageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(selectedPageIndex)).url
   }
 
@@ -143,14 +151,14 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
             purchaserName = "Brown",
             status = UniversalStatus.ACCEPTED
           )
-        )
+        ).take(rowsPerPage)
 
       when(mockService.getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(viewModelPaginationOn))
+        .thenReturn(Future.successful(viewModelPaginationOnPage1))
 
       val selectedPageIndex: Int = 1
       val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length, urlSelector)(messages(application))
-      val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPaginationOn)(messages(application))
+      val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPaginationOn.take(rowsPerPage))(messages(application))
 
       running(application) {
 
@@ -177,16 +185,16 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
             status = UniversalStatus.ACCEPTED
           )
         )
-      }
+      }.takeRight(7)
 
       val selectedPageIndex: Int = 2
       when(mockService.getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(viewModelPaginationOn))
-
+        .thenReturn(Future.successful(viewModelPaginationOnPage2))
 
       val paginator: Option[Pagination] = createPagination(selectedPageIndex,
         expectedDataPaginationOn.length, urlSelector)(messages(application))
-      val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPaginationOn)(messages(application))
+      val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex,
+        expectedDataPaginationOn.takeRight(7))(messages(application))
 
       running(application) {
 
@@ -196,7 +204,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(actualDataPaginationOn.takeRight(actualDataPaginationOn.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(actualDataPaginationOn.takeRight(7), paginator, paginationText)(request, messages(application)).toString
 
         verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any[HeaderCarrier])
       }
