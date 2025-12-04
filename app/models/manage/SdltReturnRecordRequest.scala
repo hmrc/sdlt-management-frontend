@@ -32,7 +32,7 @@ case class SdltReturnRecordRequest(
 object SdltReturnRecordRequest {
   implicit val format: OFormat[SdltReturnRecordRequest] = Json.format[SdltReturnRecordRequest]
 
-  def convertToRequest(storn: String, extractType: SdltReturnTypes, pageIndex: Option[Int]): SdltReturnRecordRequest = {
+  def convertToDataRequest(storn: String, extractType: SdltReturnTypes, pageIndex: Option[Int]): SdltReturnRecordRequest = {
     extractType match {
       case SdltReturnTypes.IN_PROGRESS_RETURNS =>
         SdltReturnRecordRequest(

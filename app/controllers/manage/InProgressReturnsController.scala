@@ -49,7 +49,7 @@ class InProgressReturnsController @Inject()(
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
-    stampDutyLandTaxService.getReturns(request.storn,  IN_PROGRESS_RETURNS, index) map { viewModel =>
+    stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn,  IN_PROGRESS_RETURNS, index) map { viewModel =>
       logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
       val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
       pageIndexSelector(index, totalRowsCount) match {

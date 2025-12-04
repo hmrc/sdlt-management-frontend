@@ -72,7 +72,7 @@ class AtAGlanceControllerSpec
       when(mockService.getAgentCount(any(), any()))
         .thenReturn(Future.successful(agentsCount))
 
-      when(mockService.getReturns(any(), any(), any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.successful(returnsInProgressViewModel))
 
       when(mockService.getSubmittedReturns(any())(any()))
@@ -130,7 +130,7 @@ class AtAGlanceControllerSpec
           view(expectedModel)(request, messages(app)).toString
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(1)).getReturns(any(), any(), any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any())
         verify(mockService, times(1)).getSubmittedReturns(any())(any())
         verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())(any())
         verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any())(any())
@@ -143,7 +143,7 @@ class AtAGlanceControllerSpec
       when(mockService.getAgentCount(any(), any()))
         .thenReturn(Future.failed(new RuntimeException("boom-agents")))
 
-      when(mockService.getReturns(any(), any(), any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.successful(Nil))
 
       when(mockService.getSubmittedReturns(any())(any()))
@@ -167,7 +167,7 @@ class AtAGlanceControllerSpec
           controllers.routes.JourneyRecoveryController.onPageLoad().url
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(0)).getReturns(any(), any(), any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), any(), any())(any())
         verify(mockService, times(0)).getSubmittedReturns(any())(any())
         verify(mockService, times(0)).getSubmittedReturnsDueForDeletion(any())(any())
         verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any())(any())

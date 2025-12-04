@@ -18,7 +18,6 @@ package services
 
 import connectors.StampDutyLandTaxConnector
 import models.SdltReturnTypes
-import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.{ReturnSummary, SdltReturnRecordRequest}
 import models.requests.DataRequest
 import models.responses.SdltReturnsViewModel.*
@@ -26,7 +25,6 @@ import models.responses.{SdltReturnViewModel, SdltReturnsViewModel}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import viewmodels.manage.SdltSubmittedReturnsViewModel
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,14 +32,18 @@ import scala.concurrent.{ExecutionContext, Future}
 class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
                                        (implicit executionContext: ExecutionContext) extends Logging {
 
-  def getReturns(storn: String,
-                 extractType: SdltReturnTypes,
-                 pageIndex: Option[Int])
-                (implicit hc: HeaderCarrier): Future[SdltReturnViewModel] = {
-    val dataRequest : SdltReturnRecordRequest = SdltReturnRecordRequest.convertToRequest(
-      storn = storn,
-      extractType = IN_PROGRESS_RETURNS,
-      pageIndex = pageIndex)
+  /*
+  Unified way to extract returns from DB and convert returns to viewModel
+   */
+  def getReturnsByTypeViewModel(storn: String,
+                                extractType: SdltReturnTypes,
+                                pageIndex: Option[Int])
+                               (implicit hc: HeaderCarrier): Future[SdltReturnViewModel] = {
+    val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest
+      .convertToDataRequest(
+        storn = storn,
+        extractType = extractType,
+        pageIndex = pageIndex)
     logger.info(s"[StampDutyLandTaxService][getReturns] - GENERIC::DATA_REQUEST:: $dataRequest")
     for {
       dataResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
@@ -51,7 +53,6 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
       convertToViewModel(dataResponse, extractType)
     }
   }
-
 
   @deprecated("Please use getReturns instead")
   def getSubmittedReturns(storn: String)
@@ -127,6 +128,5 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     stampDutyLandTaxConnector
       .getSdltOrganisation
       .map(_.agents.length)
-
 
 }
