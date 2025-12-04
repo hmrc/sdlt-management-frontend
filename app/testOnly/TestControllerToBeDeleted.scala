@@ -25,6 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+import models.SdltReturnTypes.*
 
 @Singleton
 class TestControllerToBeDeleted @Inject()(
@@ -42,7 +43,7 @@ class TestControllerToBeDeleted @Inject()(
     implicit request =>
 
       for {
-        getAllInProgressReturns         <- stampDutyLandTaxService.getInProgressReturnsViewModel(storn, None)
+        getAllInProgressReturns         <- stampDutyLandTaxService.getReturns(storn, IN_PROGRESS_RETURNS, None)
         getAllSubmittedReturns          <- stampDutyLandTaxService.getSubmittedReturns(storn)
         inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion(storn)
         submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion(storn)

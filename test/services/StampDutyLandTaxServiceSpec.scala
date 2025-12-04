@@ -17,12 +17,13 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
+import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
-import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow}
-import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import models.responses
+import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
+import models.responses.{SdltReturnViewModel, SdltReturnViewRow}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -135,13 +136,13 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val dataRows = List(
-        SdltInProgressReturnViewRow(
+        SdltReturnViewRow(
           address = "1 Accepted Street",
           agentReference = "Accepted Agent",
           purchaserName = "Accepted Buyer",
           status = ACCEPTED
         ),
-        SdltInProgressReturnViewRow(
+        SdltReturnViewRow(
           address = "2 Pending Street",
           agentReference = "Pending Agent",
           purchaserName = "Pending Buyer",
@@ -165,9 +166,10 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(inProgressRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(inProgressReturnsResponse))
 
-      val result = service.getInProgressReturnsViewModel(storn, Some(1)).futureValue
+      val result = service.getReturns(storn, IN_PROGRESS_RETURNS, Some(1)).futureValue
 
-      val expected = SdltInProgressReturnViewModel(
+      val expected = SdltReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
         rows = dataRows,
         totalRowCount = Some(dataRows.length)
       )

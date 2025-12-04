@@ -17,13 +17,15 @@
 package viewmodels.govuk
 
 import forms.mappings.Mappings
+import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
-import models.responses.SdltInProgressReturnViewRow
+import models.responses.SdltReturnViewRow
+import models.responses.SdltReturnViewRow.convertToViewRows
+import models.responses.UniversalStatus.{ACCEPTED, STARTED}
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import models.responses.SdltInProgressReturnViewRow.*
-import models.responses.UniversalStatus.{ACCEPTED, PENDING, STARTED, SUBMITTED, VALIDATED}
+import models.responses.SdltReturnsViewModel.*
 
 import java.time.LocalDate
 
@@ -86,20 +88,21 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
 
   )
 
-  val expectedDataRows: List[SdltInProgressReturnViewRow] = List(
-    SdltInProgressReturnViewRow("Address003", "", "Name003", STARTED),
-    SdltInProgressReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED)
+  val expectedDataRows: List[SdltReturnViewRow] = List(
+    SdltReturnViewRow("Address003", "", "Name003", STARTED),
+    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED)
   )
 
   "Response model conversion" - {
     "empty response return empty list" in {
-      val result: List[SdltInProgressReturnViewRow] = convertToReturnViewRows(responseWithEmptySummary.returnSummaryList)
+      val result: List[SdltReturnViewRow] = convertToViewRows(responseWithEmptySummary.returnSummaryList)
       result mustBe empty
     }
 
-    "response with some data return expected data rows" in {
-      val result: List[SdltInProgressReturnViewRow] = convertToReturnViewRows(responseWithData.returnSummaryList)
-      result mustBe expectedDataRows
+    "response with some data return expected view model" in {
+      val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS)
+      resultViewModel.rows must contain theSameElementsAs expectedDataRows
+      resultViewModel.totalRowCount mustBe(Some(0))
     }
 
   }

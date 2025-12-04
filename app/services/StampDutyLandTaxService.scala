@@ -20,15 +20,15 @@ import connectors.StampDutyLandTaxConnector
 import models.SdltReturnTypes
 import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.{ReturnSummary, SdltReturnRecordRequest}
-import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
-import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow, SdltReturnsViewModel}
+import models.responses.SdltReturnsViewModel.*
+import models.responses.{SdltReturnViewModel, SdltReturnsViewModel}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
+import viewmodels.manage.SdltSubmittedReturnsViewModel
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import SdltReturnsViewModel._
 
 @Singleton
 class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
@@ -37,7 +37,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
   def getReturns(storn: String,
                  extractType: SdltReturnTypes,
                  pageIndex: Option[Int])
-                (implicit hc: HeaderCarrier): Future[SdltReturnsViewModel] = {
+                (implicit hc: HeaderCarrier): Future[SdltReturnViewModel] = {
     val dataRequest : SdltReturnRecordRequest = SdltReturnRecordRequest.convertToRequest(
       storn = storn,
       extractType = IN_PROGRESS_RETURNS,
@@ -52,30 +52,6 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     }
   }
 
-  @deprecated("Please use getReturns instead")
-  def getInProgressReturnsViewModel(storn: String, pageIndex: Option[Int])
-                                   (implicit hc: HeaderCarrier): Future[SdltInProgressReturnViewModel] = {
-    val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-      storn = storn,
-      status = None,
-      deletionFlag = false,
-      pageType = Some("IN-PROGRESS"),
-      pageNumber = pageIndex.map(_.toString))
-    logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - data request:: ${dataRequest}")
-    for {
-      inProgressResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
-    } yield {
-      logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - ${storn}::" +
-        s"response r/count: ${inProgressResponse.returnSummaryCount} :: ${inProgressResponse.returnSummaryList.length}")
-      SdltInProgressReturnViewModel(
-        rows = SdltInProgressReturnViewRow
-          .convertToReturnViewRows(
-            inProgressResponse.returnSummaryList
-          ),
-        totalRowCount = inProgressResponse.returnSummaryCount
-      )
-    }
-  }
 
   @deprecated("Please use getReturns instead")
   def getSubmittedReturns(storn: String)

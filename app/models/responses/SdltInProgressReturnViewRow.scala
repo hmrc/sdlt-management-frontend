@@ -17,60 +17,65 @@
 package models.responses
 
 import models.SdltReturnTypes
-import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
+import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.responses.UniversalStatus.{ACCEPTED, STARTED}
 import play.api.Logging
 
-sealed trait SdltReturnsViewModel
+case class SdltReturnViewRow(
+                              address: String,
+                              agentReference: String,
+                              purchaserName: String,
+                              status: UniversalStatus
+                            )
 
-case class SdltInProgressReturnViewModel(rows: List[SdltInProgressReturnViewRow], totalRowCount: Option[Int]) extends SdltReturnsViewModel
-
-case class SdltInProgressReturnViewRow(
-                                        address: String,
-                                        agentReference: String,
-                                        purchaserName: String,
-                                        status: UniversalStatus
-                                      )
-
-object SdltInProgressReturnViewRow extends Logging {
+object SdltReturnViewRow extends Logging {
 
   import UniversalStatus.*
 
-  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
-
-  def convertToReturnViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
-    val res = for {
-      rec <- inProgressReturnsList
-    } yield {
-      fromString(rec.status) match {
-        case Right(status) =>
-          Some(
-            SdltInProgressReturnViewRow(
-              address = rec.address,
-              agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
-              purchaserName = rec.purchaserName,
-              status = status,
+  def convertToViewRows(returnsList: List[ReturnSummary]): List[SdltReturnViewRow] = {
+    {
+      for {
+        rec <- returnsList
+      } yield {
+        fromString(rec.status) match {
+          case Right(status) =>
+            Some(
+              SdltReturnViewRow(
+                address = rec.address,
+                agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
+                purchaserName = rec.purchaserName,
+                status = status,
+              )
             )
-          )
-        case Left(ex) =>
-          logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
-          None
+          case Left(ex) =>
+            logger.error(s"[SdltReturnViewRow][convertToViewRows] - conversion from: ${rec} failure: $ex")
+            None
+        }
       }
-    }
-    res
-      .flatten
-      .filter(rec => inProgressReturnStatuses.contains(rec.status))
+    }.flatten
   }
 }
 
+case class SdltReturnViewModel(
+                                extractType: SdltReturnTypes,
+                                rows: List[SdltReturnViewRow],
+                                totalRowCount: Option[Int])
+
+
 object SdltReturnsViewModel {
-  def convertToViewModel(response: SdltReturnRecordResponse, extractType: SdltReturnTypes): SdltReturnsViewModel = {
+  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
+
+  def convertToViewModel(response: SdltReturnRecordResponse, extractType: SdltReturnTypes): SdltReturnViewModel = {
+    val rows: List[SdltReturnViewRow] = SdltReturnViewRow.convertToViewRows(response.returnSummaryList)
+
     extractType match {
       case SdltReturnTypes.IN_PROGRESS_RETURNS =>
-        SdltInProgressReturnViewModel(
-          rows = SdltInProgressReturnViewRow.convertToReturnViewRows(response.returnSummaryList),
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows
+            .filter(rec => inProgressReturnStatuses.contains(rec.status)),
           totalRowCount = response.returnSummaryCount
         )
-        ???
       case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS =>
         ???
       case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
@@ -80,5 +85,6 @@ object SdltReturnsViewModel {
       case SdltReturnTypes.SUBMITTED_RETURNS_DUR_FOR_DELETION =>
         ???
     }
+
   }
 }
