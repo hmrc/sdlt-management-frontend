@@ -20,7 +20,7 @@ import connectors.StampDutyLandTaxConnector
 import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
-import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow}
+import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow, SdltSubmittedReturnsViewRow}
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import models.responses
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -29,7 +29,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.http.HeaderCarrier
-import viewmodels.manage.SdltSubmittedReturnsViewModel
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -235,16 +234,16 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(submittedRequestWithNoReceipt))(any[HeaderCarrier]))
         .thenReturn(Future.successful(submittedNoReceiptResponse))
 
-      val result = service.getSubmittedReturns(storn).futureValue
+      val result = service.getSubmittedReturnsViewModel(storn).futureValue
 
       val expected = List(
-        SdltSubmittedReturnsViewModel(
+        SdltSubmittedReturnsViewRow(
           address = "3 Submitted Street",
           utrn = "UTRN-SUB-001",
           purchaserName = "Submitted Buyer",
           status = SUBMITTED
         ),
-        SdltSubmittedReturnsViewModel(
+        SdltSubmittedReturnsViewRow(
           address = "4 NoReceipt Street",
           utrn = "UTRN-SNR-001",
           purchaserName = "No Receipt Buyer",
@@ -411,7 +410,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         when(connector.getReturns(any())(any()))
           .thenReturn(Future.successful(aggregateResponse))
 
-        val result = service.getSubmittedReturns(storn).futureValue
+        val result = service.getSubmittedReturnsViewModel(storn).futureValue
 
         val statuses = result.map(_.status).distinct
         // TODO: again, we are not expected to filter data within our logic / all to be done by Oracle SP
@@ -430,7 +429,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         .thenReturn(Future.failed(new RuntimeException("Error: Connector issue")))
 
       val ex = intercept[RuntimeException] {
-        service.getSubmittedReturns(storn).futureValue
+        service.getSubmittedReturnsViewModel(storn).futureValue
       }
 
       ex.getMessage must include("Error: Connector issue")

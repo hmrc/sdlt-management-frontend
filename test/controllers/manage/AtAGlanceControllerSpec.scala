@@ -73,7 +73,7 @@ class AtAGlanceControllerSpec
       when(mockService.getInProgressReturnsViewModel(any(), any())(any()))
         .thenReturn(Future.successful(returnsInProgressViewModel))
 
-      when(mockService.getSubmittedReturns(any())(any()))
+      when(mockService.getSubmittedReturnsViewModel(any())(any()))
         .thenReturn(Future.successful(submittedReturns))
 
       when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
@@ -129,7 +129,7 @@ class AtAGlanceControllerSpec
 
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any())
-        verify(mockService, times(1)).getSubmittedReturns(any())(any())
+        verify(mockService, times(1)).getSubmittedReturnsViewModel(any())(any())
         verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())(any())
         verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any())(any())
       }
@@ -144,7 +144,7 @@ class AtAGlanceControllerSpec
       when(mockService.getInProgressReturnsViewModel(any(), any())(any()))
         .thenReturn(Future.successful(Nil))
 
-      when(mockService.getSubmittedReturns(any())(any()))
+      when(mockService.getSubmittedReturnsViewModel(any())(any()))
         .thenReturn(Future.successful(Nil))
 
       when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
@@ -166,7 +166,7 @@ class AtAGlanceControllerSpec
 
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(0)).getInProgressReturnsViewModel(any(), any())(any())
-        verify(mockService, times(0)).getSubmittedReturns(any())(any())
+        verify(mockService, times(0)).getSubmittedReturnsViewModel(any())(any())
         verify(mockService, times(0)).getSubmittedReturnsDueForDeletion(any())(any())
         verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any())(any())
       }

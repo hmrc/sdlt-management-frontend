@@ -18,7 +18,7 @@ package controllers.manage
 
 import base.SpecBase
 import models.requests.DataRequest
-import models.responses.UniversalStatus
+import models.responses.{SdltSubmittedReturnsViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,7 +32,6 @@ import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.PaginationHelper
-import viewmodels.manage.SdltSubmittedReturnsViewModel
 import views.html.manage.SubmittedReturnsView
 
 import scala.concurrent.Future
@@ -48,11 +47,11 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
       .build()
 
-    val expectedEmptyData: List[SdltSubmittedReturnsViewModel] = List[SdltSubmittedReturnsViewModel]()
+    val expectedEmptyData: List[SdltSubmittedReturnsViewRow] = List[SdltSubmittedReturnsViewRow]()
 
-    val expectedDataNoPagination: List[SdltSubmittedReturnsViewModel] =
+    val expectedDataNoPagination: List[SdltSubmittedReturnsViewRow] =
       (0 to 7).toList.map(index =>
-        SdltSubmittedReturnsViewModel(
+        SdltSubmittedReturnsViewRow(
           address = s"$index Riverside Drive",
           utrn = "UTRN003",
           purchaserName = "Brown",
@@ -60,9 +59,9 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-    val expectedDataPagination: List[SdltSubmittedReturnsViewModel] =
+    val expectedDataPagination: List[SdltSubmittedReturnsViewRow] =
       (0 to 17).toList.map(index =>
-        SdltSubmittedReturnsViewModel(
+        SdltSubmittedReturnsViewRow(
           address = s"$index Riverside Drive",
           utrn = "UTRN003",
           purchaserName = "Brown",
@@ -79,7 +78,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET request" in new Fixture {
 
-      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturnsViewModel(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(expectedEmptyData))
 
       running(application) {
@@ -90,16 +89,16 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[SubmittedReturnsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(List[SdltSubmittedReturnsViewModel](), None, None)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(List[SdltSubmittedReturnsViewRow](), None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getSubmittedReturnsViewModel(any())(any[HeaderCarrier])
       }
     }
 
     "must return OK and the correct view for a GET request with no pagination" in new Fixture {
-      val actualDataNoPagination: List[SdltSubmittedReturnsViewModel] =
+      val actualDataNoPagination: List[SdltSubmittedReturnsViewRow] =
         (0 to 7).toList.map(index =>
-          SdltSubmittedReturnsViewModel(
+          SdltSubmittedReturnsViewRow(
             address = s"$index Riverside Drive",
             utrn = "UTRN003",
             purchaserName = "Brown",
@@ -107,7 +106,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturnsViewModel(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(actualDataNoPagination))
 
       running(application) {
@@ -120,7 +119,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedDataNoPagination, None, None)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getSubmittedReturnsViewModel(any())(any[HeaderCarrier])
       }
     }
 
@@ -129,9 +128,9 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPagination.length, urlSelector)(messages(application))
       val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPagination)(messages(application))
 
-      val actualDataPagination: List[SdltSubmittedReturnsViewModel] =
+      val actualDataPagination: List[SdltSubmittedReturnsViewRow] =
       (0 to 17).toList.map(index =>
-        SdltSubmittedReturnsViewModel(
+        SdltSubmittedReturnsViewRow(
           address = s"$index Riverside Drive",
           utrn = "UTRN003",
           purchaserName = "Brown",
@@ -139,7 +138,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturnsViewModel(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(actualDataPagination))
 
 
@@ -153,7 +152,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedDataPagination.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getSubmittedReturnsViewModel(any())(any[HeaderCarrier])
       }
     }
 
@@ -162,9 +161,9 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPagination.length, urlSelector)(messages(application))
       val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPagination)(messages(application))
 
-      val actualDataPagination: List[SdltSubmittedReturnsViewModel] =
+      val actualDataPagination: List[SdltSubmittedReturnsViewRow] =
       (0 to 17).toList.map(index =>
-        SdltSubmittedReturnsViewModel(
+        SdltSubmittedReturnsViewRow(
           address = s"$index Riverside Drive",
           utrn = "UTRN003",
           purchaserName = "Brown",
@@ -172,7 +171,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturnsViewModel(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(actualDataPagination))
 
       running(application) {
@@ -185,7 +184,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedDataPagination.takeRight(expectedDataPagination.length - rowsPerPage), paginator, paginationText)(request, messages(application)).toString
 
-        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getSubmittedReturnsViewModel(any())(any[HeaderCarrier])
       }
 
     }
@@ -193,9 +192,9 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to paginationIndex=1 for a GET request when pagination index is out of scope" in new Fixture {
       val invalidPageIndex: Int = 100
 
-      val actualDataPagination: List[SdltSubmittedReturnsViewModel] = {
+      val actualDataPagination: List[SdltSubmittedReturnsViewRow] = {
         (0 to 17).toList.map(index =>
-          SdltSubmittedReturnsViewModel(
+          SdltSubmittedReturnsViewRow(
             address = s"$index Riverside Drive",
             utrn = "UTRN003",
             purchaserName = "Brown",
@@ -204,7 +203,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       }
 
-      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturnsViewModel(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(actualDataPagination))
 
 
@@ -217,14 +216,14 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe onwardRoute.url
 
-        verify(mockService, times(1)).getSubmittedReturns(any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getSubmittedReturnsViewModel(any())(any[HeaderCarrier])
       }
 
     }
 
     "redirect to JourneyRecovery if error occurs during returns retrieval" in new Fixture {
 
-      when(mockService.getSubmittedReturns(any())(any[HeaderCarrier]))
+      when(mockService.getSubmittedReturnsViewModel(any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(new Error("Error")))
 
       running(application) {

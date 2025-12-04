@@ -34,20 +34,35 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  def generatePaginationItems(paginationIndex: Int, numberOfPages: Int,
-                              urlSelector: Int => String): Seq[PaginationItem] = {
-    Range
-      .inclusive(paginationIndex, slidingTopIndex(paginationIndex, numberOfPages)) // This a primitive fix:: we might apply sliding logic in the future
-      .map(pageIndex =>
-        PaginationItem(
-          href = urlSelector(pageIndex),
-          number = Some(pageIndex.toString),
-          visuallyHiddenText = None,
-          current = Some(pageIndex == paginationIndex),
-          ellipsis = None,
-          attributes = Map.empty
-        )
+  def generatePaginationItems(
+                               paginationIndex: Int,
+                               numberOfPages: Int,
+                               urlSelector: Int => String
+                             ): Seq[PaginationItem] = {
+
+    val windowSize = 10
+    val halfWindow = windowSize / 2
+
+    val (start, end) =
+      if (numberOfPages <= windowSize) {
+        (1, numberOfPages)
+      } else {
+        val rawStart     = paginationIndex - halfWindow
+        val clampedStart = math.max(1, math.min(rawStart, numberOfPages - windowSize + 1))
+        val clampedEnd   = clampedStart + windowSize - 1
+        (clampedStart, clampedEnd)
+      }
+
+    (start to end).map { pageIndex =>
+      PaginationItem(
+        href = urlSelector(pageIndex),
+        number = Some(pageIndex.toString),
+        visuallyHiddenText = None,
+        current = Some(pageIndex == paginationIndex),
+        ellipsis = None,
+        attributes = Map.empty
       )
+    }
   }
 
   def generatePreviousLink(paginationIndex: Int, numberOfPages: Int, urlPrev: String)

@@ -37,25 +37,22 @@ object SdltInProgressReturnViewRow extends Logging {
   def convertResponseToReturnViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
     val res = for {
       rec <- inProgressReturnsList
-    } yield {
-      fromString(rec.status) match {
-        case Right(status) =>
-          Some(
-            SdltInProgressReturnViewRow(
-              address = rec.address,
-              agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
-              purchaserName = rec.purchaserName,
-              status = status,
-            )
+    } yield fromString(rec.status) match {
+      case Right(status) =>
+        Some(
+          SdltInProgressReturnViewRow(
+            address = rec.address,
+            agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
+            purchaserName = rec.purchaserName,
+            status = status,
           )
-        case Left(ex) =>
-          logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
-          None
+        )
+      case Left(ex) =>
+        logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
+        None
       }
-    }
     res
       .flatten
       .filter(rec => inProgressReturnStatuses.contains(rec.status))
   }
-
 }
