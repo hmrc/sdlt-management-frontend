@@ -20,12 +20,14 @@ import models.SdltReturnTypes
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.responses.UniversalStatus.{ACCEPTED, STARTED}
 import play.api.Logging
+import utils.PaginationHelper
 
 case class SdltReturnViewRow(
                               address: String,
                               agentReference: String,
                               purchaserName: String,
-                              status: UniversalStatus
+                              status: UniversalStatus,
+                              utrn: String
                             )
 
 object SdltReturnViewRow extends Logging {
@@ -45,6 +47,7 @@ object SdltReturnViewRow extends Logging {
                 agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
                 purchaserName = rec.purchaserName,
                 status = status,
+                utrn = rec.utrn.getOrElse("")
               )
             )
           case Left(ex) =>
@@ -59,7 +62,7 @@ object SdltReturnViewRow extends Logging {
 case class SdltReturnViewModel(
                                 extractType: SdltReturnTypes,
                                 rows: List[SdltReturnViewRow],
-                                totalRowCount: Option[Int])
+                                totalRowCount: Option[Int]) extends PaginationHelper
 
 
 object SdltReturnsViewModel {
@@ -80,10 +83,15 @@ object SdltReturnsViewModel {
         ???
       case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
         ???
-      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUR_FOR_DELETION =>
+      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
         ???
-      case SdltReturnTypes.SUBMITTED_RETURNS_DUR_FOR_DELETION =>
-        ???
+      case SdltReturnTypes.SUBMITTED_RETURNS_DUE_FOR_DELETION =>
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows.sortBy(_.purchaserName), // TODO: move sorting to the view level
+            // TODO: any filtering || .filter(rec => inProgressReturnStatuses.contains(rec.status)),
+          totalRowCount = response.returnSummaryCount
+        )
     }
 
   }

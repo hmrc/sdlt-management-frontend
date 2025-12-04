@@ -18,6 +18,7 @@
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import viewmodels.manage.deletedReturns._
+@import models.responses.SdltReturnViewModel
 
 @this(
         layout: templates.Layout,
@@ -30,8 +31,12 @@
         hmrcPageHeading: HmrcPageHeading
 )
 @(
-        inProgressData: PaginatedDeletedInProgressReturnsViewModel,
-        submittedData:  PaginatedDeletedSubmittedReturnsViewModel
+        inProgressViewModel: SdltReturnViewModel,
+        submittedViewModel:  SdltReturnViewModel,
+        inProgressSelectedPageIndex: Int,
+        submittedSelectedPageIndex: Int,
+        inProgressUrlSelector:  Int => String,
+        submittedUrlSelector: Int => String
 )(
         implicit request: Request[_],
         messages: Messages
@@ -39,9 +44,9 @@
 
 @renderInProgressTable() = {
     @h2("manageReturns.dueDeletionReturns.inProgressTab.heading")
-    @inProgressData.paginationText.map(p(_))
+    @inProgressViewModel.getPaginationInfoText(inProgressSelectedPageIndex, inProgressViewModel.rows ).map(p(_))
     @govukTable(Table(
-        rows = inProgressData.inProgressReturnsViewModel.map { currentRow =>
+        rows = inProgressViewModel.rows.map { currentRow =>
             Seq(
                 TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#")) ),
                 TableRow(content = Text( currentRow.address ))
@@ -52,14 +57,16 @@
             HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.address")))
         ))
     ))
-    @inProgressData.paginator.map(govukPagination(_))
+    @inProgressViewModel
+            .createPagination(inProgressSelectedPageIndex, inProgressViewModel.totalRowCount, inProgressUrlSelector)
+                .map(govukPagination(_))
 }
 
 @renderSubmittedTable() = {
     @h2("manageReturns.dueDeletionReturns.submittedTab.heading")
-    @submittedData.paginationText.map(p(_))
+    @submittedViewModel.getPaginationInfoText(submittedSelectedPageIndex, inProgressViewModel.rows ).map(p(_))
     @govukTable(Table(
-        rows = submittedData.submittedReturnsViewModel.map{ currentRow =>
+        rows = submittedViewModel.rows.map{ currentRow =>
             Seq(
                 TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#") )),
                 TableRow(content = Text( currentRow.address )),
@@ -72,7 +79,9 @@
             HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.utrn")))
         ))
     ))
-    @submittedData.paginator.map(govukPagination(_))
+    @submittedViewModel
+        .createPagination(submittedSelectedPageIndex, inProgressViewModel.totalRowCount, inProgressUrlSelector)
+            .map(govukPagination(_))
 }
 
 @layout(
@@ -86,7 +95,7 @@
         captionClasses = Some("govuk-caption-l")
     ))
 
-    @if(inProgressData.inProgressReturnsViewModel.isEmpty && submittedData.submittedReturnsViewModel.isEmpty) {
+    @if(inProgressViewModel.rows.isEmpty && submittedViewModel.rows.isEmpty) {
 
         @p("manageReturns.dueDeletionReturns.noReturns.info")
         @link("manageReturns.dueDeletionReturns.noReturns.link", "#")
@@ -98,7 +107,7 @@
         @govukTabs(Tabs(
             id = Some("updates-and-deadlines-tabs"),
             items = Seq(
-                Option.when(inProgressData.inProgressReturnsViewModel.nonEmpty)(
+                Option.when(inProgressViewModel.rows.nonEmpty)(
                     TabItem(
                         id = Some("in-progress"),
                         label = messages("manageReturns.dueDeletionReturns.inProgressTab.heading"),
@@ -107,7 +116,7 @@
                         )
                     )
                 ),
-                Option.when(submittedData.submittedReturnsViewModel.nonEmpty)(
+                Option.when(submittedViewModel.rows.nonEmpty)(
                     TabItem(
                         id = Some("submitted"),
                         label = messages("manageReturns.dueDeletionReturns.submittedTab.heading"),

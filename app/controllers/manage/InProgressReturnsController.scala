@@ -41,7 +41,7 @@ class InProgressReturnsController @Inject()(
                                              requireData: DataRequiredAction,
                                              stornRequiredAction: StornRequiredAction,
                                              view: InProgressReturnView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PaginationHelper with Logging {
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
@@ -52,10 +52,10 @@ class InProgressReturnsController @Inject()(
     stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn,  IN_PROGRESS_RETURNS, index) map { viewModel =>
       logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
       val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
-      pageIndexSelector(index, totalRowsCount) match {
+      viewModel.pageIndexSelector(index, totalRowsCount) match {
         case Right(selectedPageIndex) =>
-          val paginator: Option[Pagination] = createPagination(selectedPageIndex, totalRowsCount, urlSelector)
-          val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, viewModel.rows )
+          val paginator: Option[Pagination] = viewModel.createPagination(selectedPageIndex, totalRowsCount, urlSelector)
+          val paginationText: Option[String] = viewModel.getPaginationInfoText(selectedPageIndex, viewModel.rows )
           logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
           Ok(view(viewModel.rows, paginator, paginationText))
 // TODO: disable page index redirect / need to be fix as part of tech debt or bug fix story: TBC

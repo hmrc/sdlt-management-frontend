@@ -55,14 +55,14 @@ object SdltReturnRecordRequest {
           status = Some("SUBMITTED_NO_RECEIPT"),
           pageType = Some("SUBMITTED"),
           pageIndex.map(_.toString))
-      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUR_FOR_DELETION =>
+      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = true,
           status = None,
           pageType = Some("IN-PROGRESS"),
           pageIndex.map(_.toString))
-      case SdltReturnTypes.SUBMITTED_RETURNS_DUR_FOR_DELETION =>
+      case SdltReturnTypes.SUBMITTED_RETURNS_DUE_FOR_DELETION =>
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = true,

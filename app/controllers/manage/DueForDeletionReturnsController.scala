@@ -17,37 +17,32 @@
 package controllers.manage
 
 import controllers.actions.*
+import controllers.manage.routes.*
+import controllers.routes.JourneyRecoveryController
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
+import navigation.Navigator
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import controllers.routes.JourneyRecoveryController
-import play.api.{Logger, Logging}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
+import utils.PaginationHelper
+import views.html.manage.DueForDeletionReturnsView
 
 import javax.inject.{Inject, Singleton}
-import navigation.Navigator
-import utils.PaginationHelper
-import services.StampDutyLandTaxService
-import viewmodels.manage.deletedReturns.SdltDeletedSubmittedReturnsViewModel._
-import viewmodels.manage.deletedReturns.SdltDeletedInProgressReturnViewRow._
-import viewmodels.manage.deletedReturns.PaginatedDeletedSubmittedReturnsViewModel
-import viewmodels.manage.deletedReturns.PaginatedDeletedInProgressReturnsViewModel
-import views.html.manage.DueForDeletionReturnsView
-import controllers.manage.routes._
-
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class DueForDeletionReturnsController @Inject()(
-                                            val controllerComponents: MessagesControllerComponents,
-                                            stampDutyLandTaxService: StampDutyLandTaxService,
-                                            identify: IdentifierAction,
-                                            getData: DataRetrievalAction,
-                                            requireData: DataRequiredAction,
-                                            stornRequiredAction: StornRequiredAction,
-                                            navigator: Navigator,
-                                            view: DueForDeletionReturnsView
-                                          )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
+                                                 val controllerComponents: MessagesControllerComponents,
+                                                 stampDutyLandTaxService: StampDutyLandTaxService,
+                                                 identify: IdentifierAction,
+                                                 getData: DataRetrievalAction,
+                                                 requireData: DataRequiredAction,
+                                                 stornRequiredAction: StornRequiredAction,
+                                                 navigator: Navigator,
+                                                 view: DueForDeletionReturnsView
+                                               )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
 
   def onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int]): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
@@ -63,26 +58,28 @@ class DueForDeletionReturnsController @Inject()(
           s"${DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(submittedIndex)).url}#submitted"
 
       (for {
-        submitted                 <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion(request.storn)
-        submittedReturnsRows       = convertResponseToSubmittedView(submitted)
-        submittedPaginatedView     = paginateIfValidPageIndex(Some(submittedReturnsRows), submittedIndex, submittedUrlSelector)
-        paginatedSubmittedReturns  = submittedPaginatedView.collectFirst { case Right((rows, paginator, paginationText)) => PaginatedDeletedSubmittedReturnsViewModel(rows, paginator, paginationText) }
-        inProgress                <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion(request.storn)
-        inProgressReturnsRows      = convertResponseToViewRows(inProgress)
-        inProgressPaginatedView    = paginateIfValidPageIndex(Some(inProgressReturnsRows), inProgressIndex, inProgressUrlSelector)
-        paginatedInProgressReturns = inProgressPaginatedView.collectFirst { case Right((rows, paginator, paginationText)) => PaginatedDeletedInProgressReturnsViewModel(rows, paginator, paginationText) }
+        inProgressDurForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel(
+          storn = request.storn,
+          IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+          None)
+        submittedDueDorDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel(
+          storn = request.storn,
+          SUBMITTED_RETURNS_DUE_FOR_DELETION,
+          None)
       } yield {
-        (paginatedInProgressReturns, paginatedSubmittedReturns) match {
-          case (Some(inProgressViewModel), Some(submittedViewModel)) =>
-            Ok(view(inProgressViewModel, submittedViewModel))
-          case _ =>
-            logger.warn(s"[DueForDeletionReturnsController][onPageLoad] - Pagination Index Error")
-            Redirect(outOfScopeUrlSelector)
-        }
+        Ok(
+            view(
+              inProgressDurForDeletion,
+              submittedDueDorDeletionViewModel,
+              inProgressIndex.getOrElse(1),
+              submittedIndex.getOrElse(1),
+              inProgressUrlSelector,
+              submittedUrlSelector))
       }) recover {
         case ex =>
           logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)
           Redirect(JourneyRecoveryController.onPageLoad())
       }
     }
+
 }
