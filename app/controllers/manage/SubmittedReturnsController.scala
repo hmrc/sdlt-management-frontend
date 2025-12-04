@@ -53,10 +53,19 @@ class SubmittedReturnsController @Inject()(
         val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
         pageIndexSelector(paginationIndex, totalRowsCount) match {
           case Right(selectedPageIndex) =>
-            val paginator: Option[Pagination] = createPagination(selectedPageIndex, totalRowsCount, urlSelector)
-            val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, viewModel.rows )
-            logger.info(s"[SubmittedReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
+
+            val paginator: Option[Pagination] =
+              createPaginationV2(selectedPageIndex, totalRowsCount, urlSelector)
+
+            val paginationText: Option[String] =
+              getPaginationInfoText(selectedPageIndex, viewModel.rows)
+
+            logger.info(
+              s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}"
+            )
+
             Ok(view(viewModel.rows, paginator, paginationText))
+
           case Left(error) =>
             logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
             Redirect(JourneyRecoveryController.onPageLoad())

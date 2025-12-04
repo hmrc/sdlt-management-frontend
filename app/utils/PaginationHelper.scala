@@ -34,36 +34,23 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  def generatePaginationItems(
-                               paginationIndex: Int,
-                               numberOfPages: Int,
-                               urlSelector: Int => String
-                             ): Seq[PaginationItem] = {
-
-    val windowSize = 10
-    val halfWindow = windowSize / 2
-
-    val (start, end) =
-      if (numberOfPages <= windowSize) {
-        (1, numberOfPages)
-      } else {
-        val rawStart     = paginationIndex - halfWindow
-        val clampedStart = math.max(1, math.min(rawStart, numberOfPages - windowSize + 1))
-        val clampedEnd   = clampedStart + windowSize - 1
-        (clampedStart, clampedEnd)
-      }
-
-    (start to end).map { pageIndex =>
-      PaginationItem(
-        href = urlSelector(pageIndex),
-        number = Some(pageIndex.toString),
-        visuallyHiddenText = None,
-        current = Some(pageIndex == paginationIndex),
-        ellipsis = None,
-        attributes = Map.empty
+  @deprecated("doesn't work for small number of pages -> use paginationItems")
+  def generatePaginationItems(paginationIndex: Int, numberOfPages: Int,
+                              urlSelector: Int => String): Seq[PaginationItem] = {
+    Range
+      .inclusive(paginationIndex, slidingTopIndex(paginationIndex, numberOfPages)) // This a primitive fix:: we might apply sliding logic in the future
+      .map(pageIndex =>
+        PaginationItem(
+          href = urlSelector(pageIndex),
+          number = Some(pageIndex.toString),
+          visuallyHiddenText = None,
+          current = Some(pageIndex == paginationIndex),
+          ellipsis = None,
+          attributes = Map.empty
+        )
       )
-    }
   }
+  
 
   def generatePreviousLink(paginationIndex: Int, numberOfPages: Int, urlPrev: String)
                           (implicit messages: Messages): Option[PaginationLink] = {
@@ -138,7 +125,8 @@ trait PaginationHelper extends Logging {
       }
       .getOrElse(Right(DEFAULT_PAGE_INDEX))
   }
-
+ 
+  @deprecated("does not use ellipsis")
   def createPagination(pageIndex: Int, totalRowsCount: Int, urlSelector: Int => String)
                       (implicit messages: Messages): Option[Pagination] = {
     val numberOfPages: Int = getPageCount(totalRowsCount)
@@ -181,7 +169,103 @@ trait PaginationHelper extends Logging {
 
   }
 
+  @deprecated
   def paginateIfValidPageIndex[A](
+                                   rowsOpt: Option[List[A]],
+                                   paginationIndex: Option[Int],
+                                   urlSelector: Int => String
+                                 )(
+                                   implicit req: DataRequest[_],
+                                   messages: Messages
+                                 ): Option[Either[String, (List[A], Option[Pagination], Option[String])]] =
+    rowsOpt match {
+      case None => None
+      case Some(Nil) => Some(Right((Nil, None, None)))
+      case Some(rows) =>
+        pageIndexSelector(paginationIndex, rows.length) match {
+          case Right(validIndex) =>
+            Some(paginateList(rows, Some(validIndex), urlSelector))
+
+          case Left(error) =>
+            logger.warn(
+              s"[paginateIfValidPageIndex] Invalid page index '$paginationIndex' " +
+                s"for ${rows.length} rows: ${error.getMessage}."
+            )
+            Some(Left(error.getMessage))
+        }
+    }
+
+  def paginationItems(
+                       currentPage: Int,
+                       totalPages: Int,
+                       visibleBefore: Int = 1,
+                       visibleAfter: Int = 1,
+                       urlSelector: Int => String
+                     ): Seq[PaginationItem] = {
+
+    val middle = (currentPage - visibleBefore).max(1) to (currentPage + visibleAfter).min(totalPages)
+
+    val start = middle.start match
+      case s if s == 3 => Seq("1", "2")
+      case s if s > 2 => Seq("1", "...")
+      case s if s > 1 => Seq("1")
+      case _ => Seq.empty
+
+    val end = middle.end match
+      case e if e == totalPages - 1 => Seq((totalPages - 1).toString, totalPages.toString)
+      case e if e < totalPages - 1 => Seq("...", totalPages.toString)
+      case e if e < totalPages => Seq(totalPages.toString)
+      case _ => Seq.empty
+
+    val labels = start ++ middle.map(_.toString) ++ end
+
+    labels.map {
+      case "..." =>
+        PaginationItem(
+          href = "#",
+          ellipsis = Some(true)
+        )
+      case s =>
+        val page = s.toInt
+        PaginationItem(
+          href = urlSelector(page),
+          number = Some(s),
+          current = Some(page == currentPage)
+        )
+    }
+  }
+  
+  def createPaginationV2(
+                          pageIndex: Int,
+                          totalRowsCount: Int,
+                          urlSelector: Int => String
+                        )(implicit messages: Messages): Option[Pagination] = {
+
+    val numberOfPages: Int = getPageCount(totalRowsCount)
+
+    if (totalRowsCount > 0 && numberOfPages > 1) {
+      Some(
+        Pagination(
+          items = Some(
+            paginationItems(
+              currentPage = pageIndex,
+              totalPages = numberOfPages,
+              urlSelector = urlSelector
+            )
+          ),
+          previous = generatePreviousLink(pageIndex, numberOfPages, urlSelector(pageIndex - 1)),
+          next = generateNextLink(pageIndex, numberOfPages, urlSelector(pageIndex + 1)),
+          landmarkLabel = None,
+          classes = "",
+          attributes = Map.empty
+        )
+      )
+    } else {
+      None
+    }
+  }
+  
+  def paginateIfValidPageIndexV2[A](
                                    rowsOpt: Option[List[A]],
                                    paginationIndex: Option[Int],
                                    urlSelector: Int => String
