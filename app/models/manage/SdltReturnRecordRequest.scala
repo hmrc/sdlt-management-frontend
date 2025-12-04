@@ -16,6 +16,7 @@
 
 package models.manage
 
+import models.SdltReturnTypes
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
@@ -30,4 +31,45 @@ case class SdltReturnRecordRequest(
 
 object SdltReturnRecordRequest {
   implicit val format: OFormat[SdltReturnRecordRequest] = Json.format[SdltReturnRecordRequest]
+
+  def convertToRequest(storn: String, extractType: SdltReturnTypes, pageIndex: Option[Int]): SdltReturnRecordRequest = {
+    extractType match {
+      case SdltReturnTypes.IN_PROGRESS_RETURNS =>
+        SdltReturnRecordRequest(
+          storn = storn,
+          status = None,
+          deletionFlag = false,
+          pageType = Some("IN-PROGRESS"),
+          pageNumber = pageIndex.map(_.toString))
+      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS =>
+        SdltReturnRecordRequest(
+          storn = storn,
+          deletionFlag = false,
+          status = Some("SUBMITTED"),
+          pageType = Some("SUBMITTED"),
+          pageNumber = pageIndex.map(_.toString))
+      case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
+        SdltReturnRecordRequest(
+          storn = storn,
+          deletionFlag = false,
+          status = Some("SUBMITTED_NO_RECEIPT"),
+          pageType = Some("SUBMITTED"),
+          pageIndex.map(_.toString))
+      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUR_FOR_DELETION =>
+        SdltReturnRecordRequest(
+          storn = storn,
+          deletionFlag = true,
+          status = None,
+          pageType = Some("IN-PROGRESS"),
+          pageIndex.map(_.toString))
+      case SdltReturnTypes.SUBMITTED_RETURNS_DUR_FOR_DELETION =>
+        SdltReturnRecordRequest(
+          storn = storn,
+          deletionFlag = true,
+          status = None,
+          pageType = Some("SUBMITTED"),
+          pageIndex.map(_.toString))
+    }
+  }
+
 }

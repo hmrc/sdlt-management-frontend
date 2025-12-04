@@ -17,20 +17,42 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
+import models.SdltReturnTypes
+import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.{ReturnSummary, SdltReturnRecordRequest}
 import viewmodels.manage.SdltSubmittedReturnsViewModel
 import models.requests.DataRequest
-import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow}
+import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow, SdltReturnsViewModel}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import SdltReturnsViewModel._
 
 @Singleton
 class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
                                        (implicit executionContext: ExecutionContext) extends Logging {
 
+  def getReturns(storn: String,
+                 extractType: SdltReturnTypes,
+                 pageIndex: Option[Int])
+                (implicit hc: HeaderCarrier): Future[SdltReturnsViewModel] = {
+    val dataRequest : SdltReturnRecordRequest = SdltReturnRecordRequest.convertToRequest(
+      storn = storn,
+      extractType = IN_PROGRESS_RETURNS,
+      pageIndex = pageIndex)
+    logger.info(s"[StampDutyLandTaxService][getReturns] - GENERIC::DATA_REQUEST:: $dataRequest")
+    for {
+      dataResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
+    } yield {
+      logger.info(s"[StampDutyLandTaxService][getReturns] - ${storn}::" +
+        s"response r/count: ${dataResponse.returnSummaryCount} :: ${dataResponse.returnSummaryList.length}")
+      convertToViewModel(dataResponse, extractType)
+    }
+  }
+
+  @deprecated("Please use getReturns instead")
   def getInProgressReturnsViewModel(storn: String, pageIndex: Option[Int])
                                    (implicit hc: HeaderCarrier): Future[SdltInProgressReturnViewModel] = {
     val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
@@ -47,7 +69,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
         s"response r/count: ${inProgressResponse.returnSummaryCount} :: ${inProgressResponse.returnSummaryList.length}")
       SdltInProgressReturnViewModel(
         rows = SdltInProgressReturnViewRow
-          .convertResponseToReturnViewRows(
+          .convertToReturnViewRows(
             inProgressResponse.returnSummaryList
           ),
         totalRowCount = inProgressResponse.returnSummaryCount
@@ -55,6 +77,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     }
   }
 
+  @deprecated("Please use getReturns instead")
   def getSubmittedReturns(storn: String)
                          (implicit hc: HeaderCarrier): Future[List[SdltSubmittedReturnsViewModel]] = {
     for {
@@ -87,6 +110,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     }
   }
 
+  @deprecated("Please use getReturns instead")
   def getInProgressReturnsDueForDeletion(storn: String)
                                         (implicit hc: HeaderCarrier): Future[List[ReturnSummary]] = {
     stampDutyLandTaxConnector
@@ -105,6 +129,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
         })
   }
 
+  @deprecated("Please use getReturns instead")
   def getSubmittedReturnsDueForDeletion(storn: String)
                                        (implicit hc: HeaderCarrier): Future[List[ReturnSummary]] =
     stampDutyLandTaxConnector
@@ -126,4 +151,6 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     stampDutyLandTaxConnector
       .getSdltOrganisation
       .map(_.agents.length)
+
+
 }

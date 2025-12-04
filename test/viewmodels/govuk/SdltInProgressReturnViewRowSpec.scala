@@ -93,12 +93,12 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
 
   "Response model conversion" - {
     "empty response return empty list" in {
-      val result: List[SdltInProgressReturnViewRow] = convertResponseToReturnViewRows(responseWithEmptySummary.returnSummaryList)
+      val result: List[SdltInProgressReturnViewRow] = convertToReturnViewRows(responseWithEmptySummary.returnSummaryList)
       result mustBe empty
     }
 
     "response with some data return expected data rows" in {
-      val result: List[SdltInProgressReturnViewRow] = convertResponseToReturnViewRows(responseWithData.returnSummaryList)
+      val result: List[SdltInProgressReturnViewRow] = convertToReturnViewRows(responseWithData.returnSummaryList)
       result mustBe expectedDataRows
     }
 
