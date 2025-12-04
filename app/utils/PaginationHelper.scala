@@ -135,6 +135,7 @@ trait PaginationHelper extends Logging {
     }
   }
 
+  @deprecated("Will be removed as not required::pagination is done on the DB level")
   def getSelectedPageRows[A](allDataRows: List[A], pageIndex: Int): List[A] = {
     allDataRows.grouped(ROWS_ON_PAGE).toSeq.lift(pageIndex - 1) match {
       case Some(sliceData) =>
