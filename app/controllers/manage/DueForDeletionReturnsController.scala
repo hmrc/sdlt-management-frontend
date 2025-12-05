@@ -77,7 +77,7 @@ class DueForDeletionReturnsController @Inject()(
               submittedUrlSelector))
       }) recover {
         case ex =>
-          println(s"[DueForDeletionReturnsController][onPageLoad] Unexpected failure ${ex.getMessage}")
+          logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)
           Redirect(JourneyRecoveryController.onPageLoad())
       }
     }
