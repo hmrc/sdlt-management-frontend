@@ -20,7 +20,7 @@ import base.SpecBase
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.ReturnSummary
 import models.responses.{SdltReturnViewModel, SdltReturnViewRow}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
@@ -28,9 +28,8 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
-import views.html.manage.DueForDeletionReturnsView
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import uk.gov.hmrc.http.HeaderCarrier
+import views.html.manage.DueForDeletionReturnsView
 
 import scala.concurrent.Future
 

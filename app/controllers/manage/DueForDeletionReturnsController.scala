@@ -51,12 +51,12 @@ class DueForDeletionReturnsController @Inject()(
       val outOfScopeUrlSelector: String = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url
 
       lazy val inProgressUrlSelector: Int => String =
-        (inProgressIndex: Int) =>
-          s"${DueForDeletionReturnsController.onPageLoad(Some(inProgressIndex), submittedIndex).url}#in-progress"
+        (index: Int) =>
+          s"${DueForDeletionReturnsController.onPageLoad(Some(index), submittedIndex).url}#in-progress"
 
       lazy val submittedUrlSelector: Int => String =
-        (submittedIndex: Int) =>
-          s"${DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(submittedIndex)).url}#submitted"
+        (index: Int) =>
+          s"${DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(index)).url}#submitted"
 
       (for {
         inProgressDurForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel(
