@@ -28,6 +28,7 @@ import utils.PaginationHelper
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import views.html.manage.SubmittedReturnsView
+import controllers.manage.routes._
 
 import scala.concurrent.ExecutionContext
 
@@ -43,7 +44,7 @@ class SubmittedReturnsController @Inject()(
                                             view: SubmittedReturnsView
                                           )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
 
-  val urlSelector: Int => String = (paginationIndex: Int) => controllers.manage.routes.SubmittedReturnsController.onPageLoad(Some(paginationIndex)).url
+  val urlSelector: Int => String = (paginationIndex: Int) => SubmittedReturnsController.onPageLoad(Some(paginationIndex)).url
 
   def onPageLoad(paginationIndex: Option[Int]): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen stornRequiredAction)
