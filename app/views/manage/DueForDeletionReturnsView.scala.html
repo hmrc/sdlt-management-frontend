@@ -44,7 +44,9 @@
 
 @renderInProgressTable() = {
     @h2("manageReturns.dueDeletionReturns.inProgressTab.heading")
-    @inProgressViewModel.getPaginationInfoText(inProgressSelectedPageIndex, inProgressViewModel.rows ).map(p(_))
+    @{
+        inProgressViewModel.getPaginationInfoText(inProgressSelectedPageIndex, inProgressViewModel.rows ).map(p(_))
+    }
     @govukTable(Table(
         rows = inProgressViewModel.rows.map { currentRow =>
             Seq(
@@ -57,14 +59,18 @@
             HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.address")))
         ))
     ))
-    @inProgressViewModel
-            .createPagination(inProgressSelectedPageIndex, inProgressViewModel.totalRowCount, inProgressUrlSelector)
-                .map(govukPagination(_))
+    @{
+        inProgressViewModel
+        .createPagination(inProgressSelectedPageIndex, inProgressViewModel.totalRowCount.getOrElse(1), inProgressUrlSelector)
+        .map(govukPagination(_))
+    }
 }
 
 @renderSubmittedTable() = {
     @h2("manageReturns.dueDeletionReturns.submittedTab.heading")
-    @submittedViewModel.getPaginationInfoText(submittedSelectedPageIndex, inProgressViewModel.rows ).map(p(_))
+    @{
+        submittedViewModel.getPaginationInfoText(submittedSelectedPageIndex, inProgressViewModel.rows ).map(p(_))
+    }
     @govukTable(Table(
         rows = submittedViewModel.rows.map{ currentRow =>
             Seq(
@@ -79,9 +85,11 @@
             HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.utrn")))
         ))
     ))
-    @submittedViewModel
-        .createPagination(submittedSelectedPageIndex, inProgressViewModel.totalRowCount, inProgressUrlSelector)
-            .map(govukPagination(_))
+    @{
+        submittedViewModel
+        .createPagination(submittedSelectedPageIndex, inProgressViewModel.totalRowCount.getOrElse(1), inProgressUrlSelector)
+        .map(govukPagination(_))
+    }
 }
 
 @layout(
