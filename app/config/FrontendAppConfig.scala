@@ -59,5 +59,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
   lazy val howToPayUrl: String = configuration.get[String]("urls.howToPay")
+
+  lazy val hmrcOnlineServiceDeskUrl: String = configuration.get[String]("urls.hmrcOnlineServiceDesk")
+  lazy val govUKUrl: String = configuration.get[String]("urls.govUK")
 }
 
