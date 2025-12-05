@@ -18,7 +18,7 @@ package services
 
 import connectors.StampDutyLandTaxConnector
 import models.SdltReturnTypes
-import models.manage.{ReturnSummary, SdltReturnRecordRequest}
+import models.manage.SdltReturnRecordRequest
 import models.requests.DataRequest
 import models.responses.SdltReturnsViewModel.convertToViewModel
 import models.responses.{SdltReturnViewModel, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
@@ -44,7 +44,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
         storn = storn,
         extractType = extractType,
         pageIndex = pageIndex)
-    logger.info(s"[StampDutyLandTaxService][getReturns] - GENERIC::DATA_REQUEST:: $dataRequest")
+    logger.info(s"[StampDutyLandTaxService][getReturns] - GENERIC::RETURNS_DATA_REQUEST:: $dataRequest")
     for {
       dataResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
     } yield {
@@ -79,28 +79,10 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     }
   }
 
-  @deprecated("Please use getReturns instead")
-  def getInProgressReturnsDueForDeletion(storn: String)
-                                        (implicit hc: HeaderCarrier): Future[List[ReturnSummary]] = {
-    stampDutyLandTaxConnector
-      .getReturns(
-        SdltReturnRecordRequest(
-          storn = storn,
-          deletionFlag = true,
-          status = None,
-          pageType = Some("IN-PROGRESS"),
-          pageNumber = Some("1"))
-      )
-      .map(
-        res => {
-          logger.info(s"[StampDutyLandTaxService][getInProgressReturnsDueForDeletion] - ${storn}::response r/count: ${res.returnSummaryList.length}")
-          res.returnSummaryList.sortBy(_.purchaserName)
-        })
-  }
-
-
-  def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
+  def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] = {
     stampDutyLandTaxConnector
       .getSdltOrganisation
       .map(_.agents.length)
+  }
+
 }

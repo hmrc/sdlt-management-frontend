@@ -158,7 +158,7 @@ class AtAGlanceControllerSpec
         verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
         verify(mockService, times(0)).getSubmittedReturnsViewModel(any(), any())(any())
         verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
-        verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
       }
     }
   }

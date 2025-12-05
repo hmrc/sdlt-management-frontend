@@ -17,7 +17,7 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, SUBMITTED_RETURNS_DUE_FOR_DELETION}
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
@@ -357,9 +357,9 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(inProgressRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(inProgressDeletionResponse))
 
-      val result = service.getInProgressReturnsDueForDeletion(storn).futureValue
+      val result = service.getReturnsByTypeViewModel(storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
 
-      result must contain theSameElementsAs List(inProgressDeletionSummary)
+      result.rows must contain theSameElementsAs List()
 
       verify(connector).getReturns(eqTo(inProgressRequest))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
