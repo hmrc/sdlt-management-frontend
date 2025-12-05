@@ -17,19 +17,18 @@
 package controllers.manage
 
 import base.SpecBase
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.ReturnSummary
+import models.responses.SdltReturnViewModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
-import viewmodels.manage.deletedReturns.{
-  PaginatedDeletedInProgressReturnsViewModel,
-  PaginatedDeletedSubmittedReturnsViewModel
-}
+import viewmodels.manage.deletedReturns.{PaginatedDeletedInProgressReturnsViewModel, PaginatedDeletedSubmittedReturnsViewModel}
 import views.html.manage.DueForDeletionReturnsView
 
 import scala.concurrent.Future
@@ -47,18 +46,28 @@ class DueForDeletionReturnsControllerSpec
       )
       .build()
 
+  lazy val inProgressUrlSelector: Int => String =
+    (inProgressIndex: Int) =>
+      s"${controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(inProgressIndex), Some(1)).url}#in-progress"
+
+  lazy val submittedUrlSelector: Int => String =
+    (submittedIndex: Int) =>
+      s"${controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(1), Some(submittedIndex)).url}#submitted"
+
+
   private val baseRoute =
     controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(None, None).url
 
   "DueForDeletionReturnsController.onPageLoad" - {
 
     "must return OK and render the correct view when both services return empty lists and no indices are provided" in {
+
       reset(mockService)
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any())( any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
-      when(mockService.getInProgressReturnsDueForDeletion(any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
       val app = application
@@ -73,25 +82,24 @@ class DueForDeletionReturnsControllerSpec
         val view = app.injector.instanceOf[DueForDeletionReturnsView]
 
         val expectedInProgress =
-          PaginatedDeletedInProgressReturnsViewModel(Nil, None, None)
+          SdltReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
         val expectedSubmitted =
-          PaginatedDeletedSubmittedReturnsViewModel(Nil, None, None)
+          SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
 
         contentAsString(result) mustEqual
-          view(expectedInProgress, expectedSubmitted)(request, messages(app)).toString
+          view(expectedInProgress, expectedSubmitted, 1, 1, submittedUrlSelector, inProgressUrlSelector)(request, messages(app)).toString
 
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())( any())
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any())(any())
+        verify(mockService, times(2)).getReturnsByTypeViewModel(any(), any(), any())(any())
       }
     }
 
     "must return OK and render the correct view when indices are provided but lists are empty" in {
       reset(mockService)
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
-      when(mockService.getInProgressReturnsDueForDeletion(any())( any()))
+      when(mockService.getInProgressReturnsDueForDeletion(any())(any()))
         .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
       val inProgressIndex = Some(3)
@@ -114,22 +122,22 @@ class DueForDeletionReturnsControllerSpec
         val view = app.injector.instanceOf[DueForDeletionReturnsView]
 
         val expectedInProgress =
-          PaginatedDeletedInProgressReturnsViewModel(Nil, None, None)
+          SdltReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
         val expectedSubmitted =
-          PaginatedDeletedSubmittedReturnsViewModel(Nil, None, None)
+          SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
 
         contentAsString(result) mustEqual
-          view(expectedInProgress, expectedSubmitted)(request, messages(app)).toString
+          view(expectedInProgress, expectedSubmitted, 1, 1, submittedUrlSelector, inProgressUrlSelector)(request, messages(app)).toString
 
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())(any())
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any())
       }
     }
 
     "must redirect to JourneyRecoveryController when getSubmittedReturnsDueForDeletion fails" in {
       reset(mockService)
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.failed(new RuntimeException("boom-submitted")))
 
       when(mockService.getInProgressReturnsDueForDeletion(any())(any()))
@@ -146,18 +154,18 @@ class DueForDeletionReturnsControllerSpec
         redirectLocation(result).value mustEqual
           controllers.routes.JourneyRecoveryController.onPageLoad().url
 
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())(any())
-        verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), any(), any())(any())
       }
     }
 
     "must redirect to JourneyRecoveryController when getInProgressReturnsDueForDeletion fails" in {
       reset(mockService)
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.successful(List.empty[ReturnSummary]))
 
-      when(mockService.getInProgressReturnsDueForDeletion(any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.failed(new RuntimeException("boom-in-progress")))
 
       val app = application
@@ -171,8 +179,8 @@ class DueForDeletionReturnsControllerSpec
         redirectLocation(result).value mustEqual
           controllers.routes.JourneyRecoveryController.onPageLoad().url
 
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())(any())
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any())
       }
     }
   }

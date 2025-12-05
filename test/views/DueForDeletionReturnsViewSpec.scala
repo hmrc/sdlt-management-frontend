@@ -17,6 +17,9 @@
 package views
 
 import base.SpecBase
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
+import models.responses.UniversalStatus.{ACCEPTED, SUBMITTED}
+import models.responses.{SdltReturnViewModel, SdltReturnViewRow}
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -26,7 +29,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import utils.PaginationHelper
-import viewmodels.manage.deletedReturns._
+import viewmodels.manage.deletedReturns.*
 import views.html.manage.DueForDeletionReturnsView
 import play.twirl.api.Html
 
@@ -37,28 +40,33 @@ class DueForDeletionReturnsViewSpec
 
   trait Setup extends PaginationHelper {
 
-    val inProgressRows: List[SdltDeletedInProgressReturnViewModel] =
+    val inProgressRows: List[SdltReturnViewRow] =
       (1 to 3).toList.map { i =>
-        SdltDeletedInProgressReturnViewModel(
+        SdltReturnViewRow(
           address = s"$i InProgress Street",
-          purchaserName = s"InProgress Purchaser $i"
+          purchaserName = s"InProgress Purchaser $i",
+          utrn = "",
+          agentReference = "",
+          status = ACCEPTED
         )
       }
 
-    val submittedRows: List[SdltDeletedSubmittedReturnsViewModel] =
+    val submittedRows: List[SdltReturnViewRow] =
       (1 to 3).toList.map { i =>
-        SdltDeletedSubmittedReturnsViewModel(
+        SdltReturnViewRow(
           address = s"$i Submitted Street",
           utrn = s"UTRN$i",
-          purchaserName = s"Submitted Purchaser $i"
+          purchaserName = s"Submitted Purchaser $i",
+          agentReference = "",
+          status = SUBMITTED
         )
       }
 
-    val emptyInProgress: PaginatedDeletedInProgressReturnsViewModel =
-      PaginatedDeletedInProgressReturnsViewModel(Nil, None, None)
+    val emptyInProgress =
+      SdltReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
+    val emptySubmitted =
+      SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
 
-    val emptySubmitted: PaginatedDeletedSubmittedReturnsViewModel =
-      PaginatedDeletedSubmittedReturnsViewModel(Nil, None, None)
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
 
@@ -82,11 +90,17 @@ class DueForDeletionReturnsViewSpec
 
     "render the correct page title, heading and caption" in new Setup {
       val inProgressVm =
-        PaginatedDeletedInProgressReturnsViewModel(inProgressRows, None, None)
+        SdltReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+          rows = inProgressRows,
+          Some(1))
       val submittedVm =
-        PaginatedDeletedSubmittedReturnsViewModel(submittedRows, None, None)
+        SdltReturnViewModel(
+          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+          rows = submittedRows,
+          Some(1))
 
-      val html = view(inProgressVm, submittedVm)
+      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
       val doc  = parseHtml(html)
 
       doc.title() must include(messages("manageReturns.dueDeletionReturns.title"))
@@ -101,7 +115,7 @@ class DueForDeletionReturnsViewSpec
     }
 
     "show the 'no returns' message and link when both in-progress and submitted lists are empty" in new Setup {
-      val html = view(emptyInProgress, emptySubmitted)
+      val html = view(emptyInProgress, emptySubmitted, 1, 1,inProgressUrlSelector, submittedUrlSelector)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 0
@@ -118,10 +132,17 @@ class DueForDeletionReturnsViewSpec
 
     "render only the in-progress tab and table when only in-progress data is present" in new Setup {
       val inProgressVm =
-        PaginatedDeletedInProgressReturnsViewModel(inProgressRows, None, None)
-      val submittedVm = emptySubmitted
+        SdltReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+          rows = inProgressRows,
+          Some(1))
+      val submittedVm =
+        SdltReturnViewModel(
+          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+          rows = submittedRows,
+          Some(1))
 
-      val html = view(inProgressVm, submittedVm)
+      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
@@ -148,11 +169,13 @@ class DueForDeletionReturnsViewSpec
     }
 
     "render only the submitted tab and table when only submitted data is present" in new Setup {
-      val inProgressVm = emptyInProgress
       val submittedVm =
-        PaginatedDeletedSubmittedReturnsViewModel(submittedRows, None, None)
+        SdltReturnViewModel(
+          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+          rows = submittedRows,
+          Some(1))
 
-      val html = view(inProgressVm, submittedVm)
+      val html = view(emptyInProgress, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
@@ -180,12 +203,19 @@ class DueForDeletionReturnsViewSpec
     }
 
     "render both in-progress and submitted tabs and tables when both have data" in new Setup {
-      val inProgressVm =
-        PaginatedDeletedInProgressReturnsViewModel(inProgressRows, None, None)
-      val submittedVm =
-        PaginatedDeletedSubmittedReturnsViewModel(submittedRows, None, None)
 
-      val html = view(inProgressVm, submittedVm)
+      val inProgressVm =
+        SdltReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+          rows = inProgressRows,
+          Some(1))
+      val submittedVm =
+        SdltReturnViewModel(
+          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+          rows = submittedRows,
+          Some(1))
+
+      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
@@ -200,5 +230,6 @@ class DueForDeletionReturnsViewSpec
 
       doc.select("#submitted table.govuk-table").size() mustBe 1
     }
+
   }
 }

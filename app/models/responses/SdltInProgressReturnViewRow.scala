@@ -79,11 +79,11 @@ object SdltReturnsViewModel {
             .filter(rec => inProgressReturnStatuses.contains(rec.status)),
           totalRowCount = response.returnSummaryCount
         )
-      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS =>
+      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS => //TODO: implement
         ???
-      case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
+      case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS => //TODO: implement
         ???
-      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
+      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION => //TODO: implement
         ???
       case SdltReturnTypes.SUBMITTED_RETURNS_DUE_FOR_DELETION =>
         SdltReturnViewModel(

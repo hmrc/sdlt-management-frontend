@@ -78,7 +78,7 @@ class AtAGlanceControllerSpec
       when(mockService.getSubmittedReturns(any())(any()))
         .thenReturn(Future.successful(submittedReturns))
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.successful(submittedReturnsDueForDeletion))
 
       when(mockService.getInProgressReturnsDueForDeletion(any())(any()))
@@ -132,7 +132,7 @@ class AtAGlanceControllerSpec
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any())
         verify(mockService, times(1)).getSubmittedReturns(any())(any())
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any())
         verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any())(any())
       }
     }
@@ -149,7 +149,7 @@ class AtAGlanceControllerSpec
       when(mockService.getSubmittedReturns(any())(any()))
         .thenReturn(Future.successful(Nil))
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
         .thenReturn(Future.successful(Nil))
 
       when(mockService.getInProgressReturnsDueForDeletion(any())(any()))
@@ -169,7 +169,7 @@ class AtAGlanceControllerSpec
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(0)).getReturnsByTypeViewModel(any(), any(), any())(any())
         verify(mockService, times(0)).getSubmittedReturns(any())(any())
-        verify(mockService, times(0)).getSubmittedReturnsDueForDeletion(any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), any(), any())(any())
         verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any())(any())
       }
     }

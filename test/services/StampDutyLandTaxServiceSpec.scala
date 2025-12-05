@@ -17,7 +17,7 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.SdltReturnTypes.IN_PROGRESS_RETURNS
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
@@ -140,13 +140,15 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           address = "1 Accepted Street",
           agentReference = "Accepted Agent",
           purchaserName = "Accepted Buyer",
-          status = ACCEPTED
+          status = ACCEPTED,
+          utrn = ""
         ),
         SdltReturnViewRow(
           address = "2 Pending Street",
           agentReference = "Pending Agent",
           purchaserName = "Pending Buyer",
-          status = STARTED
+          status = STARTED,
+          utrn = ""
         )
       )
 
@@ -295,9 +297,9 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(submittedRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(submittedDeletionResponse))
 
-      val result = service.getSubmittedReturnsDueForDeletion(storn).futureValue
+      val result = service.getReturnsByTypeViewModel(storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None).futureValue
 
-      result must contain theSameElementsAs List(submittedDeletionSummary)
+      result.rows must contain theSameElementsAs List(submittedDeletionSummary)
 
       verify(connector).getReturns(eqTo(submittedRequest))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)

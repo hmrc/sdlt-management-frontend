@@ -61,7 +61,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           address = s"$index Riverside Drive",
           agentReference = "B4C72F7T3",
           purchaserName = "Brown",
-          status = UniversalStatus.ACCEPTED
+          status = UniversalStatus.ACCEPTED,
+          utrn = ""
         )
       )
 
@@ -76,7 +77,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           address = s"$index Riverside Drive",
           agentReference = "B4C72F7T3",
           purchaserName = "Brown",
-          status = UniversalStatus.ACCEPTED
+          status = UniversalStatus.ACCEPTED,
+          utrn = ""
         )
       )
 
@@ -126,7 +128,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
             purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED
+            status = UniversalStatus.ACCEPTED,
+            utrn = ""
           )
         )
 
@@ -154,7 +157,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
             purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED
+            status = UniversalStatus.ACCEPTED,
+            utrn = ""
           )
         ).take(rowsPerPage)
 
@@ -187,7 +191,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
             purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED
+            status = UniversalStatus.ACCEPTED,
+            utrn = ""
           )
         )
       }.takeRight(7)
@@ -224,7 +229,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
             address = s"$index Riverside Drive",
             agentReference = "B4C72F7T3",
             purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED
+            status = UniversalStatus.ACCEPTED,
+            utrn = "",
           )
         )
       }

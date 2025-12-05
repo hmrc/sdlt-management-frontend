@@ -47,7 +47,8 @@ trait ModelGenerators {
       address = rs.address,
       agentReference = rs.agentReference.getOrElse(""),
       purchaserName = rs.purchaserName,
-      status = UniversalStatus.STARTED
+      status = UniversalStatus.STARTED,
+      utrn = ""
     )
 
   def toSubmittedViewRows(rs: ReturnSummary): SdltSubmittedReturnsViewModel =
