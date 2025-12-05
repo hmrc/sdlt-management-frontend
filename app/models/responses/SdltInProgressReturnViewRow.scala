@@ -116,19 +116,19 @@ object SdltReturnsViewModel {
             .filter(rec => inProgressReturnStatuses.contains(rec.status)),
           totalRowCount = response.returnSummaryCount
         )
-      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS => //TODO: implement
+      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS =>
         SdltReturnViewModel(
           extractType = extractType,
           rows = rows,
           totalRowCount = response.returnSummaryCount
         )
-      case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS => //TODO: implement
+      case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
         SdltReturnViewModel(
           extractType = extractType,
           rows = rows,
           totalRowCount = response.returnSummaryCount
         )
-      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION => //TODO: implement
+      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
         SdltReturnViewModel(
           extractType = extractType,
           rows = rows,
