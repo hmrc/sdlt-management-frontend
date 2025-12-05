@@ -140,42 +140,51 @@ class AtAGlanceControllerSpec
       }
     }
 
-//    "must redirect to JourneyRecoveryController when any service call fails (e.g. getAgentCount)" in new Fixture {
-//      reset(mockService)
-//
-//      when(mockService.getAgentCount(any(), any()))
-//        .thenReturn(Future.failed(new RuntimeException("boom-agents")))
-//
-//      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
-//        .thenReturn(Future.successful(Nil))
-//
-//      when(mockService.getSubmittedReturns(any())(any()))
-//        .thenReturn(Future.successful(Nil))
-//
-//      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any()))
-//        .thenReturn(Future.successful(Nil))
-//
-//      when(mockService.getInProgressReturnsDueForDeletion(any())(any()))
-//        .thenReturn(Future.successful(Nil))
-//
-//      val app = application
-//
-//      running(app) {
-//        val request = FakeRequest(GET, AtAGlanceController.onPageLoad().url)
-//
-//        val result = route(app, request).value
-//
-//        status(result) mustEqual SEE_OTHER
-//        redirectLocation(result).value mustEqual
-//          controllers.routes.JourneyRecoveryController.onPageLoad().url
-//
-//        verify(mockService, times(1)).getAgentCount(any(), any())
-//        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), any(), any())(any())
-//        verify(mockService, times(0)).getSubmittedReturns(any())(any())
-//        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), any(), any())(any())
-//        verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any())(any())
-//      }
-//    }
+    "must redirect to JourneyRecoveryController when any service call fails (e.g. getAgentCount)" in new Fixture {
+      reset(mockService)
+
+      when(mockService.getAgentCount(any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("boom-agents")))
+
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any()))
+        .thenReturn(Future.successful(SdltReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS, rows = List.empty,
+          totalRowCount = Some(0)
+        )))
+
+      when(mockService.getSubmittedReturns(any())(any()))
+        .thenReturn(Future.successful(Nil))
+
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any()))
+        .thenReturn(Future.successful(SdltReturnViewModel(
+          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty,
+          totalRowCount = Some(0)
+        )))
+
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any()))
+        .thenReturn(Future.successful(SdltReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty,
+          totalRowCount = Some(0)
+        )))
+
+      val app = application
+
+      running(app) {
+        val request = FakeRequest(GET, AtAGlanceController.onPageLoad().url)
+
+        val result = route(app, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+        verify(mockService, times(1)).getAgentCount(any(), any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
+        verify(mockService, times(0)).getSubmittedReturns(any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
+      }
+    }
 
   }
 }
