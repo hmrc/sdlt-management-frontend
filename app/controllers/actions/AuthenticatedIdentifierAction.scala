@@ -71,7 +71,7 @@ class AuthenticatedIdentifierAction @Inject()(
         case _ =>
           logger.error("[AuthenticatedIdentifierAction][authorised] - authentication failure")
           Future.successful(
-            Redirect(routes.UnauthorisedController.onPageLoad()))
+            Redirect(routes.AccessDeniedController.onPageLoad()))
       } recover {
       case _: NoActiveSession =>
         logger.error("[AuthenticatedIdentifierAction][authorised] - recover::NoActiveSession")
