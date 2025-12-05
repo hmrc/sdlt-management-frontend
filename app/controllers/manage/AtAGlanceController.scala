@@ -30,7 +30,7 @@ import controllers.routes.JourneyRecoveryController
 import controllers.manage.routes.*
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import AtAGlanceController.*
-import models.SdltReturnTypes.IN_PROGRESS_RETURNS
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.AtAGlanceViewModel
 
 import scala.concurrent.ExecutionContext
@@ -56,9 +56,9 @@ class AtAGlanceController@Inject()(
       agentsCount                     <- stampDutyLandTaxService.getAgentCount
       returnsInProgress               <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS, None)
       submittedReturns                <- stampDutyLandTaxService.getSubmittedReturnsViewModel(request.storn, None)
-      submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion(request.storn)
-      inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion(request.storn)
-      returnsDueForDeletion            = (submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion).sortBy(_.purchaserName)
+      submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
+      inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
+      returnsDueForDeletionRows            = (submittedReturnsDueForDeletion.rows ++ inProgressReturnsDueForDeletion.rows).sortBy(_.purchaserName)
     } yield {
 
       Ok(view(
@@ -67,7 +67,7 @@ class AtAGlanceController@Inject()(
           name = name,
           inProgressReturns = returnsInProgress.rows,
           submittedReturns = submittedReturns,
-          dueForDeletionReturns = returnsDueForDeletion,
+          dueForDeletionReturns = returnsDueForDeletionRows,
           agentsCount = agentsCount
         )
       ))

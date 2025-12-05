@@ -98,23 +98,6 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
         })
   }
 
-  @deprecated("Please use getReturns instead")
-  def getSubmittedReturnsDueForDeletion(storn: String)
-                                       (implicit hc: HeaderCarrier): Future[List[ReturnSummary]] =
-    stampDutyLandTaxConnector
-      .getReturns(
-        SdltReturnRecordRequest(
-          storn = storn,
-          deletionFlag = true,
-          status = None,
-          pageType = Some("SUBMITTED"),
-          pageNumber = Some("1"))
-      )
-      .map(res => {
-        logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - ${storn}::response r/count: ${res.returnSummaryList.length}")
-        res.returnSummaryList
-          .sortBy(_.purchaserName)
-      })
 
   def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
     stampDutyLandTaxConnector

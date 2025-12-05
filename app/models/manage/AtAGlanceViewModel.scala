@@ -34,7 +34,7 @@ object AtAGlanceViewModel {
 
   def apply(inProgressReturns: List[SdltReturnViewRow],
             submittedReturns: SdltSubmittedReturnViewModel,
-            dueForDeletionReturns: List[ReturnSummary],
+            dueForDeletionReturns: List[SdltReturnViewRow],
             agentsCount: Int,
             storn: String,
             name: String)
