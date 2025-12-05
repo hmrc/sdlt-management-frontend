@@ -118,7 +118,7 @@ class AtAGlanceControllerSpec
         val view = application.injector.instanceOf[AtAGlanceView]
 
         val expectedModel = AtAGlanceViewModel(
-          inProgressReturns = inProgressRows,
+          inProgressReturns = returnsInProgressViewModel,
           submittedReturns = submittedViewModel,
           dueForDeletionReturns = List[SdltReturnViewRow](),
           agentsCount = agentsCount,

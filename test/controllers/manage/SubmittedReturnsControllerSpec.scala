@@ -145,7 +145,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           createPaginationV2(selectedPageIndex, totalRowCount, urlSelector)
 
         val paginationText: Option[String] =
-          getPaginationInfoText(selectedPageIndex, pageOneRows)
+          getPaginationInfoTextV2(selectedPageIndex, totalRowCount)
 
         val request = FakeRequest(GET, submittedControllerRoute)
         val result  = route(application, request).value
@@ -180,7 +180,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           createPaginationV2(selectedPageIndex, totalRowCount, urlSelector)
 
         val paginationText: Option[String] =
-          getPaginationInfoText(selectedPageIndex, pageTwoRows)
+          getPaginationInfoTextV2(selectedPageIndex, totalRowCount)
 
         val request = FakeRequest(
           GET,

@@ -65,7 +65,7 @@ class AtAGlanceController@Inject()(
         AtAGlanceViewModel(
           storn = request.storn,
           name = name,
-          inProgressReturns = returnsInProgress.rows,
+          inProgressReturns = returnsInProgress,
           submittedReturns = submittedReturns,
           dueForDeletionReturns = returnsDueForDeletionRows,
           agentsCount = agentsCount
