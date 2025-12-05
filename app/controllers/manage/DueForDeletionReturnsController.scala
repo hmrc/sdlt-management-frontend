@@ -62,11 +62,11 @@ class DueForDeletionReturnsController @Inject()(
         inProgressDurForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel(
           storn = request.storn,
           IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-          None)
+          inProgressIndex)
         submittedDueDorDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel(
           storn = request.storn,
           SUBMITTED_RETURNS_DUE_FOR_DELETION,
-          None)
+          submittedIndex)
       } yield {
         Ok(
             view(
