@@ -18,19 +18,21 @@ package controllers.manage
 
 import base.SpecBase
 import config.FrontendAppConfig
-import controllers.manage.routes._
+import controllers.manage.routes.*
 import controllers.routes.JourneyRecoveryController
+import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.{AtAGlanceViewModel, ReturnSummary}
-import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
+import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow, SdltReturnViewModel, SdltReturnViewRow, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
 import views.html.manage.AtAGlanceView
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 
 import scala.concurrent.Future
 
@@ -57,8 +59,9 @@ class AtAGlanceControllerSpec
 
       val agentsCount = 0
 
-      val inProgressRows: List[SdltInProgressReturnViewRow] = Nil
-      val returnsInProgressViewModel = SdltInProgressReturnViewModel(
+      val inProgressRows: List[SdltReturnViewRow] = Nil
+      val returnsInProgressViewModel = SdltReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
         rows          = inProgressRows,
         totalRowCount = Some(inProgressRows.length)
       )
@@ -79,7 +82,7 @@ class AtAGlanceControllerSpec
       when(mockService.getAgentCount(any(), any()))
         .thenReturn(Future.successful(agentsCount))
 
-      when(mockService.getInProgressReturnsViewModel(any(), any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any()))
         .thenReturn(Future.successful(returnsInProgressViewModel))
 
       when(mockService.getSubmittedReturnsViewModel(any(), any())(any()))
@@ -118,7 +121,7 @@ class AtAGlanceControllerSpec
           view(expectedModel)(request, messages(app)).toString
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
         verify(mockService, times(1)).getSubmittedReturnsViewModel(any(), any())(any())
         verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())(any())
         verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any())(any())
@@ -143,7 +146,7 @@ class AtAGlanceControllerSpec
           JourneyRecoveryController.onPageLoad().url
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(0)).getInProgressReturnsViewModel(any(), any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
         verify(mockService, times(0)).getSubmittedReturnsViewModel(any(), any())(any())
         verify(mockService, times(0)).getSubmittedReturnsDueForDeletion(any())(any())
         verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any())(any())

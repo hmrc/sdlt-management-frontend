@@ -17,13 +17,14 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
+import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
-import models.responses._
+import models.responses.*
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -133,19 +134,22 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val dataRows = List(
-        SdltInProgressReturnViewRow(
+        SdltReturnViewRow(
           address        = "1 Accepted Street",
           agentReference = "Accepted Agent",
           purchaserName  = "Accepted Buyer",
-          status         = ACCEPTED
+          status         = ACCEPTED,
+          utrn = "UTRN-ACC-001"
         ),
-        SdltInProgressReturnViewRow(
+        SdltReturnViewRow(
           address        = "2 Pending Street",
           agentReference = "Pending Agent",
           purchaserName  = "Pending Buyer",
-          status         = STARTED
+          status         = STARTED,
+          utrn = "UTRN-PEN-001"
         )
       )
+
 
       val inProgressReturnsResponse = SdltReturnRecordResponse(
         returnSummaryCount = Some(dataRows.length),
@@ -163,9 +167,10 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(inProgressRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(inProgressReturnsResponse))
 
-      val result = service.getInProgressReturnsViewModel(storn, Some(1)).futureValue
+      val result = service.getReturnsByTypeViewModel(storn, IN_PROGRESS_RETURNS,  Some(1)).futureValue
 
-      val expected = SdltInProgressReturnViewModel(
+      val expected = SdltReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
         rows          = dataRows,
         totalRowCount = Some(dataRows.length)
       )
@@ -355,6 +360,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
+
   "getAllAgents" should {
     "use getSdltOrganisation and return the agents count" in {
       val (service, connector) = newService()
@@ -412,4 +418,5 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       verifyNoMoreInteractions(connector)
     }
   }
+
 }

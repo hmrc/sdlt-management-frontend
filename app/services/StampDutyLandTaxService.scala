@@ -55,31 +55,6 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
   }
 
   @deprecated("Please use getReturns instead")
-  def getInProgressReturnsViewModel(storn: String, pageIndex: Option[Int])
-                                   (implicit hc: HeaderCarrier): Future[SdltInProgressReturnViewModel] = {
-    val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-      storn = storn,
-      status = None,
-      deletionFlag = false,
-      pageType = Some("IN-PROGRESS"),
-      pageNumber = pageIndex.map(_.toString))
-    logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - data request:: ${dataRequest}")
-    for {
-      inProgressResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
-    } yield {
-      logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - ${storn}::" +
-        s"response r/count: ${inProgressResponse.returnSummaryCount} :: ${inProgressResponse.returnSummaryList.length}")
-      SdltInProgressReturnViewModel(
-        rows = SdltInProgressReturnViewRow
-          .convertResponseToReturnViewRows(
-            inProgressResponse.returnSummaryList
-          ),
-        totalRowCount = inProgressResponse.returnSummaryCount
-      )
-    }
-  }
-
-  @deprecated("Please use getReturns instead")
   def getSubmittedReturnsViewModel(storn: String, pageIndex: Option[Int])
                                   (implicit hc: HeaderCarrier): Future[SdltSubmittedReturnViewModel] = {
     val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(

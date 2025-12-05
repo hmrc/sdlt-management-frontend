@@ -30,6 +30,7 @@ import controllers.routes.JourneyRecoveryController
 import controllers.manage.routes.*
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import AtAGlanceController.*
+import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.AtAGlanceViewModel
 
 import scala.concurrent.ExecutionContext
@@ -53,7 +54,7 @@ class AtAGlanceController@Inject()(
 
     (for {
       agentsCount                     <- stampDutyLandTaxService.getAgentCount
-      returnsInProgress               <- stampDutyLandTaxService.getInProgressReturnsViewModel(request.storn, None)
+      returnsInProgress               <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS, None)
       submittedReturns                <- stampDutyLandTaxService.getSubmittedReturnsViewModel(request.storn, None)
       submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion(request.storn)
       inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion(request.storn)
