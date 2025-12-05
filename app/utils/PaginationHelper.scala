@@ -83,7 +83,7 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  // TODO: this would be effectively wrong in the new way of pagination
+  @deprecated("this would be effectively wrong in the new way of pagination")
   def getPaginationInfoText[A](paginationIndex: Int, itemList: Seq[A])
                               (implicit messages: Messages): Option[String] = {
 
@@ -98,6 +98,20 @@ trait PaginationHelper extends Logging {
         val end = math.min(paginationIndex * ROWS_ON_PAGE, total)
         messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
       }
+    }
+  }
+
+  def getPaginationInfoTextV2(paginationIndex: Int,
+                              totalRecCount: Int
+                             )(implicit messages: Messages): Option[String] = {
+
+    if (totalRecCount <= ROWS_ON_PAGE || paginationIndex <= 0) {
+      None
+    } else {
+      val total = totalRecCount
+      val start = (paginationIndex - 1) * ROWS_ON_PAGE + 1
+      val end = math.min(paginationIndex * ROWS_ON_PAGE, total)
+      Some(messages("manageReturns.inProgressReturns.paginationInfo", start, end, total))
     }
   }
 
