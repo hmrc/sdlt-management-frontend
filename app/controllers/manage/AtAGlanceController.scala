@@ -62,12 +62,12 @@ class AtAGlanceController@Inject()(
 
       Ok(view(
         AtAGlanceViewModel(
+          storn = request.storn,
+          name = name,
           inProgressReturns = returnsInProgress.rows,
           submittedReturns = submittedReturns,
           dueForDeletionReturns = returnsDueForDeletion,
-          agentsCount = agentsCount,
-          storn = request.storn,
-          name = name
+          agentsCount = agentsCount
         )
       ))
     }) recover {
