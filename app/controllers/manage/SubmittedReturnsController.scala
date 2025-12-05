@@ -57,7 +57,7 @@ class SubmittedReturnsController @Inject()(
             pageIndexSelector(paginationIndex, totalRowsCount) match {
               case Right(selectedPageIndex) =>
                 val paginator       : Option[Pagination] = createPaginationV2(selectedPageIndex, totalRowsCount, urlSelector)
-                val paginationText  : Option[String]     = getPaginationInfoText(selectedPageIndex, viewModel.rows)
+                val paginationText  : Option[String]     = getPaginationInfoTextV2(selectedPageIndex, totalRowsCount)
                 logger.info(s"[SubmittedReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
                 Ok(view(viewModel.rows, paginator, paginationText))
               case Left(error) =>
