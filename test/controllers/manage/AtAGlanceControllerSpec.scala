@@ -18,19 +18,19 @@ package controllers.manage
 
 import base.SpecBase
 import config.FrontendAppConfig
+import controllers.manage.routes._
+import controllers.routes.JourneyRecoveryController
 import models.manage.{AtAGlanceViewModel, ReturnSummary}
+import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import services.StampDutyLandTaxService
-import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import views.html.manage.AtAGlanceView
-import controllers.manage.routes.*
-import models.responses.SdltInProgressReturnViewModel
 
 import scala.concurrent.Future
 
@@ -56,16 +56,25 @@ class AtAGlanceControllerSpec
       reset(mockService)
 
       val agentsCount = 0
+
+      val inProgressRows: List[SdltInProgressReturnViewRow] = Nil
       val returnsInProgressViewModel = SdltInProgressReturnViewModel(
-        rows = List.empty,
-        totalRowCount = Some(0)
+        rows          = inProgressRows,
+        totalRowCount = Some(inProgressRows.length)
       )
 
-      val submittedReturns = Nil
-      val submittedReturnsDueForDeletion = List.empty[ReturnSummary]
-      val inProgressReturnsDueForDeletion = List.empty[ReturnSummary]
-      val combinedDueForDeletion = (submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion)
-        .sortBy(_.purchaserName)
+      val submittedRows: List[SdltSubmittedReturnsViewRow] = Nil
+      val submittedViewModel = SdltSubmittedReturnViewModel(
+        rows          = submittedRows,
+        totalRowCount = Some(submittedRows.length)
+      )
+
+      val submittedReturnsDueForDeletion: List[ReturnSummary] = Nil
+      val inProgressReturnsDueForDeletion: List[ReturnSummary] = Nil
+
+      val combinedDueForDeletion =
+        (submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion)
+          .sortBy(_.purchaserName)
 
       when(mockService.getAgentCount(any(), any()))
         .thenReturn(Future.successful(agentsCount))
@@ -73,8 +82,8 @@ class AtAGlanceControllerSpec
       when(mockService.getInProgressReturnsViewModel(any(), any())(any()))
         .thenReturn(Future.successful(returnsInProgressViewModel))
 
-      when(mockService.getSubmittedReturns(any())(any()))
-        .thenReturn(Future.successful(submittedReturns))
+      when(mockService.getSubmittedReturnsViewModel(any(), any())(any()))
+        .thenReturn(Future.successful(submittedViewModel))
 
       when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
         .thenReturn(Future.successful(submittedReturnsDueForDeletion))
@@ -97,31 +106,12 @@ class AtAGlanceControllerSpec
         val view = app.injector.instanceOf[AtAGlanceView]
 
         val expectedModel = AtAGlanceViewModel(
-          storn = "STN001",
-          name = "David Frank",
-          returns = ReturnsManagementViewModel(
-            inProgressReturnsCount = returnsInProgressViewModel.totalRowCount.getOrElse(0),
-            inProgressReturnsUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
-            submittedReturnsCount = submittedReturns.length,
-            submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
-            dueForDeletionReturnsCount = combinedDueForDeletion.length,
-            dueForDeletionUrl = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
-            startReturnUrl = "#"
-          ),
-          agentDetails = AgentDetailsViewModel(
-            agentsCount = agentsCount,
-            agentsUrl = appConfig.agentOverviewUrl,
-            addAgentUrl = appConfig.startAddAgentUrl
-          ),
-          helpAndContact = HelpAndContactViewModel(
-            helpUrl = "#",
-            contactUrl = "#",
-            howToPayUrl = appConfig.howToPayUrl,
-            usefulLinksUrl = "#"
-          ),
-          feedback = FeedbackViewModel(
-            feedbackUrl = appConfig.exitSurveyUrl
-          )
+          inProgressReturns     = inProgressRows,
+          submittedReturns      = submittedViewModel,
+          dueForDeletionReturns = combinedDueForDeletion,
+          agentsCount           = agentsCount,
+          storn                 = "STN001",
+          name                  = "David Frank"
         )
 
         contentAsString(result) mustEqual
@@ -129,7 +119,7 @@ class AtAGlanceControllerSpec
 
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any())
-        verify(mockService, times(1)).getSubmittedReturns(any())(any())
+        verify(mockService, times(1)).getSubmittedReturnsViewModel(any(), any())(any())
         verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())(any())
         verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any())(any())
       }
@@ -141,18 +131,6 @@ class AtAGlanceControllerSpec
       when(mockService.getAgentCount(any(), any()))
         .thenReturn(Future.failed(new RuntimeException("boom-agents")))
 
-      when(mockService.getInProgressReturnsViewModel(any(), any())(any()))
-        .thenReturn(Future.successful(Nil))
-
-      when(mockService.getSubmittedReturns(any())(any()))
-        .thenReturn(Future.successful(Nil))
-
-      when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
-        .thenReturn(Future.successful(Nil))
-
-      when(mockService.getInProgressReturnsDueForDeletion(any())(any()))
-        .thenReturn(Future.successful(Nil))
-
       val app = application
 
       running(app) {
@@ -162,15 +140,14 @@ class AtAGlanceControllerSpec
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
-          controllers.routes.JourneyRecoveryController.onPageLoad().url
+          JourneyRecoveryController.onPageLoad().url
 
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(0)).getInProgressReturnsViewModel(any(), any())(any())
-        verify(mockService, times(0)).getSubmittedReturns(any())(any())
+        verify(mockService, times(0)).getSubmittedReturnsViewModel(any(), any())(any())
         verify(mockService, times(0)).getSubmittedReturnsDueForDeletion(any())(any())
         verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any())(any())
       }
     }
-
   }
 }

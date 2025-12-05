@@ -14,36 +14,35 @@
  * limitations under the License.
  */
 
-package viewmodels.manage
+package models.responses
 
 import models.manage.ReturnSummary
-import models.responses.UniversalStatus
 import play.api.Logging
 
-case class SdltSubmittedReturnsViewModel(
-                                          address: String,
-                                          utrn: String,
-                                          purchaserName: String,
-                                          status: UniversalStatus
-                                        )
+case class SdltSubmittedReturnViewModel(rows: List[SdltSubmittedReturnsViewRow], totalRowCount: Option[Int])
 
-object SdltSubmittedReturnsViewModel extends Logging {
+case class SdltSubmittedReturnsViewRow(
+                                        address: String,
+                                        utrn: String,
+                                        purchaserName: String,
+                                        status: UniversalStatus
+                                      )
+
+object SdltSubmittedReturnsViewRow extends Logging {
 
   import UniversalStatus.*
 
-  private val acceptableStatus: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
+  private val submittedReturnStatuses: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
 
-  def convertResponseToSubmittedView(submittedReturns: List[ReturnSummary]): List[SdltSubmittedReturnsViewModel] = {
+  def convertResponseToSubmittedView(submittedReturnsList: List[ReturnSummary]): List[SdltSubmittedReturnsViewRow] = {
     val res = for {
-      rec <- submittedReturns
-      st = fromString(rec.status)
-      utrn <- rec.utrn
-    } yield st match {
+      rec <- submittedReturnsList
+    } yield fromString(rec.status) match {
       case Right(status) =>
         Some(
-          SdltSubmittedReturnsViewModel(
+          SdltSubmittedReturnsViewRow(
             address = rec.address,
-            utrn = utrn,
+            utrn = rec.utrn.getOrElse(""),  // TODO: should be mandatory and error-handled correctly
             purchaserName = rec.purchaserName,
             status = status
           )
@@ -54,6 +53,6 @@ object SdltSubmittedReturnsViewModel extends Logging {
     }
     res
       .flatten
-      //.filter(rec => acceptableStatus.contains(rec.status))
+      .filter(rec => submittedReturnStatuses.contains(rec.status))
   }
 }
