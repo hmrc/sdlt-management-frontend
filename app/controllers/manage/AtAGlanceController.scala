@@ -63,7 +63,7 @@ class AtAGlanceController@Inject()(
       Ok(view(
         AtAGlanceViewModel(
           inProgressReturns = returnsInProgress.rows,
-          submittedReturns = submittedReturns.rows,
+          submittedReturns = submittedReturns,
           dueForDeletionReturns = returnsDueForDeletion,
           agentsCount = agentsCount,
           storn = request.storn,

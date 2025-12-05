@@ -107,7 +107,7 @@ class AtAGlanceControllerSpec
 
         val expectedModel = AtAGlanceViewModel(
           inProgressReturns     = inProgressRows,
-          submittedReturns      = submittedRows,
+          submittedReturns      = submittedViewModel,
           dueForDeletionReturns = combinedDueForDeletion,
           agentsCount           = agentsCount,
           storn                 = "STN001",
