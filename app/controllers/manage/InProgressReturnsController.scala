@@ -19,6 +19,7 @@ package controllers.manage
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
 import controllers.routes.JourneyRecoveryController
 import models.requests.DataRequest
+import models.responses.SdltInProgressReturnViewRow
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
