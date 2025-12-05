@@ -80,11 +80,23 @@ object SdltReturnsViewModel {
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS => //TODO: implement
-        ???
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows,
+          totalRowCount = response.returnSummaryCount
+        )
       case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS => //TODO: implement
-        ???
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows,
+          totalRowCount = response.returnSummaryCount
+        )
       case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION => //TODO: implement
-        ???
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows,
+          totalRowCount = response.returnSummaryCount
+        )
       case SdltReturnTypes.SUBMITTED_RETURNS_DUE_FOR_DELETION =>
         SdltReturnViewModel(
           extractType = extractType,
