@@ -18,17 +18,18 @@ package controllers.manage
 
 import base.SpecBase
 import config.FrontendAppConfig
-import controllers.manage.routes._
+import controllers.manage.routes.*
 import controllers.routes.JourneyRecoveryController
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.{AtAGlanceViewModel, ReturnSummary}
-import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
-import org.mockito.ArgumentMatchers.any
+import models.responses.{SdltReturnViewModel, SdltReturnViewRow, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
 import views.html.manage.AtAGlanceView
 
@@ -38,34 +39,35 @@ class AtAGlanceControllerSpec
   extends SpecBase
     with MockitoSugar {
 
-  private val mockService = mock[StampDutyLandTaxService]
+  trait Fixture {
+    val mockService = mock[StampDutyLandTaxService]
 
-  private def application: Application =
-    applicationBuilder(userAnswers = Some(emptyUserAnswers))
-      .overrides(
-        bind[StampDutyLandTaxService].toInstance(mockService)
-      )
-      .build()
+    def application: Application =
+      applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[StampDutyLandTaxService].toInstance(mockService)
+        )
+        .build()
 
-  private val routeUrl =
-    AtAGlanceController.onPageLoad().url
+  }
 
   "AtAGlanceController.onPageLoad" - {
 
-    "must return OK and render the correct view when all service calls succeed" in {
+    "must return OK and render the correct view when all service calls succeed" in new Fixture {
       reset(mockService)
 
       val agentsCount = 0
 
-      val inProgressRows: List[SdltInProgressReturnViewRow] = Nil
-      val returnsInProgressViewModel = SdltInProgressReturnViewModel(
-        rows          = inProgressRows,
+      val inProgressRows: List[SdltReturnViewRow] = Nil
+      val returnsInProgressViewModel = SdltReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
+        rows = inProgressRows,
         totalRowCount = Some(inProgressRows.length)
       )
 
       val submittedRows: List[SdltSubmittedReturnsViewRow] = Nil
       val submittedViewModel = SdltSubmittedReturnViewModel(
-        rows          = submittedRows,
+        rows = submittedRows,
         totalRowCount = Some(submittedRows.length)
       )
 
@@ -79,53 +81,63 @@ class AtAGlanceControllerSpec
       when(mockService.getAgentCount(any(), any()))
         .thenReturn(Future.successful(agentsCount))
 
-      when(mockService.getInProgressReturnsViewModel(any(), any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any()))
         .thenReturn(Future.successful(returnsInProgressViewModel))
 
       when(mockService.getSubmittedReturnsViewModel(any(), any())(any()))
         .thenReturn(Future.successful(submittedViewModel))
 
-      when(mockService.getSubmittedReturnsDueForDeletion(any())(any()))
-        .thenReturn(Future.successful(submittedReturnsDueForDeletion))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any()))
+        .thenReturn(Future.successful(
+          SdltReturnViewModel(
+            extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+            rows = List.empty,
+            totalRowCount = Some(0)
+          )
+        ))
 
-      when(mockService.getInProgressReturnsDueForDeletion(any())(any()))
-        .thenReturn(Future.successful(inProgressReturnsDueForDeletion))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any()))
+        .thenReturn(Future.successful(
+          SdltReturnViewModel(
+            extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+            rows = List.empty,
+            totalRowCount = Some(0)
+          )
+        ))
 
-      val app = application
-
-      running(app) {
+      running(application) {
         implicit val appConfig: FrontendAppConfig =
-          app.injector.instanceOf[FrontendAppConfig]
+          application.injector.instanceOf[FrontendAppConfig]
 
-        val request = FakeRequest(GET, routeUrl)
+        val request = FakeRequest(GET, AtAGlanceController.onPageLoad().url)
 
-        val result = route(app, request).value
+        val result = route(application, request).value
 
         status(result) mustEqual OK
 
-        val view = app.injector.instanceOf[AtAGlanceView]
+        val view = application.injector.instanceOf[AtAGlanceView]
 
         val expectedModel = AtAGlanceViewModel(
-          inProgressReturns     = returnsInProgressViewModel,
-          submittedReturns      = submittedViewModel,
-          dueForDeletionReturns = combinedDueForDeletion,
-          agentsCount           = agentsCount,
-          storn                 = "STN001",
-          name                  = "David Frank"
+          inProgressReturns = returnsInProgressViewModel,
+          submittedReturns = submittedViewModel,
+          dueForDeletionReturns = List[SdltReturnViewRow](),
+          agentsCount = agentsCount,
+          storn = "STN001",
+          name = "David Frank"
         )
 
         contentAsString(result) mustEqual
-          view(expectedModel)(request, messages(app)).toString
+          view(expectedModel)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(1)).getInProgressReturnsViewModel(any(), any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
         verify(mockService, times(1)).getSubmittedReturnsViewModel(any(), any())(any())
-        verify(mockService, times(1)).getSubmittedReturnsDueForDeletion(any())(any())
-        verify(mockService, times(1)).getInProgressReturnsDueForDeletion(any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
       }
     }
 
-    "must redirect to JourneyRecoveryController when any service call fails (e.g. getAgentCount)" in {
+    "must redirect to JourneyRecoveryController when any service call fails (e.g. getAgentCount)" in new Fixture {
       reset(mockService)
 
       when(mockService.getAgentCount(any(), any()))
@@ -134,7 +146,7 @@ class AtAGlanceControllerSpec
       val app = application
 
       running(app) {
-        val request = FakeRequest(GET, routeUrl)
+        val request = FakeRequest(GET, AtAGlanceController.onPageLoad().url)
 
         val result = route(app, request).value
 
@@ -143,10 +155,10 @@ class AtAGlanceControllerSpec
           JourneyRecoveryController.onPageLoad().url
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(0)).getInProgressReturnsViewModel(any(), any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
         verify(mockService, times(0)).getSubmittedReturnsViewModel(any(), any())(any())
-        verify(mockService, times(0)).getSubmittedReturnsDueForDeletion(any())(any())
-        verify(mockService, times(0)).getInProgressReturnsDueForDeletion(any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
       }
     }
   }

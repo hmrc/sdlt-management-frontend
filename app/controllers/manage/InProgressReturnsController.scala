@@ -19,7 +19,6 @@ package controllers.manage
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
 import controllers.routes.JourneyRecoveryController
 import models.requests.DataRequest
-import models.responses.SdltInProgressReturnViewRow
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
@@ -28,7 +27,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PaginationHelper
 import views.html.InProgressReturnView
-
+import models.SdltReturnTypes.*
 import scala.concurrent.ExecutionContext
 import javax.inject.*
 
@@ -42,7 +41,7 @@ class InProgressReturnsController @Inject()(
                                              requireData: DataRequiredAction,
                                              stornRequiredAction: StornRequiredAction,
                                              view: InProgressReturnView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PaginationHelper with Logging {
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
@@ -50,13 +49,13 @@ class InProgressReturnsController @Inject()(
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
-    stampDutyLandTaxService.getInProgressReturnsViewModel(request.storn, index) map { viewModel =>
+    stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn,  IN_PROGRESS_RETURNS, index) map { viewModel =>
       logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
       val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
-      pageIndexSelector(index, totalRowsCount) match {
+      viewModel.pageIndexSelector(index, totalRowsCount) match {
         case Right(selectedPageIndex) =>
-          val paginator: Option[Pagination] = createPagination(selectedPageIndex, totalRowsCount, urlSelector)
-          val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, viewModel.rows )
+          val paginator: Option[Pagination] = viewModel.createPagination(selectedPageIndex, totalRowsCount, urlSelector)
+          val paginationText: Option[String] = viewModel.getPaginationInfoText(selectedPageIndex, viewModel.rows )
           logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
           Ok(view(viewModel.rows, paginator, paginationText))
 // TODO: disable page index redirect / need to be fix as part of tech debt or bug fix story: TBC
