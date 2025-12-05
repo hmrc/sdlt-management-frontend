@@ -212,7 +212,7 @@ trait PaginationHelper extends Logging {
       case _ => Seq.empty
 
     val end = middle.end match
-      case e if e == totalPages - 1 => Seq((totalPages - 1).toString, totalPages.toString)
+      case e if e == totalPages - 2 => Seq((totalPages - 1).toString, totalPages.toString)
       case e if e < totalPages - 1 => Seq("...", totalPages.toString)
       case e if e < totalPages => Seq(totalPages.toString)
       case _ => Seq.empty
