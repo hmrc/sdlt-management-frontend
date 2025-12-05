@@ -106,7 +106,7 @@ class AtAGlanceControllerSpec
         val view = app.injector.instanceOf[AtAGlanceView]
 
         val expectedModel = AtAGlanceViewModel(
-          inProgressReturns     = inProgressRows,
+          inProgressReturns     = returnsInProgressViewModel,
           submittedReturns      = submittedViewModel,
           dueForDeletionReturns = combinedDueForDeletion,
           agentsCount           = agentsCount,
