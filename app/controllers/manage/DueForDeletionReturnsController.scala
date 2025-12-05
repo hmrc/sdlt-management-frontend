@@ -46,6 +46,7 @@ class DueForDeletionReturnsController @Inject()(
 
   def onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int]): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
+      logger.info(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
 
       val outOfScopeUrlSelector: String = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url
 
