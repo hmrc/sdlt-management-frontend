@@ -31,7 +31,7 @@ import controllers.manage.routes.*
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import AtAGlanceController.*
 import models.manage.AtAGlanceViewModel
-import models.SdltReturnTypes.*
+
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -53,19 +53,18 @@ class AtAGlanceController@Inject()(
 
     (for {
       agentsCount                     <- stampDutyLandTaxService.getAgentCount
-      returnsInProgressViewModel               <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS, None)
-      submittedReturns                <- stampDutyLandTaxService.getSubmittedReturns(request.storn)
-      submittedReturnsDueForDeletionViewModel  <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
-      inProgressReturnsDueForDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
-      returnsDueForDeletion            = (submittedReturnsDueForDeletionViewModel.rows ++ inProgressReturnsDueForDeletionViewModel.rows)
-        .sortBy(_.purchaserName)
+      returnsInProgress               <- stampDutyLandTaxService.getInProgressReturnsViewModel(request.storn, None)
+      submittedReturns                <- stampDutyLandTaxService.getSubmittedReturnsViewModel(request.storn, None)
+      submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getSubmittedReturnsDueForDeletion(request.storn)
+      inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getInProgressReturnsDueForDeletion(request.storn)
+      returnsDueForDeletion            = (submittedReturnsDueForDeletion ++ inProgressReturnsDueForDeletion).sortBy(_.purchaserName)
     } yield {
 
       Ok(view(
         AtAGlanceViewModel(
           storn = request.storn,
           name = name,
-          inProgressReturns = returnsInProgressViewModel.rows,
+          inProgressReturns = returnsInProgress.rows,
           submittedReturns = submittedReturns,
           dueForDeletionReturns = returnsDueForDeletion,
           agentsCount = agentsCount

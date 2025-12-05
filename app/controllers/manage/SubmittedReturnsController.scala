@@ -21,15 +21,14 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import controllers.routes.JourneyRecoveryController
-import play.api.{Logger, Logging}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
-
+import play.api.Logging
 import javax.inject.{Inject, Singleton}
 import navigation.Navigator
 import utils.PaginationHelper
 import services.StampDutyLandTaxService
-import viewmodels.manage.SdltSubmittedReturnsViewModel
+import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import views.html.manage.SubmittedReturnsView
+import controllers.manage.routes._
 
 import scala.concurrent.ExecutionContext
 
@@ -45,32 +44,30 @@ class SubmittedReturnsController @Inject()(
                                             view: SubmittedReturnsView
                                           )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
 
-  val urlSelector: Int => String = (paginationIndex: Int) => controllers.manage.routes.SubmittedReturnsController.onPageLoad(Some(paginationIndex)).url
+  val urlSelector: Int => String = (paginationIndex: Int) => SubmittedReturnsController.onPageLoad(Some(paginationIndex)).url
 
   def onPageLoad(paginationIndex: Option[Int]): Action[AnyContent] =
-    (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
-
-      stampDutyLandTaxService
-        .getSubmittedReturns(request.storn) map {
-          allDataRows =>
-            pageIndexSelector(paginationIndex, allDataRows.length) match {
+    (identify andThen getData andThen requireData andThen stornRequiredAction)
+      .async { implicit request =>
+        stampDutyLandTaxService
+          .getSubmittedReturnsViewModel(request.storn, paginationIndex)
+          .map { viewModel =>
+            logger.info(s"[SubmittedReturnsController][onPageLoad] - render page: $paginationIndex")
+            val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
+            pageIndexSelector(paginationIndex, totalRowsCount) match {
               case Right(selectedPageIndex) =>
-
-                val selectedPageIndex: Int = paginationIndex.getOrElse(1)
-                val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
-                val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
-                val rowsForSelectedPage: List[SdltSubmittedReturnsViewModel] = getSelectedPageRows(allDataRows, selectedPageIndex)
-
-                Ok(view(rowsForSelectedPage, paginator, paginationText))
-
+                val paginator       : Option[Pagination] = createPaginationV2(selectedPageIndex, totalRowsCount, urlSelector)
+                val paginationText  : Option[String]     = getPaginationInfoText(selectedPageIndex, viewModel.rows)
+                logger.info(s"[SubmittedReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
+                Ok(view(viewModel.rows, paginator, paginationText))
               case Left(error) =>
-                Logger("application").error(s"[SubmittedReturnsController][onPageLoad] - paginationIndexError: $error")
-                Redirect(urlSelector(1))
+                logger.error(s"[SubmittedReturnsController][onPageLoad] - other error: $error")
+                Redirect(JourneyRecoveryController.onPageLoad())
             }
         } recover {
-        case ex =>
-          logger.error("[SubmittedReturnsController][onPageLoad] Unexpected failure", ex)
-          Redirect(JourneyRecoveryController.onPageLoad())
+          case ex =>
+            logger.error("[SubmittedReturnsController][onPageLoad] Unexpected failure", ex)
+            Redirect(JourneyRecoveryController.onPageLoad())
+        }
       }
-    }
 }

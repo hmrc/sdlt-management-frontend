@@ -30,6 +30,11 @@ case class SdltReturnViewRow(
                               utrn: String
                             )
 
+case class SdltReturnViewModel(
+                                extractType: SdltReturnTypes,
+                                rows: List[SdltReturnViewRow],
+                                totalRowCount: Option[Int]) extends PaginationHelper
+
 object SdltReturnViewRow extends Logging {
 
   import UniversalStatus.*
@@ -59,11 +64,43 @@ object SdltReturnViewRow extends Logging {
   }
 }
 
-case class SdltReturnViewModel(
-                                extractType: SdltReturnTypes,
-                                rows: List[SdltReturnViewRow],
-                                totalRowCount: Option[Int]) extends PaginationHelper
+case class SdltInProgressReturnViewModel(rows: List[SdltInProgressReturnViewRow], totalRowCount: Option[Int])
 
+case class SdltInProgressReturnViewRow(
+                                        address: String,
+                                        agentReference: String,
+                                        purchaserName: String,
+                                        status: UniversalStatus
+                                      )
+
+object SdltInProgressReturnViewRow extends Logging {
+
+  import UniversalStatus.*
+
+  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
+
+  def convertResponseToReturnViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
+    val res = for {
+      rec <- inProgressReturnsList
+    } yield fromString(rec.status) match {
+      case Right(status) =>
+        Some(
+          SdltInProgressReturnViewRow(
+            address = rec.address,
+            agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
+            purchaserName = rec.purchaserName,
+            status = status,
+          )
+        )
+      case Left(ex) =>
+        logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
+        None
+      }
+    res
+      .flatten
+      .filter(rec => inProgressReturnStatuses.contains(rec.status))
+  }
+}
 
 object SdltReturnsViewModel {
   private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
@@ -101,7 +138,7 @@ object SdltReturnsViewModel {
         SdltReturnViewModel(
           extractType = extractType,
           rows = rows.sortBy(_.purchaserName), // TODO: move sorting to the view level
-            // TODO: any filtering || .filter(rec => inProgressReturnStatuses.contains(rec.status)),
+          // TODO: any filtering || .filter(rec => inProgressReturnStatuses.contains(rec.status)),
           totalRowCount = response.returnSummaryCount
         )
     }

@@ -18,12 +18,12 @@ package viewmodels.govuk
 
 import forms.mappings.Mappings
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.responses.SdltSubmittedReturnsViewRow
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import models.responses.UniversalStatus.{SUBMITTED, SUBMITTED_NO_RECEIPT}
-import viewmodels.manage.SdltSubmittedReturnsViewModel
-import viewmodels.manage.SdltSubmittedReturnsViewModel.convertResponseToSubmittedView
+import SdltSubmittedReturnsViewRow.convertResponseToSubmittedView
 
 import java.time.LocalDate
 
@@ -58,14 +58,14 @@ class SdltSubmittedReturnsViewModelSpec extends AnyFreeSpec with Matchers with M
     )
   )
 
-  val expectedDataRows: List[SdltSubmittedReturnsViewModel] = List(
-    SdltSubmittedReturnsViewModel(
+  val expectedDataRows: List[SdltSubmittedReturnsViewRow] = List(
+    SdltSubmittedReturnsViewRow(
       address = "propertyAddress1",
       utrn = "UTRN1",
       purchaserName = "purchaserName1",
       status = SUBMITTED
     ),
-    SdltSubmittedReturnsViewModel(
+    SdltSubmittedReturnsViewRow(
       address = "propertyAddress2",
       utrn = "UTRN2",
       purchaserName = "purchaserName2",

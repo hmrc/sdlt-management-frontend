@@ -20,11 +20,11 @@ import connectors.StampDutyLandTaxConnector
 import models.SdltReturnTypes
 import models.manage.{ReturnSummary, SdltReturnRecordRequest}
 import models.requests.DataRequest
-import models.responses.SdltReturnsViewModel.*
-import models.responses.{SdltReturnViewModel, SdltReturnsViewModel}
+import models.responses.SdltReturnsViewModel.convertToViewModel
+import models.responses.{SdltInProgressReturnViewModel, SdltInProgressReturnViewRow, SdltReturnViewModel, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import viewmodels.manage.SdltSubmittedReturnsViewModel
+
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -55,35 +55,52 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
   }
 
   @deprecated("Please use getReturns instead")
-  def getSubmittedReturns(storn: String)
-                         (implicit hc: HeaderCarrier): Future[List[SdltSubmittedReturnsViewModel]] = {
+  def getInProgressReturnsViewModel(storn: String, pageIndex: Option[Int])
+                                   (implicit hc: HeaderCarrier): Future[SdltInProgressReturnViewModel] = {
+    val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
+      storn = storn,
+      status = None,
+      deletionFlag = false,
+      pageType = Some("IN-PROGRESS"),
+      pageNumber = pageIndex.map(_.toString))
+    logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - data request:: ${dataRequest}")
     for {
-      submitted <- stampDutyLandTaxConnector.getReturns(
-        SdltReturnRecordRequest(
-          storn = storn,
-          deletionFlag = false,
-          status = Some("SUBMITTED"),
-          pageType = Some("SUBMITTED"), pageNumber = Some("1"))
-      )
-      submittedNoReceipt <- stampDutyLandTaxConnector.getReturns(
-        SdltReturnRecordRequest(
-          storn = storn,
-          deletionFlag = false,
-          status = Some("SUBMITTED_NO_RECEIPT"),
-          pageType = Some("SUBMITTED"), pageNumber = Some("1"))
-      )
+      inProgressResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
     } yield {
-      logger.info(s"[StampDutyLandTaxService][getSubmittedReturns] - ${storn}::" +
-        s"response r/count: ${submitted.returnSummaryList.length} :: ${submittedNoReceipt.returnSummaryList.length}")
+      logger.info(s"[StampDutyLandTaxService][getInProgressReturnsViewModel] - ${storn}::" +
+        s"response r/count: ${inProgressResponse.returnSummaryCount} :: ${inProgressResponse.returnSummaryList.length}")
+      SdltInProgressReturnViewModel(
+        rows = SdltInProgressReturnViewRow
+          .convertResponseToReturnViewRows(
+            inProgressResponse.returnSummaryList
+          ),
+        totalRowCount = inProgressResponse.returnSummaryCount
+      )
+    }
+  }
 
-      val submittedReturnsList =
-        (submitted.returnSummaryList ++ submittedNoReceipt.returnSummaryList)
-          .sortBy(_.purchaserName)
-
-      SdltSubmittedReturnsViewModel
-        .convertResponseToSubmittedView(
-          submittedReturnsList
-        )
+  @deprecated("Please use getReturns instead")
+  def getSubmittedReturnsViewModel(storn: String, pageIndex: Option[Int])
+                                  (implicit hc: HeaderCarrier): Future[SdltSubmittedReturnViewModel] = {
+    val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
+      storn = storn,
+      status = None,
+      deletionFlag = false,
+      pageType = Some("SUBMITTED"),
+      pageNumber = pageIndex.map(_.toString))
+    logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsViewModel] - data request:: ${dataRequest}")
+    for {
+      submittedResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
+    } yield {
+      logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsViewModel] - ${storn}::" +
+        s"response r/count: ${submittedResponse.returnSummaryCount} :: ${submittedResponse.returnSummaryList.length}")
+      SdltSubmittedReturnViewModel(
+        rows = SdltSubmittedReturnsViewRow
+          .convertResponseToSubmittedView(
+            submittedResponse.returnSummaryList
+          ),
+        totalRowCount = submittedResponse.returnSummaryCount
+      )
     }
   }
 
@@ -106,9 +123,26 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
         })
   }
 
+  @deprecated("Please use getReturns instead")
+  def getSubmittedReturnsDueForDeletion(storn: String)
+                                       (implicit hc: HeaderCarrier): Future[List[ReturnSummary]] =
+    stampDutyLandTaxConnector
+      .getReturns(
+        SdltReturnRecordRequest(
+          storn = storn,
+          deletionFlag = true,
+          status = None,
+          pageType = Some("SUBMITTED"),
+          pageNumber = Some("1"))
+      )
+      .map(res => {
+        logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsDueForDeletion] - ${storn}::response r/count: ${res.returnSummaryList.length}")
+        res.returnSummaryList
+          .sortBy(_.purchaserName)
+      })
+
   def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] =
     stampDutyLandTaxConnector
       .getSdltOrganisation
       .map(_.agents.length)
-
 }
