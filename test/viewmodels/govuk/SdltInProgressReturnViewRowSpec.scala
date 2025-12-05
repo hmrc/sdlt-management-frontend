@@ -89,8 +89,8 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
   )
 
   val expectedDataRows: List[SdltReturnViewRow] = List(
-    SdltReturnViewRow("Address003", "", "Name003", STARTED, utrn = ""),
-    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED, utrn = "")
+    SdltReturnViewRow("Address003", "", "Name003", STARTED, utrn = "UTRN003"),
+    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED, utrn = "UTRN005")
   )
 
   "Response model conversion" - {
@@ -99,10 +99,11 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
       result mustBe empty
     }
 
+
     "response with some data return expected view model" in {
       val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS)
       resultViewModel.rows must contain theSameElementsAs expectedDataRows
-      resultViewModel.totalRowCount mustBe(Some(0))
+      resultViewModel.totalRowCount mustBe (Some(0))
     }
 
   }

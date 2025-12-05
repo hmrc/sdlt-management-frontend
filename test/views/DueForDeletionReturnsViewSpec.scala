@@ -28,10 +28,9 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import utils.PaginationHelper
-import viewmodels.manage.deletedReturns.*
-import views.html.manage.DueForDeletionReturnsView
 import play.twirl.api.Html
+import utils.PaginationHelper
+import views.html.manage.DueForDeletionReturnsView
 
 class DueForDeletionReturnsViewSpec
   extends SpecBase
@@ -66,7 +65,6 @@ class DueForDeletionReturnsViewSpec
       SdltReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
     val emptySubmitted =
       SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
-
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
 
@@ -142,7 +140,7 @@ class DueForDeletionReturnsViewSpec
           rows = submittedRows,
           Some(1))
 
-      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
+      val html = view(inProgressVm, emptySubmitted, 1, 1, inProgressUrlSelector, submittedUrlSelector)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
