@@ -49,26 +49,20 @@ class SubmittedReturnsController @Inject()(
     (identify andThen getData andThen requireData andThen stornRequiredAction)
       .async { implicit request =>
         stampDutyLandTaxService
-          .getSubmittedReturnsViewModel(request.storn, paginationIndex) map { viewModel =>
-  
-          logger.info(s"[SubmittedReturnsController][onPageLoad] - render page: $paginationIndex")
-  
-          val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
-  
-          pageIndexSelector(paginationIndex, totalRowsCount) match {
-            case Right(selectedPageIndex) =>
-  
-              val paginator       : Option[Pagination] = createPaginationV2(selectedPageIndex, totalRowsCount, urlSelector)
-              val paginationText  : Option[String]     = getPaginationInfoText(selectedPageIndex, viewModel.rows)
-  
-              logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-  
-              Ok(view(viewModel.rows, paginator, paginationText))
-  
-            case Left(error) =>
-              logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
-              Redirect(JourneyRecoveryController.onPageLoad())
-          }
+          .getSubmittedReturnsViewModel(request.storn, paginationIndex)
+          .map { viewModel =>
+            logger.info(s"[SubmittedReturnsController][onPageLoad] - render page: $paginationIndex")
+            val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
+            pageIndexSelector(paginationIndex, totalRowsCount) match {
+              case Right(selectedPageIndex) =>
+                val paginator       : Option[Pagination] = createPaginationV2(selectedPageIndex, totalRowsCount, urlSelector)
+                val paginationText  : Option[String]     = getPaginationInfoText(selectedPageIndex, viewModel.rows)
+                logger.info(s"[SubmittedReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
+                Ok(view(viewModel.rows, paginator, paginationText))
+              case Left(error) =>
+                logger.error(s"[SubmittedReturnsController][onPageLoad] - other error: $error")
+                Redirect(JourneyRecoveryController.onPageLoad())
+            }
         } recover {
           case ex =>
             logger.error("[SubmittedReturnsController][onPageLoad] Unexpected failure", ex)
