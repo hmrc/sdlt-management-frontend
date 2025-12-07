@@ -185,6 +185,7 @@ trait PaginationHelper extends Logging {
 
   }
 
+  @deprecated
   def paginateListV2[A](
                          rows: List[A],
                          totalRowCount: Option[Int],
@@ -333,7 +334,7 @@ trait PaginationHelper extends Logging {
         Some((rows, pagination, paginationText))
 
       case Left(error) =>
-        logger.warn(s"[paginateIfValidPageIndexV2] Invalid page index '$paginationIndex' for $totalRowCount rows: ${error.getMessage}.")
+        logger.warn(s"[getPaginationWithInfoText] Invalid page index '$paginationIndex' for $totalRowCount rows: ${error.getMessage}.")
         None
     }
   }
