@@ -41,34 +41,27 @@ object SdltReturnRecordRequest {
           deletionFlag = false,
           pageType = Some("IN-PROGRESS"),
           pageNumber = pageIndex.map(_.toString))
-      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS =>
+      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS | SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = false,
-          status = Some("SUBMITTED"),
+          status = None,
           pageType = Some("SUBMITTED"),
           pageNumber = pageIndex.map(_.toString))
-      case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
-        SdltReturnRecordRequest(
-          storn = storn,
-          deletionFlag = false,
-          status = Some("SUBMITTED_NO_RECEIPT"),
-          pageType = Some("SUBMITTED"),
-          pageIndex.map(_.toString))
       case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = true,
           status = None,
           pageType = Some("IN-PROGRESS"),
-          pageIndex.map(_.toString))
+          pageNumber = pageIndex.map(_.toString))
       case SdltReturnTypes.SUBMITTED_RETURNS_DUE_FOR_DELETION =>
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = true,
           status = None,
           pageType = Some("SUBMITTED"),
-          pageIndex.map(_.toString))
+          pageNumber = pageIndex.map(_.toString))
     }
   }
 
