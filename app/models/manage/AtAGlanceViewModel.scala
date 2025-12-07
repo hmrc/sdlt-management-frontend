@@ -44,9 +44,9 @@ object AtAGlanceViewModel {
       name = name,
       returns =
         ReturnsManagementViewModel(
-          inProgressReturnsCount = inProgressReturns.totalRowCount.getOrElse(0),
+          inProgressReturnsCount = inProgressReturns.totalRowCount,
           inProgressReturnsUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
-          submittedReturnsCount = submittedReturns.totalRowCount.getOrElse(0),
+          submittedReturnsCount = submittedReturns.totalRowCount,
           submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
           dueForDeletionReturnsCount = dueForDeletionReturns.length,
           dueForDeletionUrl = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,

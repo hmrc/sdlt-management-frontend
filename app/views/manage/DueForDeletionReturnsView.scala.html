@@ -61,7 +61,7 @@
     ))
     @{
         inProgressViewModel
-        .createPagination(inProgressSelectedPageIndex, inProgressViewModel.totalRowCount.getOrElse(1), inProgressUrlSelector)
+        .createPagination(inProgressSelectedPageIndex, inProgressViewModel.totalRowCount, inProgressUrlSelector)
         .map(govukPagination(_))
     }
 }
@@ -87,7 +87,7 @@
     ))
     @{
         submittedViewModel
-        .createPagination(submittedSelectedPageIndex, inProgressViewModel.totalRowCount.getOrElse(1), inProgressUrlSelector)
+        .createPagination(submittedSelectedPageIndex, inProgressViewModel.totalRowCount, inProgressUrlSelector)
         .map(govukPagination(_))
     }
 }

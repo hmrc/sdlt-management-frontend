@@ -33,7 +33,7 @@ case class SdltReturnViewRow(
 case class SdltReturnViewModel(
                                 extractType: SdltReturnTypes,
                                 rows: List[SdltReturnViewRow],
-                                totalRowCount: Option[Int]) extends PaginationHelper
+                                totalRowCount: Int) extends PaginationHelper
 
 object SdltReturnViewRow extends Logging {
 

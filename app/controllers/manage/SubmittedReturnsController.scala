@@ -55,15 +55,17 @@ class SubmittedReturnsController @Inject()(
           .getReturnsByTypeViewModel(request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
           .map { viewModel =>
             logger.info(s"[SubmittedReturnsController][onPageLoad] - render page: $paginationIndex")
-            val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
-            pageIndexSelector(paginationIndex, totalRowsCount) match {
-              case Right(selectedPageIndex) =>
-                val paginator       : Option[Pagination] = createPaginationV2(selectedPageIndex, totalRowsCount, urlSelector)
-                val paginationText  : Option[String]     = getPaginationInfoTextV2(selectedPageIndex, totalRowsCount)
-                logger.info(s"[SubmittedReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-                Ok(view(viewModel.rows, paginator, paginationText))
-              case Left(error) =>
-                logger.error(s"[SubmittedReturnsController][onPageLoad] - other error: $error")
+
+            getPaginationWithInfoText(viewModel.rows, viewModel.totalRowCount, paginationIndex, urlSelector) match {
+              case Some((rows, paginator, paginationText)) =>
+                logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${rows.length}")
+                Ok(view(rows, paginator, paginationText))
+
+              case _ =>
+                logger.error(
+                  s"[SubmittedReturnsController][onPageLoad] - invalid pagination index: $paginationIndex " +
+                    s"for total rows: ${viewModel.totalRowCount}"
+                )
                 Redirect(JourneyRecoveryController.onPageLoad())
             }
         } recover {
