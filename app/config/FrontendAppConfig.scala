@@ -38,6 +38,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val signOutUrl: String           = configuration.get[String]("urls.signOut")
   val govUkSDLTGuidanceUrl: String = configuration.get[String]("urls.govUkSDLTGuidance")
   lazy val feedbackFrontend: String = configuration.get[String]("feedback-frontend.host")
+  lazy val hmrcOnlineServiceDeskUrl: String = configuration.get[String]("urls.hmrcOnlineServiceDesk")
 
   private val agentServiceBaseUrl: String       = configuration.get[String]("stamp-duty-land-tax-agent.host")
   val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/agent-details/start-add-agent"
