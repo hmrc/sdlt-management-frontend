@@ -333,7 +333,7 @@ class AuthActionSpec extends SpecBase {
               status(result) mustBe SEE_OTHER
               redirectLocation(
                 result
-              ).value mustBe controllers.routes.UnauthorisedController
+              ).value mustBe controllers.routes.AccessDeniedController
                 .onPageLoad()
                 .url
             }
@@ -386,7 +386,7 @@ class AuthActionSpec extends SpecBase {
           val result = controller.onPageLoad()(FakeRequest())
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe controllers.routes.UnauthorisedController.onPageLoad().url
+          redirectLocation(result).value mustBe controllers.routes.AccessDeniedController.onPageLoad().url
         }
       }
     }
