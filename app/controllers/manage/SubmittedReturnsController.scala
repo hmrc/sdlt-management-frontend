@@ -22,13 +22,15 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import controllers.routes.JourneyRecoveryController
 import play.api.Logging
+
 import javax.inject.{Inject, Singleton}
 import navigation.Navigator
 import utils.PaginationHelper
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import views.html.manage.SubmittedReturnsView
-import controllers.manage.routes._
+import controllers.manage.routes.*
+import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 
 import scala.concurrent.ExecutionContext
 
@@ -50,18 +52,20 @@ class SubmittedReturnsController @Inject()(
     (identify andThen getData andThen requireData andThen stornRequiredAction)
       .async { implicit request =>
         stampDutyLandTaxService
-          .getSubmittedReturnsViewModel(request.storn, paginationIndex)
+          .getReturnsByTypeViewModel(request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
           .map { viewModel =>
             logger.info(s"[SubmittedReturnsController][onPageLoad] - render page: $paginationIndex")
-            val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
-            pageIndexSelector(paginationIndex, totalRowsCount) match {
-              case Right(selectedPageIndex) =>
-                val paginator       : Option[Pagination] = createPaginationV2(selectedPageIndex, totalRowsCount, urlSelector)
-                val paginationText  : Option[String]     = getPaginationInfoTextV2(selectedPageIndex, totalRowsCount)
-                logger.info(s"[SubmittedReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-                Ok(view(viewModel.rows, paginator, paginationText))
-              case Left(error) =>
-                logger.error(s"[SubmittedReturnsController][onPageLoad] - other error: $error")
+
+            getPaginationWithInfoText(viewModel.rows, viewModel.totalRowCount, paginationIndex, urlSelector) match {
+              case Some((rows, paginator, paginationText)) =>
+                logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${rows.length}")
+                Ok(view(rows, paginator, paginationText))
+
+              case _ =>
+                logger.error(
+                  s"[SubmittedReturnsController][onPageLoad] - invalid pagination index: $paginationIndex " +
+                    s"for total rows: ${viewModel.totalRowCount}"
+                )
                 Redirect(JourneyRecoveryController.onPageLoad())
             }
         } recover {

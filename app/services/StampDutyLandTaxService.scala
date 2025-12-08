@@ -21,7 +21,7 @@ import models.SdltReturnTypes
 import models.manage.SdltReturnRecordRequest
 import models.requests.DataRequest
 import models.responses.SdltReturnsViewModel.convertToViewModel
-import models.responses.{SdltReturnViewModel, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
+import models.responses.SdltReturnViewModel
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -44,38 +44,13 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
         storn = storn,
         extractType = extractType,
         pageIndex = pageIndex)
-    logger.info(s"[StampDutyLandTaxService][getReturns] - GENERIC::RETURNS_DATA_REQUEST:: $dataRequest")
+    logger.info(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - GENERIC::RETURNS_DATA_REQUEST:: $dataRequest")
     for {
       dataResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
     } yield {
-      logger.info(s"[StampDutyLandTaxService][getReturns] - ${storn}::" +
+      logger.info(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - ${storn}::" +
         s"response r/count: ${dataResponse.returnSummaryCount} :: ${dataResponse.returnSummaryList.length}")
       convertToViewModel(dataResponse, extractType)
-    }
-  }
-
-  @deprecated("Please use getReturns instead")
-  def getSubmittedReturnsViewModel(storn: String, pageIndex: Option[Int])
-                                  (implicit hc: HeaderCarrier): Future[SdltSubmittedReturnViewModel] = {
-    val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-      storn = storn,
-      status = None,
-      deletionFlag = false,
-      pageType = Some("SUBMITTED"),
-      pageNumber = pageIndex.map(_.toString))
-    logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsViewModel] - data request:: ${dataRequest}")
-    for {
-      submittedResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
-    } yield {
-      logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsViewModel] - ${storn}::" +
-        s"response r/count: ${submittedResponse.returnSummaryCount} :: ${submittedResponse.returnSummaryList.length}")
-      SdltSubmittedReturnViewModel(
-        rows = SdltSubmittedReturnsViewRow
-          .convertResponseToSubmittedView(
-            submittedResponse.returnSummaryList
-          ),
-        totalRowCount = submittedResponse.returnSummaryCount
-      )
     }
   }
 

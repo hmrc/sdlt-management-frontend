@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 
 case class SdltReturnRecordResponse(
-                                     returnSummaryCount : Option[Int] = None,         // preferred: use returnSummaryList.length
+                                     returnSummaryCount : Int,
                                      returnSummaryList  : List[ReturnSummary]
                                    )
 

@@ -182,7 +182,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
       val result: SdltReturnRecordResponse =
         connector.getReturns(dataRequest).futureValue
 
-      result.returnSummaryCount.get mustBe 2
+      result.returnSummaryCount mustBe 2
       result.returnSummaryList.length mustBe 2
       result.returnSummaryList.head.status mustBe "PENDING"
     }
