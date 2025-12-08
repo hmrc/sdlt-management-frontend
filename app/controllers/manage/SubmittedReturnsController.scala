@@ -31,6 +31,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import views.html.manage.SubmittedReturnsView
 import controllers.manage.routes.*
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
+import models.responses.SdltSubmittedReturnViewModel
 
 import scala.concurrent.ExecutionContext
 
@@ -52,15 +53,16 @@ class SubmittedReturnsController @Inject()(
     (identify andThen getData andThen requireData andThen stornRequiredAction)
       .async { implicit request =>
         stampDutyLandTaxService
-          .getReturnsByTypeViewModel(request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
+          .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
           .map { viewModel =>
             logger.info(s"[SubmittedReturnsController][onPageLoad] - render page: $paginationIndex")
 
             getPaginationWithInfoText(viewModel.rows, viewModel.totalRowCount, paginationIndex, urlSelector) match {
               case Some((rows, paginator, paginationText)) =>
                 logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${rows.length}")
-                Ok(view(rows, paginator, paginationText))
-
+                Ok(
+                  view(viewModel, paginator, paginationText)
+                )
               case _ =>
                 logger.error(
                   s"[SubmittedReturnsController][onPageLoad] - invalid pagination index: $paginationIndex " +

@@ -22,6 +22,29 @@ import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED
 import play.api.Logging
 import utils.PaginationHelper
 
+
+case class SdltInProgressReturnViewModel(
+                                          extractType: SdltReturnTypes,
+                                          rows: List[SdltReturnViewRow],
+                                          totalRowCount: Int) extends SdltReturnBaseViewModel
+
+case class SdltSubmittedReturnViewModel(
+                                                       extractType: SdltReturnTypes,
+                                                       rows: List[SdltReturnViewRow],
+                                                       totalRowCount: Int) extends SdltReturnBaseViewModel
+
+case class SdltSubmittedDueForDeletionReturnViewModel(
+                                                       extractType: SdltReturnTypes,
+                                                       rows: List[SdltReturnViewRow],
+                                                       totalRowCount: Int) extends SdltReturnBaseViewModel
+
+case class SdltInProgressDueForDeletionReturnViewModel(
+                                                  extractType: SdltReturnTypes,
+                                                  rows: List[SdltReturnViewRow],
+                                                  totalRowCount: Int) extends SdltReturnBaseViewModel
+
+abstract class SdltReturnBaseViewModel extends PaginationHelper
+
 case class SdltReturnViewRow(
                               address: String,
                               agentReference: String,
@@ -30,10 +53,6 @@ case class SdltReturnViewRow(
                               utrn: String
                             )
 
-case class SdltReturnViewModel(
-                                extractType: SdltReturnTypes,
-                                rows: List[SdltReturnViewRow],
-                                totalRowCount: Int) extends PaginationHelper
 
 object SdltReturnViewRow extends Logging {
 
@@ -68,35 +87,34 @@ object SdltReturnsViewModel {
   private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
   private val submittedReturnsStatuses: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
 
-  def convertToViewModel(response: SdltReturnRecordResponse, extractType: SdltReturnTypes): SdltReturnViewModel = {
+  def convertToViewModel(response: SdltReturnRecordResponse, extractType: SdltReturnTypes): SdltReturnBaseViewModel = {
     val rows: List[SdltReturnViewRow] = SdltReturnViewRow.convertToViewRows(response.returnSummaryList)
 
     extractType match {
       case SdltReturnTypes.IN_PROGRESS_RETURNS =>
-        SdltReturnViewModel(
+        SdltInProgressReturnViewModel(
           extractType = extractType,
           rows = rows
             .filter(rec => inProgressReturnStatuses.contains(rec.status)),
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS | SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
-        SdltReturnViewModel(
+        SdltSubmittedReturnViewModel(
           extractType = extractType,
           rows = rows
             .filter(rec => submittedReturnsStatuses.contains(rec.status)),
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
-        SdltReturnViewModel(
+        SdltInProgressDueForDeletionReturnViewModel(
           extractType = extractType,
           rows = rows,
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.SUBMITTED_RETURNS_DUE_FOR_DELETION =>
-        SdltReturnViewModel(
+        SdltSubmittedDueForDeletionReturnViewModel(
           extractType = extractType,
-          rows = rows.sortBy(_.purchaserName), // TODO: move sorting to the view level
-          // TODO: any filtering || .filter(rec => inProgressReturnStatuses.contains(rec.status)),
+          rows = rows.sortBy(_.purchaserName),
           totalRowCount = response.returnSummaryCount
         )
     }
