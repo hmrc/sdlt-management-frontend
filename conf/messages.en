@@ -41,6 +41,14 @@ journeyRecovery.startAgain.title = Sorry, there is a problem with the service
 journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
 journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
 
+pageNotFound.title      = Page not found
+pageNotFound.heading    = Page not found
+pageNotFound.p1         = If you typed the web address, check it is correct.
+pageNotFound.p2         = If you pasted the web address, check you copied the entire address.
+pageNotFound.p3         = If the web address is correct or you selected a link or button, contact the
+pageNotFound.link       = HMRC Online Services Helpdesk
+pageNotFound.p4         = if you need to speak to someone.
+
 signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
 signedOut.guidance = We did not save your answers.
