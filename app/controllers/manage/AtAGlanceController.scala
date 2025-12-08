@@ -30,7 +30,7 @@ import controllers.routes.SystemErrorController
 import controllers.manage.routes.*
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 import AtAGlanceController.*
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.AtAGlanceViewModel
 
 import scala.concurrent.ExecutionContext
@@ -55,7 +55,7 @@ class AtAGlanceController@Inject()(
     (for {
       agentsCount                     <- stampDutyLandTaxService.getAgentCount
       returnsInProgress               <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS, None)
-      submittedReturns                <- stampDutyLandTaxService.getSubmittedReturnsViewModel(request.storn, None)
+      submittedReturns                <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, SUBMITTED_SUBMITTED_RETURNS, None)
       submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
       inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
       returnsDueForDeletionRows            = (submittedReturnsDueForDeletion.rows ++ inProgressReturnsDueForDeletion.rows).sortBy(_.purchaserName)

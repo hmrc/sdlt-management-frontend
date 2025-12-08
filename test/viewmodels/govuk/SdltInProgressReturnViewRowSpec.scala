@@ -32,12 +32,12 @@ import java.time.LocalDate
 class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Mappings with OptionValues {
 
   val responseWithEmptySummary: SdltReturnRecordResponse = SdltReturnRecordResponse(
-    returnSummaryCount = Some(0),
+    returnSummaryCount = 0,
     returnSummaryList = List.empty
   )
 
   val responseWithData: SdltReturnRecordResponse = SdltReturnRecordResponse(
-    returnSummaryCount = Some(0),
+    returnSummaryCount = 0,
     returnSummaryList = List(
       ReturnSummary(
         returnReference = "REF001",
@@ -103,7 +103,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
     "response with some data return expected view model" in {
       val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS)
       resultViewModel.rows must contain theSameElementsAs expectedDataRows
-      resultViewModel.totalRowCount mustBe (Some(0))
+      resultViewModel.totalRowCount mustBe 0
     }
 
   }
