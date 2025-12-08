@@ -20,14 +20,9 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.manage.routes.*
 import controllers.routes.JourneyRecoveryController
-import models.SdltReturnTypes.{
-  IN_PROGRESS_RETURNS,
-  IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-  SUBMITTED_RETURNS_DUE_FOR_DELETION,
-  SUBMITTED_SUBMITTED_RETURNS
-}
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.AtAGlanceViewModel
-import models.responses.{SdltReturnViewModel, SdltReturnViewRow}
+import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltInProgressReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel, SdltSubmittedReturnViewModel}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -63,14 +58,14 @@ class AtAGlanceControllerSpec
       val agentsCount = 0
 
       val inProgressRows: List[SdltReturnViewRow] = Nil
-      val returnsInProgressViewModel = SdltReturnViewModel(
+      val returnsInProgressViewModel = SdltInProgressReturnViewModel(
         extractType    = IN_PROGRESS_RETURNS,
         rows           = inProgressRows,
         totalRowCount  = inProgressRows.length
       )
 
       val submittedRows: List[SdltReturnViewRow] = Nil
-      val submittedViewModel = SdltReturnViewModel(
+      val submittedViewModel = SdltSubmittedReturnViewModel(
         extractType    = SUBMITTED_SUBMITTED_RETURNS,
         rows           = submittedRows,
         totalRowCount  = submittedRows.length
@@ -79,13 +74,13 @@ class AtAGlanceControllerSpec
       val submittedDueRows: List[SdltReturnViewRow] = Nil
       val inProgressDueRows: List[SdltReturnViewRow] = Nil
 
-      val submittedDueVm = SdltReturnViewModel(
+      val submittedDueVm = SdltSubmittedDueForDeletionReturnViewModel(
         extractType    = SUBMITTED_RETURNS_DUE_FOR_DELETION,
         rows           = submittedDueRows,
         totalRowCount  = submittedDueRows.length
       )
 
-      val inProgressDueVm = SdltReturnViewModel(
+      val inProgressDueVm = SdltInProgressDueForDeletionReturnViewModel(
         extractType    = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
         rows           = inProgressDueRows,
         totalRowCount  = inProgressDueRows.length
@@ -123,7 +118,7 @@ class AtAGlanceControllerSpec
         val expectedModel = AtAGlanceViewModel(
           inProgressReturns       = returnsInProgressViewModel,
           submittedReturns        = submittedViewModel,
-          dueForDeletionReturnsTotal   = combinedDueForDeletionRows,
+          dueForDeletionReturnsTotal   = combinedDueForDeletionRows.length,
           agentsCount             = agentsCount,
           storn                   = "STN001",
           name                    = "David Frank"

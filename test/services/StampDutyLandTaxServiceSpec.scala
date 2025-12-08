@@ -174,9 +174,9 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(inProgressRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(inProgressReturnsResponse))
 
-      val result = service.getReturnsByTypeViewModel(storn, IN_PROGRESS_RETURNS, Some(1)).futureValue
+      val result = service.getReturnsByTypeViewModel[SdltInProgressReturnViewModel](storn, IN_PROGRESS_RETURNS, Some(1)).futureValue
 
-      val expected = SdltReturnViewModel(
+      val expected = SdltInProgressReturnViewModel(
         extractType   = IN_PROGRESS_RETURNS,
         rows          = dataRows,
         totalRowCount = dataRows.length
@@ -232,7 +232,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(expectedRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(submittedResponse))
 
-      val result = service.getReturnsByTypeViewModel(storn, SUBMITTED_SUBMITTED_RETURNS, Some(1)).futureValue
+      val result = service.getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](storn, SUBMITTED_SUBMITTED_RETURNS, Some(1)).futureValue
 
       val expectedRows = List(
         SdltReturnViewRow(
@@ -251,7 +251,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         )
       )
 
-      val expected = SdltReturnViewModel(
+      val expected = SdltSubmittedReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = expectedRows,
         totalRowCount = 2
@@ -279,7 +279,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         .thenReturn(Future.failed(new RuntimeException("Error: Connector issue")))
 
       val ex = intercept[RuntimeException] {
-        service.getReturnsByTypeViewModel(storn, SUBMITTED_SUBMITTED_RETURNS, Some(1)).futureValue
+        service.getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](storn, SUBMITTED_SUBMITTED_RETURNS, Some(1)).futureValue
       }
 
       ex.getMessage must include("Error: Connector issue")
@@ -323,7 +323,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         .thenReturn(Future.successful(submittedDeletionResponse))
 
       val result =
-        service.getReturnsByTypeViewModel(storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
+        service.getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
 
       result.rows must contain theSameElementsAs List(
         SdltReturnViewRow(
@@ -374,7 +374,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         .thenReturn(Future.successful(inProgressDeletionResponse))
 
       val result =
-        service.getReturnsByTypeViewModel(storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
+        service.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
 
       result.totalRowCount mustBe 1
 

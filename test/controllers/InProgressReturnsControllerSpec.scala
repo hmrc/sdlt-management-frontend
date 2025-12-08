@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import models.SdltReturnTypes.IN_PROGRESS_RETURNS
-import models.responses.{SdltReturnViewModel, SdltReturnViewRow, UniversalStatus}
+import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
@@ -50,7 +50,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       .build()
 
     val expectedEmptyData: List[SdltReturnViewRow] = List[SdltReturnViewRow]()
-    val viewModelNoRows: SdltReturnViewModel = SdltReturnViewModel(
+    val viewModelNoRows: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedEmptyData,
       totalRowCount = expectedEmptyData.length)
@@ -66,7 +66,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-    val viewModelPaginationOff: SdltReturnViewModel = SdltReturnViewModel(
+    val viewModelPaginationOff: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedDataPaginationOff,
       totalRowCount = expectedDataPaginationOff.length)
@@ -82,17 +82,17 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-    val viewModelPaginationOn: SdltReturnViewModel = SdltReturnViewModel(
+    val viewModelPaginationOn: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedDataPaginationOn,
       totalRowCount = expectedDataPaginationOn.length)
 
-    val viewModelPaginationOnPage1: SdltReturnViewModel = SdltReturnViewModel(
+    val viewModelPaginationOnPage1: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedDataPaginationOn.take(rowsPerPage),
       totalRowCount = expectedDataPaginationOn.length)
 
-    val viewModelPaginationOnPage2: SdltReturnViewModel = SdltReturnViewModel(
+    val viewModelPaginationOnPage2: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedDataPaginationOn.takeRight(7),
       totalRowCount = expectedDataPaginationOn.length)
@@ -234,7 +234,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
       }
-      val viewModelActual: SdltReturnViewModel = SdltReturnViewModel(
+      val viewModelActual: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
         extractType = IN_PROGRESS_RETURNS,
         rows = actualDataPaginationOn,
         totalRowCount = actualDataPaginationOn.length
