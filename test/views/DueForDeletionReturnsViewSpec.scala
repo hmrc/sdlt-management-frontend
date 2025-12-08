@@ -17,6 +17,7 @@
 package views
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.responses.UniversalStatus.{ACCEPTED, SUBMITTED}
 import models.responses.{SdltReturnViewModel, SdltReturnViewRow}
@@ -68,6 +69,9 @@ class DueForDeletionReturnsViewSpec
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
 
+    implicit val appConfig: FrontendAppConfig =
+      app.injector.instanceOf[FrontendAppConfig]
+
     implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
     implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
@@ -98,7 +102,7 @@ class DueForDeletionReturnsViewSpec
           rows = submittedRows,
           1)
 
-      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
+      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
       val doc  = parseHtml(html)
 
       doc.title() must include(messages("manageReturns.dueDeletionReturns.title"))
@@ -113,7 +117,7 @@ class DueForDeletionReturnsViewSpec
     }
 
     "show the 'no returns' message and link when both in-progress and submitted lists are empty" in new Setup {
-      val html = view(emptyInProgress, emptySubmitted, 1, 1,inProgressUrlSelector, submittedUrlSelector)
+      val html = view(emptyInProgress, emptySubmitted, 1, 1,inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 0
@@ -140,7 +144,7 @@ class DueForDeletionReturnsViewSpec
           rows = submittedRows,
           1)
 
-      val html = view(inProgressVm, emptySubmitted, 1, 1, inProgressUrlSelector, submittedUrlSelector)
+      val html = view(inProgressVm, emptySubmitted, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
@@ -173,7 +177,7 @@ class DueForDeletionReturnsViewSpec
           rows = submittedRows,
           1)
 
-      val html = view(emptyInProgress, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
+      val html = view(emptyInProgress, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
@@ -213,7 +217,7 @@ class DueForDeletionReturnsViewSpec
           rows = submittedRows,
           1)
 
-      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
+      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1

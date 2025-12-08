@@ -26,7 +26,7 @@ import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerCompon
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.manage.InProgressReturnView
+import views.html.InProgressReturnView
 import models.SdltReturnTypes.*
 
 import scala.concurrent.ExecutionContext

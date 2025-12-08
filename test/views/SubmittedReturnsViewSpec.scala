@@ -29,6 +29,7 @@ import play.twirl.api.Html
 import utils.PaginationHelper
 import views.html.manage.SubmittedReturnsView
 import base.SpecBase
+import config.FrontendAppConfig
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -69,6 +70,9 @@ class SubmittedReturnsViewSpec
       )
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
+
+    implicit val appConfig: FrontendAppConfig =
+      app.injector.instanceOf[FrontendAppConfig]
 
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
     implicit val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
@@ -115,7 +119,7 @@ class SubmittedReturnsViewSpec
           messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
         }
 
-      val html: Html = view(paginatedData, paginator, paginationText)
+      val html: Html = view(paginatedData, paginator, paginationText, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       val headers: Elements =
@@ -158,7 +162,7 @@ class SubmittedReturnsViewSpec
           messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
         }
 
-      val html: Html = view(paginatedData, paginator, paginationText)
+      val html: Html = view(paginatedData, paginator, paginationText, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
@@ -198,7 +202,7 @@ class SubmittedReturnsViewSpec
           messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
         }
 
-      val html: Html = view(nonPaginatedData, paginator, paginationText)
+      val html: Html = view(nonPaginatedData, paginator, paginationText, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
@@ -237,7 +241,7 @@ class SubmittedReturnsViewSpec
           messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
         }
 
-      val html: Html = view(emptyData, paginator, paginationText)
+      val html: Html = view(emptyData, paginator, paginationText, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.noReturns.info"))

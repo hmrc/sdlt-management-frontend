@@ -17,6 +17,7 @@
 package controllers.manage
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.ReturnSummary
 import models.responses.{SdltReturnViewModel, SdltReturnViewRow}
@@ -46,6 +47,9 @@ class DueForDeletionReturnsControllerSpec
           bind[StampDutyLandTaxService].toInstance(mockService)
         )
         .build()
+
+    implicit val appConfig: FrontendAppConfig =
+      app.injector.instanceOf[FrontendAppConfig]
 
     lazy val inProgressUrlSelector: Int => String =
       (inProgressIndex: Int) =>
@@ -92,7 +96,7 @@ class DueForDeletionReturnsControllerSpec
             rows = List[SdltReturnViewRow](), totalRowCount = 0)
 
         contentAsString(result) mustEqual
-          view(expectedInProgress, expectedSubmitted, 1, 1, inProgressUrlSelector, submittedUrlSelector)(request, messages(app)).toString
+          view(expectedInProgress, expectedSubmitted, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)(request, messages(app)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
@@ -138,7 +142,7 @@ class DueForDeletionReturnsControllerSpec
           SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
 
         contentAsString(result) mustEqual
-          view(expectedInProgress, expectedSubmitted, 1, 1, submittedUrlSelector, inProgressUrlSelector)(request, messages(app)).toString
+          view(expectedInProgress, expectedSubmitted, 1, 1, submittedUrlSelector, inProgressUrlSelector, appConfig.startNewReturnUrl)(request, messages(app)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())

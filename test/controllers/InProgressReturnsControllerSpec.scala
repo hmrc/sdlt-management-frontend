@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.responses.{SdltReturnViewModel, SdltReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.any
@@ -48,6 +49,9 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     val application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
       .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
       .build()
+
+    implicit val appConfig: FrontendAppConfig =
+      application.injector.instanceOf[FrontendAppConfig]
 
     val expectedEmptyData: List[SdltReturnViewRow] = List[SdltReturnViewRow]()
     val viewModelNoRows: SdltReturnViewModel = SdltReturnViewModel(
@@ -115,7 +119,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(List[SdltReturnViewRow](), None, None)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(List[SdltReturnViewRow](), None, None, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
       }
@@ -144,7 +148,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(actualDataPaginationOff, None, None)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(actualDataPaginationOff, None, None, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
       }
@@ -177,7 +181,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(actualDataPaginationOn.take(rowsPerPage), paginator, paginationText)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(actualDataPaginationOn.take(rowsPerPage), paginator, paginationText, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
 
@@ -214,7 +218,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(actualDataPaginationOn.takeRight(7), paginator, paginationText)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(actualDataPaginationOn.takeRight(7), paginator, paginationText, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
       }

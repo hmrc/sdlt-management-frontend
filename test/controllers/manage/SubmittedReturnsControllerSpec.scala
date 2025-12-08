@@ -17,6 +17,7 @@
 package controllers.manage
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import models.responses.{SdltReturnViewModel, SdltReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -46,6 +47,9 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
         .build()
 
+    implicit val appConfig: FrontendAppConfig =
+      application.injector.instanceOf[FrontendAppConfig]
+    
     val emptyRows: List[SdltReturnViewRow] = Nil
 
     val nonPaginatedRows: List[SdltReturnViewRow] =
@@ -102,7 +106,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(emptyRows, None, None)(request, messages(application)).toString
+          view(emptyRows, None, None, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -132,7 +136,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(nonPaginatedRows, None, None)(request, messages(application)).toString
+          view(nonPaginatedRows, None, None, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -195,7 +199,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(pageOneRows, paginator, paginationText)(request, messages(application)).toString
+          view(pageOneRows, paginator, paginationText, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -262,7 +266,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(pageTwoRows, paginator, paginationText)(request, messages(application)).toString
+          view(pageTwoRows, paginator, paginationText, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
