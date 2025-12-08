@@ -18,6 +18,7 @@
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import models.responses.SdltReturnViewRow
+@import models.responses.SdltSubmittedReturnViewModel
 
 
 @this(
@@ -29,7 +30,7 @@
         hmrcPageHeading: HmrcPageHeading
 )
 @(
-        dataRows: List[SdltReturnViewRow],
+        viewModel: SdltSubmittedReturnViewModel,
         pagination: Option[Pagination],
         paginationInfoText: Option[String]
 )(
@@ -39,7 +40,7 @@
 
 @renderTable() = {
     @govukTable(Table(
-        rows = dataRows.map{ currentRow =>
+        rows = viewModel.rows.map{ currentRow =>
             Seq(
                 TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#") )),
                 TableRow(content = Text( currentRow.address )),
@@ -64,7 +65,7 @@
         captionClasses = Some("govuk-caption-l")
     ))
 
-    @if(dataRows.isEmpty) {
+    @if(viewModel.rows.isEmpty) {
 
         @p("manage.submittedReturnsOverview.noReturns.info")
         @link("manage.submittedReturnsOverview.noReturns.link", "../manage-returns/start-new-return")

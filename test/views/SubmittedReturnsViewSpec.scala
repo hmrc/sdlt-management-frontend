@@ -17,7 +17,7 @@
 package views
 
 import models.responses.UniversalStatus.{SUBMITTED, SUBMITTED_NO_RECEIPT}
-import models.responses.SdltReturnViewRow
+import models.responses.{SdltReturnViewRow, SdltSubmittedReturnViewModel}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -29,6 +29,7 @@ import play.twirl.api.Html
 import utils.PaginationHelper
 import views.html.manage.SubmittedReturnsView
 import base.SpecBase
+import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -45,6 +46,11 @@ class SubmittedReturnsViewSpec
   trait Setup extends PaginationHelper {
 
     val emptyData: List[SdltReturnViewRow] = Nil
+    val emptyViewModel = SdltSubmittedReturnViewModel(
+      extractType = SUBMITTED_SUBMITTED_RETURNS,
+      rows = emptyData,
+      totalRowCount = 0
+    )
 
     val paginatedData: List[SdltReturnViewRow] =
       (0 to 17).toList.map(i =>
@@ -57,6 +63,12 @@ class SubmittedReturnsViewSpec
         )
       )
 
+    val paginatedViewModel = SdltSubmittedReturnViewModel(
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
+        rows = paginatedData,
+        totalRowCount = paginatedData.length
+      )
+
     val nonPaginatedData: List[SdltReturnViewRow] =
       (0 to 7).toList.map(i =>
         SdltReturnViewRow(
@@ -67,6 +79,12 @@ class SubmittedReturnsViewSpec
           agentReference = "Agent"
         )
       )
+
+    val nonPaginatedViewModel = SdltSubmittedReturnViewModel(
+      extractType = SUBMITTED_SUBMITTED_RETURNS,
+      rows = nonPaginatedData,
+      totalRowCount = nonPaginatedData.length
+    )
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
 
@@ -115,7 +133,7 @@ class SubmittedReturnsViewSpec
           messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
         }
 
-      val html: Html = view(paginatedData, paginator, paginationText)
+      val html: Html = view(paginatedViewModel, paginator, paginationText)
       val doc: Document = htmlDoc(html)
 
       val headers: Elements =
@@ -158,7 +176,7 @@ class SubmittedReturnsViewSpec
           messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
         }
 
-      val html: Html = view(paginatedData, paginator, paginationText)
+      val html: Html = view(paginatedViewModel, paginator, paginationText)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
@@ -198,7 +216,7 @@ class SubmittedReturnsViewSpec
           messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
         }
 
-      val html: Html = view(nonPaginatedData, paginator, paginationText)
+      val html: Html = view(nonPaginatedViewModel, paginator, paginationText)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
@@ -237,7 +255,7 @@ class SubmittedReturnsViewSpec
           messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
         }
 
-      val html: Html = view(emptyData, paginator, paginationText)
+      val html: Html = view(emptyViewModel, paginator, paginationText)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.noReturns.info"))

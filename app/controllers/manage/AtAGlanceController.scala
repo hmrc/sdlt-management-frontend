@@ -61,7 +61,7 @@ class AtAGlanceController@Inject()(
         .getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
       inProgressReturnsDueForDeletion <- stampDutyLandTaxService
         .getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
-      returnsDueForDeletionRows            = (submittedReturnsDueForDeletion.totalRowCount + inProgressReturnsDueForDeletion.totalRowCount)
+      returnsDueForDeletionRowCount            = (submittedReturnsDueForDeletion.totalRowCount + inProgressReturnsDueForDeletion.totalRowCount)
     } yield {
 
       Ok(view(
@@ -70,7 +70,7 @@ class AtAGlanceController@Inject()(
           name = name,
           inProgressReturns = returnsInProgress,
           submittedReturns = submittedReturns,
-          dueForDeletionReturnsTotal = returnsDueForDeletionRows,
+          dueForDeletionReturnsTotal = returnsDueForDeletionRowCount,
           agentsCount = agentsCount
         )
       ))

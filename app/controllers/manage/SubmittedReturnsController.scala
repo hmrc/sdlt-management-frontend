@@ -60,8 +60,9 @@ class SubmittedReturnsController @Inject()(
             getPaginationWithInfoText(viewModel.rows, viewModel.totalRowCount, paginationIndex, urlSelector) match {
               case Some((rows, paginator, paginationText)) =>
                 logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${rows.length}")
-                Ok(view(rows, paginator, paginationText))
-
+                Ok(
+                  view(viewModel, paginator, paginationText)
+                )
               case _ =>
                 logger.error(
                   s"[SubmittedReturnsController][onPageLoad] - invalid pagination index: $paginationIndex " +
