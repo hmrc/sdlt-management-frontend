@@ -35,7 +35,7 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  @deprecated("doesn't work for small number of pages -> use paginationItems")
+  @deprecated("doesn't work for small number of pages")
   def generatePaginationItems(paginationIndex: Int, numberOfPages: Int,
                               urlSelector: Int => String): Seq[PaginationItem] = {
     Range
@@ -84,7 +84,7 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  @deprecated("this would be effectively wrong in the new way of pagination -> use getPaginationInfoTextV2")
+  @deprecated("this would be effectively wrong in the new way of pagination")
   def getPaginationInfoText[A](paginationIndex: Int, itemList: Seq[A])
                               (implicit messages: Messages): Option[String] = {
 
@@ -99,20 +99,6 @@ trait PaginationHelper extends Logging {
         val end = math.min(paginationIndex * ROWS_ON_PAGE, total)
         messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
       }
-    }
-  }
-
-  def getPaginationInfoTextV2(paginationIndex: Int,
-                              totalRecCount: Int
-                             )(implicit messages: Messages): Option[String] = {
-
-    if (totalRecCount <= ROWS_ON_PAGE || paginationIndex <= 0) {
-      None
-    } else {
-      val total = totalRecCount
-      val start = (paginationIndex - 1) * ROWS_ON_PAGE + 1
-      val end = math.min(paginationIndex * ROWS_ON_PAGE, total)
-      Some(messages("manageReturns.inProgressReturns.paginationInfo", start, end, total))
     }
   }
 
@@ -168,94 +154,6 @@ trait PaginationHelper extends Logging {
         sliceData
       case None =>
         List.empty
-    }
-  }
-
-  @deprecated("use paginateListV2 - implements ellipses")
-  def paginateList[A](allDataRows: List[A], paginationIndex: Option[Int], urlSelector: Int => String)(implicit request: DataRequest[_], messages: Messages): Either[String, (
-    (List[A], Option[Pagination], Option[String]))] = {
-
-    val selectedPageIndex: Int = paginationIndex.getOrElse(1)
-
-    val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
-    val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
-    val rowsForSelectedPage: List[A] = getSelectedPageRows(allDataRows, selectedPageIndex)
-
-    Right(rowsForSelectedPage, paginator, paginationText)
-
-  }
-
-  @deprecated
-  def paginateListV2[A](
-                         rows: List[A],
-                         totalRowCount: Option[Int],
-                         paginationIndex: Option[Int],
-                         urlSelector: Int => String
-                       )
-                       (implicit request: DataRequest[_], messages: Messages): (List[A], Option[Pagination], Option[String]) = {
-
-    val selectedPageIndex = paginationIndex.getOrElse(1)
-    val total             = totalRowCount.getOrElse(rows.length)
-    val paginator         = createPaginationV2(selectedPageIndex, total, urlSelector)
-    val paginationText    = getPaginationInfoTextV2(selectedPageIndex, total)
-
-    (rows, paginator, paginationText)
-  }
-
-  @deprecated
-  def paginateIfValidPageIndex[A](
-                                   rowsOpt: Option[List[A]],
-                                   paginationIndex: Option[Int],
-                                   urlSelector: Int => String
-                                 )(
-                                   implicit req: DataRequest[_],
-                                   messages: Messages
-                                 ): Option[Either[String, (List[A], Option[Pagination], Option[String])]] =
-    rowsOpt match {
-      case None => None
-      case Some(Nil) => Some(Right((Nil, None, None)))
-      case Some(rows) =>
-        pageIndexSelector(paginationIndex, rows.length) match {
-          case Right(validIndex) =>
-            Some(paginateList(rows, Some(validIndex), urlSelector))
-
-          case Left(error) =>
-            logger.warn(
-              s"[paginateIfValidPageIndex] Invalid page index '$paginationIndex' " +
-                s"for ${rows.length} rows: ${error.getMessage}."
-            )
-            Some(Left(error.getMessage))
-        }
-    }
-
-  @deprecated("use getPaginationWithInfoText")
-  def createPaginationV2(
-                          pageIndex: Int,
-                          totalRowsCount: Int,
-                          urlSelector: Int => String
-                        )(implicit messages: Messages): Option[Pagination] = {
-
-    val numberOfPages: Int = getPageCount(totalRowsCount)
-
-    if (totalRowsCount > 0 && numberOfPages > 1) {
-      Some(
-        Pagination(
-          items = Some(
-            paginationItems(
-              currentPage = pageIndex,
-              totalPages = numberOfPages,
-              urlSelector = urlSelector
-            )
-          ),
-          previous = generatePreviousLink(pageIndex, numberOfPages, urlSelector(pageIndex - 1)),
-          next = generateNextLink(pageIndex, numberOfPages, urlSelector(pageIndex + 1)),
-          landmarkLabel = None,
-          classes = "",
-          attributes = Map.empty
-        )
-      )
-    } else {
-      None
     }
   }
 
