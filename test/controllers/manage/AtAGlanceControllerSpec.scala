@@ -123,7 +123,7 @@ class AtAGlanceControllerSpec
         val expectedModel = AtAGlanceViewModel(
           inProgressReturns       = returnsInProgressViewModel,
           submittedReturns        = submittedViewModel,
-          dueForDeletionReturns   = combinedDueForDeletionRows,
+          dueForDeletionReturnsTotal   = combinedDueForDeletionRows,
           agentsCount             = agentsCount,
           storn                   = "STN001",
           name                    = "David Frank"

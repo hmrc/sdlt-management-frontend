@@ -32,7 +32,7 @@ import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndConta
 import AtAGlanceController.*
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.AtAGlanceViewModel
-
+import models.responses.*
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -53,12 +53,17 @@ class AtAGlanceController@Inject()(
     val name = "David Frank"
 
     (for {
-      agentsCount                     <- stampDutyLandTaxService.getAgentCount
-      returnsInProgress               <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS, None)
-      submittedReturns                <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, SUBMITTED_SUBMITTED_RETURNS, None)
-      submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
-      inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
-      returnsDueForDeletionRows            = (submittedReturnsDueForDeletion.rows ++ inProgressReturnsDueForDeletion.rows).sortBy(_.purchaserName)
+      agentsCount                     <- stampDutyLandTaxService
+        .getAgentCount
+      returnsInProgress               <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, None)
+      submittedReturns                <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](request.storn, SUBMITTED_SUBMITTED_RETURNS, None)
+      submittedReturnsDueForDeletion  <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
+      inProgressReturnsDueForDeletion <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltInProgressDueForDeletionViewModel](request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
+      returnsDueForDeletionRows            = (submittedReturnsDueForDeletion.totalRowCount + inProgressReturnsDueForDeletion.totalRowCount)
     } yield {
 
       Ok(view(
@@ -67,7 +72,7 @@ class AtAGlanceController@Inject()(
           name = name,
           inProgressReturns = returnsInProgress,
           submittedReturns = submittedReturns,
-          dueForDeletionReturns = returnsDueForDeletionRows,
+          dueForDeletionReturnsTotal = returnsDueForDeletionRows,
           agentsCount = agentsCount
         )
       ))

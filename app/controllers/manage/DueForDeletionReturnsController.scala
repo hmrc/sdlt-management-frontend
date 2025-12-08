@@ -20,6 +20,7 @@ import controllers.actions.*
 import controllers.manage.routes.*
 import controllers.routes.JourneyRecoveryController
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
+import models.responses.{SdltInProgressDueForDeletionViewModel, SdltSubmittedDueForDeletionReturnViewModel}
 import navigation.Navigator
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -59,11 +60,11 @@ class DueForDeletionReturnsController @Inject()(
           s"${DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(index)).url}#submitted"
 
       (for {
-        inProgressDurForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel(
+        inProgressDurForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionViewModel](
           storn = request.storn,
           IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           inProgressIndex)
-        submittedDueDorDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel(
+        submittedDueDorDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](
           storn = request.storn,
           SUBMITTED_RETURNS_DUE_FOR_DELETION,
           submittedIndex)
