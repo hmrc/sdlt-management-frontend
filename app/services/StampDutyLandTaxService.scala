@@ -21,7 +21,7 @@ import models.SdltReturnTypes
 import models.manage.SdltReturnRecordRequest
 import models.requests.DataRequest
 import models.responses.SdltReturnsViewModel.convertToViewModel
-import models.responses.{SdltReturnViewModel, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
+import models.responses.{SdltReturnBaseViewModel, SdltReturnViewModel, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -35,10 +35,10 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
   /*
   Unified way to extract returns from DB and convert returns to viewModel
    */
-  def getReturnsByTypeViewModel(storn: String,
+  def getReturnsByTypeViewModel[ViewModel <: SdltReturnBaseViewModel](storn: String,
                                 extractType: SdltReturnTypes,
                                 pageIndex: Option[Int])
-                               (implicit hc: HeaderCarrier): Future[SdltReturnViewModel] = {
+                               (implicit hc: HeaderCarrier): Future[ViewModel] = {
     val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest
       .convertToDataRequest(
         storn = storn,
@@ -50,7 +50,8 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     } yield {
       logger.info(s"[StampDutyLandTaxService][getReturns] - ${storn}::" +
         s"response r/count: ${dataResponse.returnSummaryCount} :: ${dataResponse.returnSummaryList.length}")
-      convertToViewModel(dataResponse, extractType)
+      val viewModel = convertToViewModel(dataResponse, extractType)
+      viewModel.asInstanceOf[ViewModel]
     }
   }
 

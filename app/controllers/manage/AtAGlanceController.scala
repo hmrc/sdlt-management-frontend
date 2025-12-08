@@ -32,6 +32,7 @@ import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndConta
 import AtAGlanceController.*
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.AtAGlanceViewModel
+import models.responses.{SdltInProgressDueForDeletionViewModel, SdltInProgressReturnViewModel, SdltSubmittedDueForDeletionReturnViewModel}
 
 import scala.concurrent.ExecutionContext
 
@@ -54,10 +55,13 @@ class AtAGlanceController@Inject()(
 
     (for {
       agentsCount                     <- stampDutyLandTaxService.getAgentCount
-      returnsInProgress               <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS, None)
+      returnsInProgress               <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, None)
       submittedReturns                <- stampDutyLandTaxService.getSubmittedReturnsViewModel(request.storn, None)
-      submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
-      inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
+      submittedReturnsDueForDeletion  <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
+      inProgressReturnsDueForDeletion <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltInProgressDueForDeletionViewModel](request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
       returnsDueForDeletionRows            = (submittedReturnsDueForDeletion.rows ++ inProgressReturnsDueForDeletion.rows).sortBy(_.purchaserName)
     } yield {
 

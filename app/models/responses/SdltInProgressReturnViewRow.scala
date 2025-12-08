@@ -30,10 +30,33 @@ case class SdltReturnViewRow(
                               utrn: String
                             )
 
+case class SdltInProgressReturnViewModel(
+                                extractType: SdltReturnTypes,
+                                rows: List[SdltReturnViewRow],
+                                totalRowCount: Option[Int]) extends SdltReturnBaseViewModel
+
+case class SdltSubmittedReturnViewModel(
+                                                       extractType: SdltReturnTypes,
+                                                       rows: List[SdltReturnViewRow],
+                                                       totalRowCount: Option[Int]) extends SdltReturnBaseViewModel
+
+case class SdltSubmittedDueForDeletionReturnViewModel(
+                                extractType: SdltReturnTypes,
+                                rows: List[SdltReturnViewRow],
+                                totalRowCount: Option[Int]) extends SdltReturnBaseViewModel
+
+case class SdltInProgressDueForDeletionViewModel(
+                                                       extractType: SdltReturnTypes,
+                                                       rows: List[SdltReturnViewRow],
+                                                       totalRowCount: Option[Int]) extends SdltReturnBaseViewModel
+
+@deprecated("To be removed :: view models type should be 1:1 for each view")
 case class SdltReturnViewModel(
                                 extractType: SdltReturnTypes,
                                 rows: List[SdltReturnViewRow],
-                                totalRowCount: Option[Int]) extends PaginationHelper
+                                totalRowCount: Option[Int]) extends SdltReturnBaseViewModel
+
+abstract class SdltReturnBaseViewModel extends PaginationHelper
 
 object SdltReturnViewRow extends Logging {
 
@@ -64,60 +87,23 @@ object SdltReturnViewRow extends Logging {
   }
 }
 
-case class SdltInProgressReturnViewModel(rows: List[SdltInProgressReturnViewRow], totalRowCount: Option[Int])
-
-case class SdltInProgressReturnViewRow(
-                                        address: String,
-                                        agentReference: String,
-                                        purchaserName: String,
-                                        status: UniversalStatus
-                                      )
-
-object SdltInProgressReturnViewRow extends Logging {
-
-  import UniversalStatus.*
-
-  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
-
-  def convertResponseToReturnViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
-    val res = for {
-      rec <- inProgressReturnsList
-    } yield fromString(rec.status) match {
-      case Right(status) =>
-        Some(
-          SdltInProgressReturnViewRow(
-            address = rec.address,
-            agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
-            purchaserName = rec.purchaserName,
-            status = status,
-          )
-        )
-      case Left(ex) =>
-        logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
-        None
-      }
-    res
-      .flatten
-      .filter(rec => inProgressReturnStatuses.contains(rec.status))
-  }
-}
 
 object SdltReturnsViewModel {
   private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
 
-  def convertToViewModel(response: SdltReturnRecordResponse, extractType: SdltReturnTypes): SdltReturnViewModel = {
+  def convertToViewModel(response: SdltReturnRecordResponse, extractType: SdltReturnTypes): SdltReturnBaseViewModel = {
     val rows: List[SdltReturnViewRow] = SdltReturnViewRow.convertToViewRows(response.returnSummaryList)
 
     extractType match {
       case SdltReturnTypes.IN_PROGRESS_RETURNS =>
-        SdltReturnViewModel(
+        SdltInProgressReturnViewModel(
           extractType = extractType,
           rows = rows
             .filter(rec => inProgressReturnStatuses.contains(rec.status)),
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS =>
-        SdltReturnViewModel(
+        SdltSubmittedReturnViewModel(
           extractType = extractType,
           rows = rows,
           totalRowCount = response.returnSummaryCount
@@ -129,13 +115,13 @@ object SdltReturnsViewModel {
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
-        SdltReturnViewModel(
+        SdltInProgressDueForDeletionViewModel(
           extractType = extractType,
           rows = rows,
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.SUBMITTED_RETURNS_DUE_FOR_DELETION =>
-        SdltReturnViewModel(
+        SdltSubmittedDueForDeletionReturnViewModel(
           extractType = extractType,
           rows = rows.sortBy(_.purchaserName), // TODO: move sorting to the view level
           // TODO: any filtering || .filter(rec => inProgressReturnStatuses.contains(rec.status)),
