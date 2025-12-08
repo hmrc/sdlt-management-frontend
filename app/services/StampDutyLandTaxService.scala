@@ -21,7 +21,7 @@ import models.SdltReturnTypes
 import models.manage.SdltReturnRecordRequest
 import models.requests.DataRequest
 import models.responses.SdltReturnsViewModel.convertToViewModel
-import models.responses.{SdltReturnBaseViewModel, SdltReturnViewModel}
+import models.responses.{SdltReturnBaseViewModel}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 

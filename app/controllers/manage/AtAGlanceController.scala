@@ -18,21 +18,19 @@ package controllers.manage
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import controllers.manage.routes.*
+import controllers.routes.JourneyRecoveryController
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
+import models.manage.AtAGlanceViewModel
+import models.responses.*
 import play.api.Logging
-
-import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
-import controllers.routes.JourneyRecoveryController
-import controllers.manage.routes.*
-import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
-import AtAGlanceController.*
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
-import models.manage.AtAGlanceViewModel
-import models.responses.*
+
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -62,7 +60,7 @@ class AtAGlanceController@Inject()(
       submittedReturnsDueForDeletion  <- stampDutyLandTaxService
         .getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
       inProgressReturnsDueForDeletion <- stampDutyLandTaxService
-        .getReturnsByTypeViewModel[SdltInProgressDueForDeletionViewModel](request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
+        .getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
       returnsDueForDeletionRows            = (submittedReturnsDueForDeletion.totalRowCount + inProgressReturnsDueForDeletion.totalRowCount)
     } yield {
 

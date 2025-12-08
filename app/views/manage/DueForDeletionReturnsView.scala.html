@@ -18,7 +18,7 @@
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import viewmodels.manage.deletedReturns._
-@import models.responses.SdltInProgressDueForDeletionViewModel
+@import models.responses.SdltInProgressDueForDeletionReturnViewModel
 @import models.responses.SdltSubmittedDueForDeletionReturnViewModel
 
 @this(
@@ -32,7 +32,7 @@
         hmrcPageHeading: HmrcPageHeading
 )
 @(
-        inProgressViewModel: SdltInProgressDueForDeletionViewModel,
+        inProgressViewModel: SdltInProgressDueForDeletionReturnViewModel,
         submittedViewModel:  SdltSubmittedDueForDeletionReturnViewModel,
         inProgressSelectedPageIndex: Int,
         submittedSelectedPageIndex: Int,

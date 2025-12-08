@@ -22,6 +22,7 @@ import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED
 import play.api.Logging
 import utils.PaginationHelper
 
+
 case class SdltInProgressReturnViewModel(
                                           extractType: SdltReturnTypes,
                                           rows: List[SdltReturnViewRow],
@@ -37,15 +38,10 @@ case class SdltSubmittedDueForDeletionReturnViewModel(
                                                        rows: List[SdltReturnViewRow],
                                                        totalRowCount: Int) extends SdltReturnBaseViewModel
 
-case class SdltInProgressDueForDeletionViewModel(
+case class SdltInProgressDueForDeletionReturnViewModel(
                                                   extractType: SdltReturnTypes,
                                                   rows: List[SdltReturnViewRow],
                                                   totalRowCount: Int) extends SdltReturnBaseViewModel
-
-case class SdltReturnViewModel(
-                                extractType: SdltReturnTypes,
-                                rows: List[SdltReturnViewRow],
-                                totalRowCount: Int) extends SdltReturnBaseViewModel
 
 abstract class SdltReturnBaseViewModel extends PaginationHelper
 
@@ -103,14 +99,14 @@ object SdltReturnsViewModel {
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS | SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
-        SdltReturnViewModel(
+        SdltSubmittedReturnViewModel(
           extractType = extractType,
           rows = rows
             .filter(rec => submittedReturnsStatuses.contains(rec.status)),
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
-        SdltInProgressDueForDeletionViewModel(
+        SdltInProgressDueForDeletionReturnViewModel(
           extractType = extractType,
           rows = rows,
           totalRowCount = response.returnSummaryCount
