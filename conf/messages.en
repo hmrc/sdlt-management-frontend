@@ -41,6 +41,11 @@ journeyRecovery.startAgain.title = Sorry, there is a problem with the service
 journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
 journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
 
+accessDenied.title = Sorry, there is a problem with the service
+accessDenied.heading = Sorry, there is a problem with the service
+accessDenied.p1 = You do not have access to this service.
+accessDenied.link = Continue to your account
+
 pageNotFound.title      = Page not found
 pageNotFound.heading    = Page not found
 pageNotFound.p1         = If you typed the web address, check it is correct.
