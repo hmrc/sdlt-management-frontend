@@ -33,12 +33,15 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
-  val loginUrl: String             = configuration.get[String]("urls.login")
-  val loginContinueUrl: String     = configuration.get[String]("urls.loginContinue")
-  val signOutUrl: String           = configuration.get[String]("urls.signOut")
-  val govUkSDLTGuidanceUrl: String = configuration.get[String]("urls.govUkSDLTGuidance")
   lazy val feedbackFrontend: String = configuration.get[String]("feedback-frontend.host")
-  lazy val govUKUrl: String    = configuration.get[String]("urls.govUK")
+
+  val loginUrl: String                      = configuration.get[String]("urls.login")
+  val loginContinueUrl: String              = configuration.get[String]("urls.loginContinue")
+  val signOutUrl: String                    = configuration.get[String]("urls.signOut")
+  val govUkSDLTGuidanceUrl: String          = configuration.get[String]("urls.govUkSDLTGuidance")
+  lazy val govUKUrl: String                 = configuration.get[String]("urls.govUK")
+  lazy val howToPayUrl: String              = configuration.get[String]("urls.howToPay")
+  lazy val hmrcOnlineServiceDeskUrl: String = configuration.get[String]("urls.hmrcOnlineServiceDesk")
 
   private val agentServiceBaseUrl: String       = configuration.get[String]("stamp-duty-land-tax-agent.host")
   val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/agent-details/start-add-agent"
@@ -58,10 +61,5 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
-
-  lazy val howToPayUrl: String = configuration.get[String]("urls.howToPay")
-
-  lazy val hmrcOnlineServiceDeskUrl: String = configuration.get[String]("urls.hmrcOnlineServiceDesk")
-  lazy val govUKUrl: String = configuration.get[String]("urls.govUK")
 }
 
