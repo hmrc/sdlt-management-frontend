@@ -18,7 +18,7 @@ package controllers.manage
 
 import config.FrontendAppConfig
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
-import controllers.routes.{JourneyRecoveryController, SystemErrorController}
+import controllers.routes.{SystemErrorController, JourneyRecoveryController}
 import models.requests.DataRequest
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -26,8 +26,10 @@ import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerCompon
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.PaginationHelper
 import views.html.InProgressReturnView
 import models.SdltReturnTypes.*
+import models.responses.SdltInProgressReturnViewModel
 
 import scala.concurrent.ExecutionContext
 import javax.inject.*
@@ -50,27 +52,25 @@ class InProgressReturnsController @Inject()(
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
-    stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn,  IN_PROGRESS_RETURNS, index) map { viewModel =>
-      logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
-      val totalRowsCount = viewModel.totalRowCount
-      viewModel.pageIndexSelector(index, totalRowsCount) match {
-        case Right(selectedPageIndex) =>
-          val paginator: Option[Pagination] = viewModel.createPagination(selectedPageIndex, totalRowsCount, urlSelector)
-          val paginationText: Option[String] = viewModel.getPaginationInfoText(selectedPageIndex, viewModel.rows )
-          logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-          Ok(view(viewModel.rows, paginator, paginationText, appConfig.startNewReturnUrl))
-// TODO: disable page index redirect / need to be fix as part of tech debt or bug fix story: TBC
-//        case Left(error) if error.getMessage.contains("PageIndex selected is out of scope") =>
-//          logger.error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
-//          Redirect( urlSelector(1) )
-        case Left(error) =>
-          logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
-          Redirect(JourneyRecoveryController.onPageLoad())
-      }
-    } recover {
+    stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, index)
+      .map { viewModel =>
+        logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
+        val totalRowsCount = viewModel.totalRowCount
+        viewModel.pageIndexSelector(index, totalRowsCount) match {
+          case Right(selectedPageIndex) =>
+            val paginator: Option[Pagination] = viewModel.createPagination(selectedPageIndex, totalRowsCount, urlSelector)
+            val paginationText: Option[String] = viewModel.getPaginationInfoText(selectedPageIndex, viewModel.rows)
+            logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
+            Ok(view(viewModel, paginator, paginationText, appConfig.startNewReturnUrl))
+          case Left(error) =>
+            logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
+            Redirect(JourneyRecoveryController.onPageLoad())
+        }
+      } recover {
       case ex =>
         logger.error("[InProgressReturnsController][onPageLoad] Unexpected failure", ex)
         Redirect(SystemErrorController.onPageLoad())
     }
   }
+
 }

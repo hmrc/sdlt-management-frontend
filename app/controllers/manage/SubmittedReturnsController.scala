@@ -21,7 +21,7 @@ import controllers.actions.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import controllers.routes.{JourneyRecoveryController, SystemErrorController}
+import controllers.routes.{JourneyRecoveryController,SystemErrorController}
 import play.api.Logging
 
 import javax.inject.{Inject, Singleton}
@@ -31,6 +31,7 @@ import services.StampDutyLandTaxService
 import views.html.manage.SubmittedReturnsView
 import controllers.manage.routes.*
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
+import models.responses.SdltSubmittedReturnViewModel
 
 import scala.concurrent.ExecutionContext
 
@@ -52,15 +53,16 @@ class SubmittedReturnsController @Inject()(
     (identify andThen getData andThen requireData andThen stornRequiredAction)
       .async { implicit request =>
         stampDutyLandTaxService
-          .getReturnsByTypeViewModel(request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
+          .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
           .map { viewModel =>
             logger.info(s"[SubmittedReturnsController][onPageLoad] - render page: $paginationIndex")
 
             getPaginationWithInfoText(viewModel.rows, viewModel.totalRowCount, paginationIndex, urlSelector) match {
               case Some((rows, paginator, paginationText)) =>
                 logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${rows.length}")
-                Ok(view(rows, paginator, paginationText, appConfig.startNewReturnUrl))
-
+                Ok(
+                  view(viewModel, paginator, paginationText, appConfig.startNewReturnUrl)
+                )
               case _ =>
                 logger.error(
                   s"[SubmittedReturnsController][onPageLoad] - invalid pagination index: $paginationIndex " +

@@ -19,8 +19,6 @@ package models.manage
 import models.SdltReturnTypes
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDate
-
 case class SdltReturnRecordRequest(
                                      storn        : String,
                                      status       : Option[String],

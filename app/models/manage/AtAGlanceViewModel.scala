@@ -32,9 +32,9 @@ case class AtAGlanceViewModel(
 
 object AtAGlanceViewModel {
 
-  def apply(inProgressReturns: SdltReturnViewModel,
-            submittedReturns: SdltReturnViewModel,
-            dueForDeletionReturns: List[SdltReturnViewRow],
+  def apply(inProgressReturns: SdltInProgressReturnViewModel,
+            submittedReturns: SdltSubmittedReturnViewModel,
+            dueForDeletionReturnsTotal: Int,
             agentsCount: Int,
             storn: String,
             name: String)
@@ -48,7 +48,7 @@ object AtAGlanceViewModel {
           inProgressReturnsUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
           submittedReturnsCount = submittedReturns.totalRowCount,
           submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
-          dueForDeletionReturnsCount = dueForDeletionReturns.length,
+          dueForDeletionReturnsCount = dueForDeletionReturnsTotal,
           dueForDeletionUrl = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
           startReturnUrl = appConfig.startNewReturnUrl
         ),

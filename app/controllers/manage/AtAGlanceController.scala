@@ -18,21 +18,19 @@ package controllers.manage
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import controllers.manage.routes.*
+import controllers.routes.JourneyRecoveryController
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
+import models.manage.AtAGlanceViewModel
+import models.responses.*
 import play.api.Logging
-
-import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
-import controllers.routes.SystemErrorController
-import controllers.manage.routes.*
-import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
-import AtAGlanceController.*
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
-import models.manage.AtAGlanceViewModel
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -53,12 +51,17 @@ class AtAGlanceController@Inject()(
     val name = "David Frank"
 
     (for {
-      agentsCount                     <- stampDutyLandTaxService.getAgentCount
-      returnsInProgress               <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS, None)
-      submittedReturns                <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, SUBMITTED_SUBMITTED_RETURNS, None)
-      submittedReturnsDueForDeletion  <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
-      inProgressReturnsDueForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
-      returnsDueForDeletionRows            = (submittedReturnsDueForDeletion.rows ++ inProgressReturnsDueForDeletion.rows).sortBy(_.purchaserName)
+      agentsCount                     <- stampDutyLandTaxService
+        .getAgentCount
+      returnsInProgress               <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, None)
+      submittedReturns                <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](request.storn, SUBMITTED_SUBMITTED_RETURNS, None)
+      submittedReturnsDueForDeletion  <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
+      inProgressReturnsDueForDeletion <- stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
+      returnsDueForDeletionRowCount            = (submittedReturnsDueForDeletion.totalRowCount + inProgressReturnsDueForDeletion.totalRowCount)
     } yield {
 
       Ok(view(
@@ -67,14 +70,14 @@ class AtAGlanceController@Inject()(
           name = name,
           inProgressReturns = returnsInProgress,
           submittedReturns = submittedReturns,
-          dueForDeletionReturns = returnsDueForDeletionRows,
+          dueForDeletionReturnsTotal = returnsDueForDeletionRowCount,
           agentsCount = agentsCount
         )
       ))
     }) recover {
         case ex =>
           logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
-          Redirect(SystemErrorController.onPageLoad())
+          Redirect(JourneyRecoveryController.onPageLoad())
     }
   }
 }

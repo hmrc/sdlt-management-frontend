@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.ReturnSummary
-import models.responses.{SdltReturnViewModel, SdltReturnViewRow}
+import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -67,14 +67,17 @@ class DueForDeletionReturnsControllerSpec
       reset(mockService)
 
       when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(SdltReturnViewModel(
-          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty,
-          totalRowCount = 0
+        .thenReturn(Future.successful(
+          SdltInProgressDueForDeletionReturnViewModel(
+            extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+            rows = List.empty,
+            totalRowCount = 0
         )))
 
       when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(SdltReturnViewModel(
-          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty,
+        .thenReturn(Future.successful(
+          SdltSubmittedDueForDeletionReturnViewModel(
+            extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty,
           totalRowCount = 0
         )))
 
@@ -89,10 +92,10 @@ class DueForDeletionReturnsControllerSpec
         val view = app.injector.instanceOf[DueForDeletionReturnsView]
 
         val expectedInProgress =
-          SdltReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+          SdltInProgressDueForDeletionReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
             rows = List[SdltReturnViewRow](), totalRowCount = 0)
         val expectedSubmitted =
-          SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+          SdltSubmittedDueForDeletionReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
             rows = List[SdltReturnViewRow](), totalRowCount = 0)
 
         contentAsString(result) mustEqual
@@ -108,15 +111,19 @@ class DueForDeletionReturnsControllerSpec
       reset(mockService)
 
       when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(SdltReturnViewModel(
-          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty,
-          totalRowCount = 0
+        .thenReturn(Future.successful(
+          SdltInProgressDueForDeletionReturnViewModel(
+            extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+            rows = List.empty,
+            totalRowCount = 0
         )))
 
       when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(SdltReturnViewModel(
-          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty,
-          totalRowCount = 0
+        .thenReturn(Future.successful(
+          SdltSubmittedDueForDeletionReturnViewModel(
+            extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+            rows = List.empty,
+            totalRowCount = 0
         )))
 
       val inProgressIndex = Some(3)
@@ -137,9 +144,9 @@ class DueForDeletionReturnsControllerSpec
         val view = app.injector.instanceOf[DueForDeletionReturnsView]
 
         val expectedInProgress =
-          SdltReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
+          SdltInProgressDueForDeletionReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
         val expectedSubmitted =
-          SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
+          SdltSubmittedDueForDeletionReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
 
         contentAsString(result) mustEqual
           view(expectedInProgress, expectedSubmitted, 1, 1, submittedUrlSelector, inProgressUrlSelector, appConfig.startNewReturnUrl)(request, messages(app)).toString
@@ -176,9 +183,11 @@ class DueForDeletionReturnsControllerSpec
       reset(mockService)
 
       when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(SdltReturnViewModel(
-          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty,
-          totalRowCount = 0
+        .thenReturn(Future.successful(
+          SdltInProgressDueForDeletionReturnViewModel(
+              extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+              rows = List.empty,
+              totalRowCount = 0
         )))
 
       when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any()))

@@ -18,7 +18,8 @@
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import viewmodels.manage.deletedReturns._
-@import models.responses.SdltReturnViewModel
+@import models.responses.SdltInProgressDueForDeletionReturnViewModel
+@import models.responses.SdltSubmittedDueForDeletionReturnViewModel
 
 @this(
         layout: templates.Layout,
@@ -31,8 +32,8 @@
         hmrcPageHeading: HmrcPageHeading
 )
 @(
-        inProgressViewModel: SdltReturnViewModel,
-        submittedViewModel:  SdltReturnViewModel,
+        inProgressViewModel: SdltInProgressDueForDeletionReturnViewModel,
+        submittedViewModel:  SdltSubmittedDueForDeletionReturnViewModel,
         inProgressSelectedPageIndex: Int,
         submittedSelectedPageIndex: Int,
         inProgressUrlSelector:  Int => String,
@@ -70,7 +71,7 @@
 @renderSubmittedTable() = {
     @h2("manageReturns.dueDeletionReturns.submittedTab.heading")
     @{
-        submittedViewModel.getPaginationInfoText(submittedSelectedPageIndex, inProgressViewModel.rows ).map(p(_))
+        submittedViewModel.getPaginationInfoText(submittedSelectedPageIndex, submittedViewModel.rows ).map(p(_))
     }
     @govukTable(Table(
         rows = submittedViewModel.rows.map{ currentRow =>
@@ -88,7 +89,7 @@
     ))
     @{
         submittedViewModel
-        .createPagination(submittedSelectedPageIndex, inProgressViewModel.totalRowCount, inProgressUrlSelector)
+        .createPagination(submittedSelectedPageIndex, submittedViewModel.totalRowCount, submittedUrlSelector)
         .map(govukPagination(_))
     }
 }

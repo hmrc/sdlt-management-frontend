@@ -19,7 +19,7 @@ package viewmodels.govuk
 import forms.mappings.Mappings
 import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
-import models.responses.SdltReturnViewRow
+import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow}
 import models.responses.SdltReturnViewRow.convertToViewRows
 import models.responses.UniversalStatus.{ACCEPTED, STARTED}
 import org.scalatest.OptionValues
@@ -101,7 +101,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
 
 
     "response with some data return expected view model" in {
-      val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS)
+      val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS).asInstanceOf[SdltInProgressReturnViewModel]
       resultViewModel.rows must contain theSameElementsAs expectedDataRows
       resultViewModel.totalRowCount mustBe 0
     }

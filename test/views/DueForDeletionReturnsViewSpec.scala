@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.responses.UniversalStatus.{ACCEPTED, SUBMITTED}
-import models.responses.{SdltReturnViewModel, SdltReturnViewRow}
+import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -63,9 +63,9 @@ class DueForDeletionReturnsViewSpec
       }
 
     val emptyInProgress =
-      SdltReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
+      SdltInProgressDueForDeletionReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
     val emptySubmitted =
-      SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
+      SdltSubmittedDueForDeletionReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
 
@@ -92,12 +92,12 @@ class DueForDeletionReturnsViewSpec
 
     "render the correct page title, heading and caption" in new Setup {
       val inProgressVm =
-        SdltReturnViewModel(
+        SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = inProgressRows,
           1)
       val submittedVm =
-        SdltReturnViewModel(
+        SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = submittedRows,
           1)
@@ -134,12 +134,12 @@ class DueForDeletionReturnsViewSpec
 
     "render only the in-progress tab and table when only in-progress data is present" in new Setup {
       val inProgressVm =
-        SdltReturnViewModel(
+        SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = inProgressRows,
           1)
       val submittedVm =
-        SdltReturnViewModel(
+        SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = submittedRows,
           1)
@@ -172,7 +172,7 @@ class DueForDeletionReturnsViewSpec
 
     "render only the submitted tab and table when only submitted data is present" in new Setup {
       val submittedVm =
-        SdltReturnViewModel(
+        SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = submittedRows,
           1)
@@ -207,12 +207,12 @@ class DueForDeletionReturnsViewSpec
     "render both in-progress and submitted tabs and tables when both have data" in new Setup {
 
       val inProgressVm =
-        SdltReturnViewModel(
+        SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = inProgressRows,
           1)
       val submittedVm =
-        SdltReturnViewModel(
+        SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = submittedRows,
           1)

@@ -15,6 +15,7 @@
  *@
 
 @import models.responses.SdltReturnViewRow
+@import models.responses.SdltInProgressReturnViewModel
 @import models.responses.UniversalStatus
 @import models.responses.UniversalStatus.ACCEPTED
 @import models.responses.UniversalStatus.STARTED
@@ -33,7 +34,7 @@
 )
 
 
-@(dataRows:   List[SdltReturnViewRow],
+@(viewModel:   SdltInProgressReturnViewModel,
         pagination: Option[Pagination], paginationInfoText: Option[String], startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
 
 @purchaserNameLink(row: SdltReturnViewRow)  = {
@@ -44,8 +45,7 @@
 
 @renderTable() = {
     @govukTable(Table(
-        rows =
-        dataRows.sortBy(_.purchaserName).map{ currentRow =>
+        rows = viewModel.rows.sortBy(_.purchaserName).map{ currentRow =>
             Seq(
                 TableRow(
                     content = HtmlContent(purchaserNameLink(currentRow)),
@@ -92,7 +92,7 @@
 
 @layout(pageTitle = titleNoForm(messages("manageReturns.inProgressReturns.title"))) {
 
-    @if(dataRows.isEmpty) {
+    @if(viewModel.rows.isEmpty) {
 
         @span("manageReturns.inProgressReturns.span.manage")
         @h1("manageReturns.inProgressReturns.SomeReturns")
