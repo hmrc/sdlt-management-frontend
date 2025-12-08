@@ -30,6 +30,8 @@ import utils.PaginationHelper
 import views.html.manage.SubmittedReturnsView
 import base.SpecBase
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 
 class SubmittedReturnsViewSpec
@@ -37,7 +39,7 @@ class SubmittedReturnsViewSpec
     with GuiceOneAppPerSuite
     with MockitoSugar {
 
-  lazy val submittedRoute =
+  lazy val submittedRoute: String =
     controllers.manage.routes.SubmittedReturnsController.onPageLoad(None).url
 
   trait Setup extends PaginationHelper {
@@ -77,20 +79,46 @@ class SubmittedReturnsViewSpec
     val urlSelector: Int => String =
       page => controllers.manage.routes.SubmittedReturnsController.onPageLoad(Some(page)).url
 
-    def htmlDoc(html: Html) = Jsoup.parse(html.toString)
+    def htmlDoc(html: Html): Document = Jsoup.parse(html.toString)
   }
 
   "SubmittedReturnsView" - {
 
     "must render headers correctly" in new Setup {
-      val pageIndex = 1
-      val paginator = createPaginationV2(pageIndex, paginatedData.length, urlSelector)
-      val paginationText = getPaginationInfoTextV2(pageIndex, paginatedData.length)
+      val pageIndex: Int = 1
+      val totalRowCount: Int = paginatedData.length
+      val totalPages: Int = getPageCount(totalRowCount)
 
-      val html = view(paginatedData, paginator, paginationText)
-      val doc  = htmlDoc(html)
+      val paginator: Option[Pagination] =
+        Option.when(totalRowCount > 0 && totalPages > 1)(
+          Pagination(
+            items = Some(
+              paginationItems(
+                currentPage = pageIndex,
+                totalPages  = totalPages,
+                urlSelector = urlSelector
+              )
+            ),
+            previous      = generatePreviousLink(pageIndex, totalPages, urlSelector(pageIndex - 1)),
+            next          = generateNextLink(pageIndex, totalPages, urlSelector(pageIndex + 1)),
+            landmarkLabel = None,
+            classes       = "",
+            attributes    = Map.empty
+          )
+        )
 
-      val headers =
+      val paginationText: Option[String] =
+        Option.unless(totalRowCount <= 10 || pageIndex <= 0) {
+          val total = totalRowCount
+          val start = (pageIndex - 1) * 10 + 1
+          val end   = math.min(pageIndex * 10, total)
+          messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
+        }
+
+      val html: Html = view(paginatedData, paginator, paginationText)
+      val doc: Document = htmlDoc(html)
+
+      val headers: Elements =
         doc.select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
 
       headers.size() mustBe 3
@@ -100,12 +128,38 @@ class SubmittedReturnsViewSpec
     }
 
     "must render pagination when needed" in new Setup {
-      val pageIndex = 1
-      val paginator = createPaginationV2(pageIndex, paginatedData.length, urlSelector)
-      val paginationText = getPaginationInfoTextV2(pageIndex, paginatedData.length)
+      val pageIndex: Int      = 1
+      val totalRowCount: Int  = paginatedData.length
+      val totalPages: Int = getPageCount(totalRowCount)
 
-      val html = view(paginatedData, paginator, paginationText)
-      val doc  = htmlDoc(html)
+      val paginator: Option[Pagination] =
+        Option.when(totalRowCount > 0 && totalPages > 1)(
+          Pagination(
+            items = Some(
+              paginationItems(
+                currentPage = pageIndex,
+                totalPages  = totalPages,
+                urlSelector = urlSelector
+              )
+            ),
+            previous      = generatePreviousLink(pageIndex, totalPages, urlSelector(pageIndex - 1)),
+            next          = generateNextLink(pageIndex, totalPages, urlSelector(pageIndex + 1)),
+            landmarkLabel = None,
+            classes       = "",
+            attributes    = Map.empty
+          )
+        )
+
+      val paginationText: Option[String] =
+        Option.unless(totalRowCount <= 10 || pageIndex <= 0) {
+          val total = totalRowCount
+          val start = (pageIndex - 1) * 10 + 1
+          val end   = math.min(pageIndex * 10, total)
+          messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
+        }
+
+      val html: Html = view(paginatedData, paginator, paginationText)
+      val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
 
@@ -114,12 +168,38 @@ class SubmittedReturnsViewSpec
     }
 
     "must not render pagination when not needed" in new Setup {
-      val pageIndex = 1
-      val paginator = createPaginationV2(pageIndex, nonPaginatedData.length, urlSelector)
-      val paginationText = getPaginationInfoTextV2(pageIndex, nonPaginatedData.length)
+      val pageIndex: Int      = 1
+      val totalRowCount: Int = nonPaginatedData.length
+      val totalPages: Int = getPageCount(totalRowCount)
 
-      val html = view(nonPaginatedData, paginator, paginationText)
-      val doc  = htmlDoc(html)
+      val paginator: Option[Pagination] =
+        Option.when(totalRowCount > 0 && totalPages > 1)(
+          Pagination(
+            items = Some(
+              paginationItems(
+                currentPage = pageIndex,
+                totalPages  = totalPages,
+                urlSelector = urlSelector
+              )
+            ),
+            previous      = generatePreviousLink(pageIndex, totalPages, urlSelector(pageIndex - 1)),
+            next          = generateNextLink(pageIndex, totalPages, urlSelector(pageIndex + 1)),
+            landmarkLabel = None,
+            classes       = "",
+            attributes    = Map.empty
+          )
+        )
+
+      val paginationText: Option[String] =
+        Option.unless(totalRowCount <= 10 || pageIndex <= 0) {
+          val total = totalRowCount
+          val start = (pageIndex - 1) * 10 + 1
+          val end   = math.min(pageIndex * 10, total)
+          messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
+        }
+
+      val html: Html = view(nonPaginatedData, paginator, paginationText)
+      val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
       paginator mustBe None
@@ -127,12 +207,38 @@ class SubmittedReturnsViewSpec
     }
 
     "must render the 'no returns' message when rows are empty" in new Setup {
-      val pageIndex = 1
-      val paginator = createPaginationV2(pageIndex, emptyData.length, urlSelector)
-      val paginationText = getPaginationInfoTextV2(pageIndex, emptyData.length)
+      val pageIndex: Int      = 1
+      val totalRowCount: Int = emptyData.length
+      val totalPages: Int = getPageCount(totalRowCount)
 
-      val html = view(emptyData, paginator, paginationText)
-      val doc  = htmlDoc(html)
+      val paginator: Option[Pagination] =
+        Option.when(totalRowCount > 0 && totalPages > 1)(
+          Pagination(
+            items = Some(
+              paginationItems(
+                currentPage = pageIndex,
+                totalPages  = totalPages,
+                urlSelector = urlSelector
+              )
+            ),
+            previous      = generatePreviousLink(pageIndex, totalPages, urlSelector(pageIndex - 1)),
+            next          = generateNextLink(pageIndex, totalPages, urlSelector(pageIndex + 1)),
+            landmarkLabel = None,
+            classes       = "",
+            attributes    = Map.empty
+          )
+        )
+
+      val paginationText: Option[String] =
+        Option.unless(totalRowCount <= 10 || pageIndex <= 0) {
+          val total = totalRowCount
+          val start = (pageIndex - 1) * 10 + 1
+          val end   = math.min(pageIndex * 10, total)
+          messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
+        }
+
+      val html: Html = view(emptyData, paginator, paginationText)
+      val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.noReturns.info"))
       paginator mustBe None

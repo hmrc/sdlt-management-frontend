@@ -51,22 +51,22 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
     val nonPaginatedRows: List[SdltReturnViewRow] =
       (0 to 7).toList.map { index =>
         SdltReturnViewRow(
-          address       = s"$index Riverside Drive",
+          address        = s"$index Riverside Drive",
           agentReference = "ARN001",
-          utrn          = "UTRN003",
-          purchaserName = "Brown",
-          status        = UniversalStatus.SUBMITTED
+          utrn           = "UTRN003",
+          purchaserName  = "Brown",
+          status         = UniversalStatus.SUBMITTED
         )
       }
 
     val allPaginatedRows: List[SdltReturnViewRow] =
       (0 to 17).toList.map { index =>
         SdltReturnViewRow(
-          address       = s"$index Riverside Drive",
+          address        = s"$index Riverside Drive",
           agentReference = "ARN001",
-          utrn          = "UTRN003",
-          purchaserName = "Brown",
-          status        = UniversalStatus.SUBMITTED_NO_RECEIPT
+          utrn           = "UTRN003",
+          purchaserName  = "Brown",
+          status         = UniversalStatus.SUBMITTED_NO_RECEIPT
         )
       }
 
@@ -161,11 +161,33 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         implicit val messagesApi = messages(application)
 
+        val totalPages = getPageCount(totalRowCount)
+
         val paginator: Option[Pagination] =
-          createPaginationV2(selectedPageIndex, totalRowCount, urlSelector)
+          Option.when(totalRowCount > 0 && totalPages > 1)(
+            Pagination(
+              items = Some(
+                paginationItems(
+                  currentPage = selectedPageIndex,
+                  totalPages  = totalPages,
+                  urlSelector = urlSelector
+                )
+              ),
+              previous      = generatePreviousLink(selectedPageIndex, totalPages, urlSelector(selectedPageIndex - 1)),
+              next          = generateNextLink(selectedPageIndex, totalPages, urlSelector(selectedPageIndex + 1)),
+              landmarkLabel = None,
+              classes       = "",
+              attributes    = Map.empty
+            )
+          )
 
         val paginationText: Option[String] =
-          getPaginationInfoTextV2(selectedPageIndex, totalRowCount)
+          Option.unless(totalRowCount <= rowsPerPage || selectedPageIndex <= 0) {
+            val total = totalRowCount
+            val start = (selectedPageIndex - 1) * rowsPerPage + 1
+            val end   = math.min(selectedPageIndex * rowsPerPage, total)
+            messagesApi("manageReturns.inProgressReturns.paginationInfo", start, end, total)
+          }
 
         val request = FakeRequest(GET, submittedControllerRoute)
         val result  = route(application, request).value
@@ -202,11 +224,33 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         implicit val messagesApi = messages(application)
 
+        val totalPages = getPageCount(totalRowCount)
+
         val paginator: Option[Pagination] =
-          createPaginationV2(selectedPageIndex, totalRowCount, urlSelector)
+          Option.when(totalRowCount > 0 && totalPages > 1)(
+            Pagination(
+              items = Some(
+                paginationItems(
+                  currentPage = selectedPageIndex,
+                  totalPages  = totalPages,
+                  urlSelector = urlSelector
+                )
+              ),
+              previous      = generatePreviousLink(selectedPageIndex, totalPages, urlSelector(selectedPageIndex - 1)),
+              next          = generateNextLink(selectedPageIndex, totalPages, urlSelector(selectedPageIndex + 1)),
+              landmarkLabel = None,
+              classes       = "",
+              attributes    = Map.empty
+            )
+          )
 
         val paginationText: Option[String] =
-          getPaginationInfoTextV2(selectedPageIndex, totalRowCount)
+          Option.unless(totalRowCount <= rowsPerPage || selectedPageIndex <= 0) {
+            val total = totalRowCount
+            val start = (selectedPageIndex - 1) * rowsPerPage + 1
+            val end   = math.min(selectedPageIndex * rowsPerPage, total)
+            messagesApi("manageReturns.inProgressReturns.paginationInfo", start, end, total)
+          }
 
         val request = FakeRequest(
           GET,
