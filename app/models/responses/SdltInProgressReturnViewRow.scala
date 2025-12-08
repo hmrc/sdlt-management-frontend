@@ -35,11 +35,6 @@ case class SdltInProgressReturnViewModel(
                                 rows: List[SdltReturnViewRow],
                                 totalRowCount: Option[Int]) extends SdltReturnBaseViewModel
 
-case class SdltSubmittedReturnViewModel(
-                                                       extractType: SdltReturnTypes,
-                                                       rows: List[SdltReturnViewRow],
-                                                       totalRowCount: Option[Int]) extends SdltReturnBaseViewModel
-
 case class SdltSubmittedDueForDeletionReturnViewModel(
                                 extractType: SdltReturnTypes,
                                 rows: List[SdltReturnViewRow],
@@ -103,7 +98,7 @@ object SdltReturnsViewModel {
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS =>
-        SdltSubmittedReturnViewModel(
+        SdltReturnViewModel(
           extractType = extractType,
           rows = rows,
           totalRowCount = response.returnSummaryCount
