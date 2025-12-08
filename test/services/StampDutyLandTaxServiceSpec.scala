@@ -17,19 +17,18 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
+import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
-import models.responses.SdltInProgressReturnViewRow
+import models.responses.*
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
-import models.responses
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.http.HeaderCarrier
-import viewmodels.manage.SdltSubmittedReturnsViewModel
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -134,40 +133,58 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         agentReference = Some("Pending Agent")
       )
 
-      val inProgressReturnsResponse = SdltReturnRecordResponse(
-        returnSummaryCount = Some(1),
-        returnSummaryList = List(acceptedSummary, pendingSummary)
-      )
-
-      when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(inProgressReturnsResponse))
-
-      val result = service.getInProgressReturns.futureValue
-
-      val expected = List(
-        SdltInProgressReturnViewRow(
+      val dataRows = List(
+        SdltReturnViewRow(
           address = "1 Accepted Street",
           agentReference = "Accepted Agent",
           purchaserName = "Accepted Buyer",
-          status = ACCEPTED
+          status = ACCEPTED,
+          utrn = "UTRN-ACC-001"
         ),
-        SdltInProgressReturnViewRow(
+        SdltReturnViewRow(
           address = "2 Pending Street",
           agentReference = "Pending Agent",
           purchaserName = "Pending Buyer",
-          status = STARTED
+          status = STARTED,
+          utrn = "UTRN-PEN-001"
         )
       )
 
-      result must contain theSameElementsAs expected
 
-      verify(connector).getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]])
+      val inProgressReturnsResponse = SdltReturnRecordResponse(
+        returnSummaryCount = Some(dataRows.length),
+        returnSummaryList = List(acceptedSummary, pendingSummary)
+      )
+
+      val inProgressRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
+        storn = storn,
+        status = None,
+        deletionFlag = false,
+        pageType = Some("IN-PROGRESS"),
+        pageNumber = Some("1")
+      )
+
+      when(connector.getReturns(eqTo(inProgressRequest))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(inProgressReturnsResponse))
+
+      val result = service.getReturnsByTypeViewModel(storn, IN_PROGRESS_RETURNS, Some(1)).futureValue
+
+      val expected = SdltReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
+        rows = dataRows,
+        totalRowCount = Some(dataRows.length)
+      )
+
+      result.totalRowCount mustBe expected.totalRowCount
+      result.rows must contain theSameElementsAs expected.rows
+
+      verify(connector).getReturns(eqTo(inProgressRequest))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
   }
 
   "getSubmittedReturns" should {
-    "merge SUBMITTED and SUBMITTED_NO_RECEIPT returns" in {
+    "merge SUBMITTED and SUBMITTED_NO_RECEIPT returns from a single connector call" in {
       val (service, connector) = newService()
       implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
@@ -192,31 +209,31 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val submittedResponse = SdltReturnRecordResponse(
-        returnSummaryCount = Some(1),
-        returnSummaryList = List(submitted)
+        returnSummaryCount = Some(2),
+        returnSummaryList = List(submitted, submittedNoReceipt)
       )
 
-      val submittedNoReceiptResponse = SdltReturnRecordResponse(
-        returnSummaryCount = Some(1),
-        returnSummaryList = List(submittedNoReceipt)
+      val expectedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
+        storn = storn,
+        status = None,
+        deletionFlag = false,
+        pageType = Some("SUBMITTED"),
+        pageNumber = Some("1")
       )
 
-      when(connector.getReturns(eqTo(Some("SUBMITTED")), eqTo(Some("SUBMITTED")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
+      when(connector.getReturns(eqTo(expectedRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(submittedResponse))
 
-      when(connector.getReturns(eqTo(Some("SUBMITTED_NO_RECEIPT")), eqTo(Some("SUBMITTED")), eqTo(false))(any[HeaderCarrier], any[DataRequest[_]]))
-        .thenReturn(Future.successful(submittedNoReceiptResponse))
+      val result = service.getSubmittedReturnsViewModel(storn, Some(1)).futureValue
 
-      val result = service.getSubmittedReturns.futureValue
-
-      val expected = List(
-        SdltSubmittedReturnsViewModel(
+      val expectedRows = List(
+        SdltSubmittedReturnsViewRow(
           address = "3 Submitted Street",
           utrn = "UTRN-SUB-001",
           purchaserName = "Submitted Buyer",
           status = SUBMITTED
         ),
-        SdltSubmittedReturnsViewModel(
+        SdltSubmittedReturnsViewRow(
           address = "4 NoReceipt Street",
           utrn = "UTRN-SNR-001",
           purchaserName = "No Receipt Buyer",
@@ -224,16 +241,39 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         )
       )
 
-      result must contain theSameElementsAs expected
+      val expected = SdltSubmittedReturnViewModel(
+        rows = expectedRows,
+        totalRowCount = Some(2)
+      )
 
-      verify(connector)
-        .getReturns(eqTo(Some("SUBMITTED")), eqTo(Some("SUBMITTED")), eqTo(false))(
-          any[HeaderCarrier], any[DataRequest[_]]
-        )
-      verify(connector)
-        .getReturns(eqTo(Some("SUBMITTED_NO_RECEIPT")), eqTo(Some("SUBMITTED")), eqTo(false))(
-          any[HeaderCarrier], any[DataRequest[_]]
-        )
+      result mustBe expected
+
+      verify(connector).getReturns(eqTo(expectedRequest))(any[HeaderCarrier])
+      verifyNoMoreInteractions(connector)
+    }
+
+    "propagate failures from the connector" in {
+      val (service, connector) = newService()
+      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
+
+      val expectedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
+        storn = storn,
+        status = None,
+        deletionFlag = false,
+        pageType = Some("SUBMITTED"),
+        pageNumber = Some("1")
+      )
+
+      when(connector.getReturns(eqTo(expectedRequest))(any[HeaderCarrier]))
+        .thenReturn(Future.failed(new RuntimeException("Error: Connector issue")))
+
+      val ex = intercept[RuntimeException] {
+        service.getSubmittedReturnsViewModel(storn, Some(1)).futureValue
+      }
+
+      ex.getMessage must include("Error: Connector issue")
+
+      verify(connector).getReturns(eqTo(expectedRequest))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
   }
@@ -259,14 +299,28 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         returnSummaryList = List(submittedDeletionSummary)
       )
 
-      when(connector.getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
+      val submittedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
+        storn = storn,
+        status = None,
+        deletionFlag = true,
+        pageType = Some("SUBMITTED"),
+        pageNumber = Some("1")
+      )
+
+      when(connector.getReturns(eqTo(submittedRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(submittedDeletionResponse))
 
-      val result = service.getSubmittedReturnsDueForDeletion.futureValue
+      val result = service.getReturnsByTypeViewModel(storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
 
-      result must contain theSameElementsAs List(submittedDeletionSummary)
+      result.rows must contain theSameElementsAs List(SdltReturnViewRow(
+        utrn = "UTRN-DEL-001",
+        status = SUBMITTED,
+        purchaserName = "Delete Buyer",
+        address = "5 Delete Street",
+        agentReference = "Delete Agent"
+      ))
 
-      verify(connector).getReturns(eqTo(None), eqTo(Some("SUBMITTED")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
+      verify(connector).getReturns(eqTo(submittedRequest))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
   }
@@ -292,17 +346,26 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         returnSummaryList = List(inProgressDeletionSummary)
       )
 
-      when(connector.getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]]))
+      val inProgressRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
+        storn = storn,
+        status = None,
+        deletionFlag = true,
+        pageType = Some("IN-PROGRESS"),
+        pageNumber = Some("1")
+      )
+
+      when(connector.getReturns(eqTo(inProgressRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(inProgressDeletionResponse))
 
-      val result = service.getInProgressReturnsDueForDeletion.futureValue
+      val result = service.getReturnsByTypeViewModel(storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
 
-      result must contain theSameElementsAs List(inProgressDeletionSummary)
+      result.rows must contain theSameElementsAs List()
 
-      verify(connector).getReturns(eqTo(None), eqTo(Some("IN-PROGRESS")), eqTo(true))(any[HeaderCarrier], any[DataRequest[_]])
+      verify(connector).getReturns(eqTo(inProgressRequest))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)
     }
   }
+
 
   "getAllAgents" should {
     "use getSdltOrganisation and return the agents count" in {
@@ -351,7 +414,6 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           agents = agents
         )
 
-
       when(connector.getSdltOrganisation(any[HeaderCarrier], any[DataRequest[_]]))
         .thenReturn(Future.successful(orgResponse))
 
@@ -363,38 +425,4 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     }
   }
 
-  "getSubmittedReturnsView" should {
-    "getSubmittedReturnsView" should {
-      "return all returns but filter for all SUBMITTED and SUBMITTED_NO_RECEIPT returns when converted to SdltSubmittedReturnsViewModel" in {
-
-        val (service, connector) = newService()
-        implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
-
-        when(connector.getReturns(any(), any(), any())(any(), any()))
-          .thenReturn(Future.successful(aggregateResponse))
-
-        val result = service.getSubmittedReturns.futureValue
-
-        val statuses = result.map(_.status).distinct
-        statuses.forall(s => s == SUBMITTED || s == SUBMITTED_NO_RECEIPT) mustBe true
-
-        verify(connector, times(2)).getReturns(any(), any(), any())(any(), any())
-        verifyNoMoreInteractions(connector)
-      }
-    }
-
-    "propagate failures from the connector" in {
-      val (service, connector) = newService()
-      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
-
-      when(connector.getReturns(any(), any(), any())(any(), any()))
-        .thenReturn(Future.failed(new RuntimeException("Error: Connector issue")))
-
-      val ex = intercept[RuntimeException] {
-        service.getSubmittedReturns.futureValue
-      }
-
-      ex.getMessage must include("Error: Connector issue")
-    }
-  }
 }

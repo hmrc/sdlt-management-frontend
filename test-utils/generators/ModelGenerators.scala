@@ -18,8 +18,7 @@ package generators
 
 import models.*
 import models.manage.ReturnSummary
-import models.responses.{SdltInProgressReturnViewRow, UniversalStatus}
-import viewmodels.manage.SdltSubmittedReturnsViewModel
+import models.responses.{SdltInProgressReturnViewRow, SdltSubmittedReturnsViewRow, UniversalStatus}
 
 import java.time.LocalDate
 
@@ -50,8 +49,8 @@ trait ModelGenerators {
       status = UniversalStatus.STARTED
     )
 
-  def toSubmittedViewRows(rs: ReturnSummary): SdltSubmittedReturnsViewModel =
-    SdltSubmittedReturnsViewModel(
+  def toSubmittedViewRows(rs: ReturnSummary): SdltSubmittedReturnsViewRow =
+    SdltSubmittedReturnsViewRow(
       address = rs.address,
       utrn = rs.utrn.getOrElse(""),
       purchaserName = rs.purchaserName,

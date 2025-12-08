@@ -19,7 +19,6 @@ package controllers.manage
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
 import controllers.routes.JourneyRecoveryController
 import models.requests.DataRequest
-import models.responses.SdltInProgressReturnViewRow
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
@@ -28,7 +27,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.PaginationHelper
 import views.html.InProgressReturnView
-
+import models.SdltReturnTypes.*
 import scala.concurrent.ExecutionContext
 import javax.inject.*
 
@@ -42,7 +41,7 @@ class InProgressReturnsController @Inject()(
                                              requireData: DataRequiredAction,
                                              stornRequiredAction: StornRequiredAction,
                                              view: InProgressReturnView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PaginationHelper with Logging {
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
@@ -50,22 +49,26 @@ class InProgressReturnsController @Inject()(
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
 
-    stampDutyLandTaxService.getInProgressReturns map { allDataRows =>
+    stampDutyLandTaxService.getReturnsByTypeViewModel(request.storn,  IN_PROGRESS_RETURNS, index) map { viewModel =>
       logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
-      pageIndexSelector(index, allDataRows.length) match {
+      val totalRowsCount = viewModel.totalRowCount.getOrElse(0)
+      viewModel.pageIndexSelector(index, totalRowsCount) match {
         case Right(selectedPageIndex) =>
-          val paginator: Option[Pagination] = createPagination(selectedPageIndex, allDataRows.length, urlSelector)
-          val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, allDataRows)
-          val rowsForSelectedPage: List[SdltInProgressReturnViewRow] = getSelectedPageRows(allDataRows, selectedPageIndex)
-          logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${rowsForSelectedPage.length}")
-          Ok(view(rowsForSelectedPage, paginator, paginationText))
-        case Left(error) => // strongly advised to avoid this approach to redirect to itself / implemented as per QA request
-          logger.error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
-          Redirect( urlSelector(1) )
+          val paginator: Option[Pagination] = viewModel.createPagination(selectedPageIndex, totalRowsCount, urlSelector)
+          val paginationText: Option[String] = viewModel.getPaginationInfoText(selectedPageIndex, viewModel.rows )
+          logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
+          Ok(view(viewModel.rows, paginator, paginationText))
+// TODO: disable page index redirect / need to be fix as part of tech debt or bug fix story: TBC
+//        case Left(error) if error.getMessage.contains("PageIndex selected is out of scope") =>
+//          logger.error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")
+//          Redirect( urlSelector(1) )
+        case Left(error) =>
+          logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
+          Redirect(JourneyRecoveryController.onPageLoad())
       }
     } recover {
       case ex =>
-        logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
+        logger.error("[InProgressReturnsController][onPageLoad] Unexpected failure", ex)
         Redirect(JourneyRecoveryController.onPageLoad())
     }
   }

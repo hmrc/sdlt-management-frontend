@@ -14,6 +14,8 @@ GET         /there-is-a-problem                          controllers.JourneyReco
 
 GET         /access-denied                               controllers.AccessDeniedController.onPageLoad()
 
+GET         /page-not-found                              controllers.PageNotFoundController.onPageLoad()
+
 GET         /check-your-answers                          controllers.CheckYourAnswersController.onPageLoad()
 
 GET         /account/sign-out-survey                     controllers.auth.AuthController.signOut()

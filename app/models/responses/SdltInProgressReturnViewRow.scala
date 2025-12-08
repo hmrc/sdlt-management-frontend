@@ -16,8 +16,55 @@
 
 package models.responses
 
-import models.manage.ReturnSummary
-import play.api.{Logger, Logging}
+import models.SdltReturnTypes
+import models.manage.{ReturnSummary, SdltReturnRecordResponse}
+import models.responses.UniversalStatus.{ACCEPTED, STARTED}
+import play.api.Logging
+import utils.PaginationHelper
+
+case class SdltReturnViewRow(
+                              address: String,
+                              agentReference: String,
+                              purchaserName: String,
+                              status: UniversalStatus,
+                              utrn: String
+                            )
+
+case class SdltReturnViewModel(
+                                extractType: SdltReturnTypes,
+                                rows: List[SdltReturnViewRow],
+                                totalRowCount: Option[Int]) extends PaginationHelper
+
+object SdltReturnViewRow extends Logging {
+
+  import UniversalStatus.*
+
+  def convertToViewRows(returnsList: List[ReturnSummary]): List[SdltReturnViewRow] = {
+    {
+      for {
+        rec <- returnsList
+      } yield {
+        fromString(rec.status) match {
+          case Right(status) =>
+            Some(
+              SdltReturnViewRow(
+                address = rec.address,
+                agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
+                purchaserName = rec.purchaserName,
+                status = status,
+                utrn = rec.utrn.getOrElse("")
+              )
+            )
+          case Left(ex) =>
+            logger.error(s"[SdltReturnViewRow][convertToViewRows] - conversion from: ${rec} failure: $ex")
+            None
+        }
+      }
+    }.flatten
+  }
+}
+
+case class SdltInProgressReturnViewModel(rows: List[SdltInProgressReturnViewRow], totalRowCount: Option[Int])
 
 case class SdltInProgressReturnViewRow(
                                         address: String,
@@ -35,27 +82,66 @@ object SdltInProgressReturnViewRow extends Logging {
   def convertResponseToReturnViewRows(inProgressReturnsList: List[ReturnSummary]): List[SdltInProgressReturnViewRow] = {
     val res = for {
       rec <- inProgressReturnsList
-      st = fromString(rec.status)
-      arn <- rec.agentReference
-    } yield {
-      st match {
-        case Right(status) =>
-          Some(
-            SdltInProgressReturnViewRow(
-              address = rec.address,
-              agentReference = arn,
-              purchaserName = rec.purchaserName,
-              status = status,
-            )
+    } yield fromString(rec.status) match {
+      case Right(status) =>
+        Some(
+          SdltInProgressReturnViewRow(
+            address = rec.address,
+            agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
+            purchaserName = rec.purchaserName,
+            status = status,
           )
-        case Left(ex) =>
-          logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
-          None
+        )
+      case Left(ex) =>
+        logger.error(s"[SdltInProgressReturnViewRow][convertResponseToViewRows] - conversion from: ${rec} failure: $ex")
+        None
       }
-    }
     res
       .flatten
       .filter(rec => inProgressReturnStatuses.contains(rec.status))
   }
+}
 
+object SdltReturnsViewModel {
+  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
+
+  def convertToViewModel(response: SdltReturnRecordResponse, extractType: SdltReturnTypes): SdltReturnViewModel = {
+    val rows: List[SdltReturnViewRow] = SdltReturnViewRow.convertToViewRows(response.returnSummaryList)
+
+    extractType match {
+      case SdltReturnTypes.IN_PROGRESS_RETURNS =>
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows
+            .filter(rec => inProgressReturnStatuses.contains(rec.status)),
+          totalRowCount = response.returnSummaryCount
+        )
+      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS =>
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows,
+          totalRowCount = response.returnSummaryCount
+        )
+      case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows,
+          totalRowCount = response.returnSummaryCount
+        )
+      case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows,
+          totalRowCount = response.returnSummaryCount
+        )
+      case SdltReturnTypes.SUBMITTED_RETURNS_DUE_FOR_DELETION =>
+        SdltReturnViewModel(
+          extractType = extractType,
+          rows = rows.sortBy(_.purchaserName), // TODO: move sorting to the view level
+          // TODO: any filtering || .filter(rec => inProgressReturnStatuses.contains(rec.status)),
+          totalRowCount = response.returnSummaryCount
+        )
+    }
+
+  }
 }

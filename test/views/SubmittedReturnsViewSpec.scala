@@ -24,10 +24,10 @@ import play.api.{Application, inject}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
-import viewmodels.manage.SdltSubmittedReturnsViewModel
 import views.html.manage.SubmittedReturnsView
 import utils.PaginationHelper
 import base.SpecBase
+import models.responses.SdltSubmittedReturnsViewRow
 import org.jsoup.Jsoup
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
@@ -39,11 +39,11 @@ class SubmittedReturnsViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
 
   trait Setup extends PaginationHelper {
 
-    val expectedEmptyData: List[SdltSubmittedReturnsViewModel] = List[SdltSubmittedReturnsViewModel]()
+    val expectedEmptyData: List[SdltSubmittedReturnsViewRow] = List[SdltSubmittedReturnsViewRow]()
 
-    val expectedDataPagination: List[SdltSubmittedReturnsViewModel] =
+    val expectedDataPagination: List[SdltSubmittedReturnsViewRow] =
       (0 to 17).toList.map(index =>
-        SdltSubmittedReturnsViewModel(
+        SdltSubmittedReturnsViewRow(
           address = s"$index Riverside Drive",
           utrn = "UTRN003",
           purchaserName = "Brown",
@@ -51,9 +51,9 @@ class SubmittedReturnsViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
         )
       )
 
-    val expectedDataNoPagination: List[SdltSubmittedReturnsViewModel] =
+    val expectedDataNoPagination: List[SdltSubmittedReturnsViewRow] =
       (0 to 7).toList.map(index =>
-        SdltSubmittedReturnsViewModel(
+        SdltSubmittedReturnsViewRow(
           address = s"$index Riverside Drive",
           utrn = "UTRN003",
           purchaserName = "Brown",
