@@ -60,7 +60,7 @@ class InProgressReturnsController @Inject()(
             val paginator: Option[Pagination] = viewModel.createPagination(selectedPageIndex, totalRowsCount, urlSelector)
             val paginationText: Option[String] = viewModel.getPaginationInfoText(selectedPageIndex, viewModel.rows)
             logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-            Ok(view(viewModel.rows, paginator, paginationText))
+            Ok(view(viewModel, paginator, paginationText))
           case Left(error) =>
             logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
             Redirect(JourneyRecoveryController.onPageLoad())
