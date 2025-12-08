@@ -18,13 +18,11 @@ package viewmodels.govuk
 
 import forms.mappings.Mappings
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
-import models.responses.SdltSubmittedReturnsViewRow
+import models.responses.{SdltReturnViewRow}
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import models.responses.UniversalStatus.{SUBMITTED, SUBMITTED_NO_RECEIPT}
-import SdltSubmittedReturnsViewRow.convertResponseToSubmittedView
-
 import java.time.LocalDate
 
 class SdltSubmittedReturnsViewModelSpec extends AnyFreeSpec with Matchers with Mappings with OptionValues {
@@ -58,31 +56,33 @@ class SdltSubmittedReturnsViewModelSpec extends AnyFreeSpec with Matchers with M
     )
   )
 
-  val expectedDataRows: List[SdltSubmittedReturnsViewRow] = List(
-    SdltSubmittedReturnsViewRow(
+  val expectedDataRows: List[SdltReturnViewRow] = List(
+    SdltReturnViewRow(
       address = "propertyAddress1",
       utrn = "UTRN1",
       purchaserName = "purchaserName1",
-      status = SUBMITTED
+      status = SUBMITTED,
+      agentReference = "agentReference1"
     ),
-    SdltSubmittedReturnsViewRow(
+    SdltReturnViewRow(
       address = "propertyAddress2",
       utrn = "UTRN2",
       purchaserName = "purchaserName2",
-      status = SUBMITTED_NO_RECEIPT
+      status = SUBMITTED_NO_RECEIPT,
+      agentReference = "agentReference2"
     )
   )
 
   "Convert the be data model to the view model" - {
     "when there is data received from the be, it will be converted to the view model" in {
 
-      val result = convertResponseToSubmittedView(populatedBEResponse.returnSummaryList)
+      val result = SdltReturnViewRow.convertToViewRows(populatedBEResponse.returnSummaryList)
       result mustBe expectedDataRows
     }
 
     "when there is no data received from the be, the view model should be empty" in {
 
-      val result = convertResponseToSubmittedView(emptyBEResponse.returnSummaryList)
+      val result = SdltReturnViewRow.convertToViewRows(emptyBEResponse.returnSummaryList)
       result mustBe empty
     }
   }

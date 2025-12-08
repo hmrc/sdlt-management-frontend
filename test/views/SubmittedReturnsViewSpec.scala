@@ -17,7 +17,6 @@
 package views
 
 import models.responses.UniversalStatus.{SUBMITTED, SUBMITTED_NO_RECEIPT}
-
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.{Application, inject}
@@ -27,7 +26,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import views.html.manage.SubmittedReturnsView
 import utils.PaginationHelper
 import base.SpecBase
-import models.responses.SdltSubmittedReturnsViewRow
+import models.responses.{SdltReturnViewRow}
 import org.jsoup.Jsoup
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
@@ -39,25 +38,27 @@ class SubmittedReturnsViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
 
   trait Setup extends PaginationHelper {
 
-    val expectedEmptyData: List[SdltSubmittedReturnsViewRow] = List[SdltSubmittedReturnsViewRow]()
+    val expectedEmptyData: List[SdltReturnViewRow] = List[SdltReturnViewRow]()
 
-    val expectedDataPagination: List[SdltSubmittedReturnsViewRow] =
+    val expectedDataPagination: List[SdltReturnViewRow] =
       (0 to 17).toList.map(index =>
-        SdltSubmittedReturnsViewRow(
+        SdltReturnViewRow(
           address = s"$index Riverside Drive",
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = SUBMITTED
+          status = SUBMITTED,
+          agentReference = ""
         )
       )
 
-    val expectedDataNoPagination: List[SdltSubmittedReturnsViewRow] =
+    val expectedDataNoPagination: List[SdltReturnViewRow] =
       (0 to 7).toList.map(index =>
-        SdltSubmittedReturnsViewRow(
+        SdltReturnViewRow(
           address = s"$index Riverside Drive",
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = SUBMITTED_NO_RECEIPT
+          status = SUBMITTED_NO_RECEIPT,
+          agentReference = ""
         )
       )
 

@@ -17,15 +17,16 @@
 package controllers.manage
 
 import base.SpecBase
-import models.responses.{SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow, UniversalStatus}
-import org.mockito.ArgumentMatchers.any
+import models.SdltReturnTypes.{SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
+import models.responses.*
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
@@ -46,25 +47,27 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
         .build()
 
-    val emptyRows: List[SdltSubmittedReturnsViewRow] = Nil
+    val emptyRows: List[SdltReturnViewRow] = Nil
 
-    val nonPaginatedRows: List[SdltSubmittedReturnsViewRow] =
+    val nonPaginatedRows: List[SdltReturnViewRow] =
       (0 to 7).toList.map { index =>
-        SdltSubmittedReturnsViewRow(
+        SdltReturnViewRow(
           address       = s"$index Riverside Drive",
           utrn          = "UTRN003",
           purchaserName = "Brown",
-          status        = UniversalStatus.SUBMITTED
+          status        = UniversalStatus.SUBMITTED,
+          agentReference = ""
         )
       }
 
-    val allPaginatedRows: List[SdltSubmittedReturnsViewRow] =
+    val allPaginatedRows: List[SdltReturnViewRow] =
       (0 to 17).toList.map { index =>
-        SdltSubmittedReturnsViewRow(
+        SdltReturnViewRow(
           address       = s"$index Riverside Drive",
           utrn          = "UTRN003",
           purchaserName = "Brown",
-          status        = UniversalStatus.SUBMITTED_NO_RECEIPT
+          status        = UniversalStatus.SUBMITTED_NO_RECEIPT,
+          agentReference = ""
         )
       }
 
@@ -79,12 +82,13 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET request with no returns" in new Fixture {
 
-      val viewModel = SdltSubmittedReturnViewModel(
+      val viewModel = SdltReturnViewModel(
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows          = emptyRows,
         totalRowCount = Some(0)
       )
 
-      when(mockService.getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier]))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModel))
 
       running(application) {
@@ -97,18 +101,19 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           view(emptyRows, None, None)(request, messages(application)).toString
 
         verify(mockService, times(1))
-          .getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
       }
     }
 
     "must return OK and the correct view for a GET request with no pagination required" in new Fixture {
 
-      val viewModel = SdltSubmittedReturnViewModel(
+      val viewModel = SdltReturnViewModel(
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows          = nonPaginatedRows,
         totalRowCount = Some(nonPaginatedRows.length)
       )
 
-      when(mockService.getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier]))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModel))
 
       running(application) {
@@ -121,7 +126,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           view(nonPaginatedRows, None, None)(request, messages(application)).toString
 
         verify(mockService, times(1))
-          .getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
       }
     }
 
@@ -130,12 +135,13 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val totalRowCount     = allPaginatedRows.length
       val pageOneRows       = allPaginatedRows.take(rowsPerPage)
 
-      val viewModel = SdltSubmittedReturnViewModel(
+      val viewModel = SdltReturnViewModel(
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows          = pageOneRows,
         totalRowCount = Some(totalRowCount)
       )
 
-      when(mockService.getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier]))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModel))
 
       running(application) {
@@ -156,7 +162,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           view(pageOneRows, paginator, paginationText)(request, messages(application)).toString
 
         verify(mockService, times(1))
-          .getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
       }
     }
 
@@ -165,12 +171,13 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val totalRowCount     = allPaginatedRows.length
       val pageTwoRows       = allPaginatedRows.drop(rowsPerPage)
 
-      val viewModel = SdltSubmittedReturnViewModel(
+      val viewModel = SdltReturnViewModel(
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows          = pageTwoRows,
         totalRowCount = Some(totalRowCount)
       )
 
-      when(mockService.getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier]))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModel))
 
       running(application) {
@@ -195,7 +202,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           view(pageTwoRows, paginator, paginationText)(request, messages(application)).toString
 
         verify(mockService, times(1))
-          .getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
       }
     }
 
@@ -203,12 +210,13 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val invalidPageIndex = 100
       val totalRowCount    = allPaginatedRows.length
 
-      val viewModel = SdltSubmittedReturnViewModel(
+      val viewModel = SdltReturnViewModel(
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows          = allPaginatedRows.take(rowsPerPage),
         totalRowCount = Some(totalRowCount)
       )
 
-      when(mockService.getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier]))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModel))
 
       running(application) {
@@ -224,13 +232,13 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           controllers.routes.JourneyRecoveryController.onPageLoad().url
 
         verify(mockService, times(1))
-          .getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
       }
     }
 
     "must redirect to JourneyRecovery if an error occurs during returns retrieval" in new Fixture {
 
-      when(mockService.getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier]))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier]))
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
       running(application) {
@@ -242,7 +250,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           controllers.routes.JourneyRecoveryController.onPageLoad().url
 
         verify(mockService, times(1))
-          .getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
       }
     }
   }

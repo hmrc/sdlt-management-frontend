@@ -20,9 +20,9 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.manage.routes.*
 import controllers.routes.JourneyRecoveryController
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.{AtAGlanceViewModel, ReturnSummary}
-import models.responses.{SdltReturnViewModel, SdltReturnViewRow, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
+import models.responses.{SdltReturnViewModel, SdltReturnViewRow}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -65,8 +65,9 @@ class AtAGlanceControllerSpec
         totalRowCount = Some(inProgressRows.length)
       )
 
-      val submittedRows: List[SdltSubmittedReturnsViewRow] = Nil
-      val submittedViewModel = SdltSubmittedReturnViewModel(
+      val submittedRows: List[SdltReturnViewRow] = Nil
+      val submittedViewModel = SdltReturnViewModel(
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows = submittedRows,
         totalRowCount = Some(submittedRows.length)
       )
@@ -84,7 +85,7 @@ class AtAGlanceControllerSpec
       when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any()))
         .thenReturn(Future.successful(returnsInProgressViewModel))
 
-      when(mockService.getSubmittedReturnsViewModel(any(), any())(any()))
+      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any()))
         .thenReturn(Future.successful(submittedViewModel))
 
       when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any()))
@@ -131,7 +132,7 @@ class AtAGlanceControllerSpec
 
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
-        verify(mockService, times(1)).getSubmittedReturnsViewModel(any(), any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
       }
@@ -156,7 +157,7 @@ class AtAGlanceControllerSpec
 
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
-        verify(mockService, times(0)).getSubmittedReturnsViewModel(any(), any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any())
         verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
       }

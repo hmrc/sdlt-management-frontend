@@ -17,7 +17,7 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
@@ -224,28 +224,35 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       when(connector.getReturns(eqTo(expectedRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(submittedResponse))
 
-      val result = service.getSubmittedReturnsViewModel(storn, Some(1)).futureValue
+      val result = service.getReturnsByTypeViewModel(storn, SUBMITTED_SUBMITTED_RETURNS, Some(1)).futureValue
 
       val expectedRows = List(
-        SdltSubmittedReturnsViewRow(
+        SdltReturnViewRow(
           address = "3 Submitted Street",
           utrn = "UTRN-SUB-001",
           purchaserName = "Submitted Buyer",
-          status = SUBMITTED
+          status = SUBMITTED,
+          agentReference = "Submitted Agent"
         ),
-        SdltSubmittedReturnsViewRow(
+        SdltReturnViewRow(
           address = "4 NoReceipt Street",
           utrn = "UTRN-SNR-001",
           purchaserName = "No Receipt Buyer",
-          status = SUBMITTED_NO_RECEIPT
+          status = SUBMITTED_NO_RECEIPT,
+          agentReference = "NoReceipt Agent"
         )
       )
 
-      val expected = SdltSubmittedReturnViewModel(
+      val expected = SdltReturnViewModel(
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows = expectedRows,
         totalRowCount = Some(2)
       )
 
+/*
+SdltReturnViewModel(SUBMITTED_SUBMITTED_RETURNS, List(SdltReturnViewRow("3 Submitted Street", "Submitted Agent", "Submitted Buyer", SUBMITTED, "UTRN-SUB-001"), SdltReturnViewRow("4 NoReceipt Street", "NoReceipt Agent", "No Receipt Buyer", SUBMITTED_NO_RECEIPT, "UTRN-SNR-001")), Some(2))
+SdltReturnViewModel(SUBMITTED_SUBMITTED_RETURNS, List(SdltReturnViewRow("3 Submitted Street", "Submitted Agent", "Submitted Buyer", SUBMITTED, "UTRN-SUB-001"), SdltReturnViewRow("4 NoReceipt Street", "", "No Receipt Buyer", SUBMITTED_NO_RECEIPT, "UTRN-SNR-001")), Some(2))
+ */
       result mustBe expected
 
       verify(connector).getReturns(eqTo(expectedRequest))(any[HeaderCarrier])
@@ -268,7 +275,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         .thenReturn(Future.failed(new RuntimeException("Error: Connector issue")))
 
       val ex = intercept[RuntimeException] {
-        service.getSubmittedReturnsViewModel(storn, Some(1)).futureValue
+        service.getReturnsByTypeViewModel(storn, SUBMITTED_SUBMITTED_RETURNS, Some(1)).futureValue
       }
 
       ex.getMessage must include("Error: Connector issue")

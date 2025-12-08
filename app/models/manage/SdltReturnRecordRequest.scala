@@ -45,7 +45,7 @@ object SdltReturnRecordRequest {
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = false,
-          status = Some("SUBMITTED"),
+          status = None,
           pageType = Some("SUBMITTED"),
           pageNumber = pageIndex.map(_.toString))
       case SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
