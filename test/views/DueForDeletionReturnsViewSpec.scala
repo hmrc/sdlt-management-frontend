@@ -62,9 +62,9 @@ class DueForDeletionReturnsViewSpec
       }
 
     val emptyInProgress =
-      SdltReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
+      SdltReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
     val emptySubmitted =
-      SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = Some(0))
+      SdltReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
 
@@ -91,12 +91,12 @@ class DueForDeletionReturnsViewSpec
         SdltReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = inProgressRows,
-          Some(1))
+          1)
       val submittedVm =
         SdltReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = submittedRows,
-          Some(1))
+          1)
 
       val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
       val doc  = parseHtml(html)
@@ -133,12 +133,12 @@ class DueForDeletionReturnsViewSpec
         SdltReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = inProgressRows,
-          Some(1))
+          1)
       val submittedVm =
         SdltReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = submittedRows,
-          Some(1))
+          1)
 
       val html = view(inProgressVm, emptySubmitted, 1, 1, inProgressUrlSelector, submittedUrlSelector)
       val doc = parseHtml(html)
@@ -171,7 +171,7 @@ class DueForDeletionReturnsViewSpec
         SdltReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = submittedRows,
-          Some(1))
+          1)
 
       val html = view(emptyInProgress, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
       val doc = parseHtml(html)
@@ -206,12 +206,12 @@ class DueForDeletionReturnsViewSpec
         SdltReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = inProgressRows,
-          Some(1))
+          1)
       val submittedVm =
         SdltReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = submittedRows,
-          Some(1))
+          1)
 
       val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector)
       val doc = parseHtml(html)

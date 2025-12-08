@@ -84,7 +84,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel = SdltReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = emptyRows,
-        totalRowCount = Some(0)
+        totalRowCount = 0
       )
 
       when(
@@ -114,7 +114,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel = SdltReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = nonPaginatedRows,
-        totalRowCount = Some(nonPaginatedRows.length)
+        totalRowCount = nonPaginatedRows.length
       )
 
       when(
@@ -147,7 +147,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel = SdltReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = pageOneRows,
-        totalRowCount = Some(totalRowCount)
+        totalRowCount = totalRowCount
       )
 
       when(
@@ -188,7 +188,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel = SdltReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = pageTwoRows,
-        totalRowCount = Some(totalRowCount)
+        totalRowCount = totalRowCount
       )
 
       when(
@@ -232,7 +232,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel = SdltReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = allPaginatedRows.take(rowsPerPage),
-        totalRowCount = Some(totalRowCount)
+        totalRowCount = totalRowCount
       )
 
       when(

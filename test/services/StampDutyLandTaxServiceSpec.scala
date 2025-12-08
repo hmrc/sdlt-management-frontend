@@ -111,7 +111,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
   )
 
   private val aggregateResponse = SdltReturnRecordResponse(
-    returnSummaryCount = Some(summaries.size),
+    returnSummaryCount = summaries.size,
     returnSummaryList  = summaries
   )
 
@@ -159,7 +159,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val inProgressReturnsResponse = SdltReturnRecordResponse(
-        returnSummaryCount = Some(dataRows.length),
+        returnSummaryCount = dataRows.length,
         returnSummaryList  = List(acceptedSummary, pendingSummary)
       )
 
@@ -179,7 +179,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val expected = SdltReturnViewModel(
         extractType   = IN_PROGRESS_RETURNS,
         rows          = dataRows,
-        totalRowCount = Some(dataRows.length)
+        totalRowCount = dataRows.length
       )
 
       result.totalRowCount mustBe expected.totalRowCount
@@ -217,7 +217,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val submittedResponse = SdltReturnRecordResponse(
-        returnSummaryCount = Some(2),
+        returnSummaryCount = 2,
         returnSummaryList  = List(submitted, submittedNoReceipt)
       )
 
@@ -254,7 +254,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val expected = SdltReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = expectedRows,
-        totalRowCount = Some(2)
+        totalRowCount = 2
       )
 
       result mustBe expected
@@ -307,7 +307,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         )
 
       val submittedDeletionResponse = SdltReturnRecordResponse(
-        returnSummaryCount = Some(1),
+        returnSummaryCount = 1,
         returnSummaryList  = List(submittedDeletionSummary)
       )
 
@@ -358,7 +358,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         )
 
       val inProgressDeletionResponse = SdltReturnRecordResponse(
-        returnSummaryCount = Some(1),
+        returnSummaryCount = 1,
         returnSummaryList  = List(inProgressDeletionSummary)
       )
 
@@ -376,7 +376,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val result =
         service.getReturnsByTypeViewModel(storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
 
-      result.totalRowCount mustBe Some(1)
+      result.totalRowCount mustBe 1
 
       verify(connector).getReturns(eqTo(inProgressRequest))(any[HeaderCarrier])
       verifyNoMoreInteractions(connector)

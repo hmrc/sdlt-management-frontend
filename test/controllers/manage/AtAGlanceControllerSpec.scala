@@ -66,14 +66,14 @@ class AtAGlanceControllerSpec
       val returnsInProgressViewModel = SdltReturnViewModel(
         extractType    = IN_PROGRESS_RETURNS,
         rows           = inProgressRows,
-        totalRowCount  = Some(inProgressRows.length)
+        totalRowCount  = inProgressRows.length
       )
 
       val submittedRows: List[SdltReturnViewRow] = Nil
       val submittedViewModel = SdltReturnViewModel(
         extractType    = SUBMITTED_SUBMITTED_RETURNS,
         rows           = submittedRows,
-        totalRowCount  = Some(submittedRows.length)
+        totalRowCount  = submittedRows.length
       )
 
       val submittedDueRows: List[SdltReturnViewRow] = Nil
@@ -82,13 +82,13 @@ class AtAGlanceControllerSpec
       val submittedDueVm = SdltReturnViewModel(
         extractType    = SUBMITTED_RETURNS_DUE_FOR_DELETION,
         rows           = submittedDueRows,
-        totalRowCount  = Some(submittedDueRows.length)
+        totalRowCount  = submittedDueRows.length
       )
 
       val inProgressDueVm = SdltReturnViewModel(
         extractType    = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
         rows           = inProgressDueRows,
-        totalRowCount  = Some(inProgressDueRows.length)
+        totalRowCount  = inProgressDueRows.length
       )
 
       val combinedDueForDeletionRows: List[SdltReturnViewRow] =

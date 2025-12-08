@@ -126,14 +126,14 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val response = SdltReturnRecordResponse(
-        returnSummaryCount = Some(3),
+        returnSummaryCount = 3,
         returnSummaryList  = List(inProgressAccepted, inProgressStarted, submitted)
       )
 
       val result = SdltReturnsViewModel.convertToViewModel(response, IN_PROGRESS_RETURNS)
 
       result.extractType   mustBe IN_PROGRESS_RETURNS
-      result.totalRowCount mustBe Some(3)
+      result.totalRowCount mustBe 3
       result.rows.map(_.status).toSet mustBe Set(ACCEPTED, STARTED)
       result.rows.exists(_.purchaserName == "Submitted Buyer") mustBe false
     }
@@ -167,14 +167,14 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val response = SdltReturnRecordResponse(
-        returnSummaryCount = Some(3),
+        returnSummaryCount = 3,
         returnSummaryList  = List(submitted, submittedNoReceipt, started)
       )
 
       val result = SdltReturnsViewModel.convertToViewModel(response, SUBMITTED_SUBMITTED_RETURNS)
 
       result.extractType   mustBe SUBMITTED_SUBMITTED_RETURNS
-      result.totalRowCount mustBe Some(3)
+      result.totalRowCount mustBe 3
       result.rows.map(_.status).toSet mustBe Set(SUBMITTED, SUBMITTED_NO_RECEIPT)
       result.rows.exists(_.status == STARTED) mustBe false
     }
@@ -197,14 +197,14 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val response = SdltReturnRecordResponse(
-        returnSummaryCount = Some(2),
+        returnSummaryCount = 2,
         returnSummaryList  = List(submitted, submittedNoReceipt)
       )
 
       val result = SdltReturnsViewModel.convertToViewModel(response, SUBMITTED_NO_RECEIPT_RETURNS)
 
       result.extractType   mustBe SUBMITTED_NO_RECEIPT_RETURNS
-      result.totalRowCount mustBe Some(2)
+      result.totalRowCount mustBe 2
       result.rows.map(_.status).toSet mustBe Set(SUBMITTED, SUBMITTED_NO_RECEIPT)
     }
   }
@@ -229,14 +229,14 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val response = SdltReturnRecordResponse(
-        returnSummaryCount = Some(2),
+        returnSummaryCount = 2,
         returnSummaryList  = List(first, second)
       )
 
       val result = SdltReturnsViewModel.convertToViewModel(response, IN_PROGRESS_RETURNS_DUE_FOR_DELETION)
 
       result.extractType   mustBe IN_PROGRESS_RETURNS_DUE_FOR_DELETION
-      result.totalRowCount mustBe Some(2)
+      result.totalRowCount mustBe 2
       result.rows.map(_.utrn) mustBe List("UTRN-001", "UTRN-002")
     }
   }
@@ -269,14 +269,14 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val response = SdltReturnRecordResponse(
-        returnSummaryCount = Some(3),
+        returnSummaryCount = 3,
         returnSummaryList  = List(first, second, third)
       )
 
       val result = SdltReturnsViewModel.convertToViewModel(response, SUBMITTED_RETURNS_DUE_FOR_DELETION)
 
       result.extractType   mustBe SUBMITTED_RETURNS_DUE_FOR_DELETION
-      result.totalRowCount mustBe Some(3)
+      result.totalRowCount mustBe 3
 
       val purchaserOrder = result.rows.map(_.purchaserName)
       purchaserOrder mustBe List("Alice", "Bob", "Charlie")
