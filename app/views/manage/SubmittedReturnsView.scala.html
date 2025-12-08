@@ -31,7 +31,8 @@
 @(
         dataRows: List[SdltReturnViewRow],
         pagination: Option[Pagination],
-        paginationInfoText: Option[String]
+        paginationInfoText: Option[String],
+        startNewReturnUrl: String
 )(
         implicit request: Request[_],
         messages: Messages
@@ -67,7 +68,7 @@
     @if(dataRows.isEmpty) {
 
         @p("manage.submittedReturnsOverview.noReturns.info")
-        @link("manage.submittedReturnsOverview.noReturns.link", "../manage-returns/start-new-return")
+        @link("manage.submittedReturnsOverview.noReturns.link", startNewReturnUrl)
 
     } else {
 

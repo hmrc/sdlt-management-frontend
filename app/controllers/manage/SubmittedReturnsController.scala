@@ -16,18 +16,18 @@
 
 package controllers.manage
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import controllers.routes.{JourneyRecoveryController,SystemErrorController}
+import controllers.routes.{JourneyRecoveryController, SystemErrorController}
 import play.api.Logging
 
 import javax.inject.{Inject, Singleton}
 import navigation.Navigator
 import utils.PaginationHelper
 import services.StampDutyLandTaxService
-import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import views.html.manage.SubmittedReturnsView
 import controllers.manage.routes.*
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
@@ -44,7 +44,7 @@ class SubmittedReturnsController @Inject()(
                                             stornRequiredAction: StornRequiredAction,
                                             navigator: Navigator,
                                             view: SubmittedReturnsView
-                                          )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
+                                          )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
 
   val urlSelector: Int => String = (paginationIndex: Int) => SubmittedReturnsController.onPageLoad(Some(paginationIndex)).url
 
@@ -59,7 +59,7 @@ class SubmittedReturnsController @Inject()(
             getPaginationWithInfoText(viewModel.rows, viewModel.totalRowCount, paginationIndex, urlSelector) match {
               case Some((rows, paginator, paginationText)) =>
                 logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${rows.length}")
-                Ok(view(rows, paginator, paginationText))
+                Ok(view(rows, paginator, paginationText, appConfig.startNewReturnUrl))
 
               case _ =>
                 logger.error(

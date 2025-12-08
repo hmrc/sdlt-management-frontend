@@ -47,6 +47,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/agent-details/start-add-agent"
   val agentOverviewUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent"
 
+  private val filingServiceBaseUrl: String = configuration.get[String]("stamp-duty-land-tax-filing.host")
+  val startNewReturnUrl: String            = s"$filingServiceBaseUrl/stamp-duty-land-tax-filing"
+
   val exitSurveyUrl: String             = s"$feedbackFrontend/feedback/stamp-duty-land-tax"
 
   val languageTranslationEnabled: Boolean =

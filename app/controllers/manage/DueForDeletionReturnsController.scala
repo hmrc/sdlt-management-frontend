@@ -16,6 +16,7 @@
 
 package controllers.manage
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.manage.routes.*
 import controllers.routes.SystemErrorController
@@ -42,7 +43,7 @@ class DueForDeletionReturnsController @Inject()(
                                                  stornRequiredAction: StornRequiredAction,
                                                  navigator: Navigator,
                                                  view: DueForDeletionReturnsView
-                                               )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
+                                               )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
 
   def onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int]): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
@@ -75,7 +76,8 @@ class DueForDeletionReturnsController @Inject()(
               inProgressIndex.getOrElse(1),
               submittedIndex.getOrElse(1),
               inProgressUrlSelector,
-              submittedUrlSelector))
+              submittedUrlSelector,
+              appConfig.startNewReturnUrl))
       }) recover {
         case ex =>
           logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)

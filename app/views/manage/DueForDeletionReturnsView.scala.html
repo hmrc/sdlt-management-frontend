@@ -36,7 +36,8 @@
         inProgressSelectedPageIndex: Int,
         submittedSelectedPageIndex: Int,
         inProgressUrlSelector:  Int => String,
-        submittedUrlSelector: Int => String
+        submittedUrlSelector: Int => String,
+        startNewReturnUrl: String
 )(
         implicit request: Request[_],
         messages: Messages
@@ -106,7 +107,7 @@
     @if(inProgressViewModel.rows.isEmpty && submittedViewModel.rows.isEmpty) {
 
         @p("manageReturns.dueDeletionReturns.noReturns.info")
-        @link("manageReturns.dueDeletionReturns.noReturns.link", "#")
+        @link("manageReturns.dueDeletionReturns.noReturns.link", startNewReturnUrl)
 
     } else {
 

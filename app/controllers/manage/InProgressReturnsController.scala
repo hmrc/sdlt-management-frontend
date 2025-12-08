@@ -16,8 +16,9 @@
 
 package controllers.manage
 
+import config.FrontendAppConfig
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
-import controllers.routes.{SystemErrorController, JourneyRecoveryController}
+import controllers.routes.{JourneyRecoveryController, SystemErrorController}
 import models.requests.DataRequest
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -25,9 +26,9 @@ import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerCompon
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.PaginationHelper
-import views.html.InProgressReturnView
+import views.html.manage.InProgressReturnView
 import models.SdltReturnTypes.*
+
 import scala.concurrent.ExecutionContext
 import javax.inject.*
 
@@ -41,7 +42,7 @@ class InProgressReturnsController @Inject()(
                                              requireData: DataRequiredAction,
                                              stornRequiredAction: StornRequiredAction,
                                              view: InProgressReturnView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                           )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging {
 
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
@@ -57,7 +58,7 @@ class InProgressReturnsController @Inject()(
           val paginator: Option[Pagination] = viewModel.createPagination(selectedPageIndex, totalRowsCount, urlSelector)
           val paginationText: Option[String] = viewModel.getPaginationInfoText(selectedPageIndex, viewModel.rows )
           logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-          Ok(view(viewModel.rows, paginator, paginationText))
+          Ok(view(viewModel.rows, paginator, paginationText, appConfig.startNewReturnUrl))
 // TODO: disable page index redirect / need to be fix as part of tech debt or bug fix story: TBC
 //        case Left(error) if error.getMessage.contains("PageIndex selected is out of scope") =>
 //          logger.error(s"[InProgressReturnsController][onPageLoad] - indexError: $error")

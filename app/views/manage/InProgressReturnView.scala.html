@@ -34,7 +34,7 @@
 
 
 @(dataRows:   List[SdltReturnViewRow],
-        pagination: Option[Pagination], paginationInfoText: Option[String])(implicit request: Request[_], messages: Messages)
+        pagination: Option[Pagination], paginationInfoText: Option[String], startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
 
 @purchaserNameLink(row: SdltReturnViewRow)  = {
     <p class="govuk-body">
@@ -97,7 +97,7 @@
         @span("manageReturns.inProgressReturns.span.manage")
         @h1("manageReturns.inProgressReturns.SomeReturns")
         @p("manageReturns.inProgressReturns.noReturns")
-        @link("manageReturns.inProgressReturns.startNewReturn", "TBC")
+        @link("manageReturns.inProgressReturns.startNewReturn", startNewReturnUrl)
 
     } else if (pagination.isEmpty){
 
