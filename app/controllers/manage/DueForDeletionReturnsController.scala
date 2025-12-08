@@ -18,7 +18,7 @@ package controllers.manage
 
 import controllers.actions.*
 import controllers.manage.routes.*
-import controllers.routes.JourneyRecoveryController
+import controllers.routes.SystemErrorController
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltSubmittedDueForDeletionReturnViewModel}
 import navigation.Navigator
@@ -80,7 +80,7 @@ class DueForDeletionReturnsController @Inject()(
       }) recover {
         case ex =>
           logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)
-          Redirect(JourneyRecoveryController.onPageLoad())
+          Redirect(SystemErrorController.onPageLoad())
       }
     }
 

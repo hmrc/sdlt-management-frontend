@@ -36,3 +36,5 @@ GET         /manage/unauthorised/agent                   controllers.manage.Unau
 GET         /manage-returns/in-progress-returns          controllers.manage.InProgressReturnsController.onPageLoad(index: Option[Int])
 GET         /manage-returns/submitted-return             controllers.manage.SubmittedReturnsController.onPageLoad(paginationIndex: Option[Int])
 GET         /manage-returns/returns-due-for-deletion     controllers.manage.DueForDeletionReturnsController.onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int])
+
+GET        /system-error/there-is-a-problem              controllers.SystemErrorController.onPageLoad()

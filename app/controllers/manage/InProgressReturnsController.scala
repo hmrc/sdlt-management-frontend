@@ -17,7 +17,7 @@
 package controllers.manage
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
-import controllers.routes.JourneyRecoveryController
+import controllers.routes.{SystemErrorController, JourneyRecoveryController}
 import models.requests.DataRequest
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -68,7 +68,7 @@ class InProgressReturnsController @Inject()(
       } recover {
       case ex =>
         logger.error("[InProgressReturnsController][onPageLoad] Unexpected failure", ex)
-        Redirect(JourneyRecoveryController.onPageLoad())
+        Redirect(SystemErrorController.onPageLoad())
     }
   }
 
