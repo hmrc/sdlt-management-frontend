@@ -266,7 +266,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.SystemErrorController.onPageLoad().url
       }
     }
   }

@@ -20,7 +20,7 @@ import controllers.actions.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import controllers.routes.JourneyRecoveryController
+import controllers.routes.{JourneyRecoveryController,SystemErrorController}
 import play.api.Logging
 import javax.inject.{Inject, Singleton}
 import navigation.Navigator
@@ -67,7 +67,7 @@ class SubmittedReturnsController @Inject()(
         } recover {
           case ex =>
             logger.error("[SubmittedReturnsController][onPageLoad] Unexpected failure", ex)
-            Redirect(JourneyRecoveryController.onPageLoad())
+            Redirect(SystemErrorController.onPageLoad())
         }
       }
 }

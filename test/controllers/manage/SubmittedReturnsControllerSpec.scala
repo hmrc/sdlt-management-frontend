@@ -239,7 +239,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
-          controllers.routes.JourneyRecoveryController.onPageLoad().url
+          controllers.routes.SystemErrorController.onPageLoad().url
 
         verify(mockService, times(1))
           .getSubmittedReturnsViewModel(any(), any())(any[HeaderCarrier])

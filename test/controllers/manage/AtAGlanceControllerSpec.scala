@@ -19,7 +19,7 @@ package controllers.manage
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.manage.routes.*
-import controllers.routes.JourneyRecoveryController
+import controllers.routes.{JourneyRecoveryController, SystemErrorController}
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.{AtAGlanceViewModel, ReturnSummary}
 import models.responses.{SdltReturnViewModel, SdltReturnViewRow, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
@@ -152,7 +152,7 @@ class AtAGlanceControllerSpec
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
-          JourneyRecoveryController.onPageLoad().url
+          SystemErrorController.onPageLoad().url
 
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
