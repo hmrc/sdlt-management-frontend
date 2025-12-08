@@ -16,6 +16,8 @@
 
 package handlers
 
+import config.FrontendAppConfig
+import views.html.PageNotFoundView
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.RequestHeader
@@ -28,9 +30,13 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ErrorHandler @Inject()(
                               val messagesApi: MessagesApi,
-                              view: ErrorTemplate
-                            )(override implicit val ec: ExecutionContext) extends FrontendErrorHandler with I18nSupport {
+                              view: ErrorTemplate,
+                              notFoundView: PageNotFoundView
+                            )(override implicit val ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: RequestHeader): Future[Html] =
     Future.successful(view(pageTitle, heading, message))
+
+  override def notFoundTemplate(implicit request: RequestHeader): Future[Html] =
+    Future.successful(notFoundView()(request, appConfig))
 }
