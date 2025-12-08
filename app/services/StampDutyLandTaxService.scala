@@ -20,8 +20,8 @@ import connectors.StampDutyLandTaxConnector
 import models.SdltReturnTypes
 import models.manage.SdltReturnRecordRequest
 import models.requests.DataRequest
+import models.responses.SdltReturnViewModel
 import models.responses.SdltReturnsViewModel.convertToViewModel
-import models.responses.{SdltReturnViewModel, SdltSubmittedReturnViewModel, SdltSubmittedReturnsViewRow}
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -51,31 +51,6 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
       logger.info(s"[StampDutyLandTaxService][getReturns] - ${storn}::" +
         s"response r/count: ${dataResponse.returnSummaryCount} :: ${dataResponse.returnSummaryList.length}")
       convertToViewModel(dataResponse, extractType)
-    }
-  }
-
-  @deprecated("Please use getReturns instead")
-  def getSubmittedReturnsViewModel(storn: String, pageIndex: Option[Int])
-                                  (implicit hc: HeaderCarrier): Future[SdltSubmittedReturnViewModel] = {
-    val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-      storn = storn,
-      status = None,
-      deletionFlag = false,
-      pageType = Some("SUBMITTED"),
-      pageNumber = pageIndex.map(_.toString))
-    logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsViewModel] - data request:: ${dataRequest}")
-    for {
-      submittedResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
-    } yield {
-      logger.info(s"[StampDutyLandTaxService][getSubmittedReturnsViewModel] - ${storn}::" +
-        s"response r/count: ${submittedResponse.returnSummaryCount} :: ${submittedResponse.returnSummaryList.length}")
-      SdltSubmittedReturnViewModel(
-        rows = SdltSubmittedReturnsViewRow
-          .convertResponseToSubmittedView(
-            submittedResponse.returnSummaryList
-          ),
-        totalRowCount = submittedResponse.returnSummaryCount
-      )
     }
   }
 

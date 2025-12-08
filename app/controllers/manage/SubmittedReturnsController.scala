@@ -22,13 +22,15 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import controllers.routes.JourneyRecoveryController
 import play.api.Logging
+
 import javax.inject.{Inject, Singleton}
 import navigation.Navigator
 import utils.PaginationHelper
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import views.html.manage.SubmittedReturnsView
-import controllers.manage.routes._
+import controllers.manage.routes.*
+import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 
 import scala.concurrent.ExecutionContext
 
@@ -50,7 +52,7 @@ class SubmittedReturnsController @Inject()(
     (identify andThen getData andThen requireData andThen stornRequiredAction)
       .async { implicit request =>
         stampDutyLandTaxService
-          .getSubmittedReturnsViewModel(request.storn, paginationIndex)
+          .getReturnsByTypeViewModel(request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
           .map { viewModel =>
             logger.info(s"[SubmittedReturnsController][onPageLoad] - render page: $paginationIndex")
             val totalRowsCount = viewModel.totalRowCount.getOrElse(0)

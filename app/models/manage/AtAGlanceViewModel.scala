@@ -33,7 +33,7 @@ case class AtAGlanceViewModel(
 object AtAGlanceViewModel {
 
   def apply(inProgressReturns: SdltReturnViewModel,
-            submittedReturns: SdltSubmittedReturnViewModel,
+            submittedReturns: SdltReturnViewModel,
             dueForDeletionReturns: List[SdltReturnViewRow],
             agentsCount: Int,
             storn: String,
