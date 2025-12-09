@@ -30,7 +30,7 @@ GET         /manage/unauthorised/organisation            controllers.manage.Unau
 
 GET         /manage/unauthorised/standard-user           controllers.manage.UnauthorisedWrongRoleController.onPageLoad()
 GET         /manage/unauthorised/organisation            controllers.manage.UnauthorisedOrganisationAffinityController.onPageLoad()
-GET         /manage/unauthorised/individual              controllers.manage.UnauthorisedIndividualAffinityController.onPageLoad()
+GET         /unauthorised/individual                     controllers.manage.UnauthorisedIndividualAffinityController.onPageLoad()
 GET         /manage/unauthorised/agent                   controllers.manage.UnauthorisedAgentAffinityController.onPageLoad()
 
 GET         /manage-returns/in-progress-returns          controllers.manage.InProgressReturnsController.onPageLoad(index: Option[Int])
