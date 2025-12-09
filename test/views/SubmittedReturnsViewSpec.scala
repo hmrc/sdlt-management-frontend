@@ -33,7 +33,6 @@ import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
-import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 
 class SubmittedReturnsViewSpec
   extends SpecBase
@@ -68,7 +67,7 @@ class SubmittedReturnsViewSpec
         extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows = paginatedData,
         totalRowCount = paginatedData.length,
-        selectedPageIndex = 0
+        selectedPageIndex = 1
       )
 
     val nonPaginatedData: List[SdltReturnViewRow] =
@@ -86,7 +85,7 @@ class SubmittedReturnsViewSpec
       extractType = SUBMITTED_SUBMITTED_RETURNS,
       rows = nonPaginatedData,
       totalRowCount = nonPaginatedData.length,
-      selectedPageIndex = 0
+      selectedPageIndex = 1
     )
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
@@ -96,9 +95,6 @@ class SubmittedReturnsViewSpec
     implicit val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
 
     val view: SubmittedReturnsView = app.injector.instanceOf[SubmittedReturnsView]
-
-    val urlSelector: Int => String =
-      page => controllers.manage.routes.SubmittedReturnsController.onPageLoad(Some(page)).url
 
     def htmlDoc(html: Html): Document = Jsoup.parse(html.toString)
   }
@@ -132,7 +128,7 @@ class SubmittedReturnsViewSpec
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
 
-      emptyViewModel.paginator must not be empty
+      paginatedViewModel.paginator must not be empty
       doc.select(".govuk-pagination").size() mustBe 1
     }
 
@@ -161,6 +157,7 @@ class SubmittedReturnsViewSpec
       emptyViewModel.paginator mustBe None
       doc.select(".govuk-pagination").size() mustBe 0
     }
+
   }
 
 }
