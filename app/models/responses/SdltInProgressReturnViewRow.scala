@@ -76,6 +76,8 @@ case class SdltDueForDeletionReturnViewModel(
                                               inProgressViewModel: SdltInProgressDueForDeletionReturnViewModel,
                                               submittedViewModel: SdltSubmittedDueForDeletionReturnViewModel) extends SdltReturnBaseViewModel {
 
+  val isEmpty :Boolean = inProgressViewModel.rows.isEmpty && submittedViewModel.rows.isEmpty
+
   def paginatorInProgress(implicit messages: Messages): Option[Pagination] = {
     getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
       inProgressSelectedPageIndex, dueForDeletionInProgressUrlSelector(submittedSelectedPageIndex))
