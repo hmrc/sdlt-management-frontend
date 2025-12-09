@@ -29,7 +29,7 @@
         link: components.Link,
         hmrcPageHeading: HmrcPageHeading
 )
-@(viewModel: SdltSubmittedReturnViewModel)(implicit request: Request[_], messages: Messages)
+@(viewModel: SdltSubmittedReturnViewModel, startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
 
 @renderTable() = {
     @govukTable(Table(
@@ -61,7 +61,7 @@
     @if(viewModel.rows.isEmpty) {
 
         @p("manage.submittedReturnsOverview.noReturns.info")
-        @link("manage.submittedReturnsOverview.noReturns.link", "../manage-returns/start-new-return")
+        @link("manage.submittedReturnsOverview.noReturns.link", startNewReturnUrl)
 
     } else {
 

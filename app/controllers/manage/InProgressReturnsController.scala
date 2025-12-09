@@ -16,6 +16,7 @@
 
 package controllers.manage
 
+import config.FrontendAppConfig
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
 import controllers.routes.{JourneyRecoveryController, SystemErrorController}
 import models.SdltReturnTypes.*
@@ -41,7 +42,7 @@ class InProgressReturnsController @Inject()(
                                              requireData: DataRequiredAction,
                                              stornRequiredAction: StornRequiredAction,
                                              view: InProgressReturnView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                           )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging {
 
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
@@ -52,7 +53,7 @@ class InProgressReturnsController @Inject()(
         viewModel.validatePageIndex(index, viewModel.totalRowCount) match {
           case Right(selectedPageIndex) =>
             logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-            Ok( view(viewModel) )
+            Ok(view(viewModel, appConfig.startNewReturnUrl))
           case Left(error) =>
             logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
             Redirect(JourneyRecoveryController.onPageLoad())

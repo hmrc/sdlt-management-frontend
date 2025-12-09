@@ -17,6 +17,7 @@
 package controllers.manage
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.ReturnSummary
 import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
@@ -46,6 +47,9 @@ class DueForDeletionReturnsControllerSpec
           bind[StampDutyLandTaxService].toInstance(mockService)
         )
         .build()
+
+    implicit val appConfig: FrontendAppConfig =
+      app.injector.instanceOf[FrontendAppConfig]
 
     lazy val inProgressUrlSelector: Int => String =
       (inProgressIndex: Int) =>
@@ -101,7 +105,7 @@ class DueForDeletionReturnsControllerSpec
           submittedViewModel = expectedSubmitted
         )
 
-        contentAsString(result) mustEqual view(viewModel)(request, messages(app)).toString
+        contentAsString(result) mustEqual view(viewModel, appConfig.startNewReturnUrl)(request, messages(app)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
@@ -157,7 +161,7 @@ class DueForDeletionReturnsControllerSpec
           submittedViewModel = expectedSubmittedViewModel
         )
 
-        contentAsString(result) mustEqual view(viewModel)(request, messages(app)).toString
+        contentAsString(result) mustEqual view(viewModel, appConfig.startNewReturnUrl)(request, messages(app)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())

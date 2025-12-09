@@ -16,6 +16,7 @@
 
 package controllers.manage
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -27,7 +28,6 @@ import javax.inject.{Inject, Singleton}
 import navigation.Navigator
 import utils.PaginationHelper
 import services.StampDutyLandTaxService
-import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import views.html.manage.SubmittedReturnsView
 import controllers.manage.routes.*
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
@@ -46,7 +46,7 @@ class SubmittedReturnsController @Inject()(
                                             stornRequiredAction: StornRequiredAction,
                                             navigator: Navigator,
                                             view: SubmittedReturnsView
-                                          )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
+                                          )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
 
 
   def onPageLoad(paginationIndex: Option[Int]): Action[AnyContent] =
@@ -58,7 +58,7 @@ class SubmittedReturnsController @Inject()(
             viewModel.validatePageIndex(paginationIndex, viewModel.totalRowCount) match {
               case Right(selectedPageIndex) =>
                 logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
-                Ok( view(viewModel) )
+                Ok( view(viewModel, appConfig.startNewReturnUrl) )
               case Left(error) =>
                 logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
                 Redirect(JourneyRecoveryController.onPageLoad())

@@ -17,6 +17,7 @@
 package controllers.manage
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import models.responses.{SdltReturnViewRow, SdltSubmittedReturnViewModel, UniversalStatus}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -45,6 +46,9 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
         .build()
+
+    implicit val appConfig: FrontendAppConfig =
+      application.injector.instanceOf[FrontendAppConfig]
 
     val emptyRows: List[SdltReturnViewRow] = Nil
 
@@ -103,7 +107,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -134,7 +138,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -172,7 +176,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -213,7 +217,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])

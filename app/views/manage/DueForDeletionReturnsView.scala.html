@@ -30,7 +30,7 @@
         link: components.Link,
         hmrcPageHeading: HmrcPageHeading
 )
-@(viewModel: SdltDueForDeletionReturnViewModel)(implicit request: Request[_], messages: Messages)
+@(viewModel: SdltDueForDeletionReturnViewModel, startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
 
 @renderInProgressTable() = {
     @h2("manageReturns.dueDeletionReturns.inProgressTab.heading")
@@ -96,7 +96,7 @@
     @if(viewModel.isEmpty) {
 
         @p("manageReturns.dueDeletionReturns.noReturns.info")
-        @link("manageReturns.dueDeletionReturns.noReturns.link", "#")
+        @link("manageReturns.dueDeletionReturns.noReturns.link", startNewReturnUrl)
 
     } else {
 

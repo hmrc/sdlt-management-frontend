@@ -17,6 +17,7 @@
 package views
 
 import base.SpecBase
+import config.FrontendAppConfig
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.responses.UniversalStatus.{ACCEPTED, SUBMITTED}
 import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
@@ -68,6 +69,9 @@ class DueForDeletionReturnsViewSpec
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
 
+    implicit val appConfig: FrontendAppConfig =
+      app.injector.instanceOf[FrontendAppConfig]
+
     implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
     implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
@@ -104,7 +108,7 @@ class DueForDeletionReturnsViewSpec
         submittedViewModel = submittedVm
       )
 
-      val html = view(viewModel)
+      val html = view(viewModel, appConfig.startNewReturnUrl)
       val doc  = parseHtml(html)
 
       doc.title() must include(messages("manageReturns.dueDeletionReturns.title"))
@@ -125,7 +129,7 @@ class DueForDeletionReturnsViewSpec
         inProgressViewModel = emptyInProgress,
         submittedViewModel = emptySubmitted
       )
-      val html = view(viewModel)
+      val html = view(viewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 0
@@ -159,7 +163,7 @@ class DueForDeletionReturnsViewSpec
         submittedViewModel = emptySubmitted
       )
 
-      val html = view(viewModel)
+      val html = view(viewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
@@ -199,7 +203,7 @@ class DueForDeletionReturnsViewSpec
         submittedViewModel = submittedVm
       )
 
-      val html = view(viewModel)
+      val html = view(viewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
@@ -246,7 +250,7 @@ class DueForDeletionReturnsViewSpec
         submittedViewModel = submittedVm
       )
 
-      val html = view(viewModel)
+      val html = view(viewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1

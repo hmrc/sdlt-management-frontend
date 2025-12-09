@@ -29,6 +29,7 @@ import play.twirl.api.Html
 import utils.PaginationHelper
 import views.html.manage.SubmittedReturnsView
 import base.SpecBase
+import config.FrontendAppConfig
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -90,6 +91,9 @@ class SubmittedReturnsViewSpec
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
 
+    implicit val appConfig: FrontendAppConfig =
+      app.injector.instanceOf[FrontendAppConfig]
+
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
     implicit val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
     implicit val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
@@ -106,7 +110,7 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int = paginatedData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val html: Html = view(paginatedViewModel)
+      val html: Html = view(paginatedViewModel, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       val headers: Elements =
@@ -123,7 +127,7 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int  = paginatedData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val html: Html = view(paginatedViewModel)
+      val html: Html = view(paginatedViewModel, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
@@ -137,7 +141,7 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int = nonPaginatedData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val html: Html = view(nonPaginatedViewModel)
+      val html: Html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
@@ -150,7 +154,7 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int = emptyData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val html: Html = view(emptyViewModel)
+      val html: Html = view(emptyViewModel, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.noReturns.info"))
