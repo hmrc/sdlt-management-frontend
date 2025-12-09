@@ -18,7 +18,7 @@ package handlers
 
 import config.FrontendAppConfig
 import config.FrontendAppConfig
-import views.html.{AccessDeniedView, ErrorTemplate, PageNotFoundView, SystemErrorView}
+import views.html.{AccessDeniedView, ErrorTemplate, PageNotFoundView, ShutteringView, SystemErrorView}
 
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -33,7 +33,8 @@ class ErrorHandler @Inject()(
                               val messagesApi: MessagesApi,
                               systemErrorView: SystemErrorView,
                               accessDeniedView: AccessDeniedView,
-                              notFoundView: PageNotFoundView
+                              notFoundView: PageNotFoundView,
+                              shutteringView: ShutteringView
                             )(implicit val ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: RequestHeader): Future[Html] =
@@ -44,4 +45,7 @@ class ErrorHandler @Inject()(
 
   override def notFoundTemplate(implicit request: RequestHeader): Future[Html] =
     Future.successful(notFoundView()(request, appConfig))
+
+  def shutteringTemplate(implicit request: RequestHeader): Future[Html] =
+    Future.successful(shutteringView()(request, appConfig))
 }
