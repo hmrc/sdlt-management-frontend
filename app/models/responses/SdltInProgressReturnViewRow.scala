@@ -25,6 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
 import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, dueForDeletionSubmittedUrlSelector, inProgressUrlSelector, submittedUrlSelector}
 import utils.{PageUrlSelector, PaginationHelper}
 
+// TODO: still some refactoring work required for each pagination method within SdltReturnBaseViewModel models
 
 case class SdltInProgressReturnViewModel(
                                           extractType: SdltReturnTypes,
@@ -92,16 +93,16 @@ case class SdltDueForDeletionReturnViewModel(
   }
 
   def paginatorSubmitted(implicit messages: Messages): Option[Pagination] = {
-    getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
-      inProgressSelectedPageIndex, dueForDeletionSubmittedUrlSelector(submittedSelectedPageIndex))
+    getPaginationWithInfoText(submittedViewModel.rows, submittedViewModel.totalRowCount,
+      submittedSelectedPageIndex, dueForDeletionSubmittedUrlSelector(inProgressSelectedPageIndex))
       .collect {
         case (_, maybePaginator, _) => maybePaginator
       }.flatten
   }
 
   def paginationTexSubmitted(implicit messages: Messages): Option[String] = {
-    getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
-      inProgressSelectedPageIndex, dueForDeletionSubmittedUrlSelector(submittedSelectedPageIndex))
+    getPaginationWithInfoText(submittedViewModel.rows, submittedViewModel.totalRowCount,
+      submittedSelectedPageIndex, dueForDeletionSubmittedUrlSelector(inProgressSelectedPageIndex))
       .collect {
         case (_, _, maybePaginationText) => maybePaginationText
       }.flatten
