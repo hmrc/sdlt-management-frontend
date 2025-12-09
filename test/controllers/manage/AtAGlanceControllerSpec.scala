@@ -19,7 +19,6 @@ package controllers.manage
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.manage.routes.*
-import controllers.routes.JourneyRecoveryController
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.AtAGlanceViewModel
 import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltInProgressReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel, SdltSubmittedReturnViewModel}
