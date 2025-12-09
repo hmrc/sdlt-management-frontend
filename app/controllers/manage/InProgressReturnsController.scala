@@ -17,21 +17,19 @@
 package controllers.manage
 
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
-import controllers.routes.{SystemErrorController, JourneyRecoveryController}
+import controllers.routes.{JourneyRecoveryController, SystemErrorController}
+import models.SdltReturnTypes.*
 import models.requests.DataRequest
+import models.responses.SdltInProgressReturnViewModel
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
-import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.PaginationHelper
 import views.html.InProgressReturnView
-import models.SdltReturnTypes.*
-import models.responses.SdltInProgressReturnViewModel
 
-import scala.concurrent.ExecutionContext
 import javax.inject.*
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class InProgressReturnsController @Inject()(
@@ -47,20 +45,14 @@ class InProgressReturnsController @Inject()(
 
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
-  val urlSelector: Int => String = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
-
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
-
     stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, index)
       .map { viewModel =>
         logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
-        val totalRowsCount = viewModel.totalRowCount
-        viewModel.pageIndexSelector(index, totalRowsCount) match {
+        viewModel.pageIndexSelector(index, viewModel.totalRowCount) match {
           case Right(selectedPageIndex) =>
-            val paginator: Option[Pagination] = viewModel.createPagination(selectedPageIndex, totalRowsCount, urlSelector)
-            val paginationText: Option[String] = viewModel.getPaginationInfoText(selectedPageIndex, viewModel.rows)
             logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-            Ok(view(viewModel, paginator, paginationText))
+            Ok( view(viewModel) )
           case Left(error) =>
             logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
             Redirect(JourneyRecoveryController.onPageLoad())

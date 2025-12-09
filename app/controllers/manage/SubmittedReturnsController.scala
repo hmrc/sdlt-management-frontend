@@ -20,7 +20,7 @@ import controllers.actions.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import controllers.routes.{JourneyRecoveryController,SystemErrorController}
+import controllers.routes.{JourneyRecoveryController, SystemErrorController}
 import play.api.Logging
 
 import javax.inject.{Inject, Singleton}
@@ -32,6 +32,7 @@ import views.html.manage.SubmittedReturnsView
 import controllers.manage.routes.*
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import models.responses.SdltSubmittedReturnViewModel
+import utils.PageUrlSelector.submittedUrlSelector
 
 import scala.concurrent.ExecutionContext
 
@@ -47,7 +48,6 @@ class SubmittedReturnsController @Inject()(
                                             view: SubmittedReturnsView
                                           )(implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
 
-  val urlSelector: Int => String = (paginationIndex: Int) => SubmittedReturnsController.onPageLoad(Some(paginationIndex)).url
 
   def onPageLoad(paginationIndex: Option[Int]): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen stornRequiredAction)
@@ -55,21 +55,10 @@ class SubmittedReturnsController @Inject()(
         stampDutyLandTaxService
           .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
           .map { viewModel =>
-            logger.info(s"[SubmittedReturnsController][onPageLoad] - render page: $paginationIndex")
-
-            getPaginationWithInfoText(viewModel.rows, viewModel.totalRowCount, paginationIndex, urlSelector) match {
-              case Some((rows, paginator, paginationText)) =>
-                logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${rows.length}")
-                Ok(
-                  view(viewModel, paginator, paginationText)
-                )
-              case _ =>
-                logger.error(
-                  s"[SubmittedReturnsController][onPageLoad] - invalid pagination index: $paginationIndex " +
-                    s"for total rows: ${viewModel.totalRowCount}"
-                )
-                Redirect(JourneyRecoveryController.onPageLoad())
-            }
+            logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
+            Ok(
+              view(viewModel)
+            )
         } recover {
           case ex =>
             logger.error("[SubmittedReturnsController][onPageLoad] Unexpected failure", ex)

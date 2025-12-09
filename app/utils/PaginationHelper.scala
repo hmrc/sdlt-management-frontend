@@ -202,10 +202,7 @@ trait PaginationHelper extends Logging {
                                    totalRowCount: Int,
                                    paginationIndex: Option[Int],
                                    urlSelector: Int => String
-                                 )(
-                                   implicit req: DataRequest[_],
-                                   messages: Messages
-                                 ): Option[(List[A], Option[Pagination], Option[String])] = {
+                                 )(implicit messages: Messages): Option[(List[A], Option[Pagination], Option[String])] = {
 
     pageIndexSelector(paginationIndex, totalRowCount) match {
       case Right(validIndex) =>

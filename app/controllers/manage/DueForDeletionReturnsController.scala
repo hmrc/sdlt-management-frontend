@@ -27,6 +27,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, dueForDeletionSubmittedUrlSelector}
 import utils.PaginationHelper
 import views.html.manage.DueForDeletionReturnsView
 
@@ -49,16 +50,6 @@ class DueForDeletionReturnsController @Inject()(
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
       logger.info(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
 
-      val outOfScopeUrlSelector: String = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url
-
-      lazy val inProgressUrlSelector: Int => String =
-        (index: Int) =>
-          s"${DueForDeletionReturnsController.onPageLoad(Some(index), submittedIndex).url}#in-progress"
-
-      lazy val submittedUrlSelector: Int => String =
-        (index: Int) =>
-          s"${DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(index)).url}#submitted"
-
       (for {
         inProgressDurForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](
           storn = request.storn,
@@ -70,13 +61,13 @@ class DueForDeletionReturnsController @Inject()(
           submittedIndex)
       } yield {
         Ok(
-            view(
-              inProgressDurForDeletion,
-              submittedDueDorDeletionViewModel,
-              inProgressIndex.getOrElse(1),
-              submittedIndex.getOrElse(1),
-              inProgressUrlSelector,
-              submittedUrlSelector))
+          view(
+            inProgressDurForDeletion,
+            submittedDueDorDeletionViewModel,
+            inProgressIndex.getOrElse(1),
+            submittedIndex.getOrElse(1),
+            dueForDeletionInProgressUrlSelector(submittedIndex),
+            dueForDeletionSubmittedUrlSelector(inProgressIndex)))
       }) recover {
         case ex =>
           logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)

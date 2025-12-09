@@ -50,7 +50,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     } yield {
       logger.info(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - ${storn}::" +
         s"response r/count: ${dataResponse.returnSummaryCount} :: ${dataResponse.returnSummaryList.length}")
-      val viewModel = convertToViewModel(dataResponse, extractType)
+      val viewModel = convertToViewModel(dataResponse, extractType, pageIndex.getOrElse(1) )
       viewModel.asInstanceOf[ViewModel]
     }
   }
