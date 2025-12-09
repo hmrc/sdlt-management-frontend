@@ -16,42 +16,16 @@
 
 package utils
 
-import models.requests.DataRequest
 import play.api.Logging
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination,
+  PaginationItem, PaginationLink}
 
 trait PaginationHelper extends Logging {
 
   private val ROWS_ON_PAGE = 10
   private val DEFAULT_PAGE_INDEX = 1
   private val numberOfPages: Int => Int = totalRowCount => getPageCount(totalRowCount)
-
-  private def slidingTopIndex(paginationIndex: Int, numberOfPages: Int): Int = {
-    if (numberOfPages - paginationIndex > 10) {
-      paginationIndex + 5
-    } else {
-      numberOfPages
-    }
-  }
-
-  @deprecated("doesn't work for small number of pages")
-  def generatePaginationItems(paginationIndex: Int, numberOfPages: Int,
-                              urlSelector: Int => String): Seq[PaginationItem] = {
-    Range
-      .inclusive(paginationIndex, slidingTopIndex(paginationIndex, numberOfPages)) // This a primitive fix:: we might apply sliding logic in the future
-      .map(pageIndex =>
-        PaginationItem(
-          href = urlSelector(pageIndex),
-          number = Some(pageIndex.toString),
-          visuallyHiddenText = None,
-          current = Some(pageIndex == paginationIndex),
-          ellipsis = None,
-          attributes = Map.empty
-        )
-      )
-  }
-  
 
   def generatePreviousLink(paginationIndex: Int, numberOfPages: Int, urlPrev: String)
                           (implicit messages: Messages): Option[PaginationLink] = {
@@ -84,24 +58,6 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  @deprecated("this would be effectively wrong in the new way of pagination")
-  def getPaginationInfoText[A](paginationIndex: Int, itemList: Seq[A])
-                              (implicit messages: Messages): Option[String] = {
-
-    if (itemList.length <= ROWS_ON_PAGE || paginationIndex <= 0) {
-      None
-    }
-    else {
-      val paged = itemList.grouped(ROWS_ON_PAGE).toSeq
-      paged.lift(paginationIndex - 1).map { detailsChunk =>
-        val total = itemList.length
-        val start = (paginationIndex - 1) * ROWS_ON_PAGE + 1
-        val end = math.min(paginationIndex * ROWS_ON_PAGE, total)
-        messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
-      }
-    }
-  }
-
   def getPageCount(totalRecCount: Int): Int = {
     if (totalRecCount <= 0) {
       1
@@ -112,8 +68,8 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  // TODO: add test coverage
-  def pageIndexSelector(userInputPageInput: Option[Int], rowsCount: Int): Either[Throwable, Int] = {
+  def pageIndexSelector(userInputPageInput: Option[Int],
+                        rowsCount: Int): Either[Throwable, Int] = {
     userInputPageInput
       .map { attemptToSelectIndex =>
         if (attemptToSelectIndex > getPageCount(rowsCount)) {
@@ -125,36 +81,6 @@ trait PaginationHelper extends Logging {
         }
       }
       .getOrElse(Right(DEFAULT_PAGE_INDEX))
-  }
- 
-  @deprecated("does not use ellipsis")
-  def createPagination(pageIndex: Int, totalRowsCount: Int, urlSelector: Int => String)
-                      (implicit messages: Messages): Option[Pagination] = {
-    val numberOfPages: Int = getPageCount(totalRowsCount)
-    if (totalRowsCount > 0 && numberOfPages > 1) {
-      Some(
-        Pagination(
-          items = Some(generatePaginationItems(pageIndex, numberOfPages, urlSelector)),
-          previous = generatePreviousLink(pageIndex, numberOfPages, urlSelector(pageIndex - 1)),
-          next = generateNextLink(pageIndex, numberOfPages, urlSelector(pageIndex + 1)),
-          landmarkLabel = None,
-          classes = "",
-          attributes = Map.empty
-        )
-      )
-    } else {
-      None
-    }
-  }
-
-  @deprecated("Will be removed as not required::pagination is done on the DB level")
-  def getSelectedPageRows[A](allDataRows: List[A], pageIndex: Int): List[A] = {
-    allDataRows.grouped(ROWS_ON_PAGE).toSeq.lift(pageIndex - 1) match {
-      case Some(sliceData) =>
-        sliceData
-      case None =>
-        List.empty
-    }
   }
 
   def paginationItems(
