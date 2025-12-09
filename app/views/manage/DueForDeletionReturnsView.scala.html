@@ -93,7 +93,7 @@
         captionClasses = Some("govuk-caption-l")
     ))
 
-    @if(viewModel.inProgressViewModel.rows.isEmpty && viewModel.submittedViewModel.rows.isEmpty) {
+    @if(viewModel.isEmpty) {
 
         @p("manageReturns.dueDeletionReturns.noReturns.info")
         @link("manageReturns.dueDeletionReturns.noReturns.link", "#")
