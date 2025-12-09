@@ -21,13 +21,14 @@ import controllers.actions.*
 import controllers.manage.routes.*
 import controllers.routes.SystemErrorController
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
-import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltSubmittedDueForDeletionReturnViewModel}
+import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltSubmittedDueForDeletionReturnViewModel}
 import navigation.Navigator
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, dueForDeletionSubmittedUrlSelector}
 import utils.PaginationHelper
 import views.html.manage.DueForDeletionReturnsView
 
@@ -50,18 +51,8 @@ class DueForDeletionReturnsController @Inject()(
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
       logger.info(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
 
-      val outOfScopeUrlSelector: String = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url
-
-      lazy val inProgressUrlSelector: Int => String =
-        (index: Int) =>
-          s"${DueForDeletionReturnsController.onPageLoad(Some(index), submittedIndex).url}#in-progress"
-
-      lazy val submittedUrlSelector: Int => String =
-        (index: Int) =>
-          s"${DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(index)).url}#submitted"
-
       (for {
-        inProgressDurForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](
+        inProgressDurForDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](
           storn = request.storn,
           IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           inProgressIndex)
@@ -70,15 +61,15 @@ class DueForDeletionReturnsController @Inject()(
           SUBMITTED_RETURNS_DUE_FOR_DELETION,
           submittedIndex)
       } yield {
-        Ok(
-            view(
-              inProgressDurForDeletion,
-              submittedDueDorDeletionViewModel,
-              inProgressIndex.getOrElse(1),
-              submittedIndex.getOrElse(1),
-              inProgressUrlSelector,
-              submittedUrlSelector,
-              appConfig.startNewReturnUrl))
+        val viewModel : SdltDueForDeletionReturnViewModel =
+          SdltDueForDeletionReturnViewModel(
+            inProgressSelectedPageIndex = inProgressIndex,
+            submittedSelectedPageIndex = submittedIndex,
+            inProgressViewModel = inProgressDurForDeletionViewModel,
+            submittedViewModel = submittedDueDorDeletionViewModel,
+            startNewReturnUrl = appConfig.startNewReturnUrl
+          )
+        Ok(view(viewModel))
       }) recover {
         case ex =>
           logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)

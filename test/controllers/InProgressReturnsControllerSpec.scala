@@ -30,7 +30,6 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
-import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.PaginationHelper
 import views.html.InProgressReturnView
@@ -57,7 +56,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     val viewModelNoRows: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedEmptyData,
-      totalRowCount = expectedEmptyData.length)
+      totalRowCount = expectedEmptyData.length,
+      selectedPageIndex = 1)
 
     val expectedDataPaginationOff: List[SdltReturnViewRow] =
       (0 to 7).toList.map(index =>
@@ -73,7 +73,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     val viewModelPaginationOff: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedDataPaginationOff,
-      totalRowCount = expectedDataPaginationOff.length)
+      totalRowCount = expectedDataPaginationOff.length,
+      selectedPageIndex = 1)
 
     val expectedDataPaginationOn: List[SdltReturnViewRow] =
       (0 to 17).toList.map(index =>
@@ -89,17 +90,20 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
     val viewModelPaginationOn: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedDataPaginationOn,
-      totalRowCount = expectedDataPaginationOn.length)
+      totalRowCount = expectedDataPaginationOn.length,
+      selectedPageIndex = 1)
 
     val viewModelPaginationOnPage1: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedDataPaginationOn.take(rowsPerPage),
-      totalRowCount = expectedDataPaginationOn.length)
+      totalRowCount = expectedDataPaginationOn.length,
+      selectedPageIndex = 1)
 
     val viewModelPaginationOnPage2: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedDataPaginationOn.takeRight(7),
-      totalRowCount = expectedDataPaginationOn.length)
+      totalRowCount = expectedDataPaginationOn.length,
+      selectedPageIndex = 1)
 
     val urlSelector: Int => String = (selectedPageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(selectedPageIndex)).url
   }
@@ -110,7 +114,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
         extractType = IN_PROGRESS_RETURNS,
         rows = List.empty,
-        totalRowCount = 0)
+        totalRowCount = 0,
+        selectedPageIndex = 1)
 
       when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModelNoRows))
@@ -123,7 +128,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModel, None, None, appConfig.startNewReturnUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
       }
@@ -144,7 +149,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModelPaginationOff2: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
         extractType = IN_PROGRESS_RETURNS,
         rows = actualDataPaginationOff,
-        totalRowCount = actualDataPaginationOff.length)
+        totalRowCount = actualDataPaginationOff.length,
+        selectedPageIndex = 1)
 
       when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
         .thenReturn(Future.successful(viewModelPaginationOff))
@@ -157,7 +163,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModelPaginationOff2, None, None, appConfig.startNewReturnUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModelPaginationOff2, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
       }
@@ -178,14 +184,11 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModelPaginationOn2: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
         extractType = IN_PROGRESS_RETURNS,
         rows = actualDataPaginationOn.take(rowsPerPage),
-        totalRowCount = actualDataPaginationOn.take(rowsPerPage).length)
+        totalRowCount = rowsPerPage,
+        selectedPageIndex = 1)
 
       when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(viewModelPaginationOnPage1))
-
-      val selectedPageIndex: Int = 1
-      val paginator: Option[Pagination] = createPagination(selectedPageIndex, expectedDataPaginationOn.length, urlSelector)(messages(application))
-      val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex, expectedDataPaginationOn.take(rowsPerPage))(messages(application))
+        .thenReturn(Future.successful(viewModelPaginationOn2))
 
       running(application) {
 
@@ -195,7 +198,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModelPaginationOn2, paginator, paginationText, appConfig.startNewReturnUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModelPaginationOn2, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
 
@@ -213,20 +216,18 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
             utrn = ""
           )
         )
-      }.takeRight(7)
+      }
+
+      val selectedPageIndex: Int = 2
       val viewModel = SdltInProgressReturnViewModel(
         extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-        rows = actualDataPaginationOn,
-        totalRowCount = actualDataPaginationOn.takeRight(7).length
+        rows = actualDataPaginationOn.takeRight(7),
+        totalRowCount = actualDataPaginationOn.length,
+        selectedPageIndex = selectedPageIndex
       )
-      val selectedPageIndex: Int = 2
-      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(viewModelPaginationOnPage2))
 
-      val paginator: Option[Pagination] = createPagination(selectedPageIndex,
-        expectedDataPaginationOn.length, urlSelector)(messages(application))
-      val paginationText: Option[String] = getPaginationInfoText(selectedPageIndex,
-        expectedDataPaginationOn.takeRight(7))(messages(application))
+      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
+        .thenReturn(Future.successful(viewModel))
 
       running(application) {
 
@@ -236,7 +237,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModel, paginator, paginationText, appConfig.startNewReturnUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
       }
@@ -259,7 +260,8 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModelActual: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
         extractType = IN_PROGRESS_RETURNS,
         rows = actualDataPaginationOn,
-        totalRowCount = actualDataPaginationOn.length
+        totalRowCount = actualDataPaginationOn.length,
+        selectedPageIndex = 1
       )
 
       when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))

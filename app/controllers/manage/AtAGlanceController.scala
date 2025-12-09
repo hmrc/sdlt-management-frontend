@@ -29,7 +29,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.manage.AtAGlanceView
-
+import controllers.routes.SystemErrorController
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
@@ -77,7 +77,7 @@ class AtAGlanceController@Inject()(
     }) recover {
         case ex =>
           logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
-          Redirect(JourneyRecoveryController.onPageLoad())
+          Redirect(SystemErrorController.onPageLoad())
     }
   }
 }

@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.responses.UniversalStatus.{ACCEPTED, SUBMITTED}
-import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
+import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -101,8 +101,15 @@ class DueForDeletionReturnsViewSpec
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = submittedRows,
           1)
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = inProgressVm,
+        submittedViewModel = submittedVm,
+        startNewReturnUrl = appConfig.startNewReturnUrl
+      )
 
-      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
+      val html = view(viewModel)
       val doc  = parseHtml(html)
 
       doc.title() must include(messages("manageReturns.dueDeletionReturns.title"))
@@ -117,7 +124,14 @@ class DueForDeletionReturnsViewSpec
     }
 
     "show the 'no returns' message and link when both in-progress and submitted lists are empty" in new Setup {
-      val html = view(emptyInProgress, emptySubmitted, 1, 1,inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = emptyInProgress,
+        submittedViewModel = emptySubmitted,
+        startNewReturnUrl = appConfig.startNewReturnUrl
+      )
+      val html = view(viewModel)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 0
@@ -144,7 +158,15 @@ class DueForDeletionReturnsViewSpec
           rows = submittedRows,
           1)
 
-      val html = view(inProgressVm, emptySubmitted, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = inProgressVm,
+        submittedViewModel = emptySubmitted,
+        startNewReturnUrl = appConfig.startNewReturnUrl
+      )
+
+      val html = view(viewModel)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
@@ -177,7 +199,15 @@ class DueForDeletionReturnsViewSpec
           rows = submittedRows,
           1)
 
-      val html = view(emptyInProgress, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = emptyInProgress,
+        submittedViewModel = submittedVm,
+        startNewReturnUrl = appConfig.startNewReturnUrl
+      )
+
+      val html = view(viewModel)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1
@@ -217,7 +247,15 @@ class DueForDeletionReturnsViewSpec
           rows = submittedRows,
           1)
 
-      val html = view(inProgressVm, submittedVm, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = inProgressVm,
+        submittedViewModel = submittedVm,
+        startNewReturnUrl = appConfig.startNewReturnUrl
+      )
+
+      val html = view(viewModel)
       val doc = parseHtml(html)
 
       doc.select("#updates-and-deadlines-tabs").size() mustBe 1

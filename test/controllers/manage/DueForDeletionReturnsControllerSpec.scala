@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.manage.ReturnSummary
-import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
+import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -98,8 +98,15 @@ class DueForDeletionReturnsControllerSpec
           SdltSubmittedDueForDeletionReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
             rows = List[SdltReturnViewRow](), totalRowCount = 0)
 
-        contentAsString(result) mustEqual
-          view(expectedInProgress, expectedSubmitted, 1, 1, inProgressUrlSelector, submittedUrlSelector, appConfig.startNewReturnUrl)(request, messages(app)).toString
+        val viewModel: SdltDueForDeletionReturnViewModel = SdltDueForDeletionReturnViewModel(
+          inProgressSelectedPageIndex = Some(1),
+          submittedSelectedPageIndex = Some(1),
+          inProgressViewModel = expectedInProgress,
+          submittedViewModel = expectedSubmitted,
+          startNewReturnUrl = appConfig.startNewReturnUrl
+        )
+
+        contentAsString(result) mustEqual view(viewModel)(request, messages(app)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
@@ -143,13 +150,20 @@ class DueForDeletionReturnsControllerSpec
 
         val view = app.injector.instanceOf[DueForDeletionReturnsView]
 
-        val expectedInProgress =
+        val expectedInProgressViewModel =
           SdltInProgressDueForDeletionReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
-        val expectedSubmitted =
+        val expectedSubmittedViewModel =
           SdltSubmittedDueForDeletionReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
 
-        contentAsString(result) mustEqual
-          view(expectedInProgress, expectedSubmitted, 1, 1, submittedUrlSelector, inProgressUrlSelector, appConfig.startNewReturnUrl)(request, messages(app)).toString
+        val viewModel : SdltDueForDeletionReturnViewModel = SdltDueForDeletionReturnViewModel(
+         inProgressSelectedPageIndex = Some(1),
+          submittedSelectedPageIndex = Some(1),
+          inProgressViewModel = expectedInProgressViewModel,
+          submittedViewModel = expectedSubmittedViewModel,
+          startNewReturnUrl = appConfig.startNewReturnUrl
+        )
+
+        contentAsString(result) mustEqual view(viewModel)(request, messages(app)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())

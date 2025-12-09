@@ -33,9 +33,7 @@
         govukTag: GovukTag
 )
 
-
-@(viewModel:   SdltInProgressReturnViewModel,
-        pagination: Option[Pagination], paginationInfoText: Option[String], startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
+@(viewModel: SdltInProgressReturnViewModel, startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
 
 @purchaserNameLink(row: SdltReturnViewRow)  = {
     <p class="govuk-body">
@@ -99,7 +97,7 @@
         @p("manageReturns.inProgressReturns.noReturns")
         @link("manageReturns.inProgressReturns.startNewReturn", startNewReturnUrl)
 
-    } else if (pagination.isEmpty){
+    } else if ( viewModel.pagination().isEmpty){
 
         @span("manageReturns.inProgressReturns.span.manage")
         @h1("manageReturns.inProgressReturns.SomeReturns")
@@ -123,11 +121,11 @@
             content = Text(messages("manageReturns.inProgressReturns.details.content"))
         ))
 
-        @paginationInfoText.map(p(_))
+        @viewModel.paginationInfoText().map(p(_))
 
         @renderTable()
 
-        @pagination.map(govukPagination(_))
+        @viewModel.pagination.map(govukPagination(_))
 
     }
 

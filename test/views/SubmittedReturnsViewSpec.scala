@@ -34,7 +34,6 @@ import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
-import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 
 class SubmittedReturnsViewSpec
   extends SpecBase
@@ -50,7 +49,8 @@ class SubmittedReturnsViewSpec
     val emptyViewModel = SdltSubmittedReturnViewModel(
       extractType = SUBMITTED_SUBMITTED_RETURNS,
       rows = emptyData,
-      totalRowCount = 0
+      totalRowCount = 0,
+      selectedPageIndex = 0
     )
 
     val paginatedData: List[SdltReturnViewRow] =
@@ -67,7 +67,8 @@ class SubmittedReturnsViewSpec
     val paginatedViewModel = SdltSubmittedReturnViewModel(
         extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows = paginatedData,
-        totalRowCount = paginatedData.length
+        totalRowCount = paginatedData.length,
+        selectedPageIndex = 1
       )
 
     val nonPaginatedData: List[SdltReturnViewRow] =
@@ -84,7 +85,8 @@ class SubmittedReturnsViewSpec
     val nonPaginatedViewModel = SdltSubmittedReturnViewModel(
       extractType = SUBMITTED_SUBMITTED_RETURNS,
       rows = nonPaginatedData,
-      totalRowCount = nonPaginatedData.length
+      totalRowCount = nonPaginatedData.length,
+      selectedPageIndex = 1
     )
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
@@ -98,9 +100,6 @@ class SubmittedReturnsViewSpec
 
     val view: SubmittedReturnsView = app.injector.instanceOf[SubmittedReturnsView]
 
-    val urlSelector: Int => String =
-      page => controllers.manage.routes.SubmittedReturnsController.onPageLoad(Some(page)).url
-
     def htmlDoc(html: Html): Document = Jsoup.parse(html.toString)
   }
 
@@ -111,33 +110,7 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int = paginatedData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val paginator: Option[Pagination] =
-        Option.when(totalRowCount > 0 && totalPages > 1)(
-          Pagination(
-            items = Some(
-              paginationItems(
-                currentPage = pageIndex,
-                totalPages  = totalPages,
-                urlSelector = urlSelector
-              )
-            ),
-            previous      = generatePreviousLink(pageIndex, totalPages, urlSelector(pageIndex - 1)),
-            next          = generateNextLink(pageIndex, totalPages, urlSelector(pageIndex + 1)),
-            landmarkLabel = None,
-            classes       = "",
-            attributes    = Map.empty
-          )
-        )
-
-      val paginationText: Option[String] =
-        Option.unless(totalRowCount <= 10 || pageIndex <= 0) {
-          val total = totalRowCount
-          val start = (pageIndex - 1) * 10 + 1
-          val end   = math.min(pageIndex * 10, total)
-          messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
-        }
-
-      val html: Html = view(paginatedViewModel, paginator, paginationText, appConfig.startNewReturnUrl)
+      val html: Html = view(paginatedViewModel)
       val doc: Document = htmlDoc(html)
 
       val headers: Elements =
@@ -154,38 +127,12 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int  = paginatedData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val paginator: Option[Pagination] =
-        Option.when(totalRowCount > 0 && totalPages > 1)(
-          Pagination(
-            items = Some(
-              paginationItems(
-                currentPage = pageIndex,
-                totalPages  = totalPages,
-                urlSelector = urlSelector
-              )
-            ),
-            previous      = generatePreviousLink(pageIndex, totalPages, urlSelector(pageIndex - 1)),
-            next          = generateNextLink(pageIndex, totalPages, urlSelector(pageIndex + 1)),
-            landmarkLabel = None,
-            classes       = "",
-            attributes    = Map.empty
-          )
-        )
-
-      val paginationText: Option[String] =
-        Option.unless(totalRowCount <= 10 || pageIndex <= 0) {
-          val total = totalRowCount
-          val start = (pageIndex - 1) * 10 + 1
-          val end   = math.min(pageIndex * 10, total)
-          messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
-        }
-
-      val html: Html = view(paginatedViewModel, paginator, paginationText, appConfig.startNewReturnUrl)
+      val html: Html = view(paginatedViewModel)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
 
-      paginator must not be empty
+      paginatedViewModel.paginator must not be empty
       doc.select(".govuk-pagination").size() mustBe 1
     }
 
@@ -194,37 +141,11 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int = nonPaginatedData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val paginator: Option[Pagination] =
-        Option.when(totalRowCount > 0 && totalPages > 1)(
-          Pagination(
-            items = Some(
-              paginationItems(
-                currentPage = pageIndex,
-                totalPages  = totalPages,
-                urlSelector = urlSelector
-              )
-            ),
-            previous      = generatePreviousLink(pageIndex, totalPages, urlSelector(pageIndex - 1)),
-            next          = generateNextLink(pageIndex, totalPages, urlSelector(pageIndex + 1)),
-            landmarkLabel = None,
-            classes       = "",
-            attributes    = Map.empty
-          )
-        )
-
-      val paginationText: Option[String] =
-        Option.unless(totalRowCount <= 10 || pageIndex <= 0) {
-          val total = totalRowCount
-          val start = (pageIndex - 1) * 10 + 1
-          val end   = math.min(pageIndex * 10, total)
-          messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
-        }
-
-      val html: Html = view(nonPaginatedViewModel, paginator, paginationText, appConfig.startNewReturnUrl)
+      val html: Html = view(nonPaginatedViewModel)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
-      paginator mustBe None
+      nonPaginatedViewModel.paginator mustBe None
       doc.select(".govuk-pagination").size() mustBe 0
     }
 
@@ -233,38 +154,14 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int = emptyData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val paginator: Option[Pagination] =
-        Option.when(totalRowCount > 0 && totalPages > 1)(
-          Pagination(
-            items = Some(
-              paginationItems(
-                currentPage = pageIndex,
-                totalPages  = totalPages,
-                urlSelector = urlSelector
-              )
-            ),
-            previous      = generatePreviousLink(pageIndex, totalPages, urlSelector(pageIndex - 1)),
-            next          = generateNextLink(pageIndex, totalPages, urlSelector(pageIndex + 1)),
-            landmarkLabel = None,
-            classes       = "",
-            attributes    = Map.empty
-          )
-        )
-
-      val paginationText: Option[String] =
-        Option.unless(totalRowCount <= 10 || pageIndex <= 0) {
-          val total = totalRowCount
-          val start = (pageIndex - 1) * 10 + 1
-          val end   = math.min(pageIndex * 10, total)
-          messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
-        }
-
-      val html: Html = view(emptyViewModel, paginator, paginationText, appConfig.startNewReturnUrl)
+      val html: Html = view(emptyViewModel)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.noReturns.info"))
-      paginator mustBe None
+      emptyViewModel.paginator mustBe None
       doc.select(".govuk-pagination").size() mustBe 0
     }
+
   }
+
 }

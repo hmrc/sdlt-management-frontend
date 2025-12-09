@@ -29,15 +29,7 @@
         link: components.Link,
         hmrcPageHeading: HmrcPageHeading
 )
-@(
-        viewModel: SdltSubmittedReturnViewModel,
-        pagination: Option[Pagination],
-        paginationInfoText: Option[String],
-        startNewReturnUrl: String
-)(
-        implicit request: Request[_],
-        messages: Messages
-)
+@(viewModel: SdltSubmittedReturnViewModel)(implicit request: Request[_], messages: Messages)
 
 @renderTable() = {
     @govukTable(Table(
@@ -74,8 +66,8 @@
     } else {
 
         @p("manage.submittedReturnsOverview.nonZeroReturns.info")
-        @paginationInfoText.map(p(_))
+        @viewModel.paginationText().map(p(_))
         @renderTable()
-        @pagination.map(govukPagination(_))
+        @viewModel.paginator().map(govukPagination(_))
     }
 }
