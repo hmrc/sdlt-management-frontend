@@ -84,7 +84,8 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel = SdltSubmittedReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = emptyRows,
-        totalRowCount = 0
+        totalRowCount = 0,
+        selectedPageIndex = 1
       )
 
       when(
@@ -102,7 +103,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel, None, None)(request, messages(application)).toString
+          view(viewModel)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -114,7 +115,8 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel = SdltSubmittedReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = nonPaginatedRows,
-        totalRowCount = nonPaginatedRows.length
+        totalRowCount = nonPaginatedRows.length,
+        selectedPageIndex = 1
       )
 
       when(
@@ -132,7 +134,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel, None, None)(request, messages(application)).toString
+          view(viewModel)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -147,7 +149,8 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel = SdltSubmittedReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = pageOneRows,
-        totalRowCount = totalRowCount
+        totalRowCount = totalRowCount,
+        selectedPageIndex = 1
       )
 
       when(
@@ -162,40 +165,14 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         implicit val messagesApi = messages(application)
 
         val totalPages = getPageCount(totalRowCount)
-
-        val paginator: Option[Pagination] =
-          Option.when(totalRowCount > 0 && totalPages > 1)(
-            Pagination(
-              items = Some(
-                paginationItems(
-                  currentPage = selectedPageIndex,
-                  totalPages  = totalPages,
-                  urlSelector = urlSelector
-                )
-              ),
-              previous      = generatePreviousLink(selectedPageIndex, totalPages, urlSelector(selectedPageIndex - 1)),
-              next          = generateNextLink(selectedPageIndex, totalPages, urlSelector(selectedPageIndex + 1)),
-              landmarkLabel = None,
-              classes       = "",
-              attributes    = Map.empty
-            )
-          )
-
-        val paginationText: Option[String] =
-          Option.unless(totalRowCount <= rowsPerPage || selectedPageIndex <= 0) {
-            val total = totalRowCount
-            val start = (selectedPageIndex - 1) * rowsPerPage + 1
-            val end   = math.min(selectedPageIndex * rowsPerPage, total)
-            messagesApi("manageReturns.inProgressReturns.paginationInfo", start, end, total)
-          }
-
+        
         val request = FakeRequest(GET, submittedControllerRoute)
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[SubmittedReturnsView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel, paginator, paginationText)(request, messages(application)).toString
+          view(viewModel)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -210,13 +187,15 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModelOfPageTwoRows = SdltSubmittedReturnViewModel(
         extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows = pageTwoRows,
-        totalRowCount = pageTwoRows.length
+        totalRowCount = pageTwoRows.length,
+        selectedPageIndex = 1
       )
 
       val viewModel = SdltSubmittedReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = pageTwoRows,
-        totalRowCount = totalRowCount
+        totalRowCount = totalRowCount,
+        selectedPageIndex = 1
       )
 
       when(
@@ -268,7 +247,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModelOfPageTwoRows, paginator, paginationText)(request, messages(application)).toString
+          view(viewModelOfPageTwoRows)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -282,7 +261,8 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModel = SdltSubmittedReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = allPaginatedRows.take(rowsPerPage),
-        totalRowCount = totalRowCount
+        totalRowCount = totalRowCount,
+        selectedPageIndex = 1
       )
 
       when(

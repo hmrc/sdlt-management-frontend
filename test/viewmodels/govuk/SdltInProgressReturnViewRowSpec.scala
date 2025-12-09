@@ -101,7 +101,8 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
 
 
     "response with some data return expected view model" in {
-      val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS).asInstanceOf[SdltInProgressReturnViewModel]
+      val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS, 1)
+        .asInstanceOf[SdltInProgressReturnViewModel]
       resultViewModel.rows must contain theSameElementsAs expectedDataRows
       resultViewModel.totalRowCount mustBe 0
     }

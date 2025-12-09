@@ -32,15 +32,6 @@ class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
 
   "PageItems" - {
 
-    "Get unique pagination items :: InProgressReturnsController" in new Fixture {
-      val pageCount : Int = 10
-      val items = generatePaginationItems(paginationIndex = 1, numberOfPages = pageCount, urlSelector = urlSelector)
-      items.length mustBe pageCount
-      items.map(_.href).toList mustBe (1 to 10).map(index =>
-        s"/stamp-duty-land-tax-management/manage-returns/in-progress-returns?index=$index").toList
-      items.map(_.href).toSet.toList.length mustBe pageCount
-    }
-
     "Get prev pagination link" in new Fixture {
       val pageCount: Int = 10
 
