@@ -22,7 +22,7 @@ import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
-import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, inProgressUrlSelector, submittedUrlSelector}
+import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, dueForDeletionSubmittedUrlSelector, inProgressUrlSelector, submittedUrlSelector}
 import utils.{PageUrlSelector, PaginationHelper}
 
 
@@ -93,7 +93,7 @@ case class SdltDueForDeletionReturnViewModel(
 
   def paginatorSubmitted(implicit messages: Messages): Option[Pagination] = {
     getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
-      inProgressSelectedPageIndex, dueForDeletionInProgressUrlSelector(submittedSelectedPageIndex))
+      inProgressSelectedPageIndex, dueForDeletionSubmittedUrlSelector(submittedSelectedPageIndex))
       .collect {
         case (_, maybePaginator, _) => maybePaginator
       }.flatten
@@ -101,7 +101,7 @@ case class SdltDueForDeletionReturnViewModel(
 
   def paginationTexSubmitted(implicit messages: Messages): Option[String] = {
     getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
-      inProgressSelectedPageIndex, dueForDeletionInProgressUrlSelector(submittedSelectedPageIndex))
+      inProgressSelectedPageIndex, dueForDeletionSubmittedUrlSelector(submittedSelectedPageIndex))
       .collect {
         case (_, _, maybePaginationText) => maybePaginationText
       }.flatten
