@@ -20,28 +20,108 @@ import models.SdltReturnTypes
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import play.api.Logging
-import utils.PaginationHelper
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
+import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, dueForDeletionSubmittedUrlSelector, inProgressUrlSelector, submittedUrlSelector}
+import utils.{PageUrlSelector, PaginationHelper}
 
+// TODO: still some refactoring work required for each pagination method within SdltReturnBaseViewModel models
 
 case class SdltInProgressReturnViewModel(
                                           extractType: SdltReturnTypes,
                                           rows: List[SdltReturnViewRow],
-                                          totalRowCount: Int) extends SdltReturnBaseViewModel
+                                          selectedPageIndex: Int,
+                                          totalRowCount: Int) extends SdltReturnBaseViewModel {
+
+  def pagination(implicit messages: Messages): Option[Pagination] =
+    getPaginationWithInfoText(rows, totalRowCount, Some(selectedPageIndex), inProgressUrlSelector)
+      .collect {
+        case (_, maybePaginator, _) => maybePaginator
+      }.flatten
+
+  def paginationInfoText(implicit messages: Messages): Option[String] =
+    getPaginationWithInfoText(rows, totalRowCount, Some(selectedPageIndex), inProgressUrlSelector)
+      .collect {
+        case (_, _, maybePaginationText) => maybePaginationText
+      }.flatten
+
+}
 
 case class SdltSubmittedReturnViewModel(
-                                                       extractType: SdltReturnTypes,
-                                                       rows: List[SdltReturnViewRow],
-                                                       totalRowCount: Int) extends SdltReturnBaseViewModel
+                                         extractType: SdltReturnTypes,
+                                         rows: List[SdltReturnViewRow],
+                                         selectedPageIndex: Int,
+                                         totalRowCount: Int) extends SdltReturnBaseViewModel {
 
+  def paginator(implicit messages: Messages): Option[Pagination] = {
+    getPaginationWithInfoText(rows, totalRowCount, Some(selectedPageIndex), submittedUrlSelector)
+      .collect {
+        case (_, maybePaginator, _) => maybePaginator
+      }.flatten
+  }
+
+  def paginationText(implicit messages: Messages): Option[String] = {
+    getPaginationWithInfoText(rows, totalRowCount, Some(selectedPageIndex), submittedUrlSelector)
+      .collect {
+        case (_, _, maybePaginationText) => maybePaginationText
+      }.flatten
+  }
+
+}
+
+
+case class SdltDueForDeletionReturnViewModel(
+                                              inProgressSelectedPageIndex: Option[Int],
+                                              submittedSelectedPageIndex: Option[Int],
+                                              inProgressViewModel: SdltInProgressDueForDeletionReturnViewModel,
+                                              submittedViewModel: SdltSubmittedDueForDeletionReturnViewModel) extends SdltReturnBaseViewModel {
+
+  val isEmpty :Boolean = inProgressViewModel.rows.isEmpty && submittedViewModel.rows.isEmpty
+
+  def paginatorInProgress(implicit messages: Messages): Option[Pagination] = {
+    getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
+      inProgressSelectedPageIndex, dueForDeletionInProgressUrlSelector(submittedSelectedPageIndex))
+      .collect {
+        case (_, maybePaginator, _) => maybePaginator
+      }.flatten
+  }
+
+  def paginationTexInProgress(implicit messages: Messages): Option[String] = {
+    getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
+      inProgressSelectedPageIndex, dueForDeletionInProgressUrlSelector(submittedSelectedPageIndex))
+      .collect {
+        case (_, _, maybePaginationText) => maybePaginationText
+      }.flatten
+  }
+
+  def paginatorSubmitted(implicit messages: Messages): Option[Pagination] = {
+    getPaginationWithInfoText(submittedViewModel.rows, submittedViewModel.totalRowCount,
+      submittedSelectedPageIndex, dueForDeletionSubmittedUrlSelector(inProgressSelectedPageIndex))
+      .collect {
+        case (_, maybePaginator, _) => maybePaginator
+      }.flatten
+  }
+
+  def paginationTexSubmitted(implicit messages: Messages): Option[String] = {
+    getPaginationWithInfoText(submittedViewModel.rows, submittedViewModel.totalRowCount,
+      submittedSelectedPageIndex, dueForDeletionSubmittedUrlSelector(inProgressSelectedPageIndex))
+      .collect {
+        case (_, _, maybePaginationText) => maybePaginationText
+      }.flatten
+  }
+
+}
+
+// Dependant models below :: TODO: wrap these under the main model??
 case class SdltSubmittedDueForDeletionReturnViewModel(
                                                        extractType: SdltReturnTypes,
                                                        rows: List[SdltReturnViewRow],
                                                        totalRowCount: Int) extends SdltReturnBaseViewModel
 
 case class SdltInProgressDueForDeletionReturnViewModel(
-                                                  extractType: SdltReturnTypes,
-                                                  rows: List[SdltReturnViewRow],
-                                                  totalRowCount: Int) extends SdltReturnBaseViewModel
+                                                        extractType: SdltReturnTypes,
+                                                        rows: List[SdltReturnViewRow],
+                                                        totalRowCount: Int) extends SdltReturnBaseViewModel
 
 abstract class SdltReturnBaseViewModel extends PaginationHelper
 
@@ -87,7 +167,8 @@ object SdltReturnsViewModel {
   private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
   private val submittedReturnsStatuses: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
 
-  def convertToViewModel(response: SdltReturnRecordResponse, extractType: SdltReturnTypes): SdltReturnBaseViewModel = {
+  def convertToViewModel(response: SdltReturnRecordResponse,
+                         extractType: SdltReturnTypes, selectedPageIndex: Int): SdltReturnBaseViewModel = {
     val rows: List[SdltReturnViewRow] = SdltReturnViewRow.convertToViewRows(response.returnSummaryList)
 
     extractType match {
@@ -96,6 +177,7 @@ object SdltReturnsViewModel {
           extractType = extractType,
           rows = rows
             .filter(rec => inProgressReturnStatuses.contains(rec.status)),
+          selectedPageIndex = selectedPageIndex,
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS | SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
@@ -103,6 +185,7 @@ object SdltReturnsViewModel {
           extractType = extractType,
           rows = rows
             .filter(rec => submittedReturnsStatuses.contains(rec.status)),
+          selectedPageIndex = selectedPageIndex,
           totalRowCount = response.returnSummaryCount
         )
       case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>

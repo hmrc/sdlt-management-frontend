@@ -18,7 +18,8 @@ package viewmodels.govuk
 
 import models.SdltReturnTypes.*
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
-import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltInProgressReturnViewModel, SdltReturnViewRow, SdltReturnsViewModel, SdltSubmittedDueForDeletionReturnViewModel, SdltSubmittedReturnViewModel}
+import models.responses.{SdltInProgressDueForDeletionReturnViewModel,
+  SdltInProgressReturnViewModel, SdltReturnViewRow, SdltReturnsViewModel, SdltSubmittedDueForDeletionReturnViewModel, SdltSubmittedReturnViewModel}
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -131,7 +132,7 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val result = SdltReturnsViewModel
-        .convertToViewModel(response, IN_PROGRESS_RETURNS)
+        .convertToViewModel(response, IN_PROGRESS_RETURNS, 1)
         .asInstanceOf[SdltInProgressReturnViewModel]
 
       result.extractType mustBe IN_PROGRESS_RETURNS
@@ -174,7 +175,7 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val result = SdltReturnsViewModel
-        .convertToViewModel(response, SUBMITTED_SUBMITTED_RETURNS)
+        .convertToViewModel(response, SUBMITTED_SUBMITTED_RETURNS, 1)
         .asInstanceOf[SdltSubmittedReturnViewModel]
 
       result.extractType mustBe SUBMITTED_SUBMITTED_RETURNS
@@ -206,7 +207,7 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val result = SdltReturnsViewModel
-        .convertToViewModel(response, SUBMITTED_NO_RECEIPT_RETURNS)
+        .convertToViewModel(response, SUBMITTED_NO_RECEIPT_RETURNS, 1)
         .asInstanceOf[SdltSubmittedReturnViewModel]
 
       result.extractType mustBe SUBMITTED_NO_RECEIPT_RETURNS
@@ -240,7 +241,7 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val result = SdltReturnsViewModel
-        .convertToViewModel(response, IN_PROGRESS_RETURNS_DUE_FOR_DELETION)
+        .convertToViewModel(response, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, 1)
         .asInstanceOf[SdltInProgressDueForDeletionReturnViewModel]
 
       result.extractType mustBe IN_PROGRESS_RETURNS_DUE_FOR_DELETION
@@ -282,7 +283,7 @@ class SdltReturnViewModelSpec extends AnyWordSpec with Matchers {
       )
 
       val result = SdltReturnsViewModel
-        .convertToViewModel(response, SUBMITTED_RETURNS_DUE_FOR_DELETION)
+        .convertToViewModel(response, SUBMITTED_RETURNS_DUE_FOR_DELETION, 1)
         .asInstanceOf[SdltSubmittedDueForDeletionReturnViewModel]
 
       result.extractType mustBe SUBMITTED_RETURNS_DUE_FOR_DELETION

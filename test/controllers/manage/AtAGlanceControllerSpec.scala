@@ -60,14 +60,16 @@ class AtAGlanceControllerSpec
       val returnsInProgressViewModel = SdltInProgressReturnViewModel(
         extractType    = IN_PROGRESS_RETURNS,
         rows           = inProgressRows,
-        totalRowCount  = inProgressRows.length
+        totalRowCount  = inProgressRows.length,
+        selectedPageIndex = 1
       )
 
       val submittedRows: List[SdltReturnViewRow] = Nil
       val submittedViewModel = SdltSubmittedReturnViewModel(
         extractType    = SUBMITTED_SUBMITTED_RETURNS,
         rows           = submittedRows,
-        totalRowCount  = submittedRows.length
+        totalRowCount  = submittedRows.length,
+        selectedPageIndex = 1
       )
 
       val submittedDueRows: List[SdltReturnViewRow] = Nil

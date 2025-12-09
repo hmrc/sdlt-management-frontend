@@ -179,7 +179,8 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val expected = SdltInProgressReturnViewModel(
         extractType   = IN_PROGRESS_RETURNS,
         rows          = dataRows,
-        totalRowCount = dataRows.length
+        totalRowCount = dataRows.length,
+        selectedPageIndex = 1
       )
 
       result.totalRowCount mustBe expected.totalRowCount
@@ -254,7 +255,8 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val expected = SdltSubmittedReturnViewModel(
         extractType   = SUBMITTED_SUBMITTED_RETURNS,
         rows          = expectedRows,
-        totalRowCount = 2
+        totalRowCount = 2,
+        selectedPageIndex = 1
       )
 
       result mustBe expected
