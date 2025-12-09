@@ -29,7 +29,6 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
-import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.PaginationHelper
 import views.html.InProgressReturnView
@@ -100,7 +99,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       extractType = IN_PROGRESS_RETURNS,
       rows = expectedDataPaginationOn.takeRight(7),
       totalRowCount = expectedDataPaginationOn.length,
-      selectedPageIndex =  1)
+      selectedPageIndex = 1)
 
     val urlSelector: Int => String = (selectedPageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(selectedPageIndex)).url
   }
@@ -181,12 +180,11 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       val viewModelPaginationOn2: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
         extractType = IN_PROGRESS_RETURNS,
         rows = actualDataPaginationOn.take(rowsPerPage),
-        totalRowCount = actualDataPaginationOn.take(rowsPerPage).length,
+        totalRowCount = rowsPerPage,
         selectedPageIndex = 1)
 
       when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(viewModelPaginationOnPage1))
-
+        .thenReturn(Future.successful(viewModelPaginationOn2))
 
       running(application) {
 
@@ -214,17 +212,18 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
             utrn = ""
           )
         )
-      }.takeRight(7)
+      }
 
+      val selectedPageIndex: Int = 2
       val viewModel = SdltInProgressReturnViewModel(
         extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-        rows = actualDataPaginationOn,
-        totalRowCount = actualDataPaginationOn.takeRight(7).length,
-        selectedPageIndex = 1
+        rows = actualDataPaginationOn.takeRight(7),
+        totalRowCount = actualDataPaginationOn.length,
+        selectedPageIndex = selectedPageIndex
       )
-      val selectedPageIndex: Int = 2
+
       when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
-        .thenReturn(Future.successful(viewModelPaginationOnPage2))
+        .thenReturn(Future.successful(viewModel))
 
       running(application) {
 
