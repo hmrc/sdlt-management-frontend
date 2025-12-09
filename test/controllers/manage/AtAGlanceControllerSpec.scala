@@ -32,7 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
 import views.html.manage.AtAGlanceView
-
+import controllers.routes.{SystemErrorController}
 import scala.concurrent.Future
 
 class AtAGlanceControllerSpec
@@ -149,7 +149,7 @@ class AtAGlanceControllerSpec
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
-          JourneyRecoveryController.onPageLoad().url
+          SystemErrorController.onPageLoad().url
 
         verify(mockService, times(1)).getAgentCount(any(), any())
         verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
