@@ -22,7 +22,7 @@ import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
-import utils.PageUrlSelector.{inProgressUrlSelector, submittedUrlSelector}
+import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, inProgressUrlSelector, submittedUrlSelector}
 import utils.{PageUrlSelector, PaginationHelper}
 
 
@@ -68,6 +68,48 @@ case class SdltSubmittedReturnViewModel(
 
 }
 
+
+case class SdltDueForDeletionReturnViewModel(
+                                              inProgressSelectedPageIndex: Option[Int],
+                                              submittedSelectedPageIndex: Option[Int],
+                                              inProgressViewModel: SdltInProgressDueForDeletionReturnViewModel,
+                                              submittedViewModel: SdltSubmittedDueForDeletionReturnViewModel) extends SdltReturnBaseViewModel {
+
+  def paginatorInProgress(implicit messages: Messages): Option[Pagination] = {
+    getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
+      inProgressSelectedPageIndex, dueForDeletionInProgressUrlSelector(submittedSelectedPageIndex))
+      .collect {
+        case (_, maybePaginator, _) => maybePaginator
+      }.flatten
+  }
+
+  def paginationTexInProgress(implicit messages: Messages): Option[String] = {
+    getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
+      inProgressSelectedPageIndex, dueForDeletionInProgressUrlSelector(submittedSelectedPageIndex))
+      .collect {
+        case (_, _, maybePaginationText) => maybePaginationText
+      }.flatten
+  }
+
+  def paginatorSubmitted(implicit messages: Messages): Option[Pagination] = {
+    getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
+      inProgressSelectedPageIndex, dueForDeletionInProgressUrlSelector(submittedSelectedPageIndex))
+      .collect {
+        case (_, maybePaginator, _) => maybePaginator
+      }.flatten
+  }
+
+  def paginationTexSubmitted(implicit messages: Messages): Option[String] = {
+    getPaginationWithInfoText(inProgressViewModel.rows, inProgressViewModel.totalRowCount,
+      inProgressSelectedPageIndex, dueForDeletionInProgressUrlSelector(submittedSelectedPageIndex))
+      .collect {
+        case (_, _, maybePaginationText) => maybePaginationText
+      }.flatten
+  }
+
+}
+
+// Dependant models below :: TODO: wrap these under the main model??
 case class SdltSubmittedDueForDeletionReturnViewModel(
                                                        extractType: SdltReturnTypes,
                                                        rows: List[SdltReturnViewRow],

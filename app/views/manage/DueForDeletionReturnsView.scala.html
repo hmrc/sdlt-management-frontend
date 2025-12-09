@@ -18,8 +18,7 @@
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import viewmodels.manage.deletedReturns._
-@import models.responses.SdltInProgressDueForDeletionReturnViewModel
-@import models.responses.SdltSubmittedDueForDeletionReturnViewModel
+@import models.responses.SdltDueForDeletionReturnViewModel
 
 @this(
         layout: templates.Layout,
@@ -31,25 +30,15 @@
         link: components.Link,
         hmrcPageHeading: HmrcPageHeading
 )
-@(
-        inProgressViewModel: SdltInProgressDueForDeletionReturnViewModel,
-        submittedViewModel:  SdltSubmittedDueForDeletionReturnViewModel,
-        inProgressSelectedPageIndex: Int,
-        submittedSelectedPageIndex: Int,
-        inProgressUrlSelector:  Int => String,
-        submittedUrlSelector: Int => String
-)(
-        implicit request: Request[_],
-        messages: Messages
-)
+@(viewModel: SdltDueForDeletionReturnViewModel)(implicit request: Request[_], messages: Messages)
 
 @renderInProgressTable() = {
     @h2("manageReturns.dueDeletionReturns.inProgressTab.heading")
     @{
-        inProgressViewModel.getPaginationInfoText(inProgressSelectedPageIndex, inProgressViewModel.rows ).map(p(_))
+        viewModel.paginationTexInProgress().map(p(_))
     }
     @govukTable(Table(
-        rows = inProgressViewModel.rows.map { currentRow =>
+        rows = viewModel.inProgressViewModel.rows.map { currentRow =>
             Seq(
                 TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#")) ),
                 TableRow(content = Text( currentRow.address ))
@@ -61,8 +50,8 @@
         ))
     ))
     @{
-        inProgressViewModel
-        .createPagination(inProgressSelectedPageIndex, inProgressViewModel.totalRowCount, inProgressUrlSelector)
+        viewModel
+        .paginatorInProgress()
         .map(govukPagination(_))
     }
 }
@@ -70,10 +59,10 @@
 @renderSubmittedTable() = {
     @h2("manageReturns.dueDeletionReturns.submittedTab.heading")
     @{
-        submittedViewModel.getPaginationInfoText(submittedSelectedPageIndex, submittedViewModel.rows ).map(p(_))
+        viewModel.paginationTexSubmitted().map(p(_))
     }
     @govukTable(Table(
-        rows = submittedViewModel.rows.map{ currentRow =>
+        rows = viewModel.submittedViewModel.rows.map{ currentRow =>
             Seq(
                 TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#") )),
                 TableRow(content = Text( currentRow.address )),
@@ -87,8 +76,8 @@
         ))
     ))
     @{
-        submittedViewModel
-        .createPagination(submittedSelectedPageIndex, submittedViewModel.totalRowCount, submittedUrlSelector)
+        viewModel
+        .paginatorSubmitted()
         .map(govukPagination(_))
     }
 }
@@ -104,7 +93,7 @@
         captionClasses = Some("govuk-caption-l")
     ))
 
-    @if(inProgressViewModel.rows.isEmpty && submittedViewModel.rows.isEmpty) {
+    @if(viewModel.inProgressViewModel.rows.isEmpty && viewModel.submittedViewModel.rows.isEmpty) {
 
         @p("manageReturns.dueDeletionReturns.noReturns.info")
         @link("manageReturns.dueDeletionReturns.noReturns.link", "#")
@@ -116,7 +105,7 @@
         @govukTabs(Tabs(
             id = Some("updates-and-deadlines-tabs"),
             items = Seq(
-                Option.when(inProgressViewModel.rows.nonEmpty)(
+                Option.when(viewModel.inProgressViewModel.rows.nonEmpty)(
                     TabItem(
                         id = Some("in-progress"),
                         label = messages("manageReturns.dueDeletionReturns.inProgressTab.heading"),
@@ -125,7 +114,7 @@
                         )
                     )
                 ),
-                Option.when(submittedViewModel.rows.nonEmpty)(
+                Option.when(viewModel.submittedViewModel.rows.nonEmpty)(
                     TabItem(
                         id = Some("submitted"),
                         label = messages("manageReturns.dueDeletionReturns.submittedTab.heading"),

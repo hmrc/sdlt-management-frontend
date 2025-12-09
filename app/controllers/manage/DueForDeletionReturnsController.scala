@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.manage.routes.*
 import controllers.routes.SystemErrorController
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
-import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltSubmittedDueForDeletionReturnViewModel}
+import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltSubmittedDueForDeletionReturnViewModel}
 import navigation.Navigator
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -51,7 +51,7 @@ class DueForDeletionReturnsController @Inject()(
       logger.info(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
 
       (for {
-        inProgressDurForDeletion <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](
+        inProgressDurForDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](
           storn = request.storn,
           IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           inProgressIndex)
@@ -60,14 +60,14 @@ class DueForDeletionReturnsController @Inject()(
           SUBMITTED_RETURNS_DUE_FOR_DELETION,
           submittedIndex)
       } yield {
-        Ok(
-          view(
-            inProgressDurForDeletion,
-            submittedDueDorDeletionViewModel,
-            inProgressIndex.getOrElse(1),
-            submittedIndex.getOrElse(1),
-            dueForDeletionInProgressUrlSelector(submittedIndex),
-            dueForDeletionSubmittedUrlSelector(inProgressIndex)))
+        val viewModel : SdltDueForDeletionReturnViewModel =
+          SdltDueForDeletionReturnViewModel(
+            inProgressSelectedPageIndex = inProgressIndex,
+            submittedSelectedPageIndex = submittedIndex,
+            inProgressViewModel = inProgressDurForDeletionViewModel,
+            submittedViewModel = submittedDueDorDeletionViewModel
+          )
+        Ok(view(viewModel))
       }) recover {
         case ex =>
           logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)
