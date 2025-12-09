@@ -49,7 +49,7 @@ class InProgressReturnsController @Inject()(
     stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, index)
       .map { viewModel =>
         logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
-        viewModel.pageIndexSelector(index, viewModel.totalRowCount) match {
+        viewModel.validatePageIndex(index, viewModel.totalRowCount) match {
           case Right(selectedPageIndex) =>
             logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
             Ok( view(viewModel) )

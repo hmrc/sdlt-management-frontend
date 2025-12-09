@@ -68,7 +68,7 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  def pageIndexSelector(userInputPageInput: Option[Int],
+  def validatePageIndex(userInputPageInput: Option[Int],
                         rowsCount: Int): Either[Throwable, Int] = {
     userInputPageInput
       .map { attemptToSelectIndex =>
@@ -130,7 +130,7 @@ trait PaginationHelper extends Logging {
                                    urlSelector: Int => String
                                  )(implicit messages: Messages): Option[(List[A], Option[Pagination], Option[String])] = {
 
-    pageIndexSelector(paginationIndex, totalRowCount) match {
+    validatePageIndex(paginationIndex, totalRowCount) match {
       case Right(validIndex) =>
 
         val pagination = Option.when(

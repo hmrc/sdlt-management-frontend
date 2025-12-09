@@ -55,11 +55,15 @@ class SubmittedReturnsController @Inject()(
         stampDutyLandTaxService
           .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
           .map { viewModel =>
-            logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
-            Ok(
-              view(viewModel)
-            )
-        } recover {
+            viewModel.validatePageIndex(paginationIndex, viewModel.totalRowCount) match {
+              case Right(selectedPageIndex) =>
+                logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
+                Ok( view(viewModel) )
+              case Left(error) =>
+                logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
+                Redirect(JourneyRecoveryController.onPageLoad())
+            }
+          } recover {
           case ex =>
             logger.error("[SubmittedReturnsController][onPageLoad] Unexpected failure", ex)
             Redirect(SystemErrorController.onPageLoad())
