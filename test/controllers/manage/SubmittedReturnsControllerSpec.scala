@@ -120,8 +120,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows = nonPaginatedRows,
         totalRowCount = nonPaginatedRows.length,
-        selectedPageIndex = 1,
-        startNewReturnUrl = appConfig.startNewReturnUrl
+        selectedPageIndex = 1
       )
 
       when(
@@ -139,7 +138,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -155,8 +154,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows = pageOneRows,
         totalRowCount = totalRowCount,
-        selectedPageIndex = 1,
-        startNewReturnUrl = appConfig.startNewReturnUrl
+        selectedPageIndex = 1
       )
 
       when(
@@ -178,7 +176,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
@@ -195,8 +193,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         extractType = SUBMITTED_SUBMITTED_RETURNS,
         rows = pageTwoRows,
         totalRowCount = totalRowCount,
-        selectedPageIndex = 2,
-        startNewReturnUrl = appConfig.startNewReturnUrl
+        selectedPageIndex = 2
       )
 
       when(
@@ -220,7 +217,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
 
         verify(mockService, times(1))
           .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])

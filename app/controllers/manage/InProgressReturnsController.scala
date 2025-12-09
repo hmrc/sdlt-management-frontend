@@ -53,7 +53,7 @@ class InProgressReturnsController @Inject()(
         viewModel.validatePageIndex(index, viewModel.totalRowCount) match {
           case Right(selectedPageIndex) =>
             logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-            Ok( view(viewModel, appConfig.startNewReturnUrl) )
+            Ok(view(viewModel, appConfig.startNewReturnUrl))
           case Left(error) =>
             logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
             Redirect(JourneyRecoveryController.onPageLoad())

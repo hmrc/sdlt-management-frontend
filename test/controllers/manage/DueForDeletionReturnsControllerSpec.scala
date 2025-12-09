@@ -102,11 +102,10 @@ class DueForDeletionReturnsControllerSpec
           inProgressSelectedPageIndex = Some(1),
           submittedSelectedPageIndex = Some(1),
           inProgressViewModel = expectedInProgress,
-          submittedViewModel = expectedSubmitted,
-          startNewReturnUrl = appConfig.startNewReturnUrl
+          submittedViewModel = expectedSubmitted
         )
 
-        contentAsString(result) mustEqual view(viewModel)(request, messages(app)).toString
+        contentAsString(result) mustEqual view(viewModel, appConfig.startNewReturnUrl)(request, messages(app)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
@@ -159,11 +158,10 @@ class DueForDeletionReturnsControllerSpec
          inProgressSelectedPageIndex = Some(1),
           submittedSelectedPageIndex = Some(1),
           inProgressViewModel = expectedInProgressViewModel,
-          submittedViewModel = expectedSubmittedViewModel,
-          startNewReturnUrl = appConfig.startNewReturnUrl
+          submittedViewModel = expectedSubmittedViewModel
         )
 
-        contentAsString(result) mustEqual view(viewModel)(request, messages(app)).toString
+        contentAsString(result) mustEqual view(viewModel, appConfig.startNewReturnUrl)(request, messages(app)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())

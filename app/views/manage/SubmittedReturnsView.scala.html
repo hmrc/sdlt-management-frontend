@@ -29,7 +29,7 @@
         link: components.Link,
         hmrcPageHeading: HmrcPageHeading
 )
-@(viewModel: SdltSubmittedReturnViewModel)(implicit request: Request[_], messages: Messages)
+@(viewModel: SdltSubmittedReturnViewModel, startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
 
 @renderTable() = {
     @govukTable(Table(

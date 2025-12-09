@@ -110,7 +110,7 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int = paginatedData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val html: Html = view(paginatedViewModel)
+      val html: Html = view(paginatedViewModel, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       val headers: Elements =
@@ -127,7 +127,7 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int  = paginatedData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val html: Html = view(paginatedViewModel)
+      val html: Html = view(paginatedViewModel, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
@@ -141,7 +141,7 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int = nonPaginatedData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val html: Html = view(nonPaginatedViewModel)
+      val html: Html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
@@ -154,7 +154,7 @@ class SubmittedReturnsViewSpec
       val totalRowCount: Int = emptyData.length
       val totalPages: Int = getPageCount(totalRowCount)
 
-      val html: Html = view(emptyViewModel)
+      val html: Html = view(emptyViewModel, appConfig.startNewReturnUrl)
       val doc: Document = htmlDoc(html)
 
       doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.noReturns.info"))

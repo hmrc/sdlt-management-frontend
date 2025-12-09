@@ -67,9 +67,8 @@ class DueForDeletionReturnsController @Inject()(
             submittedSelectedPageIndex = submittedIndex,
             inProgressViewModel = inProgressDurForDeletionViewModel,
             submittedViewModel = submittedDueDorDeletionViewModel,
-            startNewReturnUrl = appConfig.startNewReturnUrl
           )
-        Ok(view(viewModel))
+        Ok(view(viewModel, appConfig.startNewReturnUrl))
       }) recover {
         case ex =>
           logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)
