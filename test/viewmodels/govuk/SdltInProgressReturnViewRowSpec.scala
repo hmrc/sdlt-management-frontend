@@ -83,6 +83,24 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         purchaserName = "Name005",
         address = "Address005",
         agentReference = Some("AgentRef005")
+      ),
+      ReturnSummary(
+        returnReference = "REF005",
+        utrn = Some("UTRN005"),
+        status = "DEPARTMENTAL_ERROR",
+        dateSubmitted = Some(LocalDate.parse("2025-01-02")),
+        purchaserName = "Name005",
+        address = "Address005",
+        agentReference = Some("AgentRef005")
+      ),
+      ReturnSummary(
+        returnReference = "REF005",
+        utrn = Some("UTRN005"),
+        status = "FATAL_ERROR",
+        dateSubmitted = Some(LocalDate.parse("2025-01-02")),
+        purchaserName = "Name005",
+        address = "Address005",
+        agentReference = Some("AgentRef005")
       )
     )
 
