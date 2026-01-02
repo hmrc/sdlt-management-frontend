@@ -32,6 +32,7 @@ import views.html.manage.SubmittedReturnsView
 import controllers.manage.routes.*
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import models.responses.SdltSubmittedReturnViewModel
+import utils.LoggerUtil.{logError, logInfo}
 import utils.PageUrlSelector.submittedUrlSelector
 
 import scala.concurrent.ExecutionContext
@@ -57,15 +58,15 @@ class SubmittedReturnsController @Inject()(
           .map { viewModel =>
             viewModel.validatePageIndex(paginationIndex, viewModel.totalRowCount) match {
               case Right(selectedPageIndex) =>
-                logger.info(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
+                logInfo(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
                 Ok( view(viewModel, appConfig.startNewReturnUrl) )
               case Left(error) =>
-                logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
+                logError(s"[InProgressReturnsController][onPageLoad] - other error: $error")
                 Redirect(JourneyRecoveryController.onPageLoad())
             }
           } recover {
           case ex =>
-            logger.error("[SubmittedReturnsController][onPageLoad] Unexpected failure", ex)
+            logError(s"[SubmittedReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}")
             Redirect(SystemErrorController.onPageLoad())
         }
       }

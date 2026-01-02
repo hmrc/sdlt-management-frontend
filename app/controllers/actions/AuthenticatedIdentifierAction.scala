@@ -30,6 +30,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import utils.LoggerUtil.logError
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -111,14 +112,14 @@ class AuthenticatedIdentifierAction @Inject()(
           case (Some(storn), true) =>
             Some(storn)
           case (Some(_), false) =>
-            logger.error("[AuthenticatedIdentifierAction][checkEnrollments] - Inactive enrollment")
+            logError("[AuthenticatedIdentifierAction][checkEnrollments] - Inactive enrollment")
             None
           case _ =>
-            logger.error("[AuthenticatedIdentifierAction][checkEnrollments] - Unable to retrieve sdlt enrolments")
+            logError("[AuthenticatedIdentifierAction][checkEnrollments] - Unable to retrieve sdlt enrolments")
             None
         }
       case _ =>
-        logger.error("[AuthenticatedIdentifierAction][checkEnrollments] - enrollment not found")
+        logError("[AuthenticatedIdentifierAction][checkEnrollments] - enrollment not found")
         None
     }
 

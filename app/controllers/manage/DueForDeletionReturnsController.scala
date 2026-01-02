@@ -28,6 +28,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.LoggerUtil.{logError, logInfo}
 import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, dueForDeletionSubmittedUrlSelector}
 import utils.PaginationHelper
 import views.html.manage.DueForDeletionReturnsView
@@ -49,7 +50,7 @@ class DueForDeletionReturnsController @Inject()(
 
   def onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int]): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
-      logger.info(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
+      logInfo(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
 
       (for {
         inProgressDurForDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](
@@ -71,7 +72,7 @@ class DueForDeletionReturnsController @Inject()(
         Ok(view(viewModel, appConfig.startNewReturnUrl))
       }) recover {
         case ex =>
-          logger.error("[DueForDeletionReturnsController][onPageLoad] Unexpected failure", ex)
+          logError(s"[DueForDeletionReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}")
           Redirect(SystemErrorController.onPageLoad())
       }
     }

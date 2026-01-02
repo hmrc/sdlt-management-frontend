@@ -27,6 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.LoggerUtil.{logError, logInfo}
 import views.html.InProgressReturnView
 
 import javax.inject.*
@@ -49,18 +50,18 @@ class InProgressReturnsController @Inject()(
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
     stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, index)
       .map { viewModel =>
-        logger.info(s"[InProgressReturnsController][onPageLoad] - render page: $index")
+        logInfo(s"[InProgressReturnsController][onPageLoad] - render page: $index")
         viewModel.validatePageIndex(index, viewModel.totalRowCount) match {
           case Right(selectedPageIndex) =>
-            logger.info(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
+            logInfo(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
             Ok(view(viewModel, appConfig.startNewReturnUrl))
           case Left(error) =>
-            logger.error(s"[InProgressReturnsController][onPageLoad] - other error: $error")
+            logError(s"[InProgressReturnsController][onPageLoad] - other error: $error")
             Redirect(JourneyRecoveryController.onPageLoad())
         }
       } recover {
       case ex =>
-        logger.error("[InProgressReturnsController][onPageLoad] Unexpected failure", ex)
+        logError(s"[InProgressReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}")
         Redirect(SystemErrorController.onPageLoad())
     }
   }

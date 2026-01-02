@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import utils.LoggerUtil.logError
 
 import scala.util.control.NonFatal
 import java.net.URL
@@ -55,7 +56,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
       }
       .recoverWith {
         case NonFatal(e) =>
-          logger.error(s"[StampDutyLandTaxConnector][getSdltOrganisation] failed for storn ${request.storn}: ${e.getMessage}", e)
+          logError(s"[StampDutyLandTaxConnector][getSdltOrganisation] failed for storn ${request.storn}: ${e.getMessage}")
           Future.failed(e)
       }
 
@@ -72,7 +73,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
       }
       .recoverWith {
         case NonFatal(e) =>
-          logger.error(s"[StampDutyLandTaxConnector][getReturns] failed for storn ${request.storn}: ${e.getMessage}", e)
+          logError(s"[StampDutyLandTaxConnector][getReturns] failed for storn ${request.storn}: ${e.getMessage}")
           Future.failed(e)
       }
 }
