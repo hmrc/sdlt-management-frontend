@@ -22,6 +22,7 @@ import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
+import utils.LoggerUtil.logError
 import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, dueForDeletionSubmittedUrlSelector, inProgressUrlSelector, submittedUrlSelector}
 import utils.{PageUrlSelector, PaginationHelper}
 
@@ -134,7 +135,7 @@ case class SdltReturnViewRow(
                             )
 
 
-object SdltReturnViewRow extends Logging {
+object SdltReturnViewRow  {
 
   import UniversalStatus.*
 
@@ -155,7 +156,7 @@ object SdltReturnViewRow extends Logging {
               )
             )
           case Left(ex) =>
-            logger.error(s"[SdltReturnViewRow][convertToViewRows] - conversion from: ${rec} failure: $ex")
+            logError(s"[SdltReturnViewRow][convertToViewRows] - conversion from: ${rec} failure: $ex")
             None
         }
       }
