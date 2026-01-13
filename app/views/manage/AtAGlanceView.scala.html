@@ -49,19 +49,19 @@
 
 @gridRow(
     card(
-        messages("manage.homepage.returnsManagement.title"),
+        messages("manage.homepage.manageReturns.title"),
         Seq(
-            messages("manage.homepage.returnsManagement.returnsInProgress.withNum", viewModel.returns.inProgressReturnsCount) -> viewModel.returns.inProgressReturnsUrl,
-            messages("manage.homepage.returnsManagement.submittedReturns.withNum", viewModel.returns.submittedReturnsCount) -> viewModel.returns.submittedReturnsUrl,
-            messages("manage.homepage.returnsManagement.returnsDueForDeletion.withNum", viewModel.returns.dueForDeletionReturnsCount) -> viewModel.returns.dueForDeletionUrl,
-            messages("manage.homepage.returnsManagement.startNewReturn") -> viewModel.returns.startReturnUrl
+            messages("manage.homepage.manageReturns.returnsInProgress.withNum", viewModel.returns.inProgressReturnsCount) -> viewModel.returns.inProgressReturnsUrl,
+            messages("manage.homepage.manageReturns.submittedReturns.withNum", viewModel.returns.submittedReturnsCount) -> viewModel.returns.submittedReturnsUrl,
+            messages("manage.homepage.manageReturns.returnsDueForDeletion.withNum", viewModel.returns.dueForDeletionReturnsCount) -> viewModel.returns.dueForDeletionUrl,
+            messages("manage.homepage.manageReturns.startNewReturn") -> viewModel.returns.startReturnUrl
         )
     ),
     card(
-        messages("manage.homepage.agentDetails.title"),
+        messages("manage.homepage.manageAgents.title"),
         Seq(
-            messages("manage.homepage.agentDetails.manageAgents.withNum", viewModel.agentDetails.agentsCount) -> viewModel.agentDetails.agentsUrl,
-            messages("manage.homepage.agentDetails.addNewAgent") -> viewModel.agentDetails.addAgentUrl
+            messages("manage.homepage.manageAgents.agentDetails.withNum", viewModel.agentDetails.agentsCount) -> viewModel.agentDetails.agentsUrl,
+            messages("manage.homepage.manageAgents.addNewAgent") -> viewModel.agentDetails.addAgentUrl
         )
     )
 )
