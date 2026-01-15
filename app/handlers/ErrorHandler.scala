@@ -17,8 +17,7 @@
 package handlers
 
 import config.FrontendAppConfig
-import config.FrontendAppConfig
-import views.html.{AccessDeniedView, ErrorTemplate, PageNotFoundView, SystemErrorView}
+import views.html.{AccessDeniedView, PageNotFoundView, SystemErrorView}
 
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}

@@ -28,7 +28,6 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
-import uk.gov.hmrc.govukfrontend.views.Aliases.Pagination
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.PaginationHelper
 import views.html.manage.SubmittedReturnsView
@@ -166,9 +165,6 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       ).thenReturn(Future.successful(viewModel))
 
       running(application) {
-        implicit val messagesApi = messages(application)
-
-        val totalPages = getPageCount(totalRowCount)
 
         val request = FakeRequest(GET, submittedControllerRoute)
         val result = route(application, request).value
@@ -205,7 +201,6 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       ).thenReturn(Future.successful(viewModel))
 
       running(application) {
-        implicit val messagesApi = messages(application)
 
         val request = FakeRequest(
           GET,
