@@ -33,11 +33,14 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
-  lazy val feedbackFrontend: String = configuration.get[String]("feedback-frontend.host")
+  private val basGatewayBaseUrl: String = configuration.get[Service]("microservice.services.bas-gateway").baseUrl
+  val signOutUrl: String = s"$basGatewayBaseUrl/bas-gateway/sign-out-without-state"
+
+  private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
+  val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/sdlt-agent-frontend"
 
   val loginUrl: String                      = configuration.get[String]("urls.login")
   val loginContinueUrl: String              = configuration.get[String]("urls.loginContinue")
-  val signOutUrl: String                    = configuration.get[String]("urls.signOut")
   val govUkSDLTGuidanceUrl: String          = configuration.get[String]("urls.govUkSDLTGuidance")
   lazy val govUKUrl: String                 = configuration.get[String]("urls.govUK")
   lazy val howToPayUrl: String              = configuration.get[String]("urls.howToPay")
@@ -49,8 +52,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   private val filingServiceBaseUrl: String = configuration.get[String]("stamp-duty-land-tax-filing.host")
   val startNewReturnUrl: String            = s"$filingServiceBaseUrl/stamp-duty-land-tax-filing"
-
-  val exitSurveyUrl: String             = s"$feedbackFrontend/feedback/stamp-duty-land-tax"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
