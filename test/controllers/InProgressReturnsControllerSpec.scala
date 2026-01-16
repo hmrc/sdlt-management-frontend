@@ -272,7 +272,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url + s"?index=$outOfScopePageIndex")
 
         val result = route(application, request).value
-        val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe "/stamp-duty-land-tax-management/there-is-a-problem"

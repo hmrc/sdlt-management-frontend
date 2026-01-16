@@ -19,7 +19,6 @@ package models.responses
 import models.SdltReturnTypes
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
-import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
 import utils.LoggerUtil.logError

@@ -25,15 +25,12 @@ import controllers.routes.{JourneyRecoveryController, SystemErrorController}
 import play.api.Logging
 
 import javax.inject.{Inject, Singleton}
-import navigation.Navigator
 import utils.PaginationHelper
 import services.StampDutyLandTaxService
 import views.html.manage.SubmittedReturnsView
-import controllers.manage.routes.*
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import models.responses.SdltSubmittedReturnViewModel
 import utils.LoggerUtil.{logError, logInfo}
-import utils.PageUrlSelector.submittedUrlSelector
 
 import scala.concurrent.ExecutionContext
 
@@ -45,7 +42,6 @@ class SubmittedReturnsController @Inject()(
                                             getData: DataRetrievalAction,
                                             requireData: DataRequiredAction,
                                             stornRequiredAction: StornRequiredAction,
-                                            navigator: Navigator,
                                             view: SubmittedReturnsView
                                           )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
 

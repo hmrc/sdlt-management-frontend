@@ -18,18 +18,15 @@ package controllers.manage
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import controllers.manage.routes.*
 import controllers.routes.SystemErrorController
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltSubmittedDueForDeletionReturnViewModel}
-import navigation.Navigator
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.LoggerUtil.{logError, logInfo}
-import utils.PageUrlSelector.{dueForDeletionInProgressUrlSelector, dueForDeletionSubmittedUrlSelector}
 import utils.PaginationHelper
 import views.html.manage.DueForDeletionReturnsView
 
@@ -44,7 +41,6 @@ class DueForDeletionReturnsController @Inject()(
                                                  getData: DataRetrievalAction,
                                                  requireData: DataRequiredAction,
                                                  stornRequiredAction: StornRequiredAction,
-                                                 navigator: Navigator,
                                                  view: DueForDeletionReturnsView
                                                )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
 

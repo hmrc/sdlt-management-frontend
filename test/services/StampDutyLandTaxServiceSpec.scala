@@ -16,8 +16,6 @@
 
 package services
 
-package services
-
 import connectors.StampDutyLandTaxConnector
 import models.SdltReturnTypes.{
   IN_PROGRESS_RETURNS,
@@ -53,73 +51,10 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
   private val storn = "STN001"
 
-  private val summaries: List[ReturnSummary] = List(
-    ReturnSummary(
-      returnReference = "RET-001",
-      utrn           = Some("UTRN-001"),
-      status         = "PENDING",
-      dateSubmitted  = Some(LocalDate.parse("2025-10-25")),
-      purchaserName  = "John Smith",
-      address        = "10 Downing Street, London",
-      agentReference = Some("Smith & Co Solicitors")
-    ),
-    ReturnSummary(
-      returnReference = "RET-002",
-      utrn           = Some("UTRN-002"),
-      status         = "SUBMITTED",
-      dateSubmitted  = Some(LocalDate.parse("2025-10-25")),
-      purchaserName  = "Jane Doe",
-      address        = "221B Baker Street, London",
-      agentReference = Some("Anderson Legal LLP")
-    ),
-    ReturnSummary(
-      returnReference = "RET-003",
-      utrn           = Some("UTRN-003"),
-      status         = "ACCEPTED",
-      dateSubmitted  = Some(LocalDate.parse("2025-10-25")),
-      purchaserName  = "Alice",
-      address        = "1 Queen’s Way, Birmingham",
-      agentReference = Some("Harborview Estates")
-    ),
-    ReturnSummary(
-      returnReference = "RET-004",
-      utrn           = Some("UTRN-004"),
-      status         = "STARTED",
-      dateSubmitted  = Some(LocalDate.parse("2025-10-25")),
-      purchaserName  = "Bob",
-      address        = "Some Address",
-      agentReference = Some("Harborview Estates")
-    ),
-    ReturnSummary(
-      returnReference = "RET-005",
-      utrn           = Some("UTRN-005"),
-      status         = "IN-PROGRESS",
-      dateSubmitted  = Some(LocalDate.parse("2025-10-25")),
-      purchaserName  = "Charlie",
-      address        = "Another Address",
-      agentReference = Some("Harborview Estates")
-    ),
-    ReturnSummary(
-      returnReference = "RET-006",
-      utrn           = Some("UTRN-006"),
-      status         = "DUE_FOR_DELETION",
-      dateSubmitted  = Some(LocalDate.parse("2025-10-25")),
-      purchaserName  = "Eve",
-      address        = "Somewhere",
-      agentReference = Some("Harborview Estates")
-    )
-  )
-
-  private val aggregateResponse = SdltReturnRecordResponse(
-    returnSummaryCount = summaries.size,
-    returnSummaryList  = summaries
-  )
-
   "getInProgressReturns" should {
 
     "merge ACCEPTED and STARTED IN-PROGRESS returns" in {
       val (service, connector) = newService()
-      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
       val acceptedSummary = ReturnSummary(
         returnReference = "RET-ACC-001",
@@ -195,7 +130,6 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
     "merge SUBMITTED and SUBMITTED_NO_RECEIPT returns from a single connector call" in {
       val (service, connector) = newService()
-      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
       val submitted = ReturnSummary(
         returnReference = "RET-SUB-001",
@@ -267,7 +201,6 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
     "propagate failures from the connector" in {
       val (service, connector) = newService()
-      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
       val expectedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
         storn        = storn,
@@ -295,7 +228,6 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
     "call the connector with deletionFlag = true for SUBMITTED and return the response" in {
       val (service, connector) = newService()
-      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
       val submittedDeletionSummary =
         ReturnSummary(
@@ -346,7 +278,6 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
     "call the connector with deletionFlag = true for IN-PROGRESS and return the response" in {
       val (service, connector) = newService()
-      implicit val request: DataRequest[_] = mock(classOf[DataRequest[_]])
 
       val inProgressDeletionSummary =
         ReturnSummary(
