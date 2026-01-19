@@ -24,10 +24,10 @@
 @()(implicit request: Request[_], appConfig: FrontendAppConfig, messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("manageAgents.unauthorised.org.title")),
+    pageTitle = titleNoForm(messages("manage.unauthorised.org.title")),
     showBackLink = false,
     timeout = false
 ) {
 
-    <h1>@messages("manageAgents.unauthorised.org.heading")</h1>
+    <h1>@messages("manage.unauthorised.org.heading")</h1>
 }

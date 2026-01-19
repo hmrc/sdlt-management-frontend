@@ -108,10 +108,10 @@ class AuthenticatedIdentifierAction @Inject()(
   private def checkEnrollments[A](enrolments: Set[Enrolment]): Option[String] =
     enrolments.find(enrolment => Set(orgEnrollment, agentEnrollment).contains(enrolment.key)) match {
       case Some(enrolment) =>
-        (enrolementStornExtractor(enrolment), enrolment.isActivated) match {
-          case (Some(storn), true) =>
+        (enrolementStornExtractor(enrolment), enrolment.state.toLowerCase()) match {
+          case (Some(storn), "activated" | "notyetactivated") =>
             Some(storn)
-          case (Some(_), false) =>
+          case (Some(_), _) =>
             logError("[AuthenticatedIdentifierAction][checkEnrollments] - Inactive enrollment")
             None
           case _ =>

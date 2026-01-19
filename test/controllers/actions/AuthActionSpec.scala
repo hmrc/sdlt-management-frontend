@@ -58,13 +58,30 @@ class AuthActionSpec extends SpecBase {
       "activated",
       None
     )
-    // TODO: clarify enrollments details for agent
+
+    val orgNotYetActivatedEnrollment: Enrolment = Enrolment(
+      "IR-SDLT-ORG",
+      Seq(
+        EnrolmentIdentifier("STORN", testStorn)
+      ),
+      "notyetactivated",
+      None
+    )
+
     val agentActiveEnrollment: Enrolment = Enrolment(
       "IR-SDLT-AGENT",
       Seq(
         EnrolmentIdentifier("STORN", testStorn)
       ),
       "activated",
+      None
+    )
+    val agentNotYetActiveEnrollment: Enrolment = Enrolment(
+      "IR-SDLT-AGENT",
+      Seq(
+        EnrolmentIdentifier("STORN", testStorn)
+      ),
+      "notyetactivated",
       None
     )
     val agentInActiveEnrollment = Enrolments(
@@ -216,11 +233,29 @@ class AuthActionSpec extends SpecBase {
     }
 
     "user logged in as an AGENT" - {
-      "and is allowed into the service" - {
+      "and is allowed into the service: activated enrollment" - {
         "must succeed" - {
           "when the user has a IR-SDLT-AGENT enrolment with the correct activated identifiers" in new Fixture {
             val enrollments = Enrolments(Set(agentActiveEnrollment))
             when(mockAuthConnector.authorise[RetrievalsType](any(), any() )(any(), any()))
+              .thenReturn(
+                Future.successful(Some(id) ~ enrollments ~ Some(Agent) ~ Some(User))
+              )
+            running(application) {
+              val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+              val controller = new Harness(authAction)
+              val result = controller.onPageLoad()(FakeRequest())
+
+              status(result) mustBe OK
+            }
+          }
+        }
+      }
+      "and is allowed into the service: not yet activated enrollment" - {
+        "must succeed" - {
+          "when the user has a IR-SDLT-AGENT enrolment with the correct activated identifiers" in new Fixture {
+            val enrollments = Enrolments(Set(agentNotYetActiveEnrollment))
+            when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
               .thenReturn(
                 Future.successful(Some(id) ~ enrollments ~ Some(Agent) ~ Some(User))
               )
@@ -296,7 +331,25 @@ class AuthActionSpec extends SpecBase {
 
     "user is logged in as an ORGANISATION" - {
 
-      "and is allowed into the service" - {
+      "and is allowed into the service: with Activated enrollment" - {
+        "must succeed" - {
+          "when the user has an activated IR-SDLT-ORG enrolment" in new Fixture {
+            val enrollment = Enrolments(Set(orgNotYetActivatedEnrollment))
+            when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+              .thenReturn(
+                Future.successful(Some(id) ~ enrollment ~ Some(Organisation) ~ Some(User))
+              )
+            running(application) {
+              val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+              val controller = new Harness(authAction)
+              val result = controller.onPageLoad()(FakeRequest())
+
+              status(result) mustBe OK
+            }
+          }
+        }
+      }
+      "and is allowed into the service: with NotYetActivated enrollment" - {
         "must succeed" - {
           "when the user has an activated IR-SDLT-ORG enrolment" in new Fixture {
             val enrollment = Enrolments(Set(orgActiveEnrollment))
@@ -314,6 +367,7 @@ class AuthActionSpec extends SpecBase {
           }
         }
       }
+
 
       "and is not allowed into the service" - {
 
