@@ -42,7 +42,7 @@
 
 @renderTable() = {
     @govukTable(Table(
-        rows = viewModel.rows.sortBy(_.purchaserName).map{ currentRow =>
+        rows = viewModel.rows.map { currentRow =>
             Seq(
                 TableRow(
                     content = HtmlContent(purchaserNameLink(currentRow)),
