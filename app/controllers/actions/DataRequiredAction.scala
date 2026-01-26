@@ -32,7 +32,7 @@ class DataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionC
       case None =>
         Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
       case Some(data) =>
-        Future.successful(Right(DataRequest(request.request, request.userId, request.storn, data)))
+        Future.successful(Right(DataRequest(request.request, request.userId, request.name, request.storn, data)))
     }
   }
 }

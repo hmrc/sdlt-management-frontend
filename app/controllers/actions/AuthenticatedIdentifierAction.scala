@@ -27,7 +27,7 @@ import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.retrieve.{Name, v2, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.LoggerUtil.logError
@@ -49,23 +49,24 @@ class AuthenticatedIdentifierAction @Inject()(
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     val defaultPredicate: Predicate = AuthProviders(GovernmentGateway)
 
-    // We expect one to one mapping between AffinityGroup and corresponding Enrollment
+    // We expect one to one mapping between AffinityGroup and corresponding Enrolment
     authorised(defaultPredicate)
       .retrieve(
         Retrievals.internalId and
           Retrievals.allEnrolments and
           Retrievals.affinityGroup and
-          Retrievals.credentialRole
+          Retrievals.credentialRole and
+          Retrievals.name
       ) {
-        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Organisation) ~ Some(User) if enrolments.exists(_.key == orgEnrollment) =>
-          handleValidEnrollments(block)(request, internalId, enrolments)
-        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Agent) ~ Some(User) if enrolments.exists(_.key == agentEnrollment) =>
-          handleValidEnrollments(block)(request, internalId, enrolments)
-        case Some(_) ~ _ ~ Some(Organisation|Agent) ~ Some(Assistant) => // Not sure if this is really applicable anymore
+        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Organisation) ~ Some(User) ~ Some(name) if enrolments.exists(_.key == orgEnrolment) =>
+          handleValidEnrolments(block)(request, internalId, enrolments, name)
+        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Agent) ~ Some(User) ~ Some(name) if enrolments.exists(_.key == agentEnrolment) =>
+          handleValidEnrolments(block)(request, internalId, enrolments, name)
+        case Some(_) ~ _ ~ Some(Organisation|Agent) ~ Some(Assistant) ~ Some(name) => // Not sure if this is really applicable anymore
           logger.error("[AuthenticatedIdentifierAction][authorised] - [Organisation|Agent]: Assistant login attempt")
           Future.successful(
             Redirect(controllers.manage.routes.UnauthorisedWrongRoleController.onPageLoad()))
-        case Some(_) ~ _ ~ Some(Individual) ~ _ =>
+        case Some(_) ~ _ ~ Some(Individual) ~ _ ~ _ =>
           logger.error("[AuthenticatedIdentifierAction][authorised] - Individual login attempt")
           Future.successful(
             Redirect(controllers.manage.routes.UnauthorisedIndividualAffinityController.onPageLoad()))
@@ -83,11 +84,11 @@ class AuthenticatedIdentifierAction @Inject()(
     }
   }
 
-  private def handleValidEnrollments[A](block: IdentifierRequest[A] => Future[Result])
-                                       (request: Request[A], internalId: String, enrollments: Set[Enrolment]) = {
-    checkEnrollments(enrollments)
+  private def handleValidEnrolments[A](block: IdentifierRequest[A] => Future[Result])
+                                       (request: Request[A], internalId: String, enrolments: Set[Enrolment], name:Name) = {
+    checkEnrolments(enrolments)
       .map { storn =>
-        block(IdentifierRequest(request, internalId, storn))
+        block(IdentifierRequest(request, internalId, nameExtractor(name), storn))
       }
       .getOrElse(
         Future.successful(
@@ -95,9 +96,13 @@ class AuthenticatedIdentifierAction @Inject()(
         )
       )
   }
+  
+  private def nameExtractor(name:Name): String = {
+    List(name.name, name.lastName).flatten.mkString(" ")
+  }
 
-  private val orgEnrollment: String = "IR-SDLT-ORG"
-  private val agentEnrollment: String = "IR-SDLT-AGENT"
+  private val orgEnrolment: String = "IR-SDLT-ORG"
+  private val agentEnrolment: String = "IR-SDLT-AGENT"
 
   private val enrolementStornExtractor: Enrolment => Option[String] = (enrolment: Enrolment) =>
     enrolment.identifiers
@@ -105,21 +110,21 @@ class AuthenticatedIdentifierAction @Inject()(
       .map(_.value)
 
   // Always expect enrolments in the input set :: expect STORN key to be the same for Agent and Org
-  private def checkEnrollments[A](enrolments: Set[Enrolment]): Option[String] =
-    enrolments.find(enrolment => Set(orgEnrollment, agentEnrollment).contains(enrolment.key)) match {
+  private def checkEnrolments[A](enrolments: Set[Enrolment]): Option[String] =
+    enrolments.find(enrolment => Set(orgEnrolment, agentEnrolment).contains(enrolment.key)) match {
       case Some(enrolment) =>
         (enrolementStornExtractor(enrolment), enrolment.state.toLowerCase()) match {
           case (Some(storn), "activated" | "notyetactivated") =>
             Some(storn)
           case (Some(_), _) =>
-            logError("[AuthenticatedIdentifierAction][checkEnrollments] - Inactive enrollment")
+            logError("[AuthenticatedIdentifierAction][checkEnrolments] - Inactive enrolment")
             None
           case _ =>
-            logError("[AuthenticatedIdentifierAction][checkEnrollments] - Unable to retrieve sdlt enrolments")
+            logError("[AuthenticatedIdentifierAction][checkEnrolments] - Unable to retrieve sdlt enrolments")
             None
         }
       case _ =>
-        logError("[AuthenticatedIdentifierAction][checkEnrollments] - enrollment not found")
+        logError("[AuthenticatedIdentifierAction][checkEnrolments] - enrolment not found")
         None
     }
 

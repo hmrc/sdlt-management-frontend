@@ -24,7 +24,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request.request, request.userId, storn = "STORN1", dataToReturn))
+    Future(OptionalDataRequest(request.request, request.userId, name = "John Doe", storn = "STORN1", dataToReturn))
 
   override protected implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global

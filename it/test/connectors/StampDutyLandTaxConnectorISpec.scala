@@ -42,6 +42,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
   implicit val request: DataRequest[_] = DataRequest(
     request = FakeRequest(),
     userId = "some-id",
+    name = "John Doe",
     userAnswers = UserAnswers(id = "id"),
     storn = storn
   )

@@ -16,11 +16,11 @@
 
 package controllers.actions
 
-import javax.inject.Inject
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import play.api.mvc.ActionTransformer
 import repositories.SessionRepository
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DataRetrievalActionImpl @Inject()(
@@ -30,7 +30,7 @@ class DataRetrievalActionImpl @Inject()(
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
 
     sessionRepository.get(request.userId).map {
-      OptionalDataRequest(request.request, request.userId, request.storn, _)
+      OptionalDataRequest(request.request, request.userId, request.name, request.storn, _)
     }
   }
 }
