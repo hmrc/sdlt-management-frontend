@@ -25,9 +25,9 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import views.html.JourneyRecoveryStartAgainView
+import views.html.SystemErrorView
 
-class JourneyRecoveryStartAgainViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
+class SystemErrorViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
 
   trait Setup {
 
@@ -39,10 +39,10 @@ class JourneyRecoveryStartAgainViewSpec extends SpecBase with GuiceOneAppPerSuit
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
-    val view: JourneyRecoveryStartAgainView = app.injector.instanceOf[JourneyRecoveryStartAgainView]
+    val view: SystemErrorView = app.injector.instanceOf[SystemErrorView]
   }
 
-  "JourneyRecoveryStartAgainView" - {
+  "SystemErrorViewSpec" - {
 
     "render the page with correct title and heading" in new Setup {
       val html = view()
@@ -51,8 +51,8 @@ class JourneyRecoveryStartAgainViewSpec extends SpecBase with GuiceOneAppPerSuit
       val heading = doc.select("h1.govuk-heading-xl")
 
       heading.size() mustBe 1
-      heading.text() mustBe messages("journeyRecovery.startAgain.heading")
-      doc.title() must include(messages("journeyRecovery.startAgain.title"))
+      heading.text() mustBe messages("systemError.heading")
+      doc.title() must include(messages("systemError.title"))
     }
 
     "render the page with paragraphs" in new Setup {
@@ -61,19 +61,16 @@ class JourneyRecoveryStartAgainViewSpec extends SpecBase with GuiceOneAppPerSuit
 
       val paragraphs = doc.select("p.govuk-body")
 
-      paragraphs.size() mustBe 2
-      paragraphs.text() must include(messages("journeyRecovery.startAgain.guidance"))
-      paragraphs.text() must include(messages("site.startAgain"))
+      paragraphs.size() mustBe 1
+      paragraphs.text() must include(messages("systemError.paragraph1"))
     }
-
 
     "render the page with url link" in new Setup {
       val html = view()
       val doc = parseHtml(html)
       val link = doc.select("p.govuk-body a.govuk-link").attr("href")
-      link mustBe ""
+      link mustBe appConfig.hmrcOnlineServiceDeskUrl
     }
 
   }
-
 }
