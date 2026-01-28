@@ -17,7 +17,8 @@
 @import config.FrontendAppConfig
 
 @this(
-        layout: templates.Layout
+        layout: templates.Layout,
+        h1: H1,
 )
 
 
@@ -29,5 +30,5 @@
     timeout = false
 ) {
 
-    <h1>@messages("manage.unauthorised.org.heading")</h1>
+    @h1(messages("manage.unauthorised.org.heading"))
 }
