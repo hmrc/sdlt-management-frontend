@@ -121,8 +121,7 @@ class AtAGlanceControllerSpec
           submittedReturns        = submittedViewModel,
           dueForDeletionReturnsTotal   = combinedDueForDeletionRows.length,
           agentsCount             = agentsCount,
-          storn                   = "STN001",
-          name                    = "David Frank"
+          storn                   = "STN001"
         )
 
         contentAsString(result) mustEqual

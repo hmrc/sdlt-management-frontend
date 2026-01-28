@@ -23,7 +23,6 @@ import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndConta
 
 case class AtAGlanceViewModel(
                                storn: String,
-                               name: String,
                                returns: ReturnsManagementViewModel,
                                agentDetails: AgentDetailsViewModel,
                                helpAndContact: HelpAndContactViewModel,
@@ -36,12 +35,10 @@ object AtAGlanceViewModel {
             submittedReturns: SdltSubmittedReturnViewModel,
             dueForDeletionReturnsTotal: Int,
             agentsCount: Int,
-            storn: String,
-            name: String)
+            storn: String)
            (implicit appConfig: FrontendAppConfig): AtAGlanceViewModel =
     AtAGlanceViewModel(
       storn = storn,
-      name = name,
       returns =
         ReturnsManagementViewModel(
           inProgressReturnsCount = inProgressReturns.totalRowCount,
