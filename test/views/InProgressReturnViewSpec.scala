@@ -19,7 +19,7 @@ package views
 import base.SpecBase
 import config.FrontendAppConfig
 import models.SdltReturnTypes.IN_PROGRESS_RETURNS
-import models.responses.UniversalStatus.SUBMITTED
+import models.responses.UniversalStatus.ACCEPTED
 import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow}
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
@@ -44,28 +44,55 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
 
     val view: InProgressReturnView = app.injector.instanceOf[InProgressReturnView]
 
+    val emptyData: List[SdltReturnViewRow] = Nil
+
     val paginatedData: List[SdltReturnViewRow] =
       (0 to 17).toList.map(i =>
         SdltReturnViewRow(
           address = s"$i Riverside Drive",
           utrn = s"UTRN-$i",
           purchaserName = s"Buyer-$i",
-          status = SUBMITTED,
+          status = ACCEPTED,
           agentReference = "Agent"
         )
       )
 
-    val viewModel = SdltInProgressReturnViewModel(
+    val nonPaginatedData: List[SdltReturnViewRow] =
+      (0 to 7).toList.map(i =>
+        SdltReturnViewRow(
+          address = s"$i Riverside Drive",
+          utrn = s"UTRN-$i",
+          purchaserName = s"Buyer-$i",
+          status = ACCEPTED,
+          agentReference = "Agent"
+        )
+      )
+
+    val emptyViewModel = SdltInProgressReturnViewModel(
+      extractType = IN_PROGRESS_RETURNS,
+      rows = emptyData,
+      totalRowCount = 0,
+      selectedPageIndex = 0
+    )
+
+    val paginatedViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,
       rows = paginatedData,
       totalRowCount = paginatedData.length,
+      selectedPageIndex = 1
+    )
+
+    val nonPaginatedViewModel = SdltInProgressReturnViewModel(
+      extractType = IN_PROGRESS_RETURNS,
+      rows = nonPaginatedData,
+      totalRowCount = nonPaginatedData.length,
       selectedPageIndex = 1
     )
   }
 
   "InProgressReturnView" - {
     "render the page with correct title and heading and caption" in new Setup {
-      val html = view(viewModel, appConfig.startNewReturnUrl)
+      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       val heading = doc.select("h1.govuk-heading-l")
@@ -78,8 +105,8 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       doc.title() must include(messages("manageReturns.inProgressReturns.title"))
     }
 
-    "render the page with description and pagination info" in new Setup {
-      val html = view(viewModel, appConfig.startNewReturnUrl)
+    "render the page with description and pagination info for paginated model" in new Setup {
+      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       val paragraphs = doc.select("p.govuk-body")
@@ -88,8 +115,18 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       paragraphs.text() must include ("Showing 1 to 10 of 18 records")
     }
 
+    "render the page with details" in new Setup {
+      val html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      val details = doc.select("details.govuk-details")
+
+      details.text() must include(messages("manageReturns.inProgressReturns.details.summary"))
+      details.text() must include(messages("manageReturns.inProgressReturns.details.content"))
+    }
+
     "render the page with each table header" in new Setup {
-      val html = view(viewModel, appConfig.startNewReturnUrl)
+      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       val headers = doc.select("th.govuk-table__header")
@@ -101,15 +138,45 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       headers.text() must include(messages("manageReturns.inProgressReturns.summary.status"))
     }
 
-    "render the page with in-progress returns" in new Setup {
-      val html = view(viewModel, appConfig.startNewReturnUrl)
+    "render the page with paginated in-progress returns" in new Setup {
+      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       val returns = doc.select("td.govuk-table__cell")
 
-      returns.text() must include ("Buyer-1")
+      returns.text() must include ("Buyer")
       returns.text() must include ("Riverside Drive")
       returns.text() must include ("Agent")
+    }
+
+    "render the page with non paginated in-progress returns" in new Setup {
+      val html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      val returns = doc.select("td.govuk-table__cell")
+
+      returns.text() must include("Buyer")
+      returns.text() must include("Riverside Drive")
+      returns.text() must include("Agent")
+    }
+
+    "render the page with empty in-progress returns" in new Setup {
+      val html = view(emptyViewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      val returns = doc.select("td.govuk-table__cell")
+
+      returns.text() mustBe ("")
+    }
+
+    "render the page with back link" in new Setup {
+      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      val link = doc.select("div.govuk-width-container a.govuk-back-link")
+
+      link.text() mustBe ("Back")
+      link.attr("href") mustBe ("#")
     }
   }
 }

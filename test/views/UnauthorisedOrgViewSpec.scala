@@ -58,9 +58,9 @@ class UnauthorisedOrgViewSpec extends SpecBase with GuiceOneAppPerSuite with Moc
       val html = view()
       val doc = parseHtml(html)
 
-      val linkName = doc.select("a.govuk-link.hmrc-report-technical-issue").text()
+      val linkName = doc.select("a.govuk-link.hmrc-report-technical-issue")
 
-      linkName mustBe ("Is this page not working properly? (opens in new tab)")
+      linkName.text() mustBe ("Is this page not working properly? (opens in new tab)")
     }
   }
 }

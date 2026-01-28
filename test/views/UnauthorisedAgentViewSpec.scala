@@ -58,18 +58,18 @@ class UnauthorisedAgentViewSpec extends SpecBase with GuiceOneAppPerSuite with M
       val html = view()
       val doc = parseHtml(html)
 
-      val paragraph = doc.select("p.govuk-body").text()
+      val paragraph = doc.select("p.govuk-body")
 
-      paragraph mustBe messages("manage.unauthorised.agent.p1")
+      paragraph.text() mustBe messages("manage.unauthorised.agent.p1")
     }
 
     "render the page with url link name" in new Setup {
       val html = view()
       val doc = parseHtml(html)
 
-      val linkName = doc.select("a.govuk-link.hmrc-report-technical-issue").text()
+      val linkName = doc.select("a.govuk-link.hmrc-report-technical-issue")
 
-      linkName mustBe ("Is this page not working properly? (opens in new tab)")
+      linkName.text() mustBe ("Is this page not working properly? (opens in new tab)")
     }
   }
 }

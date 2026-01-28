@@ -58,19 +58,19 @@ class UnauthorisedOrgStandardViewSpec extends SpecBase with GuiceOneAppPerSuite 
       val html = view()
       val doc = parseHtml(html)
 
-      val paragraph = doc.select("p.govuk-body").text()
+      val paragraph = doc.select("p.govuk-body")
 
-      paragraph must include(messages("manage.unauthorised.org.standard.p1"))
-      paragraph must include(messages("manage.unauthorised.org.standard.p2"))
+      paragraph.text() must include(messages("manage.unauthorised.org.standard.p1"))
+      paragraph.text() must include(messages("manage.unauthorised.org.standard.p2"))
     }
 
     "render the page with url link" in new Setup {
       val html = view()
       val doc = parseHtml(html)
 
-      val link = doc.select("p.govuk-body a.govuk-link").attr("href")
+      val link = doc.select("p.govuk-body a.govuk-link")
 
-      link mustBe appConfig.govUkSDLTGuidanceUrl
+      link.attr("href") mustBe appConfig.govUkSDLTGuidanceUrl
     }
   }
 }
