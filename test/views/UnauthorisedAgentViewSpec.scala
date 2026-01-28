@@ -25,10 +25,10 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import views.html.PageNotFoundView
+import views.html.manage.UnauthorisedAgentView
 
-class PageNotFoundViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
-
+class UnauthorisedAgentViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
+  
   trait Setup {
 
     implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -39,41 +39,37 @@ class PageNotFoundViewSpec extends SpecBase with GuiceOneAppPerSuite with Mockit
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
-    val view: PageNotFoundView = app.injector.instanceOf[PageNotFoundView]
+    val view: UnauthorisedAgentView = app.injector.instanceOf[UnauthorisedAgentView]
   }
 
-  "PageNotFoundView" - {
+  "UnauthorisedAgentView" - {
     "render the page with correct title and heading" in new Setup {
       val html = view()
       val doc = parseHtml(html)
 
-      val heading = doc.select("h1.govuk-heading-l")
+      val heading = doc.select("h1.govuk-heading-xl")
 
       heading.size() mustBe 1
-      heading.text() mustBe messages("pageNotFound.heading")
-      doc.title() must include(messages("pageNotFound.title"))
+      heading.text() mustBe messages("manage.unauthorised.agent.heading")
+      doc.title() must include(messages("manage.unauthorised.agent.title"))
     }
 
-    "render the page with paragraphs" in new Setup {
+    "render the page with paragraph" in new Setup {
       val html = view()
       val doc = parseHtml(html)
 
-      val paragraphs = doc.select("p.govuk-body")
+      val paragraph = doc.select("p.govuk-body").text()
 
-      paragraphs.size() mustBe 3
-      paragraphs.text() must include(messages("pageNotFound.p1"))
-      paragraphs.text() must include(messages("pageNotFound.p2"))
-      paragraphs.text() must include(messages("pageNotFound.p3"))
-      paragraphs.text() must include(messages("pageNotFound.p4"))
+      paragraph mustBe messages("manage.unauthorised.agent.p1")
     }
 
-    "render the page with url link" in new Setup {
+    "render the page with url link name" in new Setup {
       val html = view()
       val doc = parseHtml(html)
 
-      val link = doc.select("p.govuk-body a.govuk-link").attr("href")
+      val linkName = doc.select("a.govuk-link.hmrc-report-technical-issue").text()
 
-      link mustBe appConfig.hmrcOnlineServiceDeskUrl
+      linkName mustBe ("Is this page not working properly? (opens in new tab)")
     }
   }
 }

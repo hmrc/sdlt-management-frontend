@@ -25,10 +25,10 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import views.html.PageNotFoundView
+import views.html.manage.UnauthorisedOrgStandardView
 
-class PageNotFoundViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
-
+class UnauthorisedOrgStandardViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
+  
   trait Setup {
 
     implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -39,10 +39,10 @@ class PageNotFoundViewSpec extends SpecBase with GuiceOneAppPerSuite with Mockit
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
-    val view: PageNotFoundView = app.injector.instanceOf[PageNotFoundView]
+    val view: UnauthorisedOrgStandardView = app.injector.instanceOf[UnauthorisedOrgStandardView]
   }
 
-  "PageNotFoundView" - {
+  "UnauthorisedOrgStandardView" - {
     "render the page with correct title and heading" in new Setup {
       val html = view()
       val doc = parseHtml(html)
@@ -50,21 +50,18 @@ class PageNotFoundViewSpec extends SpecBase with GuiceOneAppPerSuite with Mockit
       val heading = doc.select("h1.govuk-heading-l")
 
       heading.size() mustBe 1
-      heading.text() mustBe messages("pageNotFound.heading")
-      doc.title() must include(messages("pageNotFound.title"))
+      heading.text() mustBe messages("manage.unauthorised.org.standard.heading")
+      doc.title() must include(messages("manage.unauthorised.org.standard.title"))
     }
 
-    "render the page with paragraphs" in new Setup {
+    "render the page with paragraph" in new Setup {
       val html = view()
       val doc = parseHtml(html)
 
-      val paragraphs = doc.select("p.govuk-body")
+      val paragraph = doc.select("p.govuk-body").text()
 
-      paragraphs.size() mustBe 3
-      paragraphs.text() must include(messages("pageNotFound.p1"))
-      paragraphs.text() must include(messages("pageNotFound.p2"))
-      paragraphs.text() must include(messages("pageNotFound.p3"))
-      paragraphs.text() must include(messages("pageNotFound.p4"))
+      paragraph must include(messages("manage.unauthorised.org.standard.p1"))
+      paragraph must include(messages("manage.unauthorised.org.standard.p2"))
     }
 
     "render the page with url link" in new Setup {
@@ -73,7 +70,7 @@ class PageNotFoundViewSpec extends SpecBase with GuiceOneAppPerSuite with Mockit
 
       val link = doc.select("p.govuk-body a.govuk-link").attr("href")
 
-      link mustBe appConfig.hmrcOnlineServiceDeskUrl
+      link mustBe appConfig.govUkSDLTGuidanceUrl
     }
   }
 }
