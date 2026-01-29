@@ -25,10 +25,10 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import views.html.PageNotFoundView
+import views.html.manage.UnauthorisedOrgView
 
-class PageNotFoundViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
-
+class UnauthorisedOrgViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
+  
   trait Setup {
 
     implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -39,41 +39,28 @@ class PageNotFoundViewSpec extends SpecBase with GuiceOneAppPerSuite with Mockit
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
-    val view: PageNotFoundView = app.injector.instanceOf[PageNotFoundView]
+    val view: UnauthorisedOrgView = app.injector.instanceOf[UnauthorisedOrgView]
   }
 
-  "PageNotFoundView" - {
+  "UnauthorisedOrgView" - {
     "render the page with correct title and heading" in new Setup {
       val html = view()
       val doc = parseHtml(html)
 
-      val heading = doc.select("h1.govuk-heading-l")
+      val heading = doc.select("h1")
 
       heading.size() mustBe 1
-      heading.text() mustBe messages("pageNotFound.heading")
-      doc.title() must include(messages("pageNotFound.title"))
-    }
-
-    "render the page with paragraphs" in new Setup {
-      val html = view()
-      val doc = parseHtml(html)
-
-      val paragraphs = doc.select("p.govuk-body")
-
-      paragraphs.size() mustBe 3
-      paragraphs.text() must include(messages("pageNotFound.p1"))
-      paragraphs.text() must include(messages("pageNotFound.p2"))
-      paragraphs.text() must include(messages("pageNotFound.p3"))
-      paragraphs.text() must include(messages("pageNotFound.p4"))
+      heading.text() mustBe messages("manage.unauthorised.org.heading")
+      doc.title() must include(messages("manage.unauthorised.org.title"))
     }
 
     "render the page with url link" in new Setup {
       val html = view()
       val doc = parseHtml(html)
 
-      val link = doc.select("p.govuk-body a.govuk-link").attr("href")
+      val linkName = doc.select("a.govuk-link.hmrc-report-technical-issue")
 
-      link mustBe appConfig.hmrcOnlineServiceDeskUrl
+      linkName.text() mustBe ("Is this page not working properly? (opens in new tab)")
     }
   }
 }

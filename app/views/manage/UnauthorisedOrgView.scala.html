@@ -15,9 +15,11 @@
  *@
 
 @import config.FrontendAppConfig
+@import views.html.components._
 
 @this(
-        layout: templates.Layout
+        layout: templates.Layout,
+        h1: components.H1,
 )
 
 
@@ -29,5 +31,5 @@
     timeout = false
 ) {
 
-    <h1>@messages("manage.unauthorised.org.heading")</h1>
+    @h1(messages("manage.unauthorised.org.heading"))
 }
