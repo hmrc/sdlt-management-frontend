@@ -45,9 +45,6 @@ class AtAGlanceController@Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
-    // TODO : retrieve first and last name of user and pass down to view
-    val name = "David Frank"
-
     (for {
       agentsCount                     <- stampDutyLandTaxService
         .getAgentCount
@@ -65,7 +62,6 @@ class AtAGlanceController@Inject()(
       Ok(view(
         AtAGlanceViewModel(
           storn = request.storn,
-          name = name,
           inProgressReturns = returnsInProgress,
           submittedReturns = submittedReturns,
           dueForDeletionReturnsTotal = returnsDueForDeletionRowCount,

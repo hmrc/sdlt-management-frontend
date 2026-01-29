@@ -36,7 +36,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionSpec extends SpecBase {
+class AuthenticatedIdentifierActionSpec extends SpecBase {
 
   trait Fixture {
     val mockAuthConnector: AuthConnector = mock[AuthConnector]
@@ -50,7 +50,7 @@ class AuthActionSpec extends SpecBase {
 
     val emptyEnrolments = Enrolments(Set.empty)
 
-    val orgActiveEnrollment: Enrolment = Enrolment(
+    val orgActiveEnrolment: Enrolment = Enrolment(
       "IR-SDLT-ORG",
       Seq(
         EnrolmentIdentifier("STORN", testStorn)
@@ -59,7 +59,7 @@ class AuthActionSpec extends SpecBase {
       None
     )
 
-    val orgNotYetActivatedEnrollment: Enrolment = Enrolment(
+    val orgNotYetActivatedEnrolment: Enrolment = Enrolment(
       "IR-SDLT-ORG",
       Seq(
         EnrolmentIdentifier("STORN", testStorn)
@@ -68,7 +68,7 @@ class AuthActionSpec extends SpecBase {
       None
     )
 
-    val agentActiveEnrollment: Enrolment = Enrolment(
+    val agentActiveEnrolment: Enrolment = Enrolment(
       "IR-SDLT-AGENT",
       Seq(
         EnrolmentIdentifier("STORN", testStorn)
@@ -76,7 +76,7 @@ class AuthActionSpec extends SpecBase {
       "activated",
       None
     )
-    val agentNotYetActiveEnrollment: Enrolment = Enrolment(
+    val agentNotYetActiveEnrolment: Enrolment = Enrolment(
       "IR-SDLT-AGENT",
       Seq(
         EnrolmentIdentifier("STORN", testStorn)
@@ -84,7 +84,7 @@ class AuthActionSpec extends SpecBase {
       "notyetactivated",
       None
     )
-    val agentInActiveEnrollment = Enrolments(
+    val agentInActiveEnrolment = Enrolments(
       Set(
         Enrolment(
           "IR-SDLT-AGENT",
@@ -233,13 +233,13 @@ class AuthActionSpec extends SpecBase {
     }
 
     "user logged in as an AGENT" - {
-      "and is allowed into the service: activated enrollment" - {
+      "and is allowed into the service: activated enrolment" - {
         "must succeed" - {
           "when the user has a IR-SDLT-AGENT enrolment with the correct activated identifiers" in new Fixture {
-            val enrollments = Enrolments(Set(agentActiveEnrollment))
+            val enrolments = Enrolments(Set(agentActiveEnrolment))
             when(mockAuthConnector.authorise[RetrievalsType](any(), any() )(any(), any()))
               .thenReturn(
-                Future.successful(Some(id) ~ enrollments ~ Some(Agent) ~ Some(User))
+                Future.successful(Some(id) ~ enrolments ~ Some(Agent) ~ Some(User))
               )
             running(application) {
               val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
@@ -251,13 +251,13 @@ class AuthActionSpec extends SpecBase {
           }
         }
       }
-      "and is allowed into the service: not yet activated enrollment" - {
+      "and is allowed into the service: not yet activated enrolment" - {
         "must succeed" - {
           "when the user has a IR-SDLT-AGENT enrolment with the correct activated identifiers" in new Fixture {
-            val enrollments = Enrolments(Set(agentNotYetActiveEnrollment))
+            val enrolments = Enrolments(Set(agentNotYetActiveEnrolment))
             when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
               .thenReturn(
-                Future.successful(Some(id) ~ enrollments ~ Some(Agent) ~ Some(User))
+                Future.successful(Some(id) ~ enrolments ~ Some(Agent) ~ Some(User))
               )
             running(application) {
               val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
@@ -274,7 +274,7 @@ class AuthActionSpec extends SpecBase {
         "must redirect to unauthorised organisation affinity screen" in {
           when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
             .thenReturn(
-              Future.successful(Some(id) ~ agentInActiveEnrollment ~ Some(Agent) ~ Some(User))
+              Future.successful(Some(id) ~ agentInActiveEnrolment ~ Some(Agent) ~ Some(User))
             )
           running(application) {
             val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
@@ -331,13 +331,13 @@ class AuthActionSpec extends SpecBase {
 
     "user is logged in as an ORGANISATION" - {
 
-      "and is allowed into the service: with Activated enrollment" - {
+      "and is allowed into the service: with Activated enrolment" - {
         "must succeed" - {
           "when the user has an activated IR-SDLT-ORG enrolment" in new Fixture {
-            val enrollment = Enrolments(Set(orgNotYetActivatedEnrollment))
+            val enrolment = Enrolments(Set(orgNotYetActivatedEnrolment))
             when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
               .thenReturn(
-                Future.successful(Some(id) ~ enrollment ~ Some(Organisation) ~ Some(User))
+                Future.successful(Some(id) ~ enrolment ~ Some(Organisation) ~ Some(User))
               )
             running(application) {
               val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
@@ -349,13 +349,13 @@ class AuthActionSpec extends SpecBase {
           }
         }
       }
-      "and is allowed into the service: with NotYetActivated enrollment" - {
+      "and is allowed into the service: with NotYetActivated enrolment" - {
         "must succeed" - {
           "when the user has an activated IR-SDLT-ORG enrolment" in new Fixture {
-            val enrollment = Enrolments(Set(orgActiveEnrollment))
+            val enrolment = Enrolments(Set(orgActiveEnrolment))
             when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
               .thenReturn(
-                Future.successful(Some(id) ~ enrollment ~ Some(Organisation) ~ Some(User))
+                Future.successful(Some(id) ~ enrolment ~ Some(Organisation) ~ Some(User))
               )
             running(application) {
               val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)

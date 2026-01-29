@@ -115,7 +115,6 @@ pagination.next     = Next
 
 manage.homepage.title = Homepage
 manage.homepage.heading = Manage your Stamp Taxes
-manage.homepage.name = {0}
 manage.homepage.storn = STORN: {0}
 
 manage.homepage.manageReturns.title = Manage returns
