@@ -105,17 +105,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       doc.title() must include(messages("manageReturns.inProgressReturns.title"))
     }
 
-    "render the page with description and pagination info for paginated model" in new Setup {
-      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
-      val doc = parseHtml(html)
-
-      val paragraphs = doc.select("p.govuk-body")
-
-      paragraphs.text() must include(messages("manageReturns.inProgressReturns.description"))
-      paragraphs.text() must include ("Showing 1 to 10 of 18 records")
-    }
-
-    "render the page with details" in new Setup {
+    "render the page with details for populated model" in new Setup {
       val html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
@@ -138,11 +128,37 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       headers.text() must include(messages("manageReturns.inProgressReturns.summary.status"))
     }
 
-    "render the page with paginated in-progress returns" in new Setup {
+    "render the page with description for populated model" in new Setup {
+      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      val description = doc.select("p.govuk-body")
+
+      description.text() must include(messages("manageReturns.inProgressReturns.description"))
+    }
+
+    "render the page with description for empty model" in new Setup {
+      val html = view(emptyViewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      val description = doc.select("p.govuk-body")
+      val link = doc.select("p.govuk-body a.govuk-link")
+
+      description.text() must include(messages("manageReturns.inProgressReturns.noReturns"))
+      link.text() must include(messages("manageReturns.inProgressReturns.startNewReturn"))
+    }
+
+    "render the page with paginated in-progress returns and pagination info" in new Setup {
       val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
       val doc = parseHtml(html)
 
       val returns = doc.select("td.govuk-table__cell")
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationInfo = doc.select("p.govuk-body")
+
+
+      paginationPages.size() mustBe 2
+      paginationInfo.text() must include ("Showing 1 to 10 of 18 records")
 
       returns.text() must include ("Buyer")
       returns.text() must include ("Riverside Drive")
@@ -154,6 +170,12 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       val doc = parseHtml(html)
 
       val returns = doc.select("td.govuk-table__cell")
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationInfo = doc.select("p.govuk-body")
+
+
+      paginationPages.size() mustBe 0
+      paginationInfo.text() must include ("")
 
       returns.text() must include("Buyer")
       returns.text() must include("Riverside Drive")
