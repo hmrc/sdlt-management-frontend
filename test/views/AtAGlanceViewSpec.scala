@@ -73,7 +73,6 @@ class AtAGlanceViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSu
 
     val viewModel = AtAGlanceViewModel(
       storn = "STN001",
-      name = "Marcell",
       inProgressReturns = inProgressPaginatedViewModel,
       submittedReturns = submittedPaginatedViewModel,
       dueForDeletionReturnsTotal = paginatedData.length,
@@ -93,15 +92,14 @@ class AtAGlanceViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSu
       doc.title() must include(messages("manage.homepage.title"))
     }
 
-    "render the page with correct name and storn number" in new Setup {
+    "render the page with correct storn number" in new Setup {
       val html = view(viewModel)
       val doc = parseHtml(html)
 
-      val paragraphs = doc.select("p.govuk-body")
+      val paragraph = doc.select("p.govuk-body")
 
-      paragraphs.size() mustBe 2
-      paragraphs.text() must include("Marcell")
-      paragraphs.text() must include("STN001")
+      paragraph.size() mustBe 1
+      paragraph.text() must include("STN001")
     }
 
     "render the page with the titles for each service" in new Setup {
