@@ -15,11 +15,11 @@
  *@
 
 @import config.FrontendAppConfig
-@import views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
 
 @this(
         layout: templates.Layout,
-        h1: components.H1,
+        hmrcPageHeading: HmrcPageHeading,
 )
 
 
@@ -31,5 +31,9 @@
     timeout = false
 ) {
 
-    @h1(messages("manage.unauthorised.org.heading"))
+    @hmrcPageHeading(PageHeading(
+        text           = messages("manage.unauthorised.org.heading"),
+        headingClasses = Some("govuk-heading-l")
+    ))
+
 }

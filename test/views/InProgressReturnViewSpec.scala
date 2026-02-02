@@ -96,12 +96,12 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       val doc = parseHtml(html)
 
       val heading = doc.select("h1.govuk-heading-l")
-      val caption = doc.select("div.govuk-grid-column-two-thirds span.govuk-caption-l")
+      val caption = doc.select(".govuk-caption-l")
 
       heading.size() mustBe 1
       caption.size() mustBe 1
       heading.text() mustBe messages("manageReturns.inProgressReturns.SomeReturns")
-      caption.text() mustBe messages("manageReturns.inProgressReturns.span.manage")
+      caption.text() mustBe s"This section is ${messages("manageReturns.inProgressReturns.span.manage")}"
       doc.title() must include(messages("manageReturns.inProgressReturns.title"))
     }
 

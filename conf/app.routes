@@ -24,8 +24,6 @@ GET         /unauthorised                                controllers.Unauthorise
 
 GET         /homepage                                    controllers.manage.AtAGlanceController.onPageLoad()
 
-GET         /manage/unauthorised/organisation            controllers.manage.UnauthorisedOrganisationAffinityController.onPageLoad()
-
 GET         /manage/unauthorised/standard-user           controllers.manage.UnauthorisedWrongRoleController.onPageLoad()
 GET         /manage/unauthorised/organisation            controllers.manage.UnauthorisedOrganisationAffinityController.onPageLoad()
 GET         /unauthorised/individual                     controllers.manage.UnauthorisedIndividualAffinityController.onPageLoad()
