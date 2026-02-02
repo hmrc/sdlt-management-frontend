@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.routes.SystemErrorController
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
-import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltSubmittedDueForDeletionReturnViewModel}
+import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -47,6 +47,58 @@ class DueForDeletionReturnsController @Inject()(
   def onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int]): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
       logInfo(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
+
+      val emptyInProgress =
+        SdltInProgressDueForDeletionReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
+      val emptySubmitted =
+        SdltSubmittedDueForDeletionReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
+
+//      val nonPaginatedInProgressRows: List[SdltReturnViewRow] =
+//        (1 to 3).toList.map { i =>
+//          SdltReturnViewRow(
+//            address = s"$i InProgress Street",
+//            purchaserName = s"InProgress Purchaser $i",
+//            utrn = "",
+//            agentReference = "",
+//            status = ACCEPTED
+//          )
+//        }
+//
+//      val nonPaginatedSubmittedRows: List[SdltReturnViewRow] =
+//        (1 to 3).toList.map { i =>
+//          SdltReturnViewRow(
+//            address = s"$i Submitted Street",
+//            utrn = s"UTRN$i",
+//            purchaserName = s"Submitted Purchaser $i",
+//            agentReference = "",
+//            status = SUBMITTED
+//          )
+//        }
+
+//      val viewModel = SdltDueForDeletionReturnViewModel(
+//        inProgressSelectedPageIndex = Some(1),
+//        submittedSelectedPageIndex = Some(1),
+//        inProgressViewModel = emptyInProgress,
+//        submittedViewModel = emptySubmitted
+//      )
+//
+//      val inProgressVm =
+//        SdltInProgressDueForDeletionReturnViewModel(
+//          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+//          rows = nonPaginatedInProgressRows,
+//          1)
+//      val submittedVm =
+//        SdltSubmittedDueForDeletionReturnViewModel(
+//          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+//          rows = nonPaginatedSubmittedRows,
+//          1)
+//
+//      val viewModel = SdltDueForDeletionReturnViewModel(
+//        inProgressSelectedPageIndex = Some(1),
+//        submittedSelectedPageIndex = Some(1),
+//        inProgressViewModel = inProgressVm,
+//        submittedViewModel = emptySubmitted
+//      )
 
       (for {
         inProgressDurForDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](

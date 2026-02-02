@@ -40,7 +40,7 @@ class DueForDeletionReturnsViewSpec
 
   trait Setup extends PaginationHelper {
 
-    val inProgressRows: List[SdltReturnViewRow] =
+    val nonPaginatedInProgressRows: List[SdltReturnViewRow] =
       (1 to 3).toList.map { i =>
         SdltReturnViewRow(
           address = s"$i InProgress Street",
@@ -51,8 +51,30 @@ class DueForDeletionReturnsViewSpec
         )
       }
 
-    val submittedRows: List[SdltReturnViewRow] =
+    val nonPaginatedSubmittedRows: List[SdltReturnViewRow] =
       (1 to 3).toList.map { i =>
+        SdltReturnViewRow(
+          address = s"$i Submitted Street",
+          utrn = s"UTRN$i",
+          purchaserName = s"Submitted Purchaser $i",
+          agentReference = "",
+          status = SUBMITTED
+        )
+      }
+
+    val paginatedInProgressRows: List[SdltReturnViewRow] =
+      (1 to 23).toList.map { i =>
+        SdltReturnViewRow(
+          address = s"$i InProgress Street",
+          purchaserName = s"InProgress Purchaser $i",
+          utrn = "",
+          agentReference = "",
+          status = ACCEPTED
+        )
+      }
+
+    val paginatedSubmittedRows: List[SdltReturnViewRow] =
+      (1 to 23).toList.map { i =>
         SdltReturnViewRow(
           address = s"$i Submitted Street",
           utrn = s"UTRN$i",
@@ -94,12 +116,12 @@ class DueForDeletionReturnsViewSpec
       val inProgressVm =
         SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-          rows = inProgressRows,
+          rows = nonPaginatedInProgressRows,
           1)
       val submittedVm =
         SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
-          rows = submittedRows,
+          rows = nonPaginatedSubmittedRows,
           1)
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
@@ -122,7 +144,7 @@ class DueForDeletionReturnsViewSpec
       caption.text() must include(messages("manageReturns.dueDeletionReturns.caption"))
     }
 
-    "show the 'no returns' message and link when both in-progress and submitted lists are empty" in new Setup {
+    "render both empty in-progress and submitted lists" in new Setup {
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
         submittedSelectedPageIndex = Some(1),
@@ -144,16 +166,91 @@ class DueForDeletionReturnsViewSpec
       link.text() must include(messages("manage.submittedReturnsOverview.noReturns.link"))
     }
 
-    "render only the in-progress tab and table when only in-progress data is present" in new Setup {
+    "render both non paginated in-progress and submitted lists" in new Setup {
+      val inProgressVm = SdltInProgressDueForDeletionReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+          rows = nonPaginatedInProgressRows,
+          1)
+      val submittedVm = SdltSubmittedDueForDeletionReturnViewModel(
+          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+          rows = nonPaginatedSubmittedRows,
+          1)
+
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = inProgressVm,
+        submittedViewModel = submittedVm
+      )
+
+      val html = view(viewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      doc.select("#updates-and-deadlines-tabs").size() mustBe 1
+
+      val tabLabels = doc.select(".govuk-tabs__tab")
+      tabLabels.size() mustBe 2
+
+      tabLabels.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
+      tabLabels.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+
+      doc.select("#in-progress table.govuk-table").size() mustBe 1
+
+      doc.select("#submitted table.govuk-table").size() mustBe 1
+
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationInfo = doc.select("p.govuk-body")
+
+      paginationPages.size() mustBe 0
+      paginationInfo.text() mustNot include("Showing 1 to 10 of 23 records")
+    }
+
+    "render both paginated in-progress and submitted lists" in new Setup {
+      val inProgressVm = SdltInProgressDueForDeletionReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+        rows = paginatedInProgressRows,
+        totalRowCount = paginatedInProgressRows.length)
+
+      val submittedVm = SdltSubmittedDueForDeletionReturnViewModel(
+        extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+        rows = paginatedSubmittedRows,
+        totalRowCount = paginatedSubmittedRows.length)
+
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = inProgressVm,
+        submittedViewModel = submittedVm
+      )
+
+      val html = view(viewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      doc.select("#updates-and-deadlines-tabs").size() mustBe 1
+
+      val tabLabels = doc.select(".govuk-tabs__tab")
+      tabLabels.size() mustBe 2
+
+      tabLabels.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
+      tabLabels.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+
+      doc.select("#in-progress table.govuk-table").size() mustBe 1
+
+      doc.select("#submitted table.govuk-table").size() mustBe 1
+
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationInfo = doc.select("p.govuk-body")
+
+      paginationPages.size() mustBe 6
+      paginationInfo.text().split("Showing 1 to 10 of 23 records").length - 1 mustBe 2
+
+    }
+
+    "render empty submitted returns and non paginated in-progress list" in new Setup {
       val inProgressVm =
         SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-          rows = inProgressRows,
-          1)
-      val submittedVm =
-        SdltSubmittedDueForDeletionReturnViewModel(
-          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
-          rows = submittedRows,
+          rows = nonPaginatedInProgressRows,
           1)
 
       val viewModel = SdltDueForDeletionReturnViewModel(
@@ -184,16 +281,16 @@ class DueForDeletionReturnsViewSpec
         doc.select("#in-progress")
           .select("tbody.govuk-table__body tr.govuk-table__row")
 
-      inProgressRowsEls.size() mustBe inProgressRows.size
+      inProgressRowsEls.size() mustBe nonPaginatedInProgressRows.size
 
       doc.select("#submitted").size() mustBe 0
     }
 
-    "render only the submitted tab and table when only submitted data is present" in new Setup {
+    "render empty in-progress returns and non paginated submitted list" in new Setup {
       val submittedVm =
         SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
-          rows = submittedRows,
+          rows = nonPaginatedSubmittedRows,
           1)
 
       val viewModel = SdltDueForDeletionReturnViewModel(
@@ -225,22 +322,161 @@ class DueForDeletionReturnsViewSpec
         doc.select("#submitted")
           .select("tbody.govuk-table__body tr.govuk-table__row")
 
-      submittedRowsEls.size() mustBe submittedRows.size
+      submittedRowsEls.size() mustBe nonPaginatedSubmittedRows.size
 
       doc.select("#in-progress").size() mustBe 0
     }
 
-    "render both in-progress and submitted tabs and tables when both have data" in new Setup {
-
+    "render empty submitted returns and paginated in-progress list" in new Setup {
       val inProgressVm =
         SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-          rows = inProgressRows,
-          1)
+          rows = paginatedInProgressRows,
+          totalRowCount = paginatedInProgressRows.length)
+
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = inProgressVm,
+        submittedViewModel = emptySubmitted
+      )
+
+      val html = view(viewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      doc.select("#updates-and-deadlines-tabs").size() mustBe 1
+
+      val tabLabels = doc.select(".govuk-tabs__tab")
+      tabLabels.size() mustBe 1
+      tabLabels.first().text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
+
+      val inProgressHeaders =
+        doc.select("#in-progress")
+          .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
+
+      inProgressHeaders.size() mustBe 2
+      inProgressHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.purchaser")
+      inProgressHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.address")
+
+      val inProgressRowsEls =
+        doc.select("#in-progress")
+          .select("tbody.govuk-table__body tr.govuk-table__row")
+
+      inProgressRowsEls.size() mustBe paginatedInProgressRows.size
+
+      doc.select("#submitted").size() mustBe 0
+
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationInfo = doc.select("p.govuk-body")
+
+      paginationPages.size() mustBe 3
+      paginationInfo.text() must include("Showing 1 to 10 of 23 records")
+    }
+
+    "render empty in-progress returns and paginated submitted list" in new Setup {
       val submittedVm =
         SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
-          rows = submittedRows,
+          rows = paginatedSubmittedRows,
+          totalRowCount = paginatedSubmittedRows.length)
+
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = emptyInProgress,
+        submittedViewModel = submittedVm
+      )
+
+      val html = view(viewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      doc.select("#updates-and-deadlines-tabs").size() mustBe 1
+
+      val tabLabels = doc.select(".govuk-tabs__tab")
+      tabLabels.size() mustBe 1
+      tabLabels.first().text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+
+      val submittedHeaders =
+        doc.select("#submitted")
+          .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
+
+      submittedHeaders.size() mustBe 3
+      submittedHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.purchaser")
+      submittedHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.address")
+      submittedHeaders.get(2).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.utrn")
+
+      val submittedRowsEls =
+        doc.select("#submitted")
+          .select("tbody.govuk-table__body tr.govuk-table__row")
+
+      submittedRowsEls.size() mustBe paginatedSubmittedRows.size
+
+      doc.select("#in-progress").size() mustBe 0
+
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationInfo = doc.select("p.govuk-body")
+
+      paginationPages.size() mustBe 3
+      paginationInfo.text() must include("Showing 1 to 10 of 23 records")
+    }
+
+    "render non paginated in-progress returns and paginated submitted list" in new Setup {
+      val inProgressVm =
+        SdltInProgressDueForDeletionReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+          rows = nonPaginatedInProgressRows,
+          1)
+
+      val submittedVm =
+        SdltSubmittedDueForDeletionReturnViewModel(
+          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+          rows = paginatedSubmittedRows,
+          totalRowCount = paginatedSubmittedRows.length)
+
+      val viewModel = SdltDueForDeletionReturnViewModel(
+        inProgressSelectedPageIndex = Some(1),
+        submittedSelectedPageIndex = Some(1),
+        inProgressViewModel = inProgressVm,
+        submittedViewModel = submittedVm
+      )
+
+      val html = view(viewModel, appConfig.startNewReturnUrl)
+      val doc = parseHtml(html)
+
+      doc.select("#updates-and-deadlines-tabs").size() mustBe 1
+
+      val tabLabels = doc.select(".govuk-tabs__tab")
+      tabLabels.size() mustBe 2
+
+      tabLabels.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
+      tabLabels.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+
+      doc.select("#in-progress table.govuk-table").size() mustBe 1
+
+      doc.select("#submitted table.govuk-table").size() mustBe 1
+
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationLabel = doc.select("li.govuk-pagination__item a.govuk-link").get(1)
+      val paginationInfo = doc.select("p.govuk-body")
+
+      paginationPages.size() mustBe 3
+      paginationLabel.attr("href") must include("submittedIndex=2")
+      paginationLabel.attr("href") mustNot include("inProgressIndex=2")
+
+      paginationInfo.text() must include("Showing 1 to 10 of 23 records")
+    }
+
+    "render non paginated submitted returns and paginated in-progress list" in new Setup {
+      val inProgressVm =
+        SdltInProgressDueForDeletionReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+          rows = paginatedInProgressRows,
+          totalRowCount = paginatedInProgressRows.length)
+
+      val submittedVm =
+        SdltSubmittedDueForDeletionReturnViewModel(
+          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+          rows = paginatedSubmittedRows,
           1)
 
       val viewModel = SdltDueForDeletionReturnViewModel(
@@ -264,7 +500,17 @@ class DueForDeletionReturnsViewSpec
       doc.select("#in-progress table.govuk-table").size() mustBe 1
 
       doc.select("#submitted table.govuk-table").size() mustBe 1
-    }
 
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationLabel = doc.select("li.govuk-pagination__item a.govuk-link").get(1)
+      val paginationInfo = doc.select("p.govuk-body")
+
+      paginationPages.size() mustBe 3
+      paginationLabel.attr("href") must include("inProgressIndex=2")
+      paginationLabel.attr("href") mustNot include("submittedIndex=2")
+
+      paginationInfo.text() must include("Showing 1 to 10 of 23 records")
+      
+    }
   }
 }
