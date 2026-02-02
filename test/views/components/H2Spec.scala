@@ -22,12 +22,12 @@ import org.jsoup.nodes.Document
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.test.Helpers.running
-import views.html.components.H1
+import views.html.components.H2
 
-class H1Spec extends SpecBase with Matchers{
+class H2Spec extends SpecBase with Matchers{
 
-  "H1 component" - {
-    "render  <h1> text with default class" in new Setup {
+  "H2 component" - {
+    "render  <h2> text with default class" in new Setup {
       running(app) {
         val doc = content()
 
@@ -35,7 +35,7 @@ class H1Spec extends SpecBase with Matchers{
         doc.text() mustBe message
       }
     }
-    "render  <h1> text with custom Class" in new Setup {
+    "render  <h2> text with custom Class" in new Setup {
       running(app) {
         val customClass = "class"
         val doc = content(classes = customClass)
@@ -44,13 +44,13 @@ class H1Spec extends SpecBase with Matchers{
         doc.text() mustBe message
       }
     }
-    "render an <h1> when id is provided" in new Setup {
+    "render an <h2> when id is provided" in new Setup {
       running(app) {
         val id = Some("value")
         val doc = content(id = id)
 
-        val h1 = doc.select("h1").first()
-        h1.attr("id") mustBe "value"
+        val h2 = doc.select("h2").first()
+        h2.attr("id") mustBe "value"
       }
     }
   }
@@ -60,10 +60,10 @@ class H1Spec extends SpecBase with Matchers{
 
     val app: Application = applicationBuilder(userAnswers = None).build()
 
-    val view: H1 = views.html.components.H1()
+    val view: H2 = views.html.components.H2()
 
     val message:String = "message"
-    val defaultClass: String = "govuk-heading-l"
+    val defaultClass: String = "govuk-heading-m"
 
     def content(
                msg:String = message,
