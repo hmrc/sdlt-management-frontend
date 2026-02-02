@@ -17,7 +17,6 @@
 package controllers.manage
 
 import base.SpecBase
-import config.FrontendAppConfig
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -40,12 +39,9 @@ class UnauthorisedIndividualAffinityControllerSpec extends SpecBase with Mockito
 
         val view = application.injector.instanceOf[UnauthorisedIndividualView]
 
-        val frontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
-
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view()(request, frontendAppConfig, messages(application)).toString
-
+        contentAsString(result) mustEqual view()(request, messages(application)).toString
 
       }
 
