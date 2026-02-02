@@ -15,11 +15,12 @@
  *@
 
 @import config.FrontendAppConfig
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
 @import views.html.components._
 
 @this(
     layout: templates.Layout,
-    heading: H1,
+    hmrcPageHeading: HmrcPageHeading,
     link: Link,
     paragraph: Paragraph
 )
@@ -30,7 +31,12 @@
     pageTitle = titleNoForm(messages("manage.unauthorised.org.standard.title")),
     showSignOut = false
 ) {
-    @heading(messages("manage.unauthorised.org.standard.heading"))
+
+    @hmrcPageHeading(PageHeading(
+        text           = messages("manage.unauthorised.org.standard.heading"),
+        headingClasses = Some("govuk-heading-l")
+    ))
+
     @paragraph(messages("manage.unauthorised.org.standard.p1"), extraClasses = "govuk-!-margin-bottom-5")
     @paragraph(messages("manage.unauthorised.org.standard.p2"), extraClasses = "govuk-!-margin-bottom-5")
     @link("manage.unauthorised.org.standard.guidance.link", appConfig.govUkSDLTGuidanceUrl)

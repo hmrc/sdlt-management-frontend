@@ -14,22 +14,27 @@
  * limitations under the License.
  *@
 
-@import config.FrontendAppConfig
-@import views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
+@import views.html.components.Paragraph
 
 @this(
   layout: templates.Layout,
-  heading: H1,
+  hmrcPageHeading: HmrcPageHeading,
   paragraph: Paragraph,
 )
 
-@()(implicit request: Request[_], appConfig: FrontendAppConfig, messages: Messages)
+@()(implicit request: Request[_], messages: Messages)
 
 @layout(
   pageTitle = titleNoForm(messages("manage.unauthorised.agent.title")),
   showSignOut = false,
   showBackLink = false
 ) {
-    @heading(messages("manage.unauthorised.agent.heading"), classes = "govuk-heading-l")
+
+    @hmrcPageHeading(PageHeading(
+        text           = messages("manage.unauthorised.agent.heading"),
+        headingClasses = Some("govuk-heading-l")
+    ))
+
     @paragraph(messages("manage.unauthorised.agent.p1"), extraClasses = "govuk-!-margin-bottom-5")
 }

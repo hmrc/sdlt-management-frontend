@@ -20,10 +20,11 @@
 @import models.responses.UniversalStatus.ACCEPTED
 @import models.responses.UniversalStatus.STARTED
 
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
+
 @this(
         layout: templates.Layout,
-        h1: components.H1,
-        span: components.Span,
+        hmrcPageHeading: HmrcPageHeading,
         link: components.Link,
         p: components.Paragraph,
         govukTable : GovukTable,
@@ -91,15 +92,23 @@
 
     @if(viewModel.rows.isEmpty) {
 
-        @span("manageReturns.inProgressReturns.span.manage")
-        @h1("manageReturns.inProgressReturns.SomeReturns")
+        @hmrcPageHeading(PageHeading(
+            text           = messages("manageReturns.inProgressReturns.SomeReturns"),
+            section        = Some(messages("manageReturns.inProgressReturns.span.manage")),
+            headingClasses = Some("govuk-heading-l"),
+            captionClasses = Some("govuk-caption-l")
+        ))
         @p("manageReturns.inProgressReturns.noReturns")
         @link("manageReturns.inProgressReturns.startNewReturn", startNewReturnUrl)
 
     } else if ( viewModel.pagination().isEmpty){
 
-        @span("manageReturns.inProgressReturns.span.manage")
-        @h1("manageReturns.inProgressReturns.SomeReturns")
+        @hmrcPageHeading(PageHeading(
+            text           = messages("manageReturns.inProgressReturns.SomeReturns"),
+            section        = Some(messages("manageReturns.inProgressReturns.span.manage")),
+            headingClasses = Some("govuk-heading-l"),
+            captionClasses = Some("govuk-caption-l")
+        ))
         @p("manageReturns.inProgressReturns.description")
 
         @govukDetails(Details(
@@ -111,8 +120,12 @@
 
     } else {
 
-        @span("manageReturns.inProgressReturns.span.manage")
-        @h1("manageReturns.inProgressReturns.SomeReturns")
+        @hmrcPageHeading(PageHeading(
+            text           = messages("manageReturns.inProgressReturns.SomeReturns"),
+            section        = Some(messages("manageReturns.inProgressReturns.span.manage")),
+            headingClasses = Some("govuk-heading-l"),
+            captionClasses = Some("govuk-caption-l")
+        ))
         @p("manageReturns.inProgressReturns.description")
 
         @govukDetails(Details(
