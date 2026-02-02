@@ -40,12 +40,10 @@ class SubmittedReturnsViewSpec
     with GuiceOneAppPerSuite
     with MockitoSugar {
 
-  lazy val submittedRoute: String =
-    controllers.manage.routes.SubmittedReturnsController.onPageLoad(None).url
-
   trait Setup extends PaginationHelper {
 
     val emptyData: List[SdltReturnViewRow] = Nil
+
     val emptyViewModel = SdltSubmittedReturnViewModel(
       extractType = SUBMITTED_SUBMITTED_RETURNS,
       rows = emptyData,
@@ -64,13 +62,6 @@ class SubmittedReturnsViewSpec
         )
       )
 
-    val paginatedViewModel = SdltSubmittedReturnViewModel(
-        extractType = SUBMITTED_SUBMITTED_RETURNS,
-        rows = paginatedData,
-        totalRowCount = paginatedData.length,
-        selectedPageIndex = 1
-      )
-
     val nonPaginatedData: List[SdltReturnViewRow] =
       (0 to 7).toList.map(i =>
         SdltReturnViewRow(
@@ -81,6 +72,13 @@ class SubmittedReturnsViewSpec
           agentReference = "Agent"
         )
       )
+
+    val paginatedViewModel = SdltSubmittedReturnViewModel(
+      extractType = SUBMITTED_SUBMITTED_RETURNS,
+      rows = paginatedData,
+      totalRowCount = paginatedData.length,
+      selectedPageIndex = 1
+    )
 
     val nonPaginatedViewModel = SdltSubmittedReturnViewModel(
       extractType = SUBMITTED_SUBMITTED_RETURNS,
@@ -105,6 +103,40 @@ class SubmittedReturnsViewSpec
 
   "SubmittedReturnsView" - {
 
+    "render the page with correct title and heading and caption" in new Setup {
+      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val doc = htmlDoc(html)
+
+      val heading = doc.select("h1.govuk-heading-l")
+      val caption = doc.select("p.hmrc-caption.govuk-caption-l").first().ownText()
+
+      heading.size() mustBe 1
+      heading.text() mustBe messages("manage.submittedReturnsOverview.heading")
+
+      caption mustBe messages("manage.submittedReturnsOverview.caption")
+      doc.title() must include(messages("manage.submittedReturnsOverview.title"))
+    }
+
+    "render the page with description for populated model" in new Setup {
+      val html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
+      val doc = htmlDoc(html)
+
+      val description = doc.select("p.govuk-body")
+
+      description.text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
+    }
+
+    "render the page with description for empty model" in new Setup {
+      val html = view(emptyViewModel, appConfig.startNewReturnUrl)
+      val doc = htmlDoc(html)
+
+      val description = doc.select("p.govuk-body")
+      val link = doc.select("p.govuk-body a.govuk-link")
+
+      description.text() must include(messages("manage.submittedReturnsOverview.noReturns.info"))
+      link.text() must include(messages("manage.submittedReturnsOverview.noReturns.link"))
+    }
+
     "must render headers correctly" in new Setup {
       val pageIndex: Int = 1
       val totalRowCount: Int = paginatedData.length
@@ -122,46 +154,55 @@ class SubmittedReturnsViewSpec
       headers.get(2).text() mustBe messages("manage.submittedReturnsOverview.summary.utrn")
     }
 
-    "must render pagination when needed" in new Setup {
-      val pageIndex: Int      = 1
-      val totalRowCount: Int  = paginatedData.length
-      val totalPages: Int = getPageCount(totalRowCount)
+    "render the page with paginated submitted returns and pagination info" in new Setup {
+      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val doc = htmlDoc(html)
 
-      val html: Html = view(paginatedViewModel, appConfig.startNewReturnUrl)
-      val doc: Document = htmlDoc(html)
+      val returns = doc.select("td.govuk-table__cell")
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationInfo = doc.select("p.govuk-body")
 
-      doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
 
-      paginatedViewModel.paginator must not be empty
-      doc.select(".govuk-pagination").size() mustBe 1
+      paginationPages.size() mustBe 2
+      paginationInfo.text() must include("Showing 1 to 10 of 18 records")
+
+      returns.text() must include("Buyer")
+      returns.text() must include("Riverside Drive")
     }
 
-    "must not render pagination when not needed" in new Setup {
-      val pageIndex: Int      = 1
-      val totalRowCount: Int = nonPaginatedData.length
-      val totalPages: Int = getPageCount(totalRowCount)
+    "render the page with non paginated submitted returns" in new Setup {
+      val html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
+      val doc = htmlDoc(html)
 
-      val html: Html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
-      val doc: Document = htmlDoc(html)
+      val returns = doc.select("td.govuk-table__cell")
+      val paginationPages = doc.select("li.govuk-pagination__item")
+      val paginationInfo = doc.select("p.govuk-body")
 
-      doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
-      nonPaginatedViewModel.paginator mustBe None
-      doc.select(".govuk-pagination").size() mustBe 0
+
+      paginationPages.size() mustBe 0
+      paginationInfo.text() must include("")
+
+      returns.text() must include("Buyer")
+      returns.text() must include("Riverside Drive")
     }
 
-    "must render the 'no returns' message when rows are empty" in new Setup {
-      val pageIndex: Int      = 1
-      val totalRowCount: Int = emptyData.length
-      val totalPages: Int = getPageCount(totalRowCount)
+    "render the page with empty submitted returns" in new Setup {
+      val html = view(emptyViewModel, appConfig.startNewReturnUrl)
+      val doc = htmlDoc(html)
 
-      val html: Html = view(emptyViewModel, appConfig.startNewReturnUrl)
-      val doc: Document = htmlDoc(html)
+      val returns = doc.select("td.govuk-table__cell")
 
-      doc.select(".govuk-body").text() must include(messages("manage.submittedReturnsOverview.noReturns.info"))
-      emptyViewModel.paginator mustBe None
-      doc.select(".govuk-pagination").size() mustBe 0
+      returns.text() mustBe ("")
     }
 
+    "render the page with back link" in new Setup {
+      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val doc = htmlDoc(html)
+
+      val link = doc.select("div.govuk-width-container a.govuk-back-link")
+
+      link.text() mustBe ("Back")
+      link.attr("href") mustBe ("#")
+    }
   }
-
 }
