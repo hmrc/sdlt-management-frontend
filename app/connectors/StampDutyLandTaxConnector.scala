@@ -41,15 +41,15 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
 
   private val base = config.baseUrl("stamp-duty-land-tax")
 
-  private val getSdltOrganisationUrl: String => URL = storn =>
-    url"$base/stamp-duty-land-tax/manage-agents/get-sdlt-organisation?storn=$storn"
+  private val getSdltOrganisationUrl: Storn => URL = storn =>
+    url"$base/stamp-duty-land-tax/manage-agents/get-sdlt-organisation?storn=${storn.asString}"
 
   private val getReturnsUrl: URL =
     url"$base/stamp-duty-land-tax/manage-returns/get-returns"
 
   def getSdltOrganisation(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltOrganisationResponse] =
     http
-      .get( getSdltOrganisationUrl( request.storn.asString ) )
+      .get( getSdltOrganisationUrl( request.storn ) )
       .execute[Either[UpstreamErrorResponse, SdltOrganisationResponse]]
       .flatMap {
         case Right(resp) => Future.successful(resp)
