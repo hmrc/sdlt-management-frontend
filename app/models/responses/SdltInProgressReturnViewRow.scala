@@ -176,7 +176,8 @@ object SdltReturnsViewModel {
         SdltInProgressReturnViewModel(
           extractType = extractType,
           rows = rows
-            .filter(rec => inProgressReturnStatuses.contains(rec.status)),
+            .filter(rec => inProgressReturnStatuses.contains(rec.status))
+            .sortBy(_.purchaserName),
           selectedPageIndex = selectedPageIndex,
           totalRowCount = response.returnSummaryCount
         )
