@@ -18,7 +18,17 @@ package models.requests
 
 import play.api.mvc.{Request, WrappedRequest}
 import models.UserAnswers
+import play.api.libs.json.{Json, OFormat}
 
-case class OptionalDataRequest[A] (request: Request[A], userId: String, storn: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+opaque type Storn = String
 
-case class DataRequest[A] (request: Request[A], userId: String, storn: String, userAnswers: UserAnswers) extends WrappedRequest[A](request)
+object Storn {
+  def apply(storn: String): Storn = storn
+}
+
+extension (storn: Storn)
+  def asString: String = storn
+
+case class OptionalDataRequest[A] (request: Request[A], userId: String, storn: Storn, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+
+case class DataRequest[A] (request: Request[A], userId: String, storn: Storn, userAnswers: UserAnswers) extends WrappedRequest[A](request)

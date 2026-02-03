@@ -18,7 +18,7 @@ package connectors
 
 import models.manage.{SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.SdltOrganisationResponse
-import models.requests.DataRequest
+import models.requests.{DataRequest}
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -33,6 +33,7 @@ import scala.util.control.NonFatal
 import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import models.requests.*
 
 class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
                                           config: ServicesConfig)
@@ -48,7 +49,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
 
   def getSdltOrganisation(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltOrganisationResponse] =
     http
-      .get(getSdltOrganisationUrl(request.storn))
+      .get( getSdltOrganisationUrl( request.storn.asString ) )
       .execute[Either[UpstreamErrorResponse, SdltOrganisationResponse]]
       .flatMap {
         case Right(resp) => Future.successful(resp)
@@ -64,8 +65,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
                 (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
     http
       .post(getReturnsUrl)
-      .withBody(Json.toJson(request)
-      )
+      .withBody(Json.toJson(request))
       .execute[Either[UpstreamErrorResponse, SdltReturnRecordResponse]]
       .flatMap {
         case Right(resp) => Future.successful(resp)
