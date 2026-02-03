@@ -28,6 +28,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, SUBMITTED_SUBMITTED_RETURNS}
+import models.requests.Storn
 import models.responses.UniversalStatus.{ACCEPTED, SUBMITTED}
 import views.html.manage.AtAGlanceView
 
@@ -72,7 +73,7 @@ class AtAGlanceViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSu
     )
 
     val viewModel = AtAGlanceViewModel(
-      storn = "STN001",
+      storn = Storn("STN001"),
       inProgressReturns = inProgressPaginatedViewModel,
       submittedReturns = submittedPaginatedViewModel,
       dueForDeletionReturnsTotal = paginatedData.length,
