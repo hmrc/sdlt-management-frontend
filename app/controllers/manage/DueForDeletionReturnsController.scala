@@ -49,11 +49,11 @@ class DueForDeletionReturnsController @Inject()(
       logInfo(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
 
       (for {
-        inProgressDurForDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](
+        inProgressDueForDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](
           storn = request.storn,
           IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           inProgressIndex)
-        submittedDueDorDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](
+        submittedDueForDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](
           storn = request.storn,
           SUBMITTED_RETURNS_DUE_FOR_DELETION,
           submittedIndex)
@@ -62,8 +62,8 @@ class DueForDeletionReturnsController @Inject()(
           SdltDueForDeletionReturnViewModel(
             inProgressSelectedPageIndex = inProgressIndex,
             submittedSelectedPageIndex = submittedIndex,
-            inProgressViewModel = inProgressDurForDeletionViewModel,
-            submittedViewModel = submittedDueDorDeletionViewModel,
+            inProgressViewModel = inProgressDueForDeletionViewModel,
+            submittedViewModel = submittedDueForDeletionViewModel,
           )
         Ok(view(viewModel, appConfig.startNewReturnUrl))
       }) recover {

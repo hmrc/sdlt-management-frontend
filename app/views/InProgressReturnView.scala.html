@@ -64,9 +64,7 @@
                             case _ => // SHOULD NOT HAPPEN
                                 govukTag.apply( TagViewModel(Text( "" )).grey()  )
                         }
-
                     )
-
                 )
             )
         }
@@ -82,7 +80,8 @@
             content = Text(messages("manageReturns.inProgressReturns.summary.agentsref"))
         ),
         HeadCell(
-            content = Text(messages("manageReturns.inProgressReturns.summary.status"))
+            content = Text(messages("manageReturns.inProgressReturns.summary.status")),
+            attributes = Map("style" -> "width:110px")
         )
     )),
     ))
