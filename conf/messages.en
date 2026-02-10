@@ -112,11 +112,11 @@ manageReturns.inProgressReturns.span.manage         = Manage returns
 pagination.previous = Previous
 pagination.next     = Next
 
-manage.homepage.title = Homepage
+manage.homepage.title = Manage your Stamp Taxes
 manage.homepage.heading = Manage your Stamp Taxes
 manage.homepage.storn = STORN: {0}
 
-manage.homepage.manageReturns.title = Manage returns
+manage.homepage.manageReturns.title = Returns in progress – Manage returns
 manage.homepage.manageReturns.returnsInProgress.withNum = Returns in progress ({0})
 manage.homepage.manageReturns.submittedReturns.withNum = Submitted returns ({0})
 manage.homepage.manageReturns.returnsDueForDeletion.withNum = Returns due for deletion ({0})
