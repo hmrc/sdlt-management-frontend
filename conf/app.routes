@@ -22,7 +22,7 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
-GET         /manage-your-stamp-taxes                                     controllers.manage.AtAGlanceController.onPageLoad()
+GET         /manage-your-stamp-taxes                     controllers.manage.AtAGlanceController.onPageLoad()
 
 GET         /manage/unauthorised/standard-user           controllers.manage.UnauthorisedWrongRoleController.onPageLoad()
 GET         /manage/unauthorised/organisation            controllers.manage.UnauthorisedOrganisationAffinityController.onPageLoad()
