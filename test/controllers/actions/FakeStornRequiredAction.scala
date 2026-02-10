@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import models.requests.DataRequest
+import models.requests.{DataRequest, Storn}
 import pages.manage.StornPage
 import play.api.mvc.Result
 
@@ -31,6 +31,6 @@ class FakeStornRequiredAction @Inject()
       case Some(storn) =>
         Future.successful(Right(request))
       case None =>
-        Future.successful(Right(request.copy(storn = "STN001")))
+        Future.successful(Right(request.copy(storn = Storn("STN001"))))
     }
 }
