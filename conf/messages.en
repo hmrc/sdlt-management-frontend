@@ -134,7 +134,7 @@ manage.homepage.helpAndContact.usefulLinks = Useful links
 
 manage.homepage.feedback.title = Feedback
 manage.homepage.feedback.leaveFeedback = Leave feedback (opens in new tab)
-manage.submittedReturnsOverview.title = Manage returns – Submitted returns
+manage.submittedReturnsOverview.title = Submitted returns – Manage returns
 manage.submittedReturnsOverview.limitReached = Currently you cannot add any more returns as the limit of 25 returns has been reached. If you wish to add another return you will have to delete one of your existing returns.
 manage.submittedReturnsOverview.heading = Submitted returns
 manage.submittedReturnsOverview.caption = Manage returns
@@ -148,7 +148,7 @@ manage.submittedReturnsOverview.summary.address     = Property address
 manage.submittedReturnsOverview.summary.utrn        = UTRN
 
 manageReturns.dueDeletionReturns.heading = Returns due for deletion
-manageReturns.dueDeletionReturns.title = Manage returns – Returns due for deletion
+manageReturns.dueDeletionReturns.title = Returns due for deletion – Manage returns
 manageReturns.dueDeletionReturns.caption = Manage returns
 manageReturns.dueDeletionReturns.nonZeroReturns.info = Your returns will be deleted within the next 10 days. You will be unable to access them after that. To prevent a return from being deleted, select and view.
 manageReturns.dueDeletionReturns.noReturns.info = You have no returns due for deletion.
