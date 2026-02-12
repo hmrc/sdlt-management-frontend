@@ -22,15 +22,15 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
-GET         /homepage                                    controllers.manage.AtAGlanceController.onPageLoad()
+GET         /manage-your-stamp-taxes                                     controllers.manage.AtAGlanceController.onPageLoad()
 
 GET         /manage/unauthorised/standard-user           controllers.manage.UnauthorisedWrongRoleController.onPageLoad()
 GET         /manage/unauthorised/organisation            controllers.manage.UnauthorisedOrganisationAffinityController.onPageLoad()
 GET         /unauthorised/individual                     controllers.manage.UnauthorisedIndividualAffinityController.onPageLoad()
 GET         /manage/unauthorised/agent                   controllers.manage.UnauthorisedAgentAffinityController.onPageLoad()
 
-GET         /manage-returns/in-progress-returns          controllers.manage.InProgressReturnsController.onPageLoad(index: Option[Int])
-GET         /manage-returns/submitted-return             controllers.manage.SubmittedReturnsController.onPageLoad(paginationIndex: Option[Int])
+GET         /manage-returns/returns-in-progress           controllers.manage.InProgressReturnsController.onPageLoad(index: Option[Int])
+GET         /manage-returns/submitted-returns             controllers.manage.SubmittedReturnsController.onPageLoad(paginationIndex: Option[Int])
 GET         /manage-returns/returns-due-for-deletion     controllers.manage.DueForDeletionReturnsController.onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int])
 
 GET        /system-error/there-is-a-problem              controllers.SystemErrorController.onPageLoad()
