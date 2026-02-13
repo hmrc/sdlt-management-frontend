@@ -64,7 +64,7 @@ class UnauthorisedOrgViewSpec extends SpecBase with GuiceOneAppPerSuite with Moc
       paragraph.size() mustBe 1
       paragraph.text() must include(messages("manage.unauthorised.org.paragraph"))
       paragraph.text() must include(messages("manage.unauthorised.org.link"))
-      link.attr("href") mustBe "/stamp-duty-land-tax-management/homepage"
+      link.attr("href") mustBe "/stamp-duty-land-tax-management/manage-your-stamp-taxes"
 
     }
 
