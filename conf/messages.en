@@ -66,8 +66,8 @@ systemError.heading     = Sorry, there is a problem with this service
 systemError.paragraph1  = Try again later or contact the
 systemError.link        = HMRC Online Services Helpdesk.
 
-manage.unauthorised.org.title                 = Sorry, there is a problem with this service
-manage.unauthorised.org.heading               = Sorry, there is a problem with this service
+manage.unauthorised.org.title                 = Sorry, there is a problem with the service
+manage.unauthorised.org.heading               = Sorry, there is a problem with the service
 manage.unauthorised.org.paragraph             = Return to
 manage.unauthorised.org.link                  = SDLT homepage.
 
