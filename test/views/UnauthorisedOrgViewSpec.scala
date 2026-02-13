@@ -54,6 +54,20 @@ class UnauthorisedOrgViewSpec extends SpecBase with GuiceOneAppPerSuite with Moc
       doc.title() must include(messages("manage.unauthorised.org.title"))
     }
 
+    "render the page with correct paragraph link" in new Setup {
+      val html = view()
+      val doc = parseHtml(html)
+
+      val paragraph = doc.select("p.govuk-body")
+      val link = doc.selectFirst("p.govuk-body a.govuk-link")
+
+      paragraph.size() mustBe 1
+      paragraph.text() must include(messages("manage.unauthorised.org.paragraph"))
+      paragraph.text() must include(messages("manage.unauthorised.org.link"))
+      link.attr("href") mustBe "/stamp-duty-land-tax-management/manage-your-stamp-taxes"
+
+    }
+
     "render the page with url link" in new Setup {
       val html = view()
       val doc = parseHtml(html)

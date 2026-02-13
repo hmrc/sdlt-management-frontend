@@ -66,16 +66,13 @@ systemError.heading     = Sorry, there is a problem with this service
 systemError.paragraph1  = Try again later or contact the
 systemError.link        = HMRC Online Services Helpdesk.
 
-manage.unauthorised.org.title                 = Sorry, you’re unable to use this service
-manage.unauthorised.org.heading               = Sorry, you’re unable to use this service
+manage.unauthorised.org.title                 = Sorry, there is a problem with this service
+manage.unauthorised.org.heading               = Sorry, there is a problem with this service
+manage.unauthorised.org.paragraph             = Return to
+manage.unauthorised.org.link                  = SDLT homepage.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
-
-manage.unauthorised.org.title = Sorry, you’re unable to use this service
-manage.unauthorised.org.heading = Sorry, you’re unable to use this service
-manage.unauthorised.org.guidance = To access this page
-manage.unauthorised.org.guidance.link = register with the Construction Industry Scheme
 
 manage.unauthorised.org.standard.title = Sorry, you’re unable to use this service
 manage.unauthorised.org.standard.heading = Sorry, you’re unable to use this service
