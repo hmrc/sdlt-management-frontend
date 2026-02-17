@@ -18,7 +18,7 @@
 
 @(cards: Html*)(implicit messages: Messages)
 
-<div class="govuk-grid-row govuk-!-margin-right-8">
+<div class="govuk-grid-row govuk-!-margin-right-8" style="display: flex; flex-wrap: wrap;">
     @for(card <- cards) {
         @card
     }
