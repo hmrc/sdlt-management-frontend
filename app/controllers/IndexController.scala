@@ -28,6 +28,7 @@ import pages.manage.{AtAGlancePage, StornPage}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import models.requests.*
 
 @Singleton
 class IndexController @Inject()(
@@ -44,7 +45,7 @@ class IndexController @Inject()(
     val userAnswers = UserAnswers(id = request.userId)
 
     for {
-      updatedAnswers <- Future.fromTry(userAnswers.set(StornPage, request.storn))
+      updatedAnswers <- Future.fromTry(userAnswers.set(StornPage, request.storn.asString))
       _              <- sessionRepository.set(updatedAnswers)
     } yield Redirect(navigator.nextPage(AtAGlancePage, NormalMode, userAnswers))
   }

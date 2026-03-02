@@ -17,15 +17,10 @@
 package services
 
 import connectors.StampDutyLandTaxConnector
-import models.SdltReturnTypes.{
-  IN_PROGRESS_RETURNS,
-  IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-  SUBMITTED_RETURNS_DUE_FOR_DELETION,
-  SUBMITTED_SUBMITTED_RETURNS
-}
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
-import models.requests.DataRequest
+import models.requests.{DataRequest, Storn}
 import models.responses.*
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -38,6 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import models.requests.asString
 
 class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Matchers {
 
@@ -49,7 +45,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     (service, connector)
   }
 
-  private val storn = "STN001"
+  private val storn = Storn("STN001")
 
   "getInProgressReturns" should {
 
@@ -99,7 +95,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val inProgressRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
+        storn        = storn.asString,
         status       = None,
         deletionFlag = false,
         pageType     = Some("IN-PROGRESS"),
@@ -157,7 +153,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val expectedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
+        storn        = storn.asString,
         status       = None,
         deletionFlag = false,
         pageType     = Some("SUBMITTED"),
@@ -203,7 +199,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       val expectedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
+        storn        = storn.asString,
         status       = None,
         deletionFlag = false,
         pageType     = Some("SUBMITTED"),
@@ -246,7 +242,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val submittedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
+        storn        = storn.asString,
         status       = None,
         deletionFlag = true,
         pageType     = Some("SUBMITTED"),
@@ -296,7 +292,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val inProgressRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
+        storn        = storn.asString,
         status       = None,
         deletionFlag = true,
         pageType     = Some("IN-PROGRESS"),
@@ -324,7 +320,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
       val agents = Seq(
         CreatedAgent(
-          storn                  = storn,
+          storn                  = storn.asString,
           agentId                = None,
           name                   = "Acme Property Agents Ltd",
           houseNumber            = None,
@@ -339,7 +335,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           agentResourceReference = "ARN001"
         ),
         CreatedAgent(
-          storn                  = storn,
+          storn                  = storn.asString,
           agentId                = None,
           name                   = "Harborview Estates",
           houseNumber            = None,
@@ -357,7 +353,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
       val orgResponse: SdltOrganisationResponse =
         SdltOrganisationResponse(
-          storn                 = storn,
+          storn                 = storn.asString,
           version               = Some("1"),
           isReturnUser          = Some("Y"),
           doNotDisplayWelcomePage = Some("N"),

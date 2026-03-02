@@ -34,7 +34,7 @@ import utils.LoggerUtil.logError
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-
+import models.requests.*
 
 class AuthenticatedIdentifierAction @Inject()(
                                                override val authConnector: AuthConnector,
@@ -87,7 +87,7 @@ class AuthenticatedIdentifierAction @Inject()(
                                        (request: Request[A], internalId: String, enrolments: Set[Enrolment]) = {
     checkEnrolments(enrolments)
       .map { storn =>
-        block(IdentifierRequest(request, internalId, storn))
+        block(IdentifierRequest(request, internalId, Storn(storn) ))
       }
       .getOrElse(
         Future.successful(

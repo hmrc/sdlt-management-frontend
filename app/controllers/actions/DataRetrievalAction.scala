@@ -17,7 +17,7 @@
 package controllers.actions
 
 import javax.inject.Inject
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import models.requests.*
 import play.api.mvc.ActionTransformer
 import repositories.SessionRepository
 
