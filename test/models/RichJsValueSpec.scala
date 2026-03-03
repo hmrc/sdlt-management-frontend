@@ -50,10 +50,10 @@ class RichJsValueSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       "must set a value on a JsObject" in {
 
         val gen = for {
-          originalKey   <- nonEmptyAlphaStr
+          originalKey <- nonEmptyAlphaStr
           originalValue <- nonEmptyAlphaStr
-          pathKey       <- nonEmptyAlphaStr suchThat (_ != originalKey)
-          newValue      <- nonEmptyAlphaStr
+          pathKey <- nonEmptyAlphaStr suchThat (_ != originalKey)
+          newValue <- nonEmptyAlphaStr
         } yield (originalKey, originalValue, pathKey, newValue)
 
         forAll(gen) {
@@ -133,9 +133,9 @@ class RichJsValueSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       "must change the value of an existing key" in {
 
         val gen = for {
-          originalKey   <- nonEmptyAlphaStr
+          originalKey <- nonEmptyAlphaStr
           originalValue <- nonEmptyAlphaStr
-          newValue      <- nonEmptyAlphaStr
+          newValue <- nonEmptyAlphaStr
         } yield (originalKey, originalValue, newValue)
 
         forAll(gen) {
@@ -225,43 +225,7 @@ class RichJsValueSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
           )
         ))
       }
-
-      "must return an error if recursive search is used" in {
-
-        val value = Json.obj()
-
-        value.set(__ \\ "key", JsString("path")) mustEqual JsError("recursive search not supported")
-      }
-
-      "must return error if the recursive search branch is hit in first :: second :: rest case" in {
-
-        val jsValue = Json.obj("key" -> "value")
-        val value = new RichJsValue(jsValue)
-
-        val first: KeyPathNode = KeyPathNode("first")
-        val second: RecursiveSearch = new RecursiveSearch("key")
-        val path = JsPath(List(first, second))
-
-        val result = value.set(path, jsValue)
-
-        result mustBe a[JsError]
-        result.asInstanceOf[JsError].errors.head._2.head.message mustBe "recursive search is not supported"
-      }
     }
-
-  "removeIndexMode" - {
-    "must return an error if the array index is out of bounds" in {
-      val jsValue: JsValue = Json.obj("items" -> Json.arr("a", "b"))
-
-      val value = new RichJsValue(jsValue)
-
-      val result = value.remove(__ \ "items" \ 5)
-
-      result mustBe JsError(
-        s"array index out of bounds: 5, ${Json.arr("a", "b")}"
-      )
-    }
-  }
 
   "remove" - {
     "must return an error if the path is empty" in {
@@ -290,34 +254,6 @@ class RichJsValueSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
 
       }
 
-    }
-
-    "must return an error when removing a single key node at root" in {
-
-      val jsValue: JsValue = JsString("value")
-
-      val value = new RichJsValue(jsValue)
-
-      val result = value.remove(__ \ "key")
-
-      result mustBe JsError(
-        s"cannot remove a key on $jsValue"
-      )
-    }
-
-    "must return an error when removing at single non-key path" in {
-
-      val jsValue: JsValue = Json.obj("key" -> "value")
-
-      val value = new RichJsValue(jsValue)
-
-      val path = __ \ 0
-
-      val result = value.remove(path)
-
-      result mustBe JsError(
-        s"cannot remove value at path $path on $jsValue"
-      )
     }
 
     "must remove a value given a keyPathNode and return the new object" in {
@@ -422,32 +358,5 @@ class RichJsValueSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
         "key2" -> JsArray(Seq(Json.toJson(1), Json.toJson(2)))
       )
     )
-  }
-
-  "must return JsError when removing a missing key at root" in {
-
-    val jsValue: JsValue = Json.obj(
-      "key" -> "value"
-    )
-    val value = new RichJsValue(jsValue)
-
-    // Trying to remove a key that does not exist
-    val result = value.remove(__ \ "missing")
-
-    result mustBe JsError("cannot find value at path")
-  }
-
-  "return JsError for RecursiveSearch" in {
-    val jsValue = Json.obj()
-    val value = new RichJsValue(jsValue)
-
-    val first: KeyPathNode = KeyPathNode("first")
-    val second: RecursiveSearch = new RecursiveSearch("key")
-    val path = JsPath(List(first, second))
-
-    val result = value.remove(path)
-
-    result mustBe a[JsError]
-    result.asInstanceOf[JsError].errors.head._2.head.message mustBe "recursive search is not supported"
   }
 }

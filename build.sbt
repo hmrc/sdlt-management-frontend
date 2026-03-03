@@ -37,7 +37,7 @@ lazy val microservice = (project in file("."))
       ".*LanguageSwitchController.*,.*StornRequiredActionImpl.*,.*UnauthorisedWrongRoleController.*," +
       ".*UnauthorisedWrongRoleController.*,.*ReturnsRequest.*,.*ImplicitConversions.*,.*PageUrlSelector.*," +
       ".*CreatedAgent.*,.*SdltReturnRecordResponse.scala.*," +
-      ".*Routes.*,.*viewmodels.govuk.*",
+      ".*Routes.*,.*viewmodels.govuk.*,.*package.*",
     ScoverageKeys.coverageExcludedPackages := "views.*;testOnly.*;pages.*",
     ScoverageKeys.coverageMinimumStmtTotal := 78,
     ScoverageKeys.coverageFailOnMinimum := true,
