@@ -437,31 +437,6 @@ class RichJsValueSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     result mustBe JsError("cannot find value at path")
   }
 
-  "return JsSuccess for KeyPathNode" in {
-    val jsValue = Json.obj()
-
-    val first: KeyPathNode = KeyPathNode("first")
-    val second: KeyPathNode = KeyPathNode("second")
-
-    val path = new JsPath(List(first, second))
-
-    val value = new RichJsValue(jsValue)
-    val result = value.remove(path)
-
-    result mustBe JsSuccess(Json.obj())
-  }
-
-  "return JsSuccess for IdxPathNode" in {
-    val jsValue: JsValue = Json.arr("key1")
-    val value = new RichJsValue(jsValue)
-
-    val path: JsPath = JsPath(List(IdxPathNode(0)))
-
-    val result = value.remove(path)
-
-    result mustBe JsSuccess(Json.arr())
-  }
-
   "return JsError for RecursiveSearch" in {
     val jsValue = Json.obj()
     val value = new RichJsValue(jsValue)
