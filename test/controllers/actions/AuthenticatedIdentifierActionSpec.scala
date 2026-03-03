@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import controllers.actions.TestAuthRetrievals.Ops
 import controllers.routes
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.inject.bind
@@ -31,6 +31,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core.retrieve.~
+import play.api.Logger
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -47,6 +48,8 @@ class AuthenticatedIdentifierActionSpec extends SpecBase {
 
     val bodyParsers: BodyParsers.Default = application.injector.instanceOf[BodyParsers.Default]
     val appConfig: FrontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
+
+    val mockLogger = mock[Logger]
 
     val emptyEnrolments = Enrolments(Set.empty)
 
@@ -231,6 +234,68 @@ class AuthenticatedIdentifierActionSpec extends SpecBase {
         }
       }
     }
+
+    "the storn is not provided in enrolments" - {
+
+      "must redirect the user to the unauthorised page" in new Fixture {
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+          val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new UnsupportedCredentialRole), appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+        }
+      }
+    }
+
+    "agent enrolment is found but mismatched storn" - {
+
+      "must redirect to access denied" in new Fixture {
+        val enrolments = Enrolments(Set(Enrolment("IR-SDLT-AGENT", Seq(EnrolmentIdentifier("NOMATCHSTORN", "mismatchStorn")),
+          "activated", None)))
+        when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+          .thenReturn(
+            Future.successful(Some(id) ~ enrolments ~ Some(Agent) ~ Some(User))
+          )
+
+        running(application) {
+          val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe ("/stamp-duty-land-tax-management/manage/unauthorised/organisation")
+        }
+      }
+    }
+
+    "no enrolment is found" - {
+
+      "must redirect to access denied" in new Fixture {
+        val enrolments = Enrolments(Set(Enrolment("nonMatching")))
+        when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+          .thenReturn(
+            Future.successful(Some(id) ~ enrolments ~ Some(Agent) ~ Some(User))
+          )
+
+        running(application) {
+          val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe ("/stamp-duty-land-tax-management/access-denied")
+        }
+      }
+    }
+
 
     "user logged in as an AGENT" - {
       "and is allowed into the service: activated enrolment" - {
@@ -446,5 +511,4 @@ class AuthenticatedIdentifierActionSpec extends SpecBase {
     }
 
   }
-
 }
