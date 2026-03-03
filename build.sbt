@@ -39,7 +39,7 @@ lazy val microservice = (project in file("."))
       ".*CreatedAgent.*,.*SdltReturnRecordResponse.scala.*," +
       ".*Routes.*,.*viewmodels.govuk.*,.*package.*",
     ScoverageKeys.coverageExcludedPackages := "views.*;testOnly.*;pages.*",
-    ScoverageKeys.coverageMinimumStmtTotal := 78,
+    ScoverageKeys.coverageMinimumStmtTotal := 90,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     scalacOptions ++= Seq(
