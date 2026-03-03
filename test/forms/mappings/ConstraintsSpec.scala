@@ -88,6 +88,19 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     }
   }
 
+  "inRange" - {
+
+    "must return Valid for a number in range" in {
+      val result = inRange(1, 10, "error.range").apply(5)
+      result mustEqual Valid
+    }
+
+    "must return Invalid for a number outside of range" in {
+      val result = inRange(1, 10, "error.range").apply(12)
+      result mustEqual Invalid("error.range", 1, 10)
+    }
+  }
+
   "regexp" - {
 
     "must return Valid for an input that matches the expression" in {
@@ -190,6 +203,21 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     }
   }
 
+  "nonEmptySet" - {
+
+    "must return Valid for a number in range" in {
+      val constraint = nonEmptySet("error.nonEmptySet")
+      val result = constraint(Set("value"))
+      result mustEqual Valid
+    }
+
+    "must return Invalid for a number outside of range" in {
+      val constraint = nonEmptySet("error.nonEmptySet")
+      val result = constraint(Set.empty)
+
+      result mustEqual Invalid("error.nonEmptySet")
+    }
+  }
 
   "minimumCurrency" - {
 

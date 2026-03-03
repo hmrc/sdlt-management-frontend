@@ -232,6 +232,44 @@ class AuthenticatedIdentifierActionSpec extends SpecBase {
       }
     }
 
+    "the storn is not provided in enrolments" - {
+
+      "must redirect the user to the unauthorised page" in new Fixture {
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+          val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new UnsupportedCredentialRole), appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+        }
+      }
+    }
+    "no matching enrolment is found" - {
+      "must return None and log error" in new Fixture {
+        val enrolments = Enrolments(Set(Enrolment("nonMatching")))
+        when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
+          .thenReturn(
+            Future.successful(Some(id) ~ enrolments ~ Some(Agent) ~ Some(User))
+          )
+
+        running(application) {
+          val authAction = new AuthenticatedIdentifierAction(mockAuthConnector, appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe ("/stamp-duty-land-tax-management/access-denied")
+        }
+      }
+    }
+
+
     "user logged in as an AGENT" - {
       "and is allowed into the service: activated enrolment" - {
         "must succeed" - {
@@ -446,5 +484,4 @@ class AuthenticatedIdentifierActionSpec extends SpecBase {
     }
 
   }
-
 }
