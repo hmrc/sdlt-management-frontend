@@ -37,7 +37,7 @@ lazy val microservice = (project in file("."))
       ".*LanguageSwitchController.*,.*StornRequiredActionImpl.*,.*UnauthorisedWrongRoleController.*," +
       ".*UnauthorisedWrongRoleController.*,.*ReturnsRequest.*,.*ImplicitConversions.*,.*PageUrlSelector.*," +
       ".*CreatedAgent.*,.*SdltReturnRecordResponse.scala.*," +
-      ".*Routes.*,.*viewmodels.govuk.*,.*package.*",
+      ".*Routes.*,.*viewmodels.govuk.*,.*package.*,.*config*",
     ScoverageKeys.coverageExcludedPackages := "views.*;testOnly.*;pages.*",
     ScoverageKeys.coverageMinimumStmtTotal := 90,
     ScoverageKeys.coverageFailOnMinimum := true,
@@ -61,3 +61,4 @@ lazy val it =
   (project in file("it"))
     .enablePlugins(PlayScala)
     .dependsOn(microservice % "test->test")
+
