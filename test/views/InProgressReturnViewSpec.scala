@@ -200,5 +200,17 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       link.text() mustBe ("Back")
       link.attr("href") mustBe ("#")
     }
+
+    "render the purchaserName Link with getInProgressReturnURL" in new Setup {
+      val html = view (paginatedViewModel, appConfig.startNewReturnUrl, appConfig.inProgressReturnURL(1))
+
+      val doc = parseHtml(html)
+
+      val purchaserName = doc.select("td.govuk-table__cell a.govuk-link").first()
+
+      purchaserName.text() mustBe("Buyer-0")
+      purchaserName.attr("href") mustBe ("http://localhost:10910/stamp-duty-land-tax-filing/returnTaskList?returnId=1")
+
+    }
   }
 }
