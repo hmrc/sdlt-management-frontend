@@ -58,7 +58,8 @@ class SubmittedReturnsViewSpec
           utrn           = s"UTRN-$i",
           purchaserName  = s"Buyer-$i",
           status         = SUBMITTED,
-          agentReference = "Agent"
+          agentReference = "Agent",
+          redirectUrl    = "#"
         )
       )
 
@@ -69,7 +70,8 @@ class SubmittedReturnsViewSpec
           utrn           = s"UTRN-$i",
           purchaserName  = s"Buyer-$i",
           status         = SUBMITTED_NO_RECEIPT,
-          agentReference = "Agent"
+          agentReference = "Agent",
+          redirectUrl    = "#"
         )
       )
 

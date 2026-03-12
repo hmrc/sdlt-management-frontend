@@ -58,7 +58,8 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           agentReference = "ARN001",
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.SUBMITTED
+          status = UniversalStatus.SUBMITTED,
+          redirectUrl = "#"
         )
       }
 
@@ -69,7 +70,8 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           agentReference = "ARN001",
           utrn = "UTRN003",
           purchaserName = "Brown",
-          status = UniversalStatus.SUBMITTED_NO_RECEIPT
+          status = UniversalStatus.SUBMITTED_NO_RECEIPT,
+          redirectUrl = "#"
         )
       }
 

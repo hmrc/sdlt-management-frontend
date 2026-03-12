@@ -16,13 +16,9 @@
 
 package services
 
+import config.FrontendAppConfig
 import connectors.StampDutyLandTaxConnector
-import models.SdltReturnTypes.{
-  IN_PROGRESS_RETURNS,
-  IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-  SUBMITTED_RETURNS_DUE_FOR_DELETION,
-  SUBMITTED_SUBMITTED_RETURNS
-}
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
@@ -42,6 +38,7 @@ import scala.concurrent.Future
 class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Matchers {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
+  implicit val appConfig:FrontendAppConfig = mock(classOf[FrontendAppConfig])
 
   private def newService(): (StampDutyLandTaxService, StampDutyLandTaxConnector) = {
     val connector = mock(classOf[StampDutyLandTaxConnector])
@@ -56,8 +53,10 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "merge ACCEPTED and STARTED IN-PROGRESS returns" in {
       val (service, connector) = newService()
 
+      when(appConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+
       val acceptedSummary = ReturnSummary(
-        returnReference = "RET-ACC-001",
+        returnReference = "001",
         utrn           = Some("UTRN-ACC-001"),
         status         = "ACCEPTED",
         dateSubmitted  = Some(LocalDate.parse("2025-10-20")),
@@ -67,7 +66,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val pendingSummary = ReturnSummary(
-        returnReference = "RET-PEN-001",
+        returnReference = "002",
         utrn           = Some("UTRN-PEN-001"),
         status         = "STARTED",
         dateSubmitted  = Some(LocalDate.parse("2025-10-21")),
@@ -82,14 +81,16 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           agentReference = "Accepted Agent",
           purchaserName  = "Accepted Buyer",
           status         = ACCEPTED,
-          utrn           = "UTRN-ACC-001"
+          utrn           = "UTRN-ACC-001",
+          redirectUrl    = "#"
         ),
         SdltReturnViewRow(
           address        = "2 Pending Street",
           agentReference = "Pending Agent",
           purchaserName  = "Pending Buyer",
           status         = STARTED,
-          utrn           = "UTRN-PEN-001"
+          utrn           = "UTRN-PEN-001",
+          redirectUrl    = "redirectUrl"
         )
       )
 
@@ -132,7 +133,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       val submitted = ReturnSummary(
-        returnReference = "RET-SUB-001",
+        returnReference = "001",
         utrn           = Some("UTRN-SUB-001"),
         status         = "SUBMITTED",
         dateSubmitted  = Some(LocalDate.parse("2025-10-22")),
@@ -142,7 +143,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       )
 
       val submittedNoReceipt = ReturnSummary(
-        returnReference = "RET-SNR-001",
+        returnReference = "002",
         utrn           = Some("UTRN-SNR-001"),
         status         = "SUBMITTED_NO_RECEIPT",
         dateSubmitted  = Some(LocalDate.parse("2025-10-23")),
@@ -175,14 +176,16 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           utrn           = "UTRN-SUB-001",
           purchaserName  = "Submitted Buyer",
           status         = SUBMITTED,
-          agentReference = "Submitted Agent"
+          agentReference = "Submitted Agent",
+          redirectUrl    = "#"
         ),
         SdltReturnViewRow(
           address        = "4 NoReceipt Street",
           utrn           = "UTRN-SNR-001",
           purchaserName  = "No Receipt Buyer",
           status         = SUBMITTED_NO_RECEIPT,
-          agentReference = "NoReceipt Agent"
+          agentReference = "NoReceipt Agent",
+          redirectUrl    = "#"
         )
       )
 
@@ -231,7 +234,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
       val submittedDeletionSummary =
         ReturnSummary(
-          returnReference = "RET-DEL-001",
+          returnReference = "001",
           utrn           = Some("UTRN-DEL-001"),
           status         = "SUBMITTED",
           dateSubmitted  = Some(LocalDate.parse("2025-10-24")),
@@ -265,7 +268,8 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           status         = SUBMITTED,
           purchaserName  = "Delete Buyer",
           address        = "5 Delete Street",
-          agentReference = "Delete Agent"
+          agentReference = "Delete Agent",
+          redirectUrl    = "#"
         )
       )
 
@@ -281,7 +285,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
       val inProgressDeletionSummary =
         ReturnSummary(
-          returnReference = "RET-DEL-002",
+          returnReference = "002",
           utrn           = Some("UTRN-DEL-002"),
           status         = "IN-PROGRESS",
           dateSubmitted  = Some(LocalDate.parse("2025-10-24")),

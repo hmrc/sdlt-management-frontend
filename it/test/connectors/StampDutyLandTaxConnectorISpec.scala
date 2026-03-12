@@ -143,7 +143,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
           |  "returnSummaryCount": 2,
           |  "returnSummaryList": [
           |    {
-          |      "returnReference": "RET20251101001",
+          |      "returnReference": "20251101001",
           |      "utrn": "UTRN000001",
           |      "status": "PENDING",
           |      "dateSubmitted": "2025-10-28",
@@ -152,7 +152,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
           |      "agentReference": "Smith & Co Solicitors"
           |    },
           |    {
-          |      "returnReference": "RET20251101002",
+          |      "returnReference": "20251101002",
           |      "utrn": "UTRN000002",
           |      "status": "ACCEPTED",
           |      "dateSubmitted": "2025-10-25",

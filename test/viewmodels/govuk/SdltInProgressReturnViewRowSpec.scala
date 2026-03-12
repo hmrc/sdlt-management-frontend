@@ -16,6 +16,7 @@
 
 package viewmodels.govuk
 
+import config.FrontendAppConfig
 import forms.mappings.Mappings
 import models.SdltReturnTypes.IN_PROGRESS_RETURNS
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
@@ -26,6 +27,9 @@ import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import models.responses.SdltReturnsViewModel.*
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
 
 import java.time.LocalDate
 
@@ -36,11 +40,13 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
     returnSummaryList = List.empty
   )
 
+  private val appConfig = mock[FrontendAppConfig]
+
   val responseWithData: SdltReturnRecordResponse = SdltReturnRecordResponse(
     returnSummaryCount = 0,
     returnSummaryList = List(
       ReturnSummary(
-        returnReference = "REF001",
+        returnReference = "001",
         utrn = Some("UTRN001"),
         status = "PENDING",
         dateSubmitted = Some(LocalDate.parse("2025-01-02")),
@@ -49,7 +55,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         agentReference = None
       ),
       ReturnSummary(
-        returnReference = "REF002",
+        returnReference = "002",
         utrn = Some("UTRN002"),
         status = "VALIDATED",
         dateSubmitted = Some(LocalDate.parse("2025-01-02")),
@@ -58,7 +64,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         agentReference = Some("AgentRef002")
       ),
       ReturnSummary(
-        returnReference = "REF003",
+        returnReference = "003",
         utrn = Some("UTRN003"),
         status = "STARTED",
         dateSubmitted = Some(LocalDate.parse("2025-01-02")),
@@ -67,7 +73,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         agentReference = None
       ),
       ReturnSummary(
-        returnReference = "REF004",
+        returnReference = "004",
         utrn = Some("UTRN004"),
         status = "SUBMITTED",
         dateSubmitted = Some(LocalDate.parse("2025-01-02")),
@@ -76,7 +82,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         agentReference = Some("AgentRef004")
       ),
       ReturnSummary(
-        returnReference = "REF005",
+        returnReference = "005",
         utrn = Some("UTRN005"),
         status = "ACCEPTED",
         dateSubmitted = Some(LocalDate.parse("2025-01-02")),
@@ -85,7 +91,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         agentReference = Some("AgentRef005")
       ),
       ReturnSummary(
-        returnReference = "REF005",
+        returnReference = "005",
         utrn = Some("UTRN005"),
         status = "DEPARTMENTAL_ERROR",
         dateSubmitted = Some(LocalDate.parse("2025-01-02")),
@@ -94,7 +100,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         agentReference = Some("AgentRef005")
       ),
       ReturnSummary(
-        returnReference = "REF005",
+        returnReference = "005",
         utrn = Some("UTRN005"),
         status = "FATAL_ERROR",
         dateSubmitted = Some(LocalDate.parse("2025-01-02")),
@@ -107,19 +113,21 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
   )
 
   val expectedDataRows: List[SdltReturnViewRow] = List(
-    SdltReturnViewRow("Address003", "", "Name003", STARTED, utrn = "UTRN003"),
-    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED, utrn = "UTRN005")
+    SdltReturnViewRow("Address003", "", "Name003", STARTED, utrn = "UTRN003", redirectUrl = "redirectUrl"),
+    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED, utrn = "UTRN005", redirectUrl = "#")
   )
 
   "Response model conversion" - {
     "empty response return empty list" in {
-      val result: List[SdltReturnViewRow] = convertToViewRows(responseWithEmptySummary.returnSummaryList)
+      when(appConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      val result: List[SdltReturnViewRow] = convertToViewRows(responseWithEmptySummary.returnSummaryList, appConfig)
       result mustBe empty
     }
 
 
     "response with some data return expected view model" in {
-      val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS, 1)
+      when(appConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS, 1, appConfig)
         .asInstanceOf[SdltInProgressReturnViewModel]
       resultViewModel.rows must contain theSameElementsAs expectedDataRows
       resultViewModel.totalRowCount mustBe 0

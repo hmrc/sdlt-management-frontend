@@ -53,7 +53,8 @@ class AtAGlanceViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSu
           utrn = s"UTRN-$i",
           purchaserName = s"Buyer-$i",
           status = SUBMITTED,
-          agentReference = "Agent"
+          agentReference = "Agent",
+          redirectUrl = "#"
         )
       )
 

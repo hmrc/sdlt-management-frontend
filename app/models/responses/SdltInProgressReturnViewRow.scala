@@ -16,6 +16,7 @@
 
 package models.responses
 
+import config.FrontendAppConfig
 import models.SdltReturnTypes
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
@@ -130,7 +131,8 @@ case class SdltReturnViewRow(
                               agentReference: String,
                               purchaserName: String,
                               status: UniversalStatus,
-                              utrn: String
+                              utrn: String,
+                              redirectUrl:String
                             )
 
 
@@ -138,7 +140,7 @@ object SdltReturnViewRow  {
 
   import UniversalStatus.*
 
-  def convertToViewRows(returnsList: List[ReturnSummary]): List[SdltReturnViewRow] = {
+  def convertToViewRows(returnsList: List[ReturnSummary], appConfig: FrontendAppConfig): List[SdltReturnViewRow] = {
     {
       for {
         rec <- returnsList
@@ -151,7 +153,8 @@ object SdltReturnViewRow  {
                 agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
                 purchaserName = rec.purchaserName,
                 status = status,
-                utrn = rec.utrn.getOrElse("")
+                utrn = rec.utrn.getOrElse(""),
+                redirectUrl = buildRedirectUrl(rec.returnReference, status, appConfig)
               )
             )
           case Left(ex) =>
@@ -161,6 +164,13 @@ object SdltReturnViewRow  {
       }
     }.flatten
   }
+  
+  def buildRedirectUrl(returnReference:String, status:UniversalStatus, appConfig:FrontendAppConfig):String = {
+    status match  {
+      case STARTED => appConfig.inProgressReturnURL(returnReference)
+      case _ => "#"
+    }
+  }
 }
 
 object SdltReturnsViewModel {
@@ -168,8 +178,8 @@ object SdltReturnsViewModel {
   private val submittedReturnsStatuses: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
 
   def convertToViewModel(response: SdltReturnRecordResponse,
-                         extractType: SdltReturnTypes, selectedPageIndex: Int): SdltReturnBaseViewModel = {
-    val rows: List[SdltReturnViewRow] = SdltReturnViewRow.convertToViewRows(response.returnSummaryList)
+                         extractType: SdltReturnTypes, selectedPageIndex: Int, appConfig: FrontendAppConfig): SdltReturnBaseViewModel = {
+    val rows: List[SdltReturnViewRow] = SdltReturnViewRow.convertToViewRows(response.returnSummaryList, appConfig)
 
     extractType match {
       case SdltReturnTypes.IN_PROGRESS_RETURNS =>

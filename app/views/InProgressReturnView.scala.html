@@ -33,11 +33,11 @@
         govukTag: GovukTag
 )
 
-@(viewModel: SdltInProgressReturnViewModel, startNewReturnUrl: String, inProgressUrl:String)(implicit request: Request[_], messages: Messages)
+@(viewModel: SdltInProgressReturnViewModel, startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
 
 @purchaserNameLink(row: SdltReturnViewRow)  = {
     <p class="govuk-body">
-        <a class="govuk-link" href="@inProgressUrl">@row.purchaserName</a>
+        <a class="govuk-link" href="@row.redirectUrl">@row.purchaserName</a>
     </p>
 }
 
