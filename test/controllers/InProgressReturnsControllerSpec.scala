@@ -129,7 +129,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
       }
@@ -165,7 +165,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModelPaginationOff2, appConfig.startNewReturnUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModelPaginationOff2)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
       }
@@ -201,7 +201,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModelPaginationOn2, appConfig.startNewReturnUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModelPaginationOn2)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
 
@@ -241,7 +241,7 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
 
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
       }

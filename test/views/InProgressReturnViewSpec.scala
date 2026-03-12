@@ -112,7 +112,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
 
   "InProgressReturnView" - {
     "render the page with correct title and heading and caption" in new Setup {
-      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val html = view(paginatedViewModel)
       val doc = parseHtml(html)
 
       val heading = doc.select("h1.govuk-heading-l")
@@ -126,7 +126,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the page with details for populated model" in new Setup {
-      val html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
+      val html = view(nonPaginatedViewModel)
       val doc = parseHtml(html)
 
       val details = doc.select("details.govuk-details")
@@ -136,7 +136,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the page with each table header" in new Setup {
-      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val html = view(paginatedViewModel)
       val doc = parseHtml(html)
 
       val headers = doc.select("th.govuk-table__header")
@@ -149,7 +149,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the page with description for populated model" in new Setup {
-      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val html = view(paginatedViewModel)
       val doc = parseHtml(html)
 
       val description = doc.select("p.govuk-body")
@@ -158,7 +158,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the page with description for empty model" in new Setup {
-      val html = view(emptyViewModel, appConfig.startNewReturnUrl)
+      val html = view(emptyViewModel)
       val doc = parseHtml(html)
 
       val description = doc.select("p.govuk-body")
@@ -169,7 +169,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the page with paginated in-progress returns and pagination info" in new Setup {
-      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val html = view(paginatedViewModel)
       val doc = parseHtml(html)
 
       val returns = doc.select("td.govuk-table__cell")
@@ -186,7 +186,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the page with non paginated in-progress returns" in new Setup {
-      val html = view(nonPaginatedViewModel, appConfig.startNewReturnUrl)
+      val html = view(nonPaginatedViewModel)
       val doc = parseHtml(html)
 
       val returns = doc.select("td.govuk-table__cell")
@@ -203,7 +203,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the page with empty in-progress returns" in new Setup {
-      val html = view(emptyViewModel, appConfig.startNewReturnUrl)
+      val html = view(emptyViewModel)
       val doc = parseHtml(html)
 
       val returns = doc.select("td.govuk-table__cell")
@@ -212,7 +212,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the page with back link" in new Setup {
-      val html = view(paginatedViewModel, appConfig.startNewReturnUrl)
+      val html = view(paginatedViewModel)
       val doc = parseHtml(html)
 
       val link = doc.select("div.govuk-width-container a.govuk-back-link")
@@ -222,7 +222,7 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the purchaserName Link with redirectURL" in new Setup {
-      val html = view (paginatedInProgressViewModel, appConfig.startNewReturnUrl)
+      val html = view (paginatedInProgressViewModel)
 
       val doc = parseHtml(html)
 
