@@ -49,9 +49,6 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
       .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
       .build()
 
-    implicit val appConfig: FrontendAppConfig =
-      application.injector.instanceOf[FrontendAppConfig]
-
     val expectedEmptyData: List[SdltReturnViewRow] = List[SdltReturnViewRow]()
     val viewModelNoRows: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
       extractType = IN_PROGRESS_RETURNS,

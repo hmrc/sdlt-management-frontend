@@ -43,7 +43,7 @@ class InProgressReturnsController @Inject()(
                                              requireData: DataRequiredAction,
                                              stornRequiredAction: StornRequiredAction,
                                              view: InProgressReturnView
-                                           )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging {
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
 
