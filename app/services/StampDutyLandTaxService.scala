@@ -16,6 +16,7 @@
 
 package services
 
+import config.FrontendAppConfig
 import connectors.StampDutyLandTaxConnector
 import models.SdltReturnTypes
 import models.manage.SdltReturnRecordRequest
@@ -31,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
-                                       (implicit executionContext: ExecutionContext) extends Logging {
+                                       (implicit executionContext: ExecutionContext, appConfig:FrontendAppConfig) extends Logging {
 
   /*
   Unified way to extract returns from DB and convert returns to viewModel
@@ -51,7 +52,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
     } yield {
       logInfo(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - ${storn}::" +
         s"response r/count: ${dataResponse.returnSummaryCount} :: ${dataResponse.returnSummaryList.length}")
-      val viewModel = convertToViewModel(dataResponse, extractType, pageIndex.getOrElse(1) )
+      val viewModel = convertToViewModel(dataResponse, extractType, pageIndex.getOrElse(1), appConfig)
       viewModel.asInstanceOf[ViewModel]
     }
   }
@@ -61,5 +62,5 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
       .getSdltOrganisation
       .map(_.agents.length)
   }
-
+  
 }

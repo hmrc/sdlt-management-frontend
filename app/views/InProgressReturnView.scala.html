@@ -19,6 +19,7 @@
 @import models.responses.UniversalStatus
 @import models.responses.UniversalStatus.ACCEPTED
 @import models.responses.UniversalStatus.STARTED
+@import config.FrontendAppConfig
 
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
 
@@ -30,14 +31,15 @@
         govukTable : GovukTable,
         govukDetails: GovukDetails,
         govukPagination: GovukPagination,
+        config:FrontendAppConfig,
         govukTag: GovukTag
 )
 
-@(viewModel: SdltInProgressReturnViewModel, startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
+@(viewModel: SdltInProgressReturnViewModel)(implicit request: Request[_], messages: Messages)
 
 @purchaserNameLink(row: SdltReturnViewRow)  = {
     <p class="govuk-body">
-        <a class="govuk-link" href="../manage-returns/returns-in-progress ">@row.purchaserName</a>
+        <a class="govuk-link" href="@row.redirectUrl">@row.purchaserName</a>
     </p>
 }
 
@@ -98,7 +100,7 @@
             captionClasses = Some("govuk-caption-l")
         ))
         @p("manageReturns.inProgressReturns.noReturns")
-        @link("manageReturns.inProgressReturns.startNewReturn", startNewReturnUrl)
+        @link("manageReturns.inProgressReturns.startNewReturn", config.startNewReturnUrl)
 
     } else if ( viewModel.pagination().isEmpty){
 

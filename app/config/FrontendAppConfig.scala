@@ -48,7 +48,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   private val filingServiceBaseUrl: String = configuration.get[String]("stamp-duty-land-tax-filing.host")
   val startNewReturnUrl: String            = s"$filingServiceBaseUrl/stamp-duty-land-tax-filing"
-
+  
+  def inProgressReturnURL(returnReference:String):String = s"$filingServiceBaseUrl/stamp-duty-land-tax-filing/returnTaskList?returnId=$returnReference"
+  
   val exitSurveyUrl: String             = s"$feedbackFrontend/feedback/stamp-duty-land-tax"
 
   val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")

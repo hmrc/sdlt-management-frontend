@@ -47,7 +47,8 @@ class DueForDeletionReturnsViewSpec
           purchaserName = s"InProgress Purchaser $i",
           utrn = "",
           agentReference = "",
-          status = ACCEPTED
+          status = ACCEPTED,
+          redirectUrl = "#"
         )
       }
 
@@ -58,7 +59,8 @@ class DueForDeletionReturnsViewSpec
           utrn = s"UTRN$i",
           purchaserName = s"Submitted Purchaser $i",
           agentReference = "",
-          status = SUBMITTED
+          status = SUBMITTED,
+          redirectUrl = "#"
         )
       }
 
@@ -69,7 +71,8 @@ class DueForDeletionReturnsViewSpec
           purchaserName = s"InProgress Purchaser $i",
           utrn = "",
           agentReference = "",
-          status = ACCEPTED
+          status = ACCEPTED,
+          redirectUrl = "#"
         )
       }
 
@@ -80,7 +83,8 @@ class DueForDeletionReturnsViewSpec
           utrn = s"UTRN$i",
           purchaserName = s"Submitted Purchaser $i",
           agentReference = "",
-          status = SUBMITTED
+          status = SUBMITTED,
+          redirectUrl = "#"
         )
       }
 
