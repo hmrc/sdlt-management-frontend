@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.StampDutyLandTaxConnector
 import models.SdltReturnTypes
 import models.manage.SdltReturnRecordRequest
-import models.requests.DataRequest
+import models.requests.{DataRequest, Storn}
 import models.responses.SdltReturnsViewModel.convertToViewModel
 import models.responses.SdltReturnBaseViewModel
 import play.api.Logging
@@ -37,7 +37,7 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
   /*
   Unified way to extract returns from DB and convert returns to viewModel
    */
-  def getReturnsByTypeViewModel[ViewModel <: SdltReturnBaseViewModel](storn: String,
+  def getReturnsByTypeViewModel[ViewModel <: SdltReturnBaseViewModel](storn: Storn,
                                 extractType: SdltReturnTypes,
                                 pageIndex: Option[Int])
                                (implicit hc: HeaderCarrier): Future[ViewModel] = {

@@ -31,7 +31,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
 import views.html.manage.AtAGlanceView
-import controllers.routes.{SystemErrorController}
+import controllers.routes.SystemErrorController
+import models.requests.Storn
+
 import scala.concurrent.Future
 
 class AtAGlanceControllerSpec
@@ -121,7 +123,7 @@ class AtAGlanceControllerSpec
           submittedReturns        = submittedViewModel,
           dueForDeletionReturnsTotal   = combinedDueForDeletionRows.length,
           agentsCount             = agentsCount,
-          storn                   = "STN001"
+          storn                   = Storn("STN001")
         )
 
         contentAsString(result) mustEqual

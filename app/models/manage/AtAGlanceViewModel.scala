@@ -18,11 +18,12 @@ package models.manage
 
 import config.FrontendAppConfig
 import controllers.manage.routes.{DueForDeletionReturnsController, InProgressReturnsController, SubmittedReturnsController}
+import models.requests.Storn
 import models.responses.*
 import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 
 case class AtAGlanceViewModel(
-                               storn: String,
+                               storn: Storn,
                                returns: ReturnsManagementViewModel,
                                agentDetails: AgentDetailsViewModel,
                                helpAndContact: HelpAndContactViewModel,
@@ -35,7 +36,7 @@ object AtAGlanceViewModel {
             submittedReturns: SdltSubmittedReturnViewModel,
             dueForDeletionReturnsTotal: Int,
             agentsCount: Int,
-            storn: String)
+            storn: Storn)
            (implicit appConfig: FrontendAppConfig): AtAGlanceViewModel =
     AtAGlanceViewModel(
       storn = storn,
