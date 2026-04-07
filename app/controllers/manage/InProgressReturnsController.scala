@@ -16,7 +16,6 @@
 
 package controllers.manage
 
-import config.FrontendAppConfig
 import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
 import controllers.routes.{JourneyRecoveryController, SystemErrorController}
 import models.SdltReturnTypes.*
