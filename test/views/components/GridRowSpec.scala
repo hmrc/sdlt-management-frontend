@@ -60,5 +60,4 @@ class GridRowSpec extends SpecBase with Matchers {
     }
 
   }
-
 }
