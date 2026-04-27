@@ -17,11 +17,11 @@
 package viewmodels.manage
 
 case class ReturnsManagementViewModel(
-                                       inProgressReturnsCount: Int,
-                                       inProgressReturnsUrl: String,
-                                       submittedReturnsCount: Int,
-                                       submittedReturnsUrl: String,
-                                       dueForDeletionReturnsCount: Int,
-                                       dueForDeletionUrl: String,
-                                       startReturnUrl: String
-                                            )
+    inProgressReturnsCount: Int,
+    inProgressReturnsUrl: String,
+    submittedReturnsCount: Int,
+    submittedReturnsUrl: String,
+    dueForDeletionReturnsCount: Int,
+    dueForDeletionUrl: String,
+    startReturnUrl: String
+)

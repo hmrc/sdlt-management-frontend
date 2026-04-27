@@ -19,11 +19,11 @@ package models.requests
 import play.api.libs.json.{Json, OFormat}
 
 case class ReturnsRequest(
-                           storn: String,
-                           pageType: String,
-                           deletionFlag: Boolean,
-                           status: String,
-                         )
+    storn: String,
+    pageType: String,
+    deletionFlag: Boolean,
+    status: String
+)
 
 object ReturnsRequest {
   implicit val format: OFormat[ReturnsRequest] = Json.format[ReturnsRequest]

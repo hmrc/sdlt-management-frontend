@@ -18,21 +18,28 @@ package utils
 
 import play.api.Logging
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{
+  Pagination,
+  PaginationItem,
+  PaginationLink
+}
 import utils.LoggerUtil.logWarn
 
 trait PaginationHelper extends Logging {
 
   private val ROWS_ON_PAGE = 10
   private val DEFAULT_PAGE_INDEX = 1
-  private val numberOfPages: Int => Int = totalRowCount => getPageCount(totalRowCount)
+  private val numberOfPages: Int => Int = totalRowCount =>
+    getPageCount(totalRowCount)
 
-  def generatePreviousLink(paginationIndex: Int, numberOfPages: Int, urlPrev: String)
-                          (implicit messages: Messages): Option[PaginationLink] = {
+  def generatePreviousLink(
+      paginationIndex: Int,
+      numberOfPages: Int,
+      urlPrev: String
+  )(implicit messages: Messages): Option[PaginationLink] = {
     if (paginationIndex == 1) {
       None
-    }
-    else {
+    } else {
       Some(
         PaginationLink(
           href = urlPrev,
@@ -43,8 +50,11 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  def generateNextLink(paginationIndex: Int, numberOfPages: Int, urlNext: String)
-                      (implicit messages: Messages): Option[PaginationLink] = {
+  def generateNextLink(
+      paginationIndex: Int,
+      numberOfPages: Int,
+      urlNext: String
+  )(implicit messages: Messages): Option[PaginationLink] = {
     if (paginationIndex == numberOfPages) {
       None
     } else {
@@ -68,8 +78,10 @@ trait PaginationHelper extends Logging {
     }
   }
 
-  def validatePageIndex(userInputPageInput: Option[Int],
-                        rowsCount: Int): Either[Throwable, Int] = {
+  def validatePageIndex(
+      userInputPageInput: Option[Int],
+      rowsCount: Int
+  ): Either[Throwable, Int] = {
     userInputPageInput
       .map { attemptToSelectIndex =>
         if (attemptToSelectIndex > getPageCount(rowsCount)) {
@@ -84,26 +96,29 @@ trait PaginationHelper extends Logging {
   }
 
   def paginationItems(
-                       currentPage: Int,
-                       totalPages: Int,
-                       urlSelector: Int => String,
-                       visibleBefore: Int = 1,
-                       visibleAfter: Int = 1
-                     ): Seq[PaginationItem] = {
+      currentPage: Int,
+      totalPages: Int,
+      urlSelector: Int => String,
+      visibleBefore: Int = 1,
+      visibleAfter: Int = 1
+  ): Seq[PaginationItem] = {
 
-    val middle = (currentPage - visibleBefore).max(1) to (currentPage + visibleAfter).min(totalPages)
+    val middle = (currentPage - visibleBefore).max(
+      1
+    ) to (currentPage + visibleAfter).min(totalPages)
 
     val start = middle.start match
       case s if s == 3 => Seq("1", "2")
-      case s if s > 2 => Seq("1", "...")
-      case s if s > 1 => Seq("1")
-      case _ => Seq.empty
+      case s if s > 2  => Seq("1", "...")
+      case s if s > 1  => Seq("1")
+      case _           => Seq.empty
 
     val end = middle.end match
-      case e if e == totalPages - 2 => Seq((totalPages - 1).toString, totalPages.toString)
+      case e if e == totalPages - 2 =>
+        Seq((totalPages - 1).toString, totalPages.toString)
       case e if e < totalPages - 1 => Seq("...", totalPages.toString)
-      case e if e < totalPages => Seq(totalPages.toString)
-      case _ => Seq.empty
+      case e if e < totalPages     => Seq(totalPages.toString)
+      case _                       => Seq.empty
 
     val labels = start ++ middle.map(_.toString) ++ end
 
@@ -124,11 +139,13 @@ trait PaginationHelper extends Logging {
   }
 
   def getPaginationWithInfoText[A](
-                                   rows: List[A],
-                                   totalRowCount: Int,
-                                   paginationIndex: Option[Int],
-                                   urlSelector: Int => String
-                                 )(implicit messages: Messages): Option[(List[A], Option[Pagination], Option[String])] = {
+      rows: List[A],
+      totalRowCount: Int,
+      paginationIndex: Option[Int],
+      urlSelector: Int => String
+  )(implicit
+      messages: Messages
+  ): Option[(List[A], Option[Pagination], Option[String])] = {
 
     validatePageIndex(paginationIndex, totalRowCount) match {
       case Right(validIndex) =>
@@ -137,25 +154,46 @@ trait PaginationHelper extends Logging {
           totalRowCount > 0 && numberOfPages(totalRowCount) > 1
         )(
           Pagination(
-            items    = Some(paginationItems( validIndex, numberOfPages(totalRowCount), urlSelector                )),
-            previous = generatePreviousLink( validIndex, numberOfPages(totalRowCount), urlSelector(validIndex - 1 )),
-            next     = generateNextLink(     validIndex, numberOfPages(totalRowCount), urlSelector(validIndex + 1 )),
+            items = Some(
+              paginationItems(
+                validIndex,
+                numberOfPages(totalRowCount),
+                urlSelector
+              )
+            ),
+            previous = generatePreviousLink(
+              validIndex,
+              numberOfPages(totalRowCount),
+              urlSelector(validIndex - 1)
+            ),
+            next = generateNextLink(
+              validIndex,
+              numberOfPages(totalRowCount),
+              urlSelector(validIndex + 1)
+            )
           )
         )
 
         val paginationText = Option.unless(
           totalRowCount <= ROWS_ON_PAGE || validIndex <= 0
-        ){
+        ) {
           val total = totalRowCount
           val start = (validIndex - 1) * ROWS_ON_PAGE + 1
-          val end   = math.min(validIndex * ROWS_ON_PAGE, total)
-          messages("manageReturns.inProgressReturns.paginationInfo", start, end, total)
+          val end = math.min(validIndex * ROWS_ON_PAGE, total)
+          messages(
+            "manageReturns.inProgressReturns.paginationInfo",
+            start,
+            end,
+            total
+          )
         }
 
         Some((rows, pagination, paginationText))
 
       case Left(error) =>
-        logWarn(s"[getPaginationWithInfoText] Invalid page index '$paginationIndex' for $totalRowCount rows: ${error.getMessage}.")
+        logWarn(
+          s"[getPaginationWithInfoText] Invalid page index '$paginationIndex' for $totalRowCount rows: ${error.getMessage}."
+        )
         None
     }
   }

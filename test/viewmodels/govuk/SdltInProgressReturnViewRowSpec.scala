@@ -33,12 +33,17 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 
 import java.time.LocalDate
 
-class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Mappings with OptionValues {
+class SdltInProgressReturnViewRowSpec
+    extends AnyFreeSpec
+    with Matchers
+    with Mappings
+    with OptionValues {
 
-  val responseWithEmptySummary: SdltReturnRecordResponse = SdltReturnRecordResponse(
-    returnSummaryCount = 0,
-    returnSummaryList = List.empty
-  )
+  val responseWithEmptySummary: SdltReturnRecordResponse =
+    SdltReturnRecordResponse(
+      returnSummaryCount = 0,
+      returnSummaryList = List.empty
+    )
 
   private val appConfig = mock[FrontendAppConfig]
 
@@ -109,26 +114,40 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         agentReference = Some("AgentRef005")
       )
     )
-
   )
 
   val expectedDataRows: List[SdltReturnViewRow] = List(
-    SdltReturnViewRow("Address003", "", "Name003", STARTED, utrn = "UTRN003", redirectUrl = "redirectUrl"),
-    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED, utrn = "UTRN005", redirectUrl = "#")
+    SdltReturnViewRow(
+      "Address003",
+      "",
+      "Name003",
+      STARTED,
+      utrn = "UTRN003",
+      redirectUrl = "redirectUrl"
+    ),
+    SdltReturnViewRow(
+      "Address005",
+      "AgentRef005",
+      "Name005",
+      ACCEPTED,
+      utrn = "UTRN005",
+      redirectUrl = "#"
+    )
   )
 
   "Response model conversion" - {
     "empty response return empty list" in {
       when(appConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
-      val result: List[SdltReturnViewRow] = convertToViewRows(responseWithEmptySummary.returnSummaryList, appConfig)
+      val result: List[SdltReturnViewRow] =
+        convertToViewRows(responseWithEmptySummary.returnSummaryList, appConfig)
       result mustBe empty
     }
 
-
     "response with some data return expected view model" in {
       when(appConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
-      val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS, 1, appConfig)
-        .asInstanceOf[SdltInProgressReturnViewModel]
+      val resultViewModel =
+        convertToViewModel(responseWithData, IN_PROGRESS_RETURNS, 1, appConfig)
+          .asInstanceOf[SdltInProgressReturnViewModel]
       resultViewModel.rows must contain theSameElementsAs expectedDataRows
       resultViewModel.totalRowCount mustBe 0
     }

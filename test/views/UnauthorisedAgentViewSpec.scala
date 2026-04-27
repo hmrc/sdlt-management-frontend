@@ -27,19 +27,28 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import views.html.manage.UnauthorisedAgentView
 
-class UnauthorisedAgentViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
-  
+class UnauthorisedAgentViewSpec
+    extends SpecBase
+    with GuiceOneAppPerSuite
+    with MockitoSugar {
+
   trait Setup {
 
-    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(app.configuration)
+    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest()
+    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(
+      app.configuration
+    )
 
-    implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    implicit lazy val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
+    implicit lazy val messagesApi: MessagesApi =
+      app.injector.instanceOf[MessagesApi]
+    implicit lazy val messages: Messages =
+      MessagesImpl(Lang.defaultLang, messagesApi)
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
-    val view: UnauthorisedAgentView = app.injector.instanceOf[UnauthorisedAgentView]
+    val view: UnauthorisedAgentView =
+      app.injector.instanceOf[UnauthorisedAgentView]
   }
 
   "UnauthorisedAgentView" - {
@@ -69,7 +78,8 @@ class UnauthorisedAgentViewSpec extends SpecBase with GuiceOneAppPerSuite with M
 
       val linkName = doc.select("a.govuk-link.hmrc-report-technical-issue")
 
-      linkName.text() mustBe ("Is this page not working properly? (opens in new tab)")
+      linkName
+        .text() mustBe ("Is this page not working properly? (opens in new tab)")
     }
   }
 }

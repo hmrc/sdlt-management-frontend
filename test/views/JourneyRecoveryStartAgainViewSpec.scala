@@ -27,19 +27,28 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import views.html.JourneyRecoveryStartAgainView
 
-class JourneyRecoveryStartAgainViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
+class JourneyRecoveryStartAgainViewSpec
+    extends SpecBase
+    with GuiceOneAppPerSuite
+    with MockitoSugar {
 
   trait Setup {
 
-    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(app.configuration)
+    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest()
+    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(
+      app.configuration
+    )
 
-    implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    implicit lazy val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
+    implicit lazy val messagesApi: MessagesApi =
+      app.injector.instanceOf[MessagesApi]
+    implicit lazy val messages: Messages =
+      MessagesImpl(Lang.defaultLang, messagesApi)
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
-    val view: JourneyRecoveryStartAgainView = app.injector.instanceOf[JourneyRecoveryStartAgainView]
+    val view: JourneyRecoveryStartAgainView =
+      app.injector.instanceOf[JourneyRecoveryStartAgainView]
   }
 
   "JourneyRecoveryStartAgainView" - {
@@ -62,10 +71,11 @@ class JourneyRecoveryStartAgainViewSpec extends SpecBase with GuiceOneAppPerSuit
       val paragraphs = doc.select("p.govuk-body")
 
       paragraphs.size() mustBe 2
-      paragraphs.text() must include(messages("journeyRecovery.startAgain.guidance"))
+      paragraphs.text() must include(
+        messages("journeyRecovery.startAgain.guidance")
+      )
       paragraphs.text() must include(messages("site.startAgain"))
     }
-
 
     "render the page with url link" in new Setup {
       val html = view()

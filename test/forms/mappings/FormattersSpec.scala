@@ -23,7 +23,12 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.data.FormError
 
-class FormattersSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with Formatters {
+class FormattersSpec
+    extends AnyFreeSpec
+    with Matchers
+    with ScalaCheckPropertyChecks
+    with Generators
+    with Formatters {
 
   sealed trait TestEnum
   case object One extends TestEnum
@@ -75,7 +80,7 @@ class FormattersSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyCh
 
       result match {
         case Left(errors) =>
-          assert(errors.head.message == "requiredKey" )
+          assert(errors.head.message == "requiredKey")
           assert(errors.head.args.isEmpty)
         case _ => fail("Expected Left")
       }
@@ -121,7 +126,8 @@ class FormattersSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyCh
 
   "currencyFormatter" - {
     "bind returns error with empty args when value missing" in {
-      val formatter = currencyFormatter("requiredKey", "invalidNumKey", "nonNumKey")
+      val formatter =
+        currencyFormatter("requiredKey", "invalidNumKey", "nonNumKey")
 
       val result = formatter.bind("key", Map.empty)
 
@@ -133,7 +139,12 @@ class FormattersSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyCh
       }
     }
     "bind returns FormError with nonNumericKey when value is not numeric" in {
-      val formatter = currencyFormatter("requiredKey", "invalidNumKey", "nonNumKey", Seq("args"))
+      val formatter = currencyFormatter(
+        "requiredKey",
+        "invalidNumKey",
+        "nonNumKey",
+        Seq("args")
+      )
 
       val result =
         formatter.bind("key", Map("key" -> "£"))
@@ -143,6 +154,5 @@ class FormattersSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyCh
       )
     }
   }
-
 
 }

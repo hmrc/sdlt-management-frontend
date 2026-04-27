@@ -28,22 +28,21 @@ enum UniversalStatus:
   case DEPARTMENTAL_ERROR
   case FATAL_ERROR
 
-
 object UniversalStatus {
 
   def fromString(in: String): Either[String, UniversalStatus] = {
     in.toUpperCase() match {
-      case "STARTED" => Right(UniversalStatus.STARTED)
-      case "VALIDATED" => Right(UniversalStatus.VALIDATED)
-      case "ACCEPTED" => Right(UniversalStatus.ACCEPTED)
-      case "PENDING" => Right(UniversalStatus.PENDING)
-      case "SUBMITTED" => Right(UniversalStatus.SUBMITTED)
+      case "STARTED"              => Right(UniversalStatus.STARTED)
+      case "VALIDATED"            => Right(UniversalStatus.VALIDATED)
+      case "ACCEPTED"             => Right(UniversalStatus.ACCEPTED)
+      case "PENDING"              => Right(UniversalStatus.PENDING)
+      case "SUBMITTED"            => Right(UniversalStatus.SUBMITTED)
       case "SUBMITTED_NO_RECEIPT" => Right(UniversalStatus.SUBMITTED_NO_RECEIPT)
-      case "DEPARTMENTAL_ERROR" => Right(UniversalStatus.DEPARTMENTAL_ERROR)
-      case "FATAL_ERROR" => Right(UniversalStatus.FATAL_ERROR)
-      case status =>
+      case "DEPARTMENTAL_ERROR"   => Right(UniversalStatus.DEPARTMENTAL_ERROR)
+      case "FATAL_ERROR"          => Right(UniversalStatus.FATAL_ERROR)
+      case status                 =>
         Left(s"Unable to convert status: $status")
     }
   }
-  
+
 }

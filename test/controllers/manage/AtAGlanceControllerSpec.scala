@@ -19,9 +19,20 @@ package controllers.manage
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.manage.routes.*
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
+import models.SdltReturnTypes.{
+  IN_PROGRESS_RETURNS,
+  IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+  SUBMITTED_RETURNS_DUE_FOR_DELETION,
+  SUBMITTED_SUBMITTED_RETURNS
+}
 import models.manage.AtAGlanceViewModel
-import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltInProgressReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel, SdltSubmittedReturnViewModel}
+import models.responses.{
+  SdltInProgressDueForDeletionReturnViewModel,
+  SdltInProgressReturnViewModel,
+  SdltReturnViewRow,
+  SdltSubmittedDueForDeletionReturnViewModel,
+  SdltSubmittedReturnViewModel
+}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -34,9 +45,7 @@ import views.html.manage.AtAGlanceView
 import controllers.routes.{SystemErrorController}
 import scala.concurrent.Future
 
-class AtAGlanceControllerSpec
-  extends SpecBase
-    with MockitoSugar {
+class AtAGlanceControllerSpec extends SpecBase with MockitoSugar {
 
   trait Fixture {
     val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
@@ -58,17 +67,17 @@ class AtAGlanceControllerSpec
 
       val inProgressRows: List[SdltReturnViewRow] = Nil
       val returnsInProgressViewModel = SdltInProgressReturnViewModel(
-        extractType    = IN_PROGRESS_RETURNS,
-        rows           = inProgressRows,
-        totalRowCount  = inProgressRows.length,
+        extractType = IN_PROGRESS_RETURNS,
+        rows = inProgressRows,
+        totalRowCount = inProgressRows.length,
         selectedPageIndex = 1
       )
 
       val submittedRows: List[SdltReturnViewRow] = Nil
       val submittedViewModel = SdltSubmittedReturnViewModel(
-        extractType    = SUBMITTED_SUBMITTED_RETURNS,
-        rows           = submittedRows,
-        totalRowCount  = submittedRows.length,
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
+        rows = submittedRows,
+        totalRowCount = submittedRows.length,
         selectedPageIndex = 1
       )
 
@@ -76,15 +85,15 @@ class AtAGlanceControllerSpec
       val inProgressDueRows: List[SdltReturnViewRow] = Nil
 
       val submittedDueVm = SdltSubmittedDueForDeletionReturnViewModel(
-        extractType    = SUBMITTED_RETURNS_DUE_FOR_DELETION,
-        rows           = submittedDueRows,
-        totalRowCount  = submittedDueRows.length
+        extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+        rows = submittedDueRows,
+        totalRowCount = submittedDueRows.length
       )
 
       val inProgressDueVm = SdltInProgressDueForDeletionReturnViewModel(
-        extractType    = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-        rows           = inProgressDueRows,
-        totalRowCount  = inProgressDueRows.length
+        extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+        rows = inProgressDueRows,
+        totalRowCount = inProgressDueRows.length
       )
 
       val combinedDueForDeletionRows: List[SdltReturnViewRow] =
@@ -93,16 +102,40 @@ class AtAGlanceControllerSpec
       when(mockService.getAgentCount(any(), any()))
         .thenReturn(Future.successful(agentsCount))
 
-      when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any()))
+      when(
+        mockService.getReturnsByTypeViewModel(
+          any(),
+          eqTo(IN_PROGRESS_RETURNS),
+          any()
+        )(any())
+      )
         .thenReturn(Future.successful(returnsInProgressViewModel))
 
-      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any()))
+      when(
+        mockService.getReturnsByTypeViewModel(
+          any(),
+          eqTo(SUBMITTED_SUBMITTED_RETURNS),
+          any()
+        )(any())
+      )
         .thenReturn(Future.successful(submittedViewModel))
 
-      when(mockService.getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any()))
+      when(
+        mockService.getReturnsByTypeViewModel(
+          any(),
+          eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION),
+          any()
+        )(any())
+      )
         .thenReturn(Future.successful(submittedDueVm))
 
-      when(mockService.getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any()))
+      when(
+        mockService.getReturnsByTypeViewModel(
+          any(),
+          eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION),
+          any()
+        )(any())
+      )
         .thenReturn(Future.successful(inProgressDueVm))
 
       running(application) {
@@ -110,28 +143,44 @@ class AtAGlanceControllerSpec
           application.injector.instanceOf[FrontendAppConfig]
 
         val request = FakeRequest(GET, AtAGlanceController.onPageLoad().url)
-        val result  = route(application, request).value
+        val result = route(application, request).value
 
         status(result) mustEqual OK
 
         val view = application.injector.instanceOf[AtAGlanceView]
 
         val expectedModel = AtAGlanceViewModel(
-          inProgressReturns       = returnsInProgressViewModel,
-          submittedReturns        = submittedViewModel,
-          dueForDeletionReturnsTotal   = combinedDueForDeletionRows.length,
-          agentsCount             = agentsCount,
-          storn                   = "STN001"
+          inProgressReturns = returnsInProgressViewModel,
+          submittedReturns = submittedViewModel,
+          dueForDeletionReturnsTotal = combinedDueForDeletionRows.length,
+          agentsCount = agentsCount,
+          storn = "STN001"
         )
 
         contentAsString(result) mustEqual
           view(expectedModel)(request, messages(application)).toString
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
-        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any())
-        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
-        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(
+          any(),
+          eqTo(IN_PROGRESS_RETURNS),
+          any()
+        )(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(
+          any(),
+          eqTo(SUBMITTED_SUBMITTED_RETURNS),
+          any()
+        )(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(
+          any(),
+          eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION),
+          any()
+        )(any())
+        verify(mockService, times(1)).getReturnsByTypeViewModel(
+          any(),
+          eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION),
+          any()
+        )(any())
       }
     }
 
@@ -145,17 +194,33 @@ class AtAGlanceControllerSpec
 
       running(app) {
         val request = FakeRequest(GET, AtAGlanceController.onPageLoad().url)
-        val result  = route(app, request).value
+        val result = route(app, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
           SystemErrorController.onPageLoad().url
 
         verify(mockService, times(1)).getAgentCount(any(), any())
-        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS), any())(any())
-        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any())
-        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
-        verify(mockService, times(0)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(
+          any(),
+          eqTo(IN_PROGRESS_RETURNS),
+          any()
+        )(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(
+          any(),
+          eqTo(SUBMITTED_SUBMITTED_RETURNS),
+          any()
+        )(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(
+          any(),
+          eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION),
+          any()
+        )(any())
+        verify(mockService, times(0)).getReturnsByTypeViewModel(
+          any(),
+          eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION),
+          any()
+        )(any())
       }
     }
   }

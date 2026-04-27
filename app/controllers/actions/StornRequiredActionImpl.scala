@@ -24,15 +24,24 @@ import play.api.mvc.{ActionRefiner, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class StornRequiredActionImpl @Inject() (implicit val executionContext: ExecutionContext) extends StornRequiredAction {
+class StornRequiredActionImpl @Inject() (implicit
+    val executionContext: ExecutionContext
+) extends StornRequiredAction {
 
-  override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
+  override protected def refine[A](
+      request: DataRequest[A]
+  ): Future[Either[Result, DataRequest[A]]] =
     request.userAnswers.get(StornPage) match {
       case Some(storn) =>
         Future.successful(Right(request))
-      case None        =>
+      case None =>
         Future.successful(
-          Left(Redirect(controllers.manage.routes.UnauthorisedOrganisationAffinityController.onPageLoad()))
+          Left(
+            Redirect(
+              controllers.manage.routes.UnauthorisedOrganisationAffinityController
+                .onPageLoad()
+            )
+          )
         )
     }
 }

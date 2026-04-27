@@ -19,20 +19,20 @@ package models.organisation
 import play.api.libs.json.{Json, OFormat}
 
 case class CreatedAgent(
-                         storn:                  String,
-                         agentId:                Option[String],
-                         name:                   String,
-                         houseNumber:            Option[String],
-                         address1:               String,
-                         address2:               Option[String],
-                         address3:               Option[String],
-                         address4:               Option[String],
-                         postcode:               Option[String],
-                         phone:                  Option[String],
-                         email:                  Option[String],
-                         dxAddress:              Option[String],
-                         agentResourceReference: String
-                       )
+    storn: String,
+    agentId: Option[String],
+    name: String,
+    houseNumber: Option[String],
+    address1: String,
+    address2: Option[String],
+    address3: Option[String],
+    address4: Option[String],
+    postcode: Option[String],
+    phone: Option[String],
+    email: Option[String],
+    dxAddress: Option[String],
+    agentResourceReference: String
+)
 
 object CreatedAgent {
   implicit val format: OFormat[CreatedAgent] = Json.format[CreatedAgent]

@@ -25,7 +25,12 @@ import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{
+  HeaderCarrier,
+  HttpReads,
+  StringContextOps,
+  UpstreamErrorResponse
+}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.LoggerUtil.logError
 
@@ -34,9 +39,11 @@ import java.net.URL
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
-                                          config: ServicesConfig)
-                                         (implicit ec: ExecutionContext) extends Logging {
+class StampDutyLandTaxConnector @Inject() (
+    http: HttpClientV2,
+    config: ServicesConfig
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   private val base = config.baseUrl("stamp-duty-land-tax")
 
@@ -46,7 +53,10 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
   private val getReturnsUrl: URL =
     url"$base/stamp-duty-land-tax/manage-returns/get-returns"
 
-  def getSdltOrganisation(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[SdltOrganisationResponse] =
+  def getSdltOrganisation(implicit
+      hc: HeaderCarrier,
+      request: DataRequest[_]
+  ): Future[SdltOrganisationResponse] =
     http
       .get(getSdltOrganisationUrl(request.storn))
       .execute[Either[UpstreamErrorResponse, SdltOrganisationResponse]]
@@ -54,26 +64,28 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
         case Right(resp) => Future.successful(resp)
         case Left(error) => Future.failed(error)
       }
-      .recoverWith {
-        case NonFatal(e) =>
-          logError(s"[StampDutyLandTaxConnector][getSdltOrganisation] failed for storn ${request.storn}: ${e.getMessage}")
-          Future.failed(e)
+      .recoverWith { case NonFatal(e) =>
+        logError(
+          s"[StampDutyLandTaxConnector][getSdltOrganisation] failed for storn ${request.storn}: ${e.getMessage}"
+        )
+        Future.failed(e)
       }
 
-  def getReturns(request:  SdltReturnRecordRequest)
-                (implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
+  def getReturns(
+      request: SdltReturnRecordRequest
+  )(implicit hc: HeaderCarrier): Future[SdltReturnRecordResponse] =
     http
       .post(getReturnsUrl)
-      .withBody(Json.toJson(request)
-      )
+      .withBody(Json.toJson(request))
       .execute[Either[UpstreamErrorResponse, SdltReturnRecordResponse]]
       .flatMap {
         case Right(resp) => Future.successful(resp)
         case Left(error) => Future.failed(error)
       }
-      .recoverWith {
-        case NonFatal(e) =>
-          logError(s"[StampDutyLandTaxConnector][getReturns] failed for storn ${request.storn}: ${e.getMessage}")
-          Future.failed(e)
+      .recoverWith { case NonFatal(e) =>
+        logError(
+          s"[StampDutyLandTaxConnector][getReturns] failed for storn ${request.storn}: ${e.getMessage}"
+        )
+        Future.failed(e)
       }
 }

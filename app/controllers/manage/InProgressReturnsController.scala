@@ -16,14 +16,24 @@
 
 package controllers.manage
 
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
+import controllers.actions.{
+  DataRequiredAction,
+  DataRetrievalAction,
+  IdentifierAction,
+  StornRequiredAction
+}
 import controllers.routes.{JourneyRecoveryController, SystemErrorController}
 import models.SdltReturnTypes.*
 import models.requests.DataRequest
 import models.responses.SdltInProgressReturnViewModel
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{
+  Action,
+  ActionBuilder,
+  AnyContent,
+  MessagesControllerComponents
+}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.LoggerUtil.{logError, logInfo}
@@ -33,36 +43,53 @@ import javax.inject.*
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class InProgressReturnsController @Inject()(
-                                             override val messagesApi: MessagesApi,
-                                             val controllerComponents: MessagesControllerComponents,
-                                             stampDutyLandTaxService: StampDutyLandTaxService,
-                                             identify: IdentifierAction,
-                                             getData: DataRetrievalAction,
-                                             requireData: DataRequiredAction,
-                                             stornRequiredAction: StornRequiredAction,
-                                             view: InProgressReturnView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+class InProgressReturnsController @Inject() (
+    override val messagesApi: MessagesApi,
+    val controllerComponents: MessagesControllerComponents,
+    stampDutyLandTaxService: StampDutyLandTaxService,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    stornRequiredAction: StornRequiredAction,
+    view: InProgressReturnView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
-  private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
+  private lazy val authActions: ActionBuilder[DataRequest, AnyContent] =
+    identify andThen getData andThen requireData andThen stornRequiredAction
 
-  def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
-    stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, index)
-      .map { viewModel =>
-        logInfo(s"[InProgressReturnsController][onPageLoad] - render page: $index")
-        viewModel.validatePageIndex(index, viewModel.totalRowCount) match {
-          case Right(selectedPageIndex) =>
-            logInfo(s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}")
-            Ok(view(viewModel))
-          case Left(error) =>
-            logError(s"[InProgressReturnsController][onPageLoad] - other error: $error")
-            Redirect(JourneyRecoveryController.onPageLoad())
-        }
-      } recover {
-      case ex =>
-        logError(s"[InProgressReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}")
+  def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async {
+    implicit request =>
+      stampDutyLandTaxService
+        .getReturnsByTypeViewModel[SdltInProgressReturnViewModel](
+          request.storn,
+          IN_PROGRESS_RETURNS,
+          index
+        )
+        .map { viewModel =>
+          logInfo(
+            s"[InProgressReturnsController][onPageLoad] - render page: $index"
+          )
+          viewModel.validatePageIndex(index, viewModel.totalRowCount) match {
+            case Right(selectedPageIndex) =>
+              logInfo(
+                s"[InProgressReturnsController][onPageLoad] - view model r/count: ${viewModel.rows.length}"
+              )
+              Ok(view(viewModel))
+            case Left(error) =>
+              logError(
+                s"[InProgressReturnsController][onPageLoad] - other error: $error"
+              )
+              Redirect(JourneyRecoveryController.onPageLoad())
+          }
+        } recover { case ex =>
+        logError(
+          s"[InProgressReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}"
+        )
         Redirect(SystemErrorController.onPageLoad())
-    }
+      }
   }
 
 }

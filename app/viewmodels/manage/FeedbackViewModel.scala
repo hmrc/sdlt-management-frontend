@@ -17,5 +17,5 @@
 package viewmodels.manage
 
 case class FeedbackViewModel(
-                            feedbackUrl: String
-                            )
+    feedbackUrl: String
+)

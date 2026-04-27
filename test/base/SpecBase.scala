@@ -29,7 +29,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 
 trait SpecBase
-  extends AnyFreeSpec
+    extends AnyFreeSpec
     with Matchers
     with TryValues
     with OptionValues
@@ -38,16 +38,21 @@ trait SpecBase
 
   val userAnswersId: String = "id"
 
-  def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
+  def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
 
-  def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
+  def messages(app: Application): Messages =
+    app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+  protected def applicationBuilder(
+      userAnswers: Option[UserAnswers] = None
+  ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[DataRetrievalAction].toInstance(
+          new FakeDataRetrievalAction(userAnswers)
+        ),
         bind[StornRequiredAction].to[FakeStornRequiredAction]
       )
 }

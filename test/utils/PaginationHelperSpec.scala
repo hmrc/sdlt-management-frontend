@@ -23,11 +23,15 @@ import play.api.Application
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 
-class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
+class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase {
 
   trait Fixture extends PaginationHelper {
-    val urlSelector: Int => String = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
-    val application: Application = applicationBuilder(userAnswers = None).build()
+    val urlSelector: Int => String = (pageIndex: Int) =>
+      controllers.manage.routes.InProgressReturnsController
+        .onPageLoad(Some(pageIndex))
+        .url
+    val application: Application =
+      applicationBuilder(userAnswers = None).build()
     val paginationIndexSelectedMidPage: Int = 5
     val paginationIndexSelectedFirstPage: Int = 1
   }
@@ -38,30 +42,34 @@ class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
       val pageCount: Int = 10
 
       // render prev link
-      generatePreviousLink(paginationIndex = paginationIndexSelectedMidPage,
+      generatePreviousLink(
+        paginationIndex = paginationIndexSelectedMidPage,
         numberOfPages = pageCount,
-        urlPrev = "prevLink")( messages(application) )
-        .toList.nonEmpty mustBe true
+        urlPrev = "prevLink"
+      )(messages(application)).toList.nonEmpty mustBe true
 
       // should not render prev link
-      generatePreviousLink(paginationIndex = paginationIndexSelectedFirstPage,
+      generatePreviousLink(
+        paginationIndex = paginationIndexSelectedFirstPage,
         numberOfPages = pageCount,
-        urlPrev = "prevLink")(messages(application))
-        .toList.isEmpty mustBe true
+        urlPrev = "prevLink"
+      )(messages(application)).toList.isEmpty mustBe true
     }
 
     "Get next pagination link" in new Fixture {
       val pageCount: Int = 10
 
-      generateNextLink(paginationIndex = pageCount,
+      generateNextLink(
+        paginationIndex = pageCount,
         numberOfPages = pageCount,
-        urlNext = "prevLink")(messages(application))
-        .toList.isEmpty mustBe true
+        urlNext = "prevLink"
+      )(messages(application)).toList.isEmpty mustBe true
 
-      generateNextLink(paginationIndex = pageCount,
+      generateNextLink(
+        paginationIndex = pageCount,
         numberOfPages = paginationIndexSelectedFirstPage,
-        urlNext = "prevLink")(messages(application))
-        .toList.nonEmpty mustBe true
+        urlNext = "prevLink"
+      )(messages(application)).toList.nonEmpty mustBe true
     }
 
     "Calc number of pages::pagination:: all cases" in new PaginationHelper {
@@ -186,7 +194,5 @@ class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
       result mustBe None
     }
   }
-
-
 
 }

@@ -27,19 +27,28 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import views.html.manage.UnauthorisedOrgStandardView
 
-class UnauthorisedOrgStandardViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
-  
+class UnauthorisedOrgStandardViewSpec
+    extends SpecBase
+    with GuiceOneAppPerSuite
+    with MockitoSugar {
+
   trait Setup {
 
-    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(app.configuration)
+    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest()
+    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(
+      app.configuration
+    )
 
-    implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    implicit lazy val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
+    implicit lazy val messagesApi: MessagesApi =
+      app.injector.instanceOf[MessagesApi]
+    implicit lazy val messages: Messages =
+      MessagesImpl(Lang.defaultLang, messagesApi)
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
-    val view: UnauthorisedOrgStandardView = app.injector.instanceOf[UnauthorisedOrgStandardView]
+    val view: UnauthorisedOrgStandardView =
+      app.injector.instanceOf[UnauthorisedOrgStandardView]
   }
 
   "UnauthorisedOrgStandardView" - {
@@ -51,7 +60,9 @@ class UnauthorisedOrgStandardViewSpec extends SpecBase with GuiceOneAppPerSuite 
 
       heading.size() mustBe 1
       heading.text() mustBe messages("manage.unauthorised.org.standard.heading")
-      doc.title() must include(messages("manage.unauthorised.org.standard.title"))
+      doc.title() must include(
+        messages("manage.unauthorised.org.standard.title")
+      )
     }
 
     "render the page with paragraph" in new Setup {
@@ -60,8 +71,12 @@ class UnauthorisedOrgStandardViewSpec extends SpecBase with GuiceOneAppPerSuite 
 
       val paragraph = doc.select("p.govuk-body")
 
-      paragraph.text() must include(messages("manage.unauthorised.org.standard.p1"))
-      paragraph.text() must include(messages("manage.unauthorised.org.standard.p2"))
+      paragraph.text() must include(
+        messages("manage.unauthorised.org.standard.p1")
+      )
+      paragraph.text() must include(
+        messages("manage.unauthorised.org.standard.p2")
+      )
     }
 
     "render the page with url link" in new Setup {

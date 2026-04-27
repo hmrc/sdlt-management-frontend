@@ -26,10 +26,10 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class UnauthorisedOrganisationAffinityController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  view: UnauthorisedOrgView
+    val controllerComponents: MessagesControllerComponents,
+    view: UnauthorisedOrgView
 )(implicit appConfig: FrontendAppConfig)
-  extends FrontendBaseController
+    extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = Action { implicit request =>

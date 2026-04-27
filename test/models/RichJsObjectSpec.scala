@@ -24,11 +24,14 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.*
 
-class RichJsObjectSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues with ModelGenerators {
+class RichJsObjectSpec
+    extends AnyFreeSpec
+    with Matchers
+    with ScalaCheckPropertyChecks
+    with OptionValues
+    with ModelGenerators {
 
-  val jsObject: JsObject = Json.obj(
-    "name" -> "John",
-    "age" -> 30)
+  val jsObject: JsObject = Json.obj("name" -> "John", "age" -> 30)
 
   "removeObject" - {
     "remove an existing field" in {
@@ -36,9 +39,11 @@ class RichJsObjectSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
 
       val result = js.removeObject(__ \ "age")
 
-      result mustBe JsSuccess(Json.obj(
-        "name" -> "John"
-      ))
+      result mustBe JsSuccess(
+        Json.obj(
+          "name" -> "John"
+        )
+      )
     }
   }
 }

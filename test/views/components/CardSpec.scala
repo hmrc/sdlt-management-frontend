@@ -75,7 +75,8 @@ class CardSpec extends SpecBase with Matchers {
     "should not render no links when links list is empty" in new Setup {
       running(app) {
         content(links = Seq.empty)
-          .getElementsByTag("li").isEmpty mustBe true
+          .getElementsByTag("li")
+          .isEmpty mustBe true
       }
 
     }
@@ -92,10 +93,11 @@ class CardSpec extends SpecBase with Matchers {
 
     val view: Card = views.html.components.Card()
 
-    def content(title: String = title,
-                links: Seq[(String, String)] = testLinks,
-                newTab: Boolean = isNewTab
-               ): Document =
+    def content(
+        title: String = title,
+        links: Seq[(String, String)] = testLinks,
+        newTab: Boolean = isNewTab
+    ): Document =
       Jsoup.parse(
         view(
           title = title,
@@ -106,6 +108,3 @@ class CardSpec extends SpecBase with Matchers {
 
   }
 }
-
-
-

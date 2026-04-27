@@ -27,15 +27,23 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import views.html.manage.UnauthorisedOrgView
 
-class UnauthorisedOrgViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
-  
+class UnauthorisedOrgViewSpec
+    extends SpecBase
+    with GuiceOneAppPerSuite
+    with MockitoSugar {
+
   trait Setup {
 
-    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(app.configuration)
+    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest()
+    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(
+      app.configuration
+    )
 
-    implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    implicit lazy val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
+    implicit lazy val messagesApi: MessagesApi =
+      app.injector.instanceOf[MessagesApi]
+    implicit lazy val messages: Messages =
+      MessagesImpl(Lang.defaultLang, messagesApi)
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
@@ -62,9 +70,13 @@ class UnauthorisedOrgViewSpec extends SpecBase with GuiceOneAppPerSuite with Moc
       val link = doc.selectFirst("p.govuk-body a.govuk-link")
 
       paragraph.size() mustBe 1
-      paragraph.text() must include(messages("manage.unauthorised.org.paragraph"))
+      paragraph.text() must include(
+        messages("manage.unauthorised.org.paragraph")
+      )
       paragraph.text() must include(messages("manage.unauthorised.org.link"))
-      link.attr("href") mustBe "/stamp-duty-land-tax-management/manage-your-stamp-taxes"
+      link.attr(
+        "href"
+      ) mustBe "/stamp-duty-land-tax-management/manage-your-stamp-taxes"
 
     }
 
@@ -74,7 +86,8 @@ class UnauthorisedOrgViewSpec extends SpecBase with GuiceOneAppPerSuite with Moc
 
       val linkName = doc.select("a.govuk-link.hmrc-report-technical-issue")
 
-      linkName.text() mustBe ("Is this page not working properly? (opens in new tab)")
+      linkName
+        .text() mustBe ("Is this page not working properly? (opens in new tab)")
     }
   }
 }

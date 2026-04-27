@@ -19,4 +19,6 @@ package controllers.actions
 import models.requests.IdentifierRequest
 import play.api.mvc.{ActionBuilder, ActionFunction, AnyContent, Request}
 
-trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
+trait IdentifierAction
+    extends ActionBuilder[IdentifierRequest, AnyContent]
+    with ActionFunction[Request, IdentifierRequest]

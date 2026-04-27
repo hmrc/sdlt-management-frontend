@@ -24,7 +24,8 @@ import queries.Settable
 
 class UserAnswersSpec extends AnyFreeSpec with Matchers {
 
-  class TestPage[A](val path: JsPath, cleanupResult: Try[UserAnswers] = null) extends Settable[A] {
+  class TestPage[A](val path: JsPath, cleanupResult: Try[UserAnswers] = null)
+      extends Settable[A] {
     override def cleanup(value: Option[A], ua: UserAnswers): Try[UserAnswers] =
       if (cleanupResult != null) cleanupResult else Success(ua)
   }
@@ -79,7 +80,8 @@ class UserAnswersSpec extends AnyFreeSpec with Matchers {
       val ua = UserAnswers("id", Json.obj("key" -> "value"))
       val cleaned = UserAnswers("id", Json.obj("key" -> "value"))
 
-      val page = new TestPage[String](__ \ "key", cleanupResult = Success(cleaned))
+      val page =
+        new TestPage[String](__ \ "key", cleanupResult = Success(cleaned))
 
       val result = ua.remove(page)
 

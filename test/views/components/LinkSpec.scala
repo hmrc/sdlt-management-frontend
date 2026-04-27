@@ -26,18 +26,17 @@ import views.html.components.Link
 
 class LinkSpec extends SpecBase with Matchers {
   "Link Component " - {
-    "must render linkUrl correctly with linkTextKey" in new Setup{
+    "must render linkUrl correctly with linkTextKey" in new Setup {
       running(app) {
         val doc = content()
 
         doc.getElementsByTag("a").isEmpty mustBe false
-        
+
         val link = doc.getElementsByTag("a").first()
         link.text() mustBe linkText
         link.attr("href") mustBe linkTextUrl
       }
     }
-
 
     "must render for paragraph component with prefixText and linkUrl if prefixTextKey is nonEmpty" in new Setup {
       running(app) {
@@ -53,7 +52,7 @@ class LinkSpec extends SpecBase with Matchers {
     "must render for paragraph component with linkUrl and suffixText if suffixTextKey is nonEmpty" in new Setup {
       running(app) {
         val suffixTextKey = "nonEmptyValue"
-        val doc = content(suffixTextKey= suffixTextKey)
+        val doc = content(suffixTextKey = suffixTextKey)
 
         doc.getElementsByTag("p").isEmpty mustBe false
         doc.getElementsByTag("p").text() mustBe s"$linkText $suffixTextKey"
@@ -63,7 +62,7 @@ class LinkSpec extends SpecBase with Matchers {
 
     "must render extra classes when supplied along with the default classes " in new Setup {
       running(app) {
-        val extraClasses= "classes"
+        val extraClasses = "classes"
         val doc = content(extraClasses = extraClasses)
 
         doc.getElementsByClass("classes").isEmpty mustBe false
@@ -74,7 +73,7 @@ class LinkSpec extends SpecBase with Matchers {
     }
 
     "must not open the link in new tab is isNewTab = false" in new Setup {
-      running(app){
+      running(app) {
         val link = content().getElementsByTag("a").first()
 
         link.hasAttr("target") mustBe false
@@ -98,21 +97,23 @@ class LinkSpec extends SpecBase with Matchers {
 
     val app: Application = applicationBuilder(userAnswers = None).build()
 
-    val linkText:String = "LinkText"
-    val linkTextUrl: String = "https://www.gov.uk/find-hmrc-contacts/technical-support-with-hmrc-online-services"
+    val linkText: String = "LinkText"
+    val linkTextUrl: String =
+      "https://www.gov.uk/find-hmrc-contacts/technical-support-with-hmrc-online-services"
     val isNewTab: Boolean = false
     val linkFullStop: Boolean = false
 
     val view: Link = views.html.components.Link()
 
-    def content(linkText: String = linkText,
-                linkUrl:String = linkTextUrl,
-                prefixTextKey:String = "",
-                suffixTextKey:String = "",
-                extraClasses:String = "",
-                newTab: Boolean = isNewTab,
-                linkFullStop:Boolean = linkFullStop
-               ): Document =
+    def content(
+        linkText: String = linkText,
+        linkUrl: String = linkTextUrl,
+        prefixTextKey: String = "",
+        suffixTextKey: String = "",
+        extraClasses: String = "",
+        newTab: Boolean = isNewTab,
+        linkFullStop: Boolean = linkFullStop
+    ): Document =
       Jsoup.parse(
         view(
           linkTextKey = linkText,

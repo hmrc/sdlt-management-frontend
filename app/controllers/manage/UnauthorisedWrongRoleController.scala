@@ -25,8 +25,8 @@ import views.html.manage.UnauthorisedOrgStandardView
 import javax.inject.Inject
 
 class UnauthorisedWrongRoleController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  view: UnauthorisedOrgStandardView
+    val controllerComponents: MessagesControllerComponents,
+    view: UnauthorisedOrgStandardView
 )(implicit appConfig: FrontendAppConfig)
     extends FrontendBaseController
     with I18nSupport {

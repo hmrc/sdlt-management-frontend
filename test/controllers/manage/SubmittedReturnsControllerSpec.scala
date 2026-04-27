@@ -19,7 +19,11 @@ package controllers.manage
 import base.SpecBase
 import config.FrontendAppConfig
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
-import models.responses.{SdltReturnViewRow, SdltSubmittedReturnViewModel, UniversalStatus}
+import models.responses.{
+  SdltReturnViewRow,
+  SdltSubmittedReturnViewModel,
+  UniversalStatus
+}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -76,7 +80,10 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       }
 
     val urlSelector: Int => String =
-      page => controllers.manage.routes.SubmittedReturnsController.onPageLoad(Some(page)).url
+      page =>
+        controllers.manage.routes.SubmittedReturnsController
+          .onPageLoad(Some(page))
+          .url
 
     lazy val submittedControllerRoute: String =
       controllers.manage.routes.SubmittedReturnsController.onPageLoad(None).url
@@ -108,10 +115,17 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(
+            request,
+            messages(application)
+          ).toString
 
         verify(mockService, times(1))
-          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(
+            any(),
+            eqTo(SUBMITTED_SUBMITTED_RETURNS),
+            any()
+          )(any[HeaderCarrier])
       }
     }
 
@@ -139,10 +153,17 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(
+            request,
+            messages(application)
+          ).toString
 
         verify(mockService, times(1))
-          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(
+            any(),
+            eqTo(SUBMITTED_SUBMITTED_RETURNS),
+            any()
+          )(any[HeaderCarrier])
       }
     }
 
@@ -174,10 +195,17 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(
+            request,
+            messages(application)
+          ).toString
 
         verify(mockService, times(1))
-          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(
+            any(),
+            eqTo(SUBMITTED_SUBMITTED_RETURNS),
+            any()
+          )(any[HeaderCarrier])
       }
     }
 
@@ -185,7 +213,6 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
       val selectedPageIndex = 2
       val totalRowCount = allPaginatedRows.length
       val pageTwoRows = allPaginatedRows.drop(rowsPerPage)
-
 
       val viewModel = SdltSubmittedReturnViewModel(
         extractType = SUBMITTED_SUBMITTED_RETURNS,
@@ -214,10 +241,17 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(viewModel, appConfig.startNewReturnUrl)(request, messages(application)).toString
+          view(viewModel, appConfig.startNewReturnUrl)(
+            request,
+            messages(application)
+          ).toString
 
         verify(mockService, times(1))
-          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(
+            any(),
+            eqTo(SUBMITTED_SUBMITTED_RETURNS),
+            any()
+          )(any[HeaderCarrier])
       }
     }
 
@@ -253,7 +287,11 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           controllers.routes.JourneyRecoveryController.onPageLoad().url
 
         verify(mockService, times(1))
-          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(
+            any(),
+            eqTo(SUBMITTED_SUBMITTED_RETURNS),
+            any()
+          )(any[HeaderCarrier])
       }
     }
 
@@ -275,7 +313,11 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
           controllers.routes.SystemErrorController.onPageLoad().url
 
         verify(mockService, times(1))
-          .getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any[HeaderCarrier])
+          .getReturnsByTypeViewModel(
+            any(),
+            eqTo(SUBMITTED_SUBMITTED_RETURNS),
+            any()
+          )(any[HeaderCarrier])
       }
     }
 

@@ -26,25 +26,33 @@ import play.api.test.Helpers.stubMessages
 
 import java.time.LocalDate
 
-class LocalDateFormatterSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with Formatters {
+class LocalDateFormatterSpec
+    extends AnyFreeSpec
+    with Matchers
+    with ScalaCheckPropertyChecks
+    with Generators
+    with Formatters {
 
   "Default parameters" - {
     "use empty args as default" in {
-        implicit val messages: Messages = stubMessages()
+      implicit val messages: Messages = stubMessages()
 
-        val formatter = new LocalDateFormatter(
-          invalidKey = "invalidKey",
-          allRequiredKey = "allRequiredKey",
-          twoRequiredKey = "twoRequiredKey",
-          requiredKey = "requiredKey"
-        )
-        
-        formatter.bind("field", Map("field.day" -> "1", "field.month" -> "3", "field.year" -> "2026")) match {
-          case Right(date) =>
-            date mustBe LocalDate.of(2026, 3, 1)
-          case Left(errors) =>
-            fail(s"Unexpected validation errors: $errors")
-        }
+      val formatter = new LocalDateFormatter(
+        invalidKey = "invalidKey",
+        allRequiredKey = "allRequiredKey",
+        twoRequiredKey = "twoRequiredKey",
+        requiredKey = "requiredKey"
+      )
+
+      formatter.bind(
+        "field",
+        Map("field.day" -> "1", "field.month" -> "3", "field.year" -> "2026")
+      ) match {
+        case Right(date) =>
+          date mustBe LocalDate.of(2026, 3, 1)
+        case Left(errors) =>
+          fail(s"Unexpected validation errors: $errors")
+      }
     }
   }
   "MonthFormatter" - {

@@ -31,36 +31,51 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
-                                       (implicit executionContext: ExecutionContext, appConfig:FrontendAppConfig) extends Logging {
+class StampDutyLandTaxService @Inject() (
+    stampDutyLandTaxConnector: StampDutyLandTaxConnector
+)(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig)
+    extends Logging {
 
   /*
   Unified way to extract returns from DB and convert returns to viewModel
    */
-  def getReturnsByTypeViewModel[ViewModel <: SdltReturnBaseViewModel](storn: String,
-                                extractType: SdltReturnTypes,
-                                pageIndex: Option[Int])
-                               (implicit hc: HeaderCarrier): Future[ViewModel] = {
+  def getReturnsByTypeViewModel[ViewModel <: SdltReturnBaseViewModel](
+      storn: String,
+      extractType: SdltReturnTypes,
+      pageIndex: Option[Int]
+  )(implicit hc: HeaderCarrier): Future[ViewModel] = {
     val dataRequest: SdltReturnRecordRequest = SdltReturnRecordRequest
       .convertToDataRequest(
         storn = storn,
         extractType = extractType,
-        pageIndex = pageIndex)
-    logInfo(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - GENERIC::RETURNS_DATA_REQUEST:: $dataRequest")
+        pageIndex = pageIndex
+      )
+    logInfo(
+      s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - GENERIC::RETURNS_DATA_REQUEST:: $dataRequest"
+    )
     for {
       dataResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
     } yield {
-      logInfo(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - ${storn}::" +
-        s"response r/count: ${dataResponse.returnSummaryCount} :: ${dataResponse.returnSummaryList.length}")
-      val viewModel = convertToViewModel(dataResponse, extractType, pageIndex.getOrElse(1), appConfig)
+      logInfo(
+        s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - ${storn}::" +
+          s"response r/count: ${dataResponse.returnSummaryCount} :: ${dataResponse.returnSummaryList.length}"
+      )
+      val viewModel = convertToViewModel(
+        dataResponse,
+        extractType,
+        pageIndex.getOrElse(1),
+        appConfig
+      )
       viewModel.asInstanceOf[ViewModel]
     }
   }
 
-  def getAgentCount(implicit hc: HeaderCarrier, request: DataRequest[_]): Future[Int] = {
-    stampDutyLandTaxConnector
-      .getSdltOrganisation
+  def getAgentCount(implicit
+      hc: HeaderCarrier,
+      request: DataRequest[_]
+  ): Future[Int] = {
+    stampDutyLandTaxConnector.getSdltOrganisation
       .map(_.agents.length)
   }
-  
+
 }

@@ -18,12 +18,26 @@ package services
 
 import config.FrontendAppConfig
 import connectors.StampDutyLandTaxConnector
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
-import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordResponse}
+import models.SdltReturnTypes.{
+  IN_PROGRESS_RETURNS,
+  IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+  SUBMITTED_RETURNS_DUE_FOR_DELETION,
+  SUBMITTED_SUBMITTED_RETURNS
+}
+import models.manage.{
+  ReturnSummary,
+  SdltReturnRecordRequest,
+  SdltReturnRecordResponse
+}
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
 import models.responses.*
-import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
+import models.responses.UniversalStatus.{
+  ACCEPTED,
+  STARTED,
+  SUBMITTED,
+  SUBMITTED_NO_RECEIPT
+}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -35,14 +49,18 @@ import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Matchers {
+class StampDutyLandTaxServiceSpec
+    extends AnyWordSpec
+    with ScalaFutures
+    with Matchers {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit val appConfig:FrontendAppConfig = mock(classOf[FrontendAppConfig])
+  implicit val appConfig: FrontendAppConfig = mock(classOf[FrontendAppConfig])
 
-  private def newService(): (StampDutyLandTaxService, StampDutyLandTaxConnector) = {
+  private def newService()
+      : (StampDutyLandTaxService, StampDutyLandTaxConnector) = {
     val connector = mock(classOf[StampDutyLandTaxConnector])
-    val service   = new StampDutyLandTaxService(connector)
+    val service = new StampDutyLandTaxService(connector)
     (service, connector)
   }
 
@@ -57,64 +75,70 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
       val acceptedSummary = ReturnSummary(
         returnReference = "001",
-        utrn           = Some("UTRN-ACC-001"),
-        status         = "ACCEPTED",
-        dateSubmitted  = Some(LocalDate.parse("2025-10-20")),
-        purchaserName  = "Accepted Buyer",
-        address        = "1 Accepted Street",
+        utrn = Some("UTRN-ACC-001"),
+        status = "ACCEPTED",
+        dateSubmitted = Some(LocalDate.parse("2025-10-20")),
+        purchaserName = "Accepted Buyer",
+        address = "1 Accepted Street",
         agentReference = Some("Accepted Agent")
       )
 
       val pendingSummary = ReturnSummary(
         returnReference = "002",
-        utrn           = Some("UTRN-PEN-001"),
-        status         = "STARTED",
-        dateSubmitted  = Some(LocalDate.parse("2025-10-21")),
-        purchaserName  = "Pending Buyer",
-        address        = "2 Pending Street",
+        utrn = Some("UTRN-PEN-001"),
+        status = "STARTED",
+        dateSubmitted = Some(LocalDate.parse("2025-10-21")),
+        purchaserName = "Pending Buyer",
+        address = "2 Pending Street",
         agentReference = Some("Pending Agent")
       )
 
       val dataRows = List(
         SdltReturnViewRow(
-          address        = "1 Accepted Street",
+          address = "1 Accepted Street",
           agentReference = "Accepted Agent",
-          purchaserName  = "Accepted Buyer",
-          status         = ACCEPTED,
-          utrn           = "UTRN-ACC-001",
-          redirectUrl    = "#"
+          purchaserName = "Accepted Buyer",
+          status = ACCEPTED,
+          utrn = "UTRN-ACC-001",
+          redirectUrl = "#"
         ),
         SdltReturnViewRow(
-          address        = "2 Pending Street",
+          address = "2 Pending Street",
           agentReference = "Pending Agent",
-          purchaserName  = "Pending Buyer",
-          status         = STARTED,
-          utrn           = "UTRN-PEN-001",
-          redirectUrl    = "redirectUrl"
+          purchaserName = "Pending Buyer",
+          status = STARTED,
+          utrn = "UTRN-PEN-001",
+          redirectUrl = "redirectUrl"
         )
       )
 
       val inProgressReturnsResponse = SdltReturnRecordResponse(
         returnSummaryCount = dataRows.length,
-        returnSummaryList  = List(acceptedSummary, pendingSummary)
+        returnSummaryList = List(acceptedSummary, pendingSummary)
       )
 
       val inProgressRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
-        status       = None,
+        storn = storn,
+        status = None,
         deletionFlag = false,
-        pageType     = Some("IN-PROGRESS"),
-        pageNumber   = Some("1")
+        pageType = Some("IN-PROGRESS"),
+        pageNumber = Some("1")
       )
 
       when(connector.getReturns(eqTo(inProgressRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(inProgressReturnsResponse))
 
-      val result = service.getReturnsByTypeViewModel[SdltInProgressReturnViewModel](storn, IN_PROGRESS_RETURNS, Some(1)).futureValue
+      val result = service
+        .getReturnsByTypeViewModel[SdltInProgressReturnViewModel](
+          storn,
+          IN_PROGRESS_RETURNS,
+          Some(1)
+        )
+        .futureValue
 
       val expected = SdltInProgressReturnViewModel(
-        extractType   = IN_PROGRESS_RETURNS,
-        rows          = dataRows,
+        extractType = IN_PROGRESS_RETURNS,
+        rows = dataRows,
         totalRowCount = dataRows.length,
         selectedPageIndex = 1
       )
@@ -134,64 +158,70 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
       val submitted = ReturnSummary(
         returnReference = "001",
-        utrn           = Some("UTRN-SUB-001"),
-        status         = "SUBMITTED",
-        dateSubmitted  = Some(LocalDate.parse("2025-10-22")),
-        purchaserName  = "Submitted Buyer",
-        address        = "3 Submitted Street",
+        utrn = Some("UTRN-SUB-001"),
+        status = "SUBMITTED",
+        dateSubmitted = Some(LocalDate.parse("2025-10-22")),
+        purchaserName = "Submitted Buyer",
+        address = "3 Submitted Street",
         agentReference = Some("Submitted Agent")
       )
 
       val submittedNoReceipt = ReturnSummary(
         returnReference = "002",
-        utrn           = Some("UTRN-SNR-001"),
-        status         = "SUBMITTED_NO_RECEIPT",
-        dateSubmitted  = Some(LocalDate.parse("2025-10-23")),
-        purchaserName  = "No Receipt Buyer",
-        address        = "4 NoReceipt Street",
+        utrn = Some("UTRN-SNR-001"),
+        status = "SUBMITTED_NO_RECEIPT",
+        dateSubmitted = Some(LocalDate.parse("2025-10-23")),
+        purchaserName = "No Receipt Buyer",
+        address = "4 NoReceipt Street",
         agentReference = Some("NoReceipt Agent")
       )
 
       val submittedResponse = SdltReturnRecordResponse(
         returnSummaryCount = 2,
-        returnSummaryList  = List(submitted, submittedNoReceipt)
+        returnSummaryList = List(submitted, submittedNoReceipt)
       )
 
       val expectedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
-        status       = None,
+        storn = storn,
+        status = None,
         deletionFlag = false,
-        pageType     = Some("SUBMITTED"),
-        pageNumber   = Some("1")
+        pageType = Some("SUBMITTED"),
+        pageNumber = Some("1")
       )
 
       when(connector.getReturns(eqTo(expectedRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(submittedResponse))
 
-      val result = service.getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](storn, SUBMITTED_SUBMITTED_RETURNS, Some(1)).futureValue
+      val result = service
+        .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](
+          storn,
+          SUBMITTED_SUBMITTED_RETURNS,
+          Some(1)
+        )
+        .futureValue
 
       val expectedRows = List(
         SdltReturnViewRow(
-          address        = "3 Submitted Street",
-          utrn           = "UTRN-SUB-001",
-          purchaserName  = "Submitted Buyer",
-          status         = SUBMITTED,
+          address = "3 Submitted Street",
+          utrn = "UTRN-SUB-001",
+          purchaserName = "Submitted Buyer",
+          status = SUBMITTED,
           agentReference = "Submitted Agent",
-          redirectUrl    = "#"
+          redirectUrl = "#"
         ),
         SdltReturnViewRow(
-          address        = "4 NoReceipt Street",
-          utrn           = "UTRN-SNR-001",
-          purchaserName  = "No Receipt Buyer",
-          status         = SUBMITTED_NO_RECEIPT,
+          address = "4 NoReceipt Street",
+          utrn = "UTRN-SNR-001",
+          purchaserName = "No Receipt Buyer",
+          status = SUBMITTED_NO_RECEIPT,
           agentReference = "NoReceipt Agent",
-          redirectUrl    = "#"
+          redirectUrl = "#"
         )
       )
 
       val expected = SdltSubmittedReturnViewModel(
-        extractType   = SUBMITTED_SUBMITTED_RETURNS,
-        rows          = expectedRows,
+        extractType = SUBMITTED_SUBMITTED_RETURNS,
+        rows = expectedRows,
         totalRowCount = 2,
         selectedPageIndex = 1
       )
@@ -206,18 +236,26 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val (service, connector) = newService()
 
       val expectedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
-        status       = None,
+        storn = storn,
+        status = None,
         deletionFlag = false,
-        pageType     = Some("SUBMITTED"),
-        pageNumber   = Some("1")
+        pageType = Some("SUBMITTED"),
+        pageNumber = Some("1")
       )
 
       when(connector.getReturns(eqTo(expectedRequest))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(new RuntimeException("Error: Connector issue")))
+        .thenReturn(
+          Future.failed(new RuntimeException("Error: Connector issue"))
+        )
 
       val ex = intercept[RuntimeException] {
-        service.getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](storn, SUBMITTED_SUBMITTED_RETURNS, Some(1)).futureValue
+        service
+          .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](
+            storn,
+            SUBMITTED_SUBMITTED_RETURNS,
+            Some(1)
+          )
+          .futureValue
       }
 
       ex.getMessage must include("Error: Connector issue")
@@ -235,41 +273,45 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val submittedDeletionSummary =
         ReturnSummary(
           returnReference = "001",
-          utrn           = Some("UTRN-DEL-001"),
-          status         = "SUBMITTED",
-          dateSubmitted  = Some(LocalDate.parse("2025-10-24")),
-          purchaserName  = "Delete Buyer",
-          address        = "5 Delete Street",
+          utrn = Some("UTRN-DEL-001"),
+          status = "SUBMITTED",
+          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
+          purchaserName = "Delete Buyer",
+          address = "5 Delete Street",
           agentReference = Some("Delete Agent")
         )
 
       val submittedDeletionResponse = SdltReturnRecordResponse(
         returnSummaryCount = 1,
-        returnSummaryList  = List(submittedDeletionSummary)
+        returnSummaryList = List(submittedDeletionSummary)
       )
 
       val submittedRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
-        status       = None,
+        storn = storn,
+        status = None,
         deletionFlag = true,
-        pageType     = Some("SUBMITTED"),
-        pageNumber   = Some("1")
+        pageType = Some("SUBMITTED"),
+        pageNumber = Some("1")
       )
 
       when(connector.getReturns(eqTo(submittedRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(submittedDeletionResponse))
 
       val result =
-        service.getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
+        service
+          .getReturnsByTypeViewModel[
+            SdltSubmittedDueForDeletionReturnViewModel
+          ](storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, Some(1))
+          .futureValue
 
       result.rows must contain theSameElementsAs List(
         SdltReturnViewRow(
-          utrn           = "UTRN-DEL-001",
-          status         = SUBMITTED,
-          purchaserName  = "Delete Buyer",
-          address        = "5 Delete Street",
+          utrn = "UTRN-DEL-001",
+          status = SUBMITTED,
+          purchaserName = "Delete Buyer",
+          address = "5 Delete Street",
           agentReference = "Delete Agent",
-          redirectUrl    = "#"
+          redirectUrl = "#"
         )
       )
 
@@ -286,32 +328,36 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val inProgressDeletionSummary =
         ReturnSummary(
           returnReference = "002",
-          utrn           = Some("UTRN-DEL-002"),
-          status         = "IN-PROGRESS",
-          dateSubmitted  = Some(LocalDate.parse("2025-10-24")),
-          purchaserName  = "In Progress Buyer",
-          address        = "6 Delete Street",
+          utrn = Some("UTRN-DEL-002"),
+          status = "IN-PROGRESS",
+          dateSubmitted = Some(LocalDate.parse("2025-10-24")),
+          purchaserName = "In Progress Buyer",
+          address = "6 Delete Street",
           agentReference = Some("Delete Agent 2")
         )
 
       val inProgressDeletionResponse = SdltReturnRecordResponse(
         returnSummaryCount = 1,
-        returnSummaryList  = List(inProgressDeletionSummary)
+        returnSummaryList = List(inProgressDeletionSummary)
       )
 
       val inProgressRequest: SdltReturnRecordRequest = SdltReturnRecordRequest(
-        storn        = storn,
-        status       = None,
+        storn = storn,
+        status = None,
         deletionFlag = true,
-        pageType     = Some("IN-PROGRESS"),
-        pageNumber   = Some("1")
+        pageType = Some("IN-PROGRESS"),
+        pageNumber = Some("1")
       )
 
       when(connector.getReturns(eqTo(inProgressRequest))(any[HeaderCarrier]))
         .thenReturn(Future.successful(inProgressDeletionResponse))
 
       val result =
-        service.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, Some(1)).futureValue
+        service
+          .getReturnsByTypeViewModel[
+            SdltInProgressDueForDeletionReturnViewModel
+          ](storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, Some(1))
+          .futureValue
 
       result.totalRowCount mustBe 1
 
@@ -328,53 +374,58 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
       val agents = Seq(
         CreatedAgent(
-          storn                  = storn,
-          agentId                = None,
-          name                   = "Acme Property Agents Ltd",
-          houseNumber            = None,
-          address1               = "High Street",
-          address2               = Some("Westminster"),
-          address3               = Some("London"),
-          address4               = Some("Greater London"),
-          postcode               = Some("SW1A 2AA"),
-          phone                  = Some("02079460000"),
-          email                  = Some("info@acmeagents.co.uk"),
-          dxAddress              = None,
+          storn = storn,
+          agentId = None,
+          name = "Acme Property Agents Ltd",
+          houseNumber = None,
+          address1 = "High Street",
+          address2 = Some("Westminster"),
+          address3 = Some("London"),
+          address4 = Some("Greater London"),
+          postcode = Some("SW1A 2AA"),
+          phone = Some("02079460000"),
+          email = Some("info@acmeagents.co.uk"),
+          dxAddress = None,
           agentResourceReference = "ARN001"
         ),
         CreatedAgent(
-          storn                  = storn,
-          agentId                = None,
-          name                   = "Harborview Estates",
-          houseNumber            = None,
-          address1               = "Queensway",
-          address2               = None,
-          address3               = Some("Birmingham"),
-          address4               = None,
-          postcode               = Some("B2 4ND"),
-          phone                  = Some("01214567890"),
-          email                  = Some("info@harborviewestates.co.uk"),
-          dxAddress              = None,
+          storn = storn,
+          agentId = None,
+          name = "Harborview Estates",
+          houseNumber = None,
+          address1 = "Queensway",
+          address2 = None,
+          address3 = Some("Birmingham"),
+          address4 = None,
+          postcode = Some("B2 4ND"),
+          phone = Some("01214567890"),
+          email = Some("info@harborviewestates.co.uk"),
+          dxAddress = None,
           agentResourceReference = "ARN002"
         )
       )
 
       val orgResponse: SdltOrganisationResponse =
         SdltOrganisationResponse(
-          storn                 = storn,
-          version               = Some("1"),
-          isReturnUser          = Some("Y"),
+          storn = storn,
+          version = Some("1"),
+          isReturnUser = Some("Y"),
           doNotDisplayWelcomePage = Some("N"),
-          agents                = agents
+          agents = agents
         )
 
-      when(connector.getSdltOrganisation(any[HeaderCarrier], any[DataRequest[_]]))
+      when(
+        connector.getSdltOrganisation(any[HeaderCarrier], any[DataRequest[_]])
+      )
         .thenReturn(Future.successful(orgResponse))
 
       val result = service.getAgentCount.futureValue
       result mustBe 2
 
-      verify(connector).getSdltOrganisation(any[HeaderCarrier], any[DataRequest[_]])
+      verify(connector).getSdltOrganisation(
+        any[HeaderCarrier],
+        any[DataRequest[_]]
+      )
       verifyNoMoreInteractions(connector)
     }
   }

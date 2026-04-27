@@ -18,7 +18,12 @@ package controllers.manage
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
+import models.SdltReturnTypes.{
+  IN_PROGRESS_RETURNS,
+  IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+  SUBMITTED_RETURNS_DUE_FOR_DELETION,
+  SUBMITTED_SUBMITTED_RETURNS
+}
 import models.manage.AtAGlanceViewModel
 import models.responses.*
 import play.api.Logging
@@ -32,46 +37,66 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class AtAGlanceController@Inject()(
-                                    override val messagesApi: MessagesApi,
-                                    val controllerComponents: MessagesControllerComponents,
-                                    stampDutyLandTaxService: StampDutyLandTaxService,
-                                    identify: IdentifierAction,
-                                    getData: DataRetrievalAction,
-                                    view: AtAGlanceView,
-                                    requireData: DataRequiredAction,
-                                    stornRequiredAction: StornRequiredAction,
-                                  )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging {
+class AtAGlanceController @Inject() (
+    override val messagesApi: MessagesApi,
+    val controllerComponents: MessagesControllerComponents,
+    stampDutyLandTaxService: StampDutyLandTaxService,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    view: AtAGlanceView,
+    requireData: DataRequiredAction,
+    stornRequiredAction: StornRequiredAction
+)(implicit ec: ExecutionContext, appConfig: FrontendAppConfig)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
+  def onPageLoad(): Action[AnyContent] =
+    (identify andThen getData andThen requireData andThen stornRequiredAction)
+      .async { implicit request =>
+        (for {
+          agentsCount <- stampDutyLandTaxService.getAgentCount
+          returnsInProgress <- stampDutyLandTaxService
+            .getReturnsByTypeViewModel[SdltInProgressReturnViewModel](
+              request.storn,
+              IN_PROGRESS_RETURNS,
+              None
+            )
+          submittedReturns <- stampDutyLandTaxService
+            .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](
+              request.storn,
+              SUBMITTED_SUBMITTED_RETURNS,
+              None
+            )
+          submittedReturnsDueForDeletion <- stampDutyLandTaxService
+            .getReturnsByTypeViewModel[
+              SdltSubmittedDueForDeletionReturnViewModel
+            ](request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
+          inProgressReturnsDueForDeletion <- stampDutyLandTaxService
+            .getReturnsByTypeViewModel[
+              SdltInProgressDueForDeletionReturnViewModel
+            ](request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
+          returnsDueForDeletionRowCount =
+            (submittedReturnsDueForDeletion.totalRowCount + inProgressReturnsDueForDeletion.totalRowCount)
+        } yield {
 
-    (for {
-      agentsCount                     <- stampDutyLandTaxService
-        .getAgentCount
-      returnsInProgress               <- stampDutyLandTaxService
-        .getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, None)
-      submittedReturns                <- stampDutyLandTaxService
-        .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](request.storn, SUBMITTED_SUBMITTED_RETURNS, None)
-      submittedReturnsDueForDeletion  <- stampDutyLandTaxService
-        .getReturnsByTypeViewModel[SdltSubmittedDueForDeletionReturnViewModel](request.storn, SUBMITTED_RETURNS_DUE_FOR_DELETION, None)
-      inProgressReturnsDueForDeletion <- stampDutyLandTaxService
-        .getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](request.storn, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, None)
-      returnsDueForDeletionRowCount            = (submittedReturnsDueForDeletion.totalRowCount + inProgressReturnsDueForDeletion.totalRowCount)
-    } yield {
-
-      Ok(view(
-        AtAGlanceViewModel(
-          storn = request.storn,
-          inProgressReturns = returnsInProgress,
-          submittedReturns = submittedReturns,
-          dueForDeletionReturnsTotal = returnsDueForDeletionRowCount,
-          agentsCount = agentsCount
-        )
-      ))
-    }) recover {
-        case ex =>
-          logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
+          Ok(
+            view(
+              AtAGlanceViewModel(
+                storn = request.storn,
+                inProgressReturns = returnsInProgress,
+                submittedReturns = submittedReturns,
+                dueForDeletionReturnsTotal = returnsDueForDeletionRowCount,
+                agentsCount = agentsCount
+              )
+            )
+          )
+        }) recover { case ex =>
+          logger.error(
+            "[AgentOverviewController][onPageLoad] Unexpected failure",
+            ex
+          )
           Redirect(SystemErrorController.onPageLoad())
-    }
-  }
+        }
+      }
 }

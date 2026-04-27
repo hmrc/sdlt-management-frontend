@@ -51,7 +51,6 @@ class ParagraphSpec extends SpecBase with Matchers {
     }
   }
 
-
   trait Setup {
 
     val app: Application = applicationBuilder(userAnswers = None).build()
@@ -62,14 +61,14 @@ class ParagraphSpec extends SpecBase with Matchers {
     val bold: Boolean = false
     val baseClass: String = "govuk-body"
     val extraClasses: String = " "
-    
+
     def content(
-                 message: String = message,
-                 bold: Boolean = bold,
-                 baseClass: String = baseClass,
-                 extraClasses: String = extraClasses,
-                 args: Seq[Any] = Nil
-               ): Document = {
+        message: String = message,
+        bold: Boolean = bold,
+        baseClass: String = baseClass,
+        extraClasses: String = extraClasses,
+        args: Seq[Any] = Nil
+    ): Document = {
       Jsoup.parse(
         view(
           message = message,

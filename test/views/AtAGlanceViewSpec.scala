@@ -19,7 +19,11 @@ package views
 import base.SpecBase
 import config.FrontendAppConfig
 import models.manage.AtAGlanceViewModel
-import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow, SdltSubmittedReturnViewModel}
+import models.responses.{
+  SdltInProgressReturnViewModel,
+  SdltReturnViewRow,
+  SdltSubmittedReturnViewModel
+}
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -31,16 +35,23 @@ import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, SUBMITTED_SUBMITTED_RETURNS}
 import models.responses.UniversalStatus.{ACCEPTED, SUBMITTED}
 import views.html.manage.AtAGlanceView
 
-class AtAGlanceViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
-
+class AtAGlanceViewSpec
+    extends SpecBase
+    with GuiceOneAppPerSuite
+    with MockitoSugar {
 
   trait Setup {
 
-    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(app.configuration)
+    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest()
+    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(
+      app.configuration
+    )
 
-    implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    implicit lazy val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
+    implicit lazy val messagesApi: MessagesApi =
+      app.injector.instanceOf[MessagesApi]
+    implicit lazy val messages: Messages =
+      MessagesImpl(Lang.defaultLang, messagesApi)
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
@@ -110,9 +121,13 @@ class AtAGlanceViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSu
       val titles = doc.select("h2.govuk-heading-m")
 
       titles.size() mustBe 4
-      titles.text() must include(messages("manage.homepage.manageReturns.title"))
+      titles.text() must include(
+        messages("manage.homepage.manageReturns.title")
+      )
       titles.text() must include(messages("manage.homepage.manageAgents.title"))
-      titles.text() must include(messages("manage.homepage.helpAndContact.title"))
+      titles.text() must include(
+        messages("manage.homepage.helpAndContact.title")
+      )
       titles.text() must include(messages("manage.homepage.feedback.title"))
     }
 
@@ -120,13 +135,27 @@ class AtAGlanceViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSu
       val html = view(viewModel)
       val doc = parseHtml(html)
 
-      val link = doc.select("li[class='govuk-!-margin-bottom-2'] a.govuk-link").text()
+      val link =
+        doc.select("li[class='govuk-!-margin-bottom-2'] a.govuk-link").text()
 
-      link must include(messages("manage.homepage.manageReturns.returnsInProgress.withNum", 18))
-      link must include(messages("manage.homepage.manageReturns.submittedReturns.withNum", 18))
-      link must include(messages("manage.homepage.manageReturns.returnsDueForDeletion.withNum", 18))
-      link must include(messages("manage.homepage.manageReturns.startNewReturn"))
-      link must include(messages("manage.homepage.manageAgents.agentDetails.withNum", 18))
+      link must include(
+        messages("manage.homepage.manageReturns.returnsInProgress.withNum", 18)
+      )
+      link must include(
+        messages("manage.homepage.manageReturns.submittedReturns.withNum", 18)
+      )
+      link must include(
+        messages(
+          "manage.homepage.manageReturns.returnsDueForDeletion.withNum",
+          18
+        )
+      )
+      link must include(
+        messages("manage.homepage.manageReturns.startNewReturn")
+      )
+      link must include(
+        messages("manage.homepage.manageAgents.agentDetails.withNum", 18)
+      )
       link must include(messages("manage.homepage.manageAgents.addNewAgent"))
       link must include(messages("manage.homepage.helpAndContact.help"))
       link must include(messages("manage.homepage.helpAndContact.contactHMRC"))

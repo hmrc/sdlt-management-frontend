@@ -24,19 +24,40 @@ import java.time.LocalDate
 
 class SdltOrganisationResponseSpec extends AnyFreeSpec with Matchers {
 
-  val createdAgent = CreatedAgent("storn", Some("agentId"), "name", Some("houseNumber"), "address1", Some("address2"), Some("address3"), Some("address4"), Some("postcode"), Some("phone"), Some("email"), Some("dxAddress"), "agentResourceReference")
+  val createdAgent = CreatedAgent(
+    "storn",
+    Some("agentId"),
+    "name",
+    Some("houseNumber"),
+    "address1",
+    Some("address2"),
+    Some("address3"),
+    Some("address4"),
+    Some("postcode"),
+    Some("phone"),
+    Some("email"),
+    Some("dxAddress"),
+    "agentResourceReference"
+  )
 
   "SdltOrganisationResponse" - {
     "should serialize to JSON" in {
       val formatter = SdltOrganisationResponse.format
-      val orgResponse = SdltOrganisationResponse("storn", Some("version"), Some("isReturnUser"), Some("doNotDisplayWelcomePage"), Seq(createdAgent))
+      val orgResponse = SdltOrganisationResponse(
+        "storn",
+        Some("version"),
+        Some("isReturnUser"),
+        Some("doNotDisplayWelcomePage"),
+        Seq(createdAgent)
+      )
 
       val json = formatter.writes(orgResponse)
 
       (json \ "storn").as[String] mustBe "storn"
       (json \ "version").as[String] mustBe "version"
       (json \ "isReturnUser").as[String] mustBe "isReturnUser"
-      (json \ "doNotDisplayWelcomePage").as[String] mustBe "doNotDisplayWelcomePage"
+      (json \ "doNotDisplayWelcomePage")
+        .as[String] mustBe "doNotDisplayWelcomePage"
       (json \ "agents").as[Seq[CreatedAgent]] mustBe Seq(createdAgent)
 
     }
@@ -70,9 +91,14 @@ class SdltOrganisationResponseSpec extends AnyFreeSpec with Matchers {
 
       val orgResponse = Json.parse(json).as[SdltOrganisationResponse]
 
-      orgResponse mustBe SdltOrganisationResponse("storn", Some("version"), Some("isReturnUser"), Some("doNotDisplayWelcomePage"), Seq(createdAgent))
+      orgResponse mustBe SdltOrganisationResponse(
+        "storn",
+        Some("version"),
+        Some("isReturnUser"),
+        Some("doNotDisplayWelcomePage"),
+        Seq(createdAgent)
+      )
     }
   }
-
 
 }

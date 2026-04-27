@@ -20,17 +20,22 @@ import models.SdltReturnTypes
 import play.api.libs.json.{Json, OFormat}
 
 case class SdltReturnRecordRequest(
-                                     storn        : String,
-                                     status       : Option[String],
-                                     deletionFlag : Boolean,
-                                     pageType     : Option[String],
-                                     pageNumber   : Option[String] = None
-                                   )
+    storn: String,
+    status: Option[String],
+    deletionFlag: Boolean,
+    pageType: Option[String],
+    pageNumber: Option[String] = None
+)
 
 object SdltReturnRecordRequest {
-  implicit val format: OFormat[SdltReturnRecordRequest] = Json.format[SdltReturnRecordRequest]
+  implicit val format: OFormat[SdltReturnRecordRequest] =
+    Json.format[SdltReturnRecordRequest]
 
-  def convertToDataRequest(storn: String, extractType: SdltReturnTypes, pageIndex: Option[Int]): SdltReturnRecordRequest = {
+  def convertToDataRequest(
+      storn: String,
+      extractType: SdltReturnTypes,
+      pageIndex: Option[Int]
+  ): SdltReturnRecordRequest = {
     extractType match {
       case SdltReturnTypes.IN_PROGRESS_RETURNS =>
         SdltReturnRecordRequest(
@@ -38,28 +43,33 @@ object SdltReturnRecordRequest {
           status = None,
           deletionFlag = false,
           pageType = Some("IN-PROGRESS"),
-          pageNumber = pageIndex.map(_.toString))
-      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS | SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
+          pageNumber = pageIndex.map(_.toString)
+        )
+      case SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS |
+          SdltReturnTypes.SUBMITTED_NO_RECEIPT_RETURNS =>
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = false,
           status = None,
           pageType = Some("SUBMITTED"),
-          pageNumber = pageIndex.map(_.toString))
+          pageNumber = pageIndex.map(_.toString)
+        )
       case SdltReturnTypes.IN_PROGRESS_RETURNS_DUE_FOR_DELETION =>
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = true,
           status = None,
           pageType = Some("IN-PROGRESS"),
-          pageNumber = pageIndex.map(_.toString))
+          pageNumber = pageIndex.map(_.toString)
+        )
       case SdltReturnTypes.SUBMITTED_RETURNS_DUE_FOR_DELETION =>
         SdltReturnRecordRequest(
           storn = storn,
           deletionFlag = true,
           status = None,
           pageType = Some("SUBMITTED"),
-          pageNumber = pageIndex.map(_.toString))
+          pageNumber = pageIndex.map(_.toString)
+        )
     }
   }
 

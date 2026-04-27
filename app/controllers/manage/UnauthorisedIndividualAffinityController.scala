@@ -24,8 +24,8 @@ import views.html.manage.UnauthorisedIndividualView
 import javax.inject.Inject
 
 class UnauthorisedIndividualAffinityController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  view: UnauthorisedIndividualView
+    val controllerComponents: MessagesControllerComponents,
+    view: UnauthorisedIndividualView
 ) extends FrontendBaseController
     with I18nSupport {
 

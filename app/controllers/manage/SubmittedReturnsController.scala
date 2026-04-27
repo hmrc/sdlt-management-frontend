@@ -35,35 +35,50 @@ import utils.LoggerUtil.{logError, logInfo}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class SubmittedReturnsController @Inject()(
-                                            val controllerComponents: MessagesControllerComponents,
-                                            stampDutyLandTaxService: StampDutyLandTaxService,
-                                            identify: IdentifierAction,
-                                            getData: DataRetrievalAction,
-                                            requireData: DataRequiredAction,
-                                            stornRequiredAction: StornRequiredAction,
-                                            view: SubmittedReturnsView
-                                          )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
-
+class SubmittedReturnsController @Inject() (
+    val controllerComponents: MessagesControllerComponents,
+    stampDutyLandTaxService: StampDutyLandTaxService,
+    identify: IdentifierAction,
+    getData: DataRetrievalAction,
+    requireData: DataRequiredAction,
+    stornRequiredAction: StornRequiredAction,
+    view: SubmittedReturnsView
+)(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging
+    with PaginationHelper {
 
   def onPageLoad(paginationIndex: Option[Int]): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen stornRequiredAction)
       .async { implicit request =>
         stampDutyLandTaxService
-          .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
+          .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](
+            request.storn,
+            SUBMITTED_SUBMITTED_RETURNS,
+            paginationIndex
+          )
           .map { viewModel =>
-            viewModel.validatePageIndex(paginationIndex, viewModel.totalRowCount) match {
+            viewModel.validatePageIndex(
+              paginationIndex,
+              viewModel.totalRowCount
+            ) match {
               case Right(selectedPageIndex) =>
-                logInfo(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
-                Ok( view(viewModel, appConfig.startNewReturnUrl) )
+                logInfo(
+                  s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}"
+                )
+                Ok(view(viewModel, appConfig.startNewReturnUrl))
               case Left(error) =>
-                logError(s"[InProgressReturnsController][onPageLoad] - other error: $error")
+                logError(
+                  s"[InProgressReturnsController][onPageLoad] - other error: $error"
+                )
                 Redirect(JourneyRecoveryController.onPageLoad())
             }
-          } recover {
-          case ex =>
-            logError(s"[SubmittedReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}")
-            Redirect(SystemErrorController.onPageLoad())
+          } recover { case ex =>
+          logError(
+            s"[SubmittedReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}"
+          )
+          Redirect(SystemErrorController.onPageLoad())
         }
       }
 }

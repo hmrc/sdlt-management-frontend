@@ -30,19 +30,28 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import views.html.InProgressReturnView
 
-class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
+class InProgressReturnViewSpec
+    extends SpecBase
+    with GuiceOneAppPerSuite
+    with MockitoSugar {
 
   trait Setup {
 
-    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(app.configuration)
+    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest()
+    implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(
+      app.configuration
+    )
 
-    implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    implicit lazy val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
+    implicit lazy val messagesApi: MessagesApi =
+      app.injector.instanceOf[MessagesApi]
+    implicit lazy val messages: Messages =
+      MessagesImpl(Lang.defaultLang, messagesApi)
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
-    val view: InProgressReturnView = app.injector.instanceOf[InProgressReturnView]
+    val view: InProgressReturnView =
+      app.injector.instanceOf[InProgressReturnView]
 
     val emptyData: List[SdltReturnViewRow] = Nil
 
@@ -120,9 +129,14 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
 
       heading.size() mustBe 1
       caption.size() mustBe 1
-      heading.text() mustBe messages("manageReturns.inProgressReturns.SomeReturns")
-      caption.text() mustBe s"This section is ${messages("manageReturns.inProgressReturns.span.manage")}"
-      doc.title() must include(messages("manageReturns.inProgressReturns.title"))
+      heading.text() mustBe messages(
+        "manageReturns.inProgressReturns.SomeReturns"
+      )
+      caption
+        .text() mustBe s"This section is ${messages("manageReturns.inProgressReturns.span.manage")}"
+      doc.title() must include(
+        messages("manageReturns.inProgressReturns.title")
+      )
     }
 
     "render the page with details for populated model" in new Setup {
@@ -131,8 +145,12 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
 
       val details = doc.select("details.govuk-details")
 
-      details.text() must include(messages("manageReturns.inProgressReturns.details.summary"))
-      details.text() must include(messages("manageReturns.inProgressReturns.details.content"))
+      details.text() must include(
+        messages("manageReturns.inProgressReturns.details.summary")
+      )
+      details.text() must include(
+        messages("manageReturns.inProgressReturns.details.content")
+      )
     }
 
     "render the page with each table header" in new Setup {
@@ -142,10 +160,18 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       val headers = doc.select("th.govuk-table__header")
 
       headers.size() mustBe 4
-      headers.text() must include(messages("manageReturns.inProgressReturns.summary.purchaser"))
-      headers.text() must include(messages("manageReturns.inProgressReturns.summary.address"))
-      headers.text() must include(messages("manageReturns.inProgressReturns.summary.agentsref"))
-      headers.text() must include(messages("manageReturns.inProgressReturns.summary.status"))
+      headers.text() must include(
+        messages("manageReturns.inProgressReturns.summary.purchaser")
+      )
+      headers.text() must include(
+        messages("manageReturns.inProgressReturns.summary.address")
+      )
+      headers.text() must include(
+        messages("manageReturns.inProgressReturns.summary.agentsref")
+      )
+      headers.text() must include(
+        messages("manageReturns.inProgressReturns.summary.status")
+      )
     }
 
     "render the page with description for populated model" in new Setup {
@@ -154,7 +180,9 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
 
       val description = doc.select("p.govuk-body")
 
-      description.text() must include(messages("manageReturns.inProgressReturns.description"))
+      description.text() must include(
+        messages("manageReturns.inProgressReturns.description")
+      )
     }
 
     "render the page with description for empty model" in new Setup {
@@ -164,8 +192,12 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       val description = doc.select("p.govuk-body")
       val link = doc.select("p.govuk-body a.govuk-link")
 
-      description.text() must include(messages("manageReturns.inProgressReturns.noReturns"))
-      link.text() must include(messages("manageReturns.inProgressReturns.startNewReturn"))
+      description.text() must include(
+        messages("manageReturns.inProgressReturns.noReturns")
+      )
+      link.text() must include(
+        messages("manageReturns.inProgressReturns.startNewReturn")
+      )
     }
 
     "render the page with paginated in-progress returns and pagination info" in new Setup {
@@ -176,13 +208,12 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       val paginationPages = doc.select("li.govuk-pagination__item")
       val paginationInfo = doc.select("p.govuk-body")
 
-
       paginationPages.size() mustBe 2
-      paginationInfo.text() must include ("Showing 1 to 10 of 18 records")
+      paginationInfo.text() must include("Showing 1 to 10 of 18 records")
 
-      returns.text() must include ("Buyer")
-      returns.text() must include ("Riverside Drive")
-      returns.text() must include ("Agent")
+      returns.text() must include("Buyer")
+      returns.text() must include("Riverside Drive")
+      returns.text() must include("Agent")
     }
 
     "render the page with non paginated in-progress returns" in new Setup {
@@ -193,9 +224,8 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       val paginationPages = doc.select("li.govuk-pagination__item")
       val paginationInfo = doc.select("p.govuk-body")
 
-
       paginationPages.size() mustBe 0
-      paginationInfo.text() must include ("")
+      paginationInfo.text() must include("")
 
       returns.text() must include("Buyer")
       returns.text() must include("Riverside Drive")
@@ -222,13 +252,14 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
     }
 
     "render the purchaserName Link with redirectURL" in new Setup {
-      val html = view (paginatedInProgressViewModel)
+      val html = view(paginatedInProgressViewModel)
 
       val doc = parseHtml(html)
 
-      val purchaserName = doc.select("td.govuk-table__cell a.govuk-link").first()
+      val purchaserName =
+        doc.select("td.govuk-table__cell a.govuk-link").first()
 
-      purchaserName.text() mustBe("Buyer-0")
+      purchaserName.text() mustBe ("Buyer-0")
       purchaserName.attr("href") mustBe ("redirectUrl")
 
     }

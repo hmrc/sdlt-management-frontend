@@ -18,15 +18,23 @@ package utils
 
 object PageUrlSelector {
 
-  val inProgressUrlSelector: Int => String = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
+  val inProgressUrlSelector: Int => String = (pageIndex: Int) =>
+    controllers.manage.routes.InProgressReturnsController
+      .onPageLoad(Some(pageIndex))
+      .url
 
   lazy val dueForDeletionInProgressUrlSelector: Option[Int] => Int => String =
-    (submittedIndex: Option[Int]) => (index: Int) =>
-      s"${controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(index), submittedIndex).url}#in-progress"
+    (submittedIndex: Option[Int]) =>
+      (index: Int) =>
+        s"${controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(Some(index), submittedIndex).url}#in-progress"
 
   lazy val dueForDeletionSubmittedUrlSelector: Option[Int] => Int => String =
-    (inProgressIndex: Option[Int]) => (index: Int) =>
-      s"${controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(index)).url}#submitted"
+    (inProgressIndex: Option[Int]) =>
+      (index: Int) =>
+        s"${controllers.manage.routes.DueForDeletionReturnsController.onPageLoad(inProgressIndex, Some(index)).url}#submitted"
 
-  val submittedUrlSelector: Int => String = (paginationIndex: Int) => controllers.manage.routes.SubmittedReturnsController.onPageLoad(Some(paginationIndex)).url
+  val submittedUrlSelector: Int => String = (paginationIndex: Int) =>
+    controllers.manage.routes.SubmittedReturnsController
+      .onPageLoad(Some(paginationIndex))
+      .url
 }

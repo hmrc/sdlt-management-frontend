@@ -23,7 +23,7 @@ import play.api.mvc.RequestHeader
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration) {
 
-  val host: String    = configuration.get[String]("host")
+  val host: String = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
@@ -32,30 +32,38 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
-  lazy val feedbackFrontend: String = configuration.get[String]("feedback-frontend.host")
+  lazy val feedbackFrontend: String =
+    configuration.get[String]("feedback-frontend.host")
 
-  val loginUrl: String                      = configuration.get[String]("urls.login")
-  val loginContinueUrl: String              = configuration.get[String]("urls.loginContinue")
-  val signOutUrl: String                    = configuration.get[String]("urls.signOut")
-  val govUkSDLTGuidanceUrl: String          = configuration.get[String]("urls.govUkSDLTGuidance")
-  lazy val govUKUrl: String                 = configuration.get[String]("urls.govUK")
-  lazy val howToPayUrl: String              = configuration.get[String]("urls.howToPay")
-  lazy val hmrcOnlineServiceDeskUrl: String = configuration.get[String]("urls.hmrcOnlineServiceDesk")
+  val loginUrl: String = configuration.get[String]("urls.login")
+  val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
+  val signOutUrl: String = configuration.get[String]("urls.signOut")
+  val govUkSDLTGuidanceUrl: String =
+    configuration.get[String]("urls.govUkSDLTGuidance")
+  lazy val govUKUrl: String = configuration.get[String]("urls.govUK")
+  lazy val howToPayUrl: String = configuration.get[String]("urls.howToPay")
+  lazy val hmrcOnlineServiceDeskUrl: String =
+    configuration.get[String]("urls.hmrcOnlineServiceDesk")
 
-  private val agentServiceBaseUrl: String       = configuration.get[String]("stamp-duty-land-tax-agent.host")
-  val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/manage-agents/start-add-agent"
-  val agentOverviewUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent"
+  private val agentServiceBaseUrl: String =
+    configuration.get[String]("stamp-duty-land-tax-agent.host")
+  val startAddAgentUrl: String =
+    s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/manage-agents/start-add-agent"
+  val agentOverviewUrl: String =
+    s"$agentServiceBaseUrl/stamp-duty-land-tax-agent"
 
-  private val filingServiceBaseUrl: String = configuration.get[String]("stamp-duty-land-tax-filing.host")
-  val startNewReturnUrl: String            = s"$filingServiceBaseUrl/stamp-duty-land-tax-filing"
-  
-  def inProgressReturnURL(returnReference:String):String = s"$filingServiceBaseUrl/stamp-duty-land-tax-filing/returnTaskList?returnId=$returnReference"
-  
-  val exitSurveyUrl: String             = s"$feedbackFrontend/feedback/stamp-duty-land-tax"
+  private val filingServiceBaseUrl: String =
+    configuration.get[String]("stamp-duty-land-tax-filing.host")
+  val startNewReturnUrl: String =
+    s"$filingServiceBaseUrl/stamp-duty-land-tax-filing"
 
-  val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
+  def inProgressReturnURL(returnReference: String): String =
+    s"$filingServiceBaseUrl/stamp-duty-land-tax-filing/returnTaskList?returnId=$returnReference"
+
+  val exitSurveyUrl: String = s"$feedbackFrontend/feedback/stamp-duty-land-tax"
+
+  val timeout: Int = configuration.get[Int]("timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 }
-

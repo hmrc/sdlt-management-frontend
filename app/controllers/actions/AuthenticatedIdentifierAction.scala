@@ -35,18 +35,22 @@ import utils.LoggerUtil.logError
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+class AuthenticatedIdentifierAction @Inject() (
+    override val authConnector: AuthConnector,
+    config: FrontendAppConfig,
+    val parser: BodyParsers.Default
+)(implicit val executionContext: ExecutionContext)
+    extends IdentifierAction
+    with AuthorisedFunctions
+    with Logging {
 
-class AuthenticatedIdentifierAction @Inject()(
-                                               override val authConnector: AuthConnector,
-                                               config: FrontendAppConfig,
-                                               val parser: BodyParsers.Default
-                                             )
-                                             (implicit val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions with Logging {
+  override def invokeBlock[A](
+      request: Request[A],
+      block: IdentifierRequest[A] => Future[Result]
+  ): Future[Result] = {
 
-  override def invokeBlock[A](request: Request[A],
-                              block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier =
+      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     val defaultPredicate: Predicate = AuthProviders(GovernmentGateway)
 
     // We expect one to one mapping between AffinityGroup and corresponding Enrolment
@@ -57,41 +61,73 @@ class AuthenticatedIdentifierAction @Inject()(
           Retrievals.affinityGroup and
           Retrievals.credentialRole
       ) {
-        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Organisation) ~ Some(User) if enrolments.exists(_.key == orgEnrolment) =>
+        case Some(internalId) ~ Enrolments(enrolments) ~ Some(
+              Organisation
+            ) ~ Some(User) if enrolments.exists(_.key == orgEnrolment) =>
           handleValidEnrolments(block)(request, internalId, enrolments)
-        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Agent) ~ Some(User) if enrolments.exists(_.key == agentEnrolment) =>
+        case Some(internalId) ~ Enrolments(enrolments) ~ Some(Agent) ~ Some(
+              User
+            ) if enrolments.exists(_.key == agentEnrolment) =>
           handleValidEnrolments(block)(request, internalId, enrolments)
-        case Some(_) ~ _ ~ Some(Organisation|Agent) ~ Some(Assistant) => // Not sure if this is really applicable anymore
-          logger.error("[AuthenticatedIdentifierAction][authorised] - [Organisation|Agent]: Assistant login attempt")
+        case Some(_) ~ _ ~ Some(Organisation | Agent) ~ Some(
+              Assistant
+            ) => // Not sure if this is really applicable anymore
+          logger.error(
+            "[AuthenticatedIdentifierAction][authorised] - [Organisation|Agent]: Assistant login attempt"
+          )
           Future.successful(
-            Redirect(controllers.manage.routes.UnauthorisedWrongRoleController.onPageLoad()))
+            Redirect(
+              controllers.manage.routes.UnauthorisedWrongRoleController
+                .onPageLoad()
+            )
+          )
         case Some(_) ~ _ ~ Some(Individual) ~ _ =>
-          logger.error("[AuthenticatedIdentifierAction][authorised] - Individual login attempt")
+          logger.error(
+            "[AuthenticatedIdentifierAction][authorised] - Individual login attempt"
+          )
           Future.successful(
-            Redirect(controllers.manage.routes.UnauthorisedIndividualAffinityController.onPageLoad()))
+            Redirect(
+              controllers.manage.routes.UnauthorisedIndividualAffinityController
+                .onPageLoad()
+            )
+          )
         case _ =>
-          logger.error("[AuthenticatedIdentifierAction][authorised] - authentication failure")
+          logger.error(
+            "[AuthenticatedIdentifierAction][authorised] - authentication failure"
+          )
           Future.successful(
-            Redirect(routes.AccessDeniedController.onPageLoad()))
+            Redirect(routes.AccessDeniedController.onPageLoad())
+          )
       } recover {
       case _: NoActiveSession =>
-        logger.error("[AuthenticatedIdentifierAction][authorised] - recover::NoActiveSession")
-        Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+        logger.error(
+          "[AuthenticatedIdentifierAction][authorised] - recover::NoActiveSession"
+        )
+        Redirect(
+          config.loginUrl,
+          Map("continue" -> Seq(config.loginContinueUrl))
+        )
       case _: AuthorisationException =>
-        logger.error("[AuthenticatedIdentifierAction][authorised] - recover::AuthorisationException")
+        logger.error(
+          "[AuthenticatedIdentifierAction][authorised] - recover::AuthorisationException"
+        )
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }
 
-  private def handleValidEnrolments[A](block: IdentifierRequest[A] => Future[Result])
-                                       (request: Request[A], internalId: String, enrolments: Set[Enrolment]) = {
+  private def handleValidEnrolments[A](
+      block: IdentifierRequest[A] => Future[Result]
+  )(request: Request[A], internalId: String, enrolments: Set[Enrolment]) = {
     checkEnrolments(enrolments)
       .map { storn =>
         block(IdentifierRequest(request, internalId, storn))
       }
       .getOrElse(
         Future.successful(
-          Redirect(controllers.manage.routes.UnauthorisedOrganisationAffinityController.onPageLoad())
+          Redirect(
+            controllers.manage.routes.UnauthorisedOrganisationAffinityController
+              .onPageLoad()
+          )
         )
       )
   }
@@ -99,27 +135,39 @@ class AuthenticatedIdentifierAction @Inject()(
   private val orgEnrolment: String = "IR-SDLT-ORG"
   private val agentEnrolment: String = "IR-SDLT-AGENT"
 
-  private val enrolementStornExtractor: Enrolment => Option[String] = (enrolment: Enrolment) =>
-    enrolment.identifiers
-      .find(id => id.key == "STORN")
-      .map(_.value)
+  private val enrolementStornExtractor: Enrolment => Option[String] =
+    (enrolment: Enrolment) =>
+      enrolment.identifiers
+        .find(id => id.key == "STORN")
+        .map(_.value)
 
   // Always expect enrolments in the input set :: expect STORN key to be the same for Agent and Org
   private def checkEnrolments[A](enrolments: Set[Enrolment]): Option[String] =
-    enrolments.find(enrolment => Set(orgEnrolment, agentEnrolment).contains(enrolment.key)) match {
+    enrolments.find(enrolment =>
+      Set(orgEnrolment, agentEnrolment).contains(enrolment.key)
+    ) match {
       case Some(enrolment) =>
-        (enrolementStornExtractor(enrolment), enrolment.state.toLowerCase()) match {
+        (
+          enrolementStornExtractor(enrolment),
+          enrolment.state.toLowerCase()
+        ) match {
           case (Some(storn), "activated" | "notyetactivated") =>
             Some(storn)
           case (Some(_), _) =>
-            logError("[AuthenticatedIdentifierAction][checkEnrolments] - Inactive enrolment")
+            logError(
+              "[AuthenticatedIdentifierAction][checkEnrolments] - Inactive enrolment"
+            )
             None
           case _ =>
-            logError("[AuthenticatedIdentifierAction][checkEnrolments] - Unable to retrieve sdlt enrolments")
+            logError(
+              "[AuthenticatedIdentifierAction][checkEnrolments] - Unable to retrieve sdlt enrolments"
+            )
             None
         }
       case _ =>
-        logError("[AuthenticatedIdentifierAction][checkEnrolments] - enrolment not found")
+        logError(
+          "[AuthenticatedIdentifierAction][checkEnrolments] - enrolment not found"
+        )
         None
     }
 

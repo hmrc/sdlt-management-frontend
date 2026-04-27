@@ -40,7 +40,6 @@ class GridRowSpec extends SpecBase with Matchers {
     }
   }
 
-
   trait Setup {
 
     val app: Application = applicationBuilder(userAnswers = None).build()

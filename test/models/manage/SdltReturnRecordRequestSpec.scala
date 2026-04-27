@@ -24,12 +24,16 @@ import java.time.LocalDate
 
 class SdltReturnRecordRequestSpec extends AnyFreeSpec with Matchers {
 
-
-
   "SdltReturnRecordRequest" - {
     "should serialize to JSON" in {
       val formatter = SdltReturnRecordRequest.format
-      val returnRequest = SdltReturnRecordRequest("storn", Some("status"), true, Some("pageType"),Some("pageNumber"))
+      val returnRequest = SdltReturnRecordRequest(
+        "storn",
+        Some("status"),
+        true,
+        Some("pageType"),
+        Some("pageNumber")
+      )
 
       val json = formatter.writes(returnRequest)
 
@@ -53,7 +57,13 @@ class SdltReturnRecordRequestSpec extends AnyFreeSpec with Matchers {
 
       val returnRequest = Json.parse(json).as[SdltReturnRecordRequest]
 
-      returnRequest mustBe SdltReturnRecordRequest("storn", Some("status"), true, Some("pageType"),Some("pageNumber"))
+      returnRequest mustBe SdltReturnRecordRequest(
+        "storn",
+        Some("status"),
+        true,
+        Some("pageType"),
+        Some("pageNumber")
+      )
     }
   }
 }

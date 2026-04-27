@@ -17,54 +17,63 @@
 package models.manage
 
 import config.FrontendAppConfig
-import controllers.manage.routes.{DueForDeletionReturnsController, InProgressReturnsController, SubmittedReturnsController}
+import controllers.manage.routes.{
+  DueForDeletionReturnsController,
+  InProgressReturnsController,
+  SubmittedReturnsController
+}
 import models.responses.*
-import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
+import viewmodels.manage.{
+  AgentDetailsViewModel,
+  FeedbackViewModel,
+  HelpAndContactViewModel,
+  ReturnsManagementViewModel
+}
 
 case class AtAGlanceViewModel(
-                               storn: String,
-                               returns: ReturnsManagementViewModel,
-                               agentDetails: AgentDetailsViewModel,
-                               helpAndContact: HelpAndContactViewModel,
-                               feedback: FeedbackViewModel
-                             )
+    storn: String,
+    returns: ReturnsManagementViewModel,
+    agentDetails: AgentDetailsViewModel,
+    helpAndContact: HelpAndContactViewModel,
+    feedback: FeedbackViewModel
+)
 
 object AtAGlanceViewModel {
 
-  def apply(inProgressReturns: SdltInProgressReturnViewModel,
-            submittedReturns: SdltSubmittedReturnViewModel,
-            dueForDeletionReturnsTotal: Int,
-            agentsCount: Int,
-            storn: String)
-           (implicit appConfig: FrontendAppConfig): AtAGlanceViewModel =
+  def apply(
+      inProgressReturns: SdltInProgressReturnViewModel,
+      submittedReturns: SdltSubmittedReturnViewModel,
+      dueForDeletionReturnsTotal: Int,
+      agentsCount: Int,
+      storn: String
+  )(implicit appConfig: FrontendAppConfig): AtAGlanceViewModel =
     AtAGlanceViewModel(
       storn = storn,
-      returns =
-        ReturnsManagementViewModel(
-          inProgressReturnsCount = inProgressReturns.totalRowCount,
-          inProgressReturnsUrl = InProgressReturnsController.onPageLoad(Some(1)).url,
-          submittedReturnsCount = submittedReturns.totalRowCount,
-          submittedReturnsUrl = SubmittedReturnsController.onPageLoad(Some(1)).url,
-          dueForDeletionReturnsCount = dueForDeletionReturnsTotal,
-          dueForDeletionUrl = DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
-          startReturnUrl = appConfig.startNewReturnUrl
-        ),
-      agentDetails =
-        AgentDetailsViewModel(
-          agentsCount = agentsCount,
-          agentsUrl = appConfig.agentOverviewUrl,
-          addAgentUrl = appConfig.startAddAgentUrl
-        ),
-      helpAndContact =
-        HelpAndContactViewModel(
-          helpUrl = "#",
-          contactUrl = "#",
-          howToPayUrl = appConfig.howToPayUrl,
-          usefulLinksUrl = "#"
-        ),
-      feedback =
-        FeedbackViewModel(
-          feedbackUrl = appConfig.exitSurveyUrl
-        )
+      returns = ReturnsManagementViewModel(
+        inProgressReturnsCount = inProgressReturns.totalRowCount,
+        inProgressReturnsUrl =
+          InProgressReturnsController.onPageLoad(Some(1)).url,
+        submittedReturnsCount = submittedReturns.totalRowCount,
+        submittedReturnsUrl =
+          SubmittedReturnsController.onPageLoad(Some(1)).url,
+        dueForDeletionReturnsCount = dueForDeletionReturnsTotal,
+        dueForDeletionUrl =
+          DueForDeletionReturnsController.onPageLoad(Some(1), Some(1)).url,
+        startReturnUrl = appConfig.startNewReturnUrl
+      ),
+      agentDetails = AgentDetailsViewModel(
+        agentsCount = agentsCount,
+        agentsUrl = appConfig.agentOverviewUrl,
+        addAgentUrl = appConfig.startAddAgentUrl
+      ),
+      helpAndContact = HelpAndContactViewModel(
+        helpUrl = "#",
+        contactUrl = "#",
+        howToPayUrl = appConfig.howToPayUrl,
+        usefulLinksUrl = "#"
+      ),
+      feedback = FeedbackViewModel(
+        feedbackUrl = appConfig.exitSurveyUrl
+      )
     )
 }

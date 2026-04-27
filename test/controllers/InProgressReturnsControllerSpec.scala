@@ -18,8 +18,15 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION}
-import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow, UniversalStatus}
+import models.SdltReturnTypes.{
+  IN_PROGRESS_RETURNS,
+  IN_PROGRESS_RETURNS_DUE_FOR_DELETION
+}
+import models.responses.{
+  SdltInProgressReturnViewModel,
+  SdltReturnViewRow,
+  UniversalStatus
+}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
@@ -38,23 +45,27 @@ import scala.concurrent.Future
 
 class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
 
-  val outOfScopePageIndex: Int = Gen.oneOf[Int](-1, -100, 9, 100, 200).sample.toList.take(1).head
+  val outOfScopePageIndex: Int =
+    Gen.oneOf[Int](-1, -100, 9, 100, 200).sample.toList.take(1).head
 
   trait Fixture extends PaginationHelper {
     val rowsPerPage: Int = 10
 
     val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
 
-    val application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-      .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
-      .build()
+    val application: Application =
+      applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
+        .build()
 
     val expectedEmptyData: List[SdltReturnViewRow] = List[SdltReturnViewRow]()
-    val viewModelNoRows: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
-      extractType = IN_PROGRESS_RETURNS,
-      rows = expectedEmptyData,
-      totalRowCount = expectedEmptyData.length,
-      selectedPageIndex = 1)
+    val viewModelNoRows: SdltInProgressReturnViewModel =
+      SdltInProgressReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
+        rows = expectedEmptyData,
+        totalRowCount = expectedEmptyData.length,
+        selectedPageIndex = 1
+      )
 
     val expectedDataPaginationOff: List[SdltReturnViewRow] =
       (0 to 7).toList.map(index =>
@@ -68,11 +79,13 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-    val viewModelPaginationOff: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
-      extractType = IN_PROGRESS_RETURNS,
-      rows = expectedDataPaginationOff,
-      totalRowCount = expectedDataPaginationOff.length,
-      selectedPageIndex = 1)
+    val viewModelPaginationOff: SdltInProgressReturnViewModel =
+      SdltInProgressReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
+        rows = expectedDataPaginationOff,
+        totalRowCount = expectedDataPaginationOff.length,
+        selectedPageIndex = 1
+      )
 
     val expectedDataPaginationOn: List[SdltReturnViewRow] =
       (0 to 17).toList.map(index =>
@@ -86,49 +99,74 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-    val viewModelPaginationOn: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
-      extractType = IN_PROGRESS_RETURNS,
-      rows = expectedDataPaginationOn,
-      totalRowCount = expectedDataPaginationOn.length,
-      selectedPageIndex = 1)
+    val viewModelPaginationOn: SdltInProgressReturnViewModel =
+      SdltInProgressReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
+        rows = expectedDataPaginationOn,
+        totalRowCount = expectedDataPaginationOn.length,
+        selectedPageIndex = 1
+      )
 
-    val viewModelPaginationOnPage1: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
-      extractType = IN_PROGRESS_RETURNS,
-      rows = expectedDataPaginationOn.take(rowsPerPage),
-      totalRowCount = expectedDataPaginationOn.length,
-      selectedPageIndex = 1)
+    val viewModelPaginationOnPage1: SdltInProgressReturnViewModel =
+      SdltInProgressReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
+        rows = expectedDataPaginationOn.take(rowsPerPage),
+        totalRowCount = expectedDataPaginationOn.length,
+        selectedPageIndex = 1
+      )
 
-    val viewModelPaginationOnPage2: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
-      extractType = IN_PROGRESS_RETURNS,
-      rows = expectedDataPaginationOn.takeRight(7),
-      totalRowCount = expectedDataPaginationOn.length,
-      selectedPageIndex = 1)
+    val viewModelPaginationOnPage2: SdltInProgressReturnViewModel =
+      SdltInProgressReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS,
+        rows = expectedDataPaginationOn.takeRight(7),
+        totalRowCount = expectedDataPaginationOn.length,
+        selectedPageIndex = 1
+      )
 
-    val urlSelector: Int => String = (selectedPageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(selectedPageIndex)).url
+    val urlSelector: Int => String = (selectedPageIndex: Int) =>
+      controllers.manage.routes.InProgressReturnsController
+        .onPageLoad(Some(selectedPageIndex))
+        .url
   }
 
   "InProgress Returns Controller " - {
     "return OK for GET:: show empty screen" in new Fixture {
-      val viewModel: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
-        extractType = IN_PROGRESS_RETURNS,
-        rows = List.empty,
-        totalRowCount = 0,
-        selectedPageIndex = 1)
+      val viewModel: SdltInProgressReturnViewModel =
+        SdltInProgressReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS,
+          rows = List.empty,
+          totalRowCount = 0,
+          selectedPageIndex = 1
+        )
 
-      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
+      when(
+        mockService.getReturnsByTypeViewModel(any(), any(), any())(
+          any[HeaderCarrier]
+        )
+      )
         .thenReturn(Future.successful(viewModelNoRows))
 
       running(application) {
 
-        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
+        val request = FakeRequest(
+          GET,
+          manage.routes.InProgressReturnsController.onPageLoad(None).url
+        )
 
         val result = route(application, request).value
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel)(
+          request,
+          messages(application)
+        ).toString
 
-        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getReturnsByTypeViewModel(
+          any(),
+          any(),
+          any()
+        )(any[HeaderCarrier])
       }
     }
 
@@ -145,62 +183,96 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-      val viewModelPaginationOff2: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
-        extractType = IN_PROGRESS_RETURNS,
-        rows = actualDataPaginationOff,
-        totalRowCount = actualDataPaginationOff.length,
-        selectedPageIndex = 1)
+      val viewModelPaginationOff2: SdltInProgressReturnViewModel =
+        SdltInProgressReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS,
+          rows = actualDataPaginationOff,
+          totalRowCount = actualDataPaginationOff.length,
+          selectedPageIndex = 1
+        )
 
-      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
+      when(
+        mockService.getReturnsByTypeViewModel(any(), any(), any())(
+          any[HeaderCarrier]
+        )
+      )
         .thenReturn(Future.successful(viewModelPaginationOff))
 
       running(application) {
 
-        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
+        val request = FakeRequest(
+          GET,
+          manage.routes.InProgressReturnsController.onPageLoad(None).url
+        )
 
         val result = route(application, request).value
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModelPaginationOff2)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModelPaginationOff2)(
+          request,
+          messages(application)
+        ).toString
 
-        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getReturnsByTypeViewModel(
+          any(),
+          any(),
+          any()
+        )(any[HeaderCarrier])
       }
     }
 
     "return OK for GET:: more than 10 rows:: pagination ON :: page 1" in new Fixture {
       val actualDataPaginationOn: List[SdltReturnViewRow] =
-        (0 to 17).toList.map(index =>
-          SdltReturnViewRow(
-            address = s"$index Riverside Drive",
-            agentReference = "B4C72F7T3",
-            purchaserName = "Brown",
-            status = UniversalStatus.ACCEPTED,
-            utrn = "",
-            redirectUrl = "#"
+        (0 to 17).toList
+          .map(index =>
+            SdltReturnViewRow(
+              address = s"$index Riverside Drive",
+              agentReference = "B4C72F7T3",
+              purchaserName = "Brown",
+              status = UniversalStatus.ACCEPTED,
+              utrn = "",
+              redirectUrl = "#"
+            )
           )
-        ).take(rowsPerPage)
+          .take(rowsPerPage)
 
-      val viewModelPaginationOn2: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
-        extractType = IN_PROGRESS_RETURNS,
-        rows = actualDataPaginationOn.take(rowsPerPage),
-        totalRowCount = rowsPerPage,
-        selectedPageIndex = 1)
+      val viewModelPaginationOn2: SdltInProgressReturnViewModel =
+        SdltInProgressReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS,
+          rows = actualDataPaginationOn.take(rowsPerPage),
+          totalRowCount = rowsPerPage,
+          selectedPageIndex = 1
+        )
 
-      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
+      when(
+        mockService.getReturnsByTypeViewModel(any(), any(), any())(
+          any[HeaderCarrier]
+        )
+      )
         .thenReturn(Future.successful(viewModelPaginationOn2))
 
       running(application) {
 
-        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
+        val request = FakeRequest(
+          GET,
+          manage.routes.InProgressReturnsController.onPageLoad(None).url
+        )
 
         val result = route(application, request).value
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModelPaginationOn2)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModelPaginationOn2)(
+          request,
+          messages(application)
+        ).toString
 
-        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getReturnsByTypeViewModel(
+          any(),
+          any(),
+          any()
+        )(any[HeaderCarrier])
 
       }
     }
@@ -227,20 +299,36 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
         selectedPageIndex = selectedPageIndex
       )
 
-      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
+      when(
+        mockService.getReturnsByTypeViewModel(any(), any(), any())(
+          any[HeaderCarrier]
+        )
+      )
         .thenReturn(Future.successful(viewModel))
 
       running(application) {
 
-        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url + s"?index=$selectedPageIndex")
+        val request = FakeRequest(
+          GET,
+          manage.routes.InProgressReturnsController
+            .onPageLoad(None)
+            .url + s"?index=$selectedPageIndex"
+        )
 
         val result = route(application, request).value
         val view = application.injector.instanceOf[InProgressReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel)(
+          request,
+          messages(application)
+        ).toString
 
-        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getReturnsByTypeViewModel(
+          any(),
+          any(),
+          any()
+        )(any[HeaderCarrier])
       }
 
     }
@@ -259,39 +347,64 @@ class InProgressReturnsControllerSpec extends SpecBase with MockitoSugar {
           )
         )
       }
-      val viewModelActual: SdltInProgressReturnViewModel = SdltInProgressReturnViewModel(
-        extractType = IN_PROGRESS_RETURNS,
-        rows = actualDataPaginationOn,
-        totalRowCount = actualDataPaginationOn.length,
-        selectedPageIndex = 1
-      )
+      val viewModelActual: SdltInProgressReturnViewModel =
+        SdltInProgressReturnViewModel(
+          extractType = IN_PROGRESS_RETURNS,
+          rows = actualDataPaginationOn,
+          totalRowCount = actualDataPaginationOn.length,
+          selectedPageIndex = 1
+        )
 
-      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
+      when(
+        mockService.getReturnsByTypeViewModel(any(), any(), any())(
+          any[HeaderCarrier]
+        )
+      )
         .thenReturn(Future.successful(viewModelActual))
 
       running(application) {
 
-        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url + s"?index=$outOfScopePageIndex")
+        val request = FakeRequest(
+          GET,
+          manage.routes.InProgressReturnsController
+            .onPageLoad(None)
+            .url + s"?index=$outOfScopePageIndex"
+        )
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe "/stamp-duty-land-tax-management/there-is-a-problem"
+        redirectLocation(
+          result
+        ).value mustBe "/stamp-duty-land-tax-management/there-is-a-problem"
 
-        verify(mockService, times(1)).getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier])
+        verify(mockService, times(1)).getReturnsByTypeViewModel(
+          any(),
+          any(),
+          any()
+        )(any[HeaderCarrier])
       }
 
     }
 
     // error case #1
     "return SEE_OTHER on GET :: service level error" in new Fixture {
-      when(mockService.getReturnsByTypeViewModel(any(), any(), any())(any[HeaderCarrier]))
+      when(
+        mockService.getReturnsByTypeViewModel(any(), any(), any())(
+          any[HeaderCarrier]
+        )
+      )
         .thenReturn(Future.failed(new RuntimeException("boom")))
       running(application) {
-        val request = FakeRequest(GET, manage.routes.InProgressReturnsController.onPageLoad(None).url)
+        val request = FakeRequest(
+          GET,
+          manage.routes.InProgressReturnsController.onPageLoad(None).url
+        )
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.SystemErrorController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.SystemErrorController
+          .onPageLoad()
+          .url
       }
     }
   }

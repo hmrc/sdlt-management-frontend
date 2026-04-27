@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.test.Helpers.running
 import views.html.components.H2
 
-class H2Spec extends SpecBase with Matchers{
+class H2Spec extends SpecBase with Matchers {
 
   "H2 component" - {
     "render  <h2> text with default class" in new Setup {
@@ -55,21 +55,20 @@ class H2Spec extends SpecBase with Matchers{
     }
   }
 
-
   trait Setup {
 
     val app: Application = applicationBuilder(userAnswers = None).build()
 
     val view: H2 = views.html.components.H2()
 
-    val message:String = "message"
+    val message: String = "message"
     val defaultClass: String = "govuk-heading-m"
 
     def content(
-               msg:String = message,
-               classes:String = defaultClass,
-               id:Option[String] = None
-               ):Document = {
+        msg: String = message,
+        classes: String = defaultClass,
+        id: Option[String] = None
+    ): Document = {
       Jsoup.parse(
         view(
           msg = msg,
@@ -83,4 +82,3 @@ class H2Spec extends SpecBase with Matchers{
   }
 
 }
-

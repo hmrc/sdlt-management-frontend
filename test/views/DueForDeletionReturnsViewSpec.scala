@@ -18,9 +18,17 @@ package views
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
+import models.SdltReturnTypes.{
+  IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+  SUBMITTED_RETURNS_DUE_FOR_DELETION
+}
 import models.responses.UniversalStatus.{ACCEPTED, SUBMITTED}
-import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
+import models.responses.{
+  SdltDueForDeletionReturnViewModel,
+  SdltInProgressDueForDeletionReturnViewModel,
+  SdltReturnViewRow,
+  SdltSubmittedDueForDeletionReturnViewModel
+}
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -34,7 +42,7 @@ import utils.PaginationHelper
 import views.html.manage.DueForDeletionReturnsView
 
 class DueForDeletionReturnsViewSpec
-  extends SpecBase
+    extends SpecBase
     with GuiceOneAppPerSuite
     with MockitoSugar {
 
@@ -89,29 +97,43 @@ class DueForDeletionReturnsViewSpec
       }
 
     val emptyInProgress =
-      SdltInProgressDueForDeletionReturnViewModel(extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
+      SdltInProgressDueForDeletionReturnViewModel(
+        extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+        rows = List.empty,
+        totalRowCount = 0
+      )
     val emptySubmitted =
-      SdltSubmittedDueForDeletionReturnViewModel(extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION, rows = List.empty, totalRowCount = 0)
+      SdltSubmittedDueForDeletionReturnViewModel(
+        extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+        rows = List.empty,
+        totalRowCount = 0
+      )
 
     lazy val app: Application = new GuiceApplicationBuilder().build()
 
     implicit val appConfig: FrontendAppConfig =
       app.injector.instanceOf[FrontendAppConfig]
 
-    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+    implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] =
+      FakeRequest()
 
-    implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    implicit lazy val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
+    implicit lazy val messagesApi: MessagesApi =
+      app.injector.instanceOf[MessagesApi]
+    implicit lazy val messages: Messages =
+      MessagesImpl(Lang.defaultLang, messagesApi)
 
-    val view: DueForDeletionReturnsView = app.injector.instanceOf[DueForDeletionReturnsView]
+    val view: DueForDeletionReturnsView =
+      app.injector.instanceOf[DueForDeletionReturnsView]
 
     def parseHtml(html: Html) = Jsoup.parse(html.toString)
 
     val inProgressUrlSelector: Int => String =
-      (pageIndex: Int) => s"/manage/due-for-deletion?inProgressPage=$pageIndex#in-progress-returns"
+      (pageIndex: Int) =>
+        s"/manage/due-for-deletion?inProgressPage=$pageIndex#in-progress-returns"
 
     val submittedUrlSelector: Int => String =
-      (pageIndex: Int) => s"/manage/due-for-deletion?submittedPage=$pageIndex#submitted-returns"
+      (pageIndex: Int) =>
+        s"/manage/due-for-deletion?submittedPage=$pageIndex#submitted-returns"
   }
 
   "DueForDeletionReturnsView" - {
@@ -121,12 +143,14 @@ class DueForDeletionReturnsViewSpec
         SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = nonPaginatedInProgressRows,
-          1)
+          1
+        )
       val submittedVm =
         SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = nonPaginatedSubmittedRows,
-          1)
+          1
+        )
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
         submittedSelectedPageIndex = Some(1),
@@ -135,9 +159,11 @@ class DueForDeletionReturnsViewSpec
       )
 
       val html = view(viewModel, appConfig.startNewReturnUrl)
-      val doc  = parseHtml(html)
+      val doc = parseHtml(html)
 
-      doc.title() must include(messages("manageReturns.dueDeletionReturns.title"))
+      doc.title() must include(
+        messages("manageReturns.dueDeletionReturns.title")
+      )
 
       val heading = doc.select("h1.govuk-heading-l")
       heading.size() mustBe 1
@@ -145,7 +171,9 @@ class DueForDeletionReturnsViewSpec
 
       val caption = doc.select(".govuk-caption-l")
       caption.size() mustBe 1
-      caption.text() must include(messages("manageReturns.dueDeletionReturns.caption"))
+      caption.text() must include(
+        messages("manageReturns.dueDeletionReturns.caption")
+      )
     }
 
     "render both empty in-progress and submitted lists" in new Setup {
@@ -167,18 +195,22 @@ class DueForDeletionReturnsViewSpec
       )
 
       val link = doc.select("a.govuk-link")
-      link.text() must include(messages("manage.submittedReturnsOverview.noReturns.link"))
+      link.text() must include(
+        messages("manage.submittedReturnsOverview.noReturns.link")
+      )
     }
 
     "render both non paginated in-progress and submitted lists" in new Setup {
       val inProgressVm = SdltInProgressDueForDeletionReturnViewModel(
-          extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
-          rows = nonPaginatedInProgressRows,
-          1)
+        extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
+        rows = nonPaginatedInProgressRows,
+        1
+      )
       val submittedVm = SdltSubmittedDueForDeletionReturnViewModel(
-          extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
-          rows = nonPaginatedSubmittedRows,
-          1)
+        extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
+        rows = nonPaginatedSubmittedRows,
+        1
+      )
 
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
@@ -195,8 +227,12 @@ class DueForDeletionReturnsViewSpec
       val tabLabels = doc.select(".govuk-tabs__tab")
       tabLabels.size() mustBe 2
 
-      tabLabels.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
-      tabLabels.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+      tabLabels.get(0).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.heading"
+      )
+      tabLabels.get(1).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.heading"
+      )
 
       doc.select("#in-progress table.govuk-table").size() mustBe 1
 
@@ -213,12 +249,14 @@ class DueForDeletionReturnsViewSpec
       val inProgressVm = SdltInProgressDueForDeletionReturnViewModel(
         extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
         rows = paginatedInProgressRows,
-        totalRowCount = paginatedInProgressRows.length)
+        totalRowCount = paginatedInProgressRows.length
+      )
 
       val submittedVm = SdltSubmittedDueForDeletionReturnViewModel(
         extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
         rows = paginatedSubmittedRows,
-        totalRowCount = paginatedSubmittedRows.length)
+        totalRowCount = paginatedSubmittedRows.length
+      )
 
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
@@ -235,8 +273,12 @@ class DueForDeletionReturnsViewSpec
       val tabLabels = doc.select(".govuk-tabs__tab")
       tabLabels.size() mustBe 2
 
-      tabLabels.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
-      tabLabels.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+      tabLabels.get(0).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.heading"
+      )
+      tabLabels.get(1).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.heading"
+      )
 
       doc.select("#in-progress table.govuk-table").size() mustBe 1
 
@@ -246,7 +288,10 @@ class DueForDeletionReturnsViewSpec
       val paginationInfo = doc.select("p.govuk-body")
 
       paginationPages.size() mustBe 6
-      paginationInfo.text().split("Showing 1 to 10 of 23 records").length - 1 mustBe 2
+      paginationInfo
+        .text()
+        .split("Showing 1 to 10 of 23 records")
+        .length - 1 mustBe 2
 
     }
 
@@ -255,7 +300,8 @@ class DueForDeletionReturnsViewSpec
         SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = nonPaginatedInProgressRows,
-          1)
+          1
+        )
 
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
@@ -271,18 +317,28 @@ class DueForDeletionReturnsViewSpec
 
       val tabLabels = doc.select(".govuk-tabs__tab")
       tabLabels.size() mustBe 1
-      tabLabels.first().text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
+      tabLabels.first().text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.heading"
+      )
 
       val inProgressHeaders =
-        doc.select("#in-progress")
-          .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
+        doc
+          .select("#in-progress")
+          .select(
+            "thead.govuk-table__head tr.govuk-table__row th.govuk-table__header"
+          )
 
       inProgressHeaders.size() mustBe 2
-      inProgressHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.purchaser")
-      inProgressHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.address")
+      inProgressHeaders.get(0).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.purchaser"
+      )
+      inProgressHeaders.get(1).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.address"
+      )
 
       val inProgressRowsEls =
-        doc.select("#in-progress")
+        doc
+          .select("#in-progress")
           .select("tbody.govuk-table__body tr.govuk-table__row")
 
       inProgressRowsEls.size() mustBe nonPaginatedInProgressRows.size
@@ -295,7 +351,8 @@ class DueForDeletionReturnsViewSpec
         SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = nonPaginatedSubmittedRows,
-          1)
+          1
+        )
 
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
@@ -311,19 +368,31 @@ class DueForDeletionReturnsViewSpec
 
       val tabLabels = doc.select(".govuk-tabs__tab")
       tabLabels.size() mustBe 1
-      tabLabels.first().text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+      tabLabels.first().text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.heading"
+      )
 
       val submittedHeaders =
-        doc.select("#submitted")
-          .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
+        doc
+          .select("#submitted")
+          .select(
+            "thead.govuk-table__head tr.govuk-table__row th.govuk-table__header"
+          )
 
       submittedHeaders.size() mustBe 3
-      submittedHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.purchaser")
-      submittedHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.address")
-      submittedHeaders.get(2).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.utrn")
+      submittedHeaders.get(0).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.purchaser"
+      )
+      submittedHeaders.get(1).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.address"
+      )
+      submittedHeaders.get(2).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.utrn"
+      )
 
       val submittedRowsEls =
-        doc.select("#submitted")
+        doc
+          .select("#submitted")
           .select("tbody.govuk-table__body tr.govuk-table__row")
 
       submittedRowsEls.size() mustBe nonPaginatedSubmittedRows.size
@@ -336,7 +405,8 @@ class DueForDeletionReturnsViewSpec
         SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = paginatedInProgressRows,
-          totalRowCount = paginatedInProgressRows.length)
+          totalRowCount = paginatedInProgressRows.length
+        )
 
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
@@ -352,18 +422,28 @@ class DueForDeletionReturnsViewSpec
 
       val tabLabels = doc.select(".govuk-tabs__tab")
       tabLabels.size() mustBe 1
-      tabLabels.first().text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
+      tabLabels.first().text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.heading"
+      )
 
       val inProgressHeaders =
-        doc.select("#in-progress")
-          .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
+        doc
+          .select("#in-progress")
+          .select(
+            "thead.govuk-table__head tr.govuk-table__row th.govuk-table__header"
+          )
 
       inProgressHeaders.size() mustBe 2
-      inProgressHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.purchaser")
-      inProgressHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.address")
+      inProgressHeaders.get(0).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.purchaser"
+      )
+      inProgressHeaders.get(1).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.address"
+      )
 
       val inProgressRowsEls =
-        doc.select("#in-progress")
+        doc
+          .select("#in-progress")
           .select("tbody.govuk-table__body tr.govuk-table__row")
 
       inProgressRowsEls.size() mustBe paginatedInProgressRows.size
@@ -382,7 +462,8 @@ class DueForDeletionReturnsViewSpec
         SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = paginatedSubmittedRows,
-          totalRowCount = paginatedSubmittedRows.length)
+          totalRowCount = paginatedSubmittedRows.length
+        )
 
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
@@ -398,19 +479,31 @@ class DueForDeletionReturnsViewSpec
 
       val tabLabels = doc.select(".govuk-tabs__tab")
       tabLabels.size() mustBe 1
-      tabLabels.first().text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+      tabLabels.first().text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.heading"
+      )
 
       val submittedHeaders =
-        doc.select("#submitted")
-          .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
+        doc
+          .select("#submitted")
+          .select(
+            "thead.govuk-table__head tr.govuk-table__row th.govuk-table__header"
+          )
 
       submittedHeaders.size() mustBe 3
-      submittedHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.purchaser")
-      submittedHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.address")
-      submittedHeaders.get(2).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.utrn")
+      submittedHeaders.get(0).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.purchaser"
+      )
+      submittedHeaders.get(1).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.address"
+      )
+      submittedHeaders.get(2).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.utrn"
+      )
 
       val submittedRowsEls =
-        doc.select("#submitted")
+        doc
+          .select("#submitted")
           .select("tbody.govuk-table__body tr.govuk-table__row")
 
       submittedRowsEls.size() mustBe paginatedSubmittedRows.size
@@ -429,13 +522,15 @@ class DueForDeletionReturnsViewSpec
         SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = nonPaginatedInProgressRows,
-          1)
+          1
+        )
 
       val submittedVm =
         SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = paginatedSubmittedRows,
-          totalRowCount = paginatedSubmittedRows.length)
+          totalRowCount = paginatedSubmittedRows.length
+        )
 
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
@@ -452,15 +547,20 @@ class DueForDeletionReturnsViewSpec
       val tabLabels = doc.select(".govuk-tabs__tab")
       tabLabels.size() mustBe 2
 
-      tabLabels.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
-      tabLabels.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+      tabLabels.get(0).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.heading"
+      )
+      tabLabels.get(1).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.heading"
+      )
 
       doc.select("#in-progress table.govuk-table").size() mustBe 1
 
       doc.select("#submitted table.govuk-table").size() mustBe 1
 
       val paginationPages = doc.select("li.govuk-pagination__item")
-      val paginationLabel = doc.select("li.govuk-pagination__item a.govuk-link").get(1)
+      val paginationLabel =
+        doc.select("li.govuk-pagination__item a.govuk-link").get(1)
       val paginationInfo = doc.select("p.govuk-body")
 
       paginationPages.size() mustBe 3
@@ -475,13 +575,15 @@ class DueForDeletionReturnsViewSpec
         SdltInProgressDueForDeletionReturnViewModel(
           extractType = IN_PROGRESS_RETURNS_DUE_FOR_DELETION,
           rows = paginatedInProgressRows,
-          totalRowCount = paginatedInProgressRows.length)
+          totalRowCount = paginatedInProgressRows.length
+        )
 
       val submittedVm =
         SdltSubmittedDueForDeletionReturnViewModel(
           extractType = SUBMITTED_RETURNS_DUE_FOR_DELETION,
           rows = paginatedSubmittedRows,
-          1)
+          1
+        )
 
       val viewModel = SdltDueForDeletionReturnViewModel(
         inProgressSelectedPageIndex = Some(1),
@@ -498,15 +600,20 @@ class DueForDeletionReturnsViewSpec
       val tabLabels = doc.select(".govuk-tabs__tab")
       tabLabels.size() mustBe 2
 
-      tabLabels.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.heading")
-      tabLabels.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.heading")
+      tabLabels.get(0).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.inProgressTab.heading"
+      )
+      tabLabels.get(1).text() mustBe messages(
+        "manageReturns.dueDeletionReturns.submittedTab.heading"
+      )
 
       doc.select("#in-progress table.govuk-table").size() mustBe 1
 
       doc.select("#submitted table.govuk-table").size() mustBe 1
 
       val paginationPages = doc.select("li.govuk-pagination__item")
-      val paginationLabel = doc.select("li.govuk-pagination__item a.govuk-link").get(1)
+      val paginationLabel =
+        doc.select("li.govuk-pagination__item a.govuk-link").get(1)
       val paginationInfo = doc.select("p.govuk-body")
 
       paginationPages.size() mustBe 3
@@ -514,7 +621,7 @@ class DueForDeletionReturnsViewSpec
       paginationLabel.attr("href") mustNot include("submittedIndex=2")
 
       paginationInfo.text() must include("Showing 1 to 10 of 23 records")
-      
+
     }
   }
 }

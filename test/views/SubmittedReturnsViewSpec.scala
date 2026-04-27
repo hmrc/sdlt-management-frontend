@@ -36,7 +36,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
 class SubmittedReturnsViewSpec
-  extends SpecBase
+    extends SpecBase
     with GuiceOneAppPerSuite
     with MockitoSugar {
 
@@ -54,24 +54,24 @@ class SubmittedReturnsViewSpec
     val paginatedData: List[SdltReturnViewRow] =
       (0 to 17).toList.map(i =>
         SdltReturnViewRow(
-          address        = s"$i Riverside Drive",
-          utrn           = s"UTRN-$i",
-          purchaserName  = s"Buyer-$i",
-          status         = SUBMITTED,
+          address = s"$i Riverside Drive",
+          utrn = s"UTRN-$i",
+          purchaserName = s"Buyer-$i",
+          status = SUBMITTED,
           agentReference = "Agent",
-          redirectUrl    = "#"
+          redirectUrl = "#"
         )
       )
 
     val nonPaginatedData: List[SdltReturnViewRow] =
       (0 to 7).toList.map(i =>
         SdltReturnViewRow(
-          address        = s"$i Riverside Drive",
-          utrn           = s"UTRN-$i",
-          purchaserName  = s"Buyer-$i",
-          status         = SUBMITTED_NO_RECEIPT,
+          address = s"$i Riverside Drive",
+          utrn = s"UTRN-$i",
+          purchaserName = s"Buyer-$i",
+          status = SUBMITTED_NO_RECEIPT,
           agentReference = "Agent",
-          redirectUrl    = "#"
+          redirectUrl = "#"
         )
       )
 
@@ -96,9 +96,11 @@ class SubmittedReturnsViewSpec
 
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
     implicit val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    implicit val messages: Messages = MessagesImpl(Lang.defaultLang, messagesApi)
+    implicit val messages: Messages =
+      MessagesImpl(Lang.defaultLang, messagesApi)
 
-    val view: SubmittedReturnsView = app.injector.instanceOf[SubmittedReturnsView]
+    val view: SubmittedReturnsView =
+      app.injector.instanceOf[SubmittedReturnsView]
 
     def htmlDoc(html: Html): Document = Jsoup.parse(html.toString)
   }
@@ -110,13 +112,16 @@ class SubmittedReturnsViewSpec
       val doc = htmlDoc(html)
 
       val heading = doc.select("h1.govuk-heading-l")
-      val caption = doc.select("p.hmrc-caption.govuk-caption-l").first().ownText()
+      val caption =
+        doc.select("p.hmrc-caption.govuk-caption-l").first().ownText()
 
       heading.size() mustBe 1
       heading.text() mustBe messages("manage.submittedReturnsOverview.heading")
 
       caption mustBe messages("manage.submittedReturnsOverview.caption")
-      doc.title() must include(messages("manage.submittedReturnsOverview.title"))
+      doc.title() must include(
+        messages("manage.submittedReturnsOverview.title")
+      )
     }
 
     "render the page with description for populated model" in new Setup {
@@ -125,7 +130,9 @@ class SubmittedReturnsViewSpec
 
       val description = doc.select("p.govuk-body")
 
-      description.text() must include(messages("manage.submittedReturnsOverview.nonZeroReturns.info"))
+      description.text() must include(
+        messages("manage.submittedReturnsOverview.nonZeroReturns.info")
+      )
     }
 
     "render the page with description for empty model" in new Setup {
@@ -135,8 +142,12 @@ class SubmittedReturnsViewSpec
       val description = doc.select("p.govuk-body")
       val link = doc.select("p.govuk-body a.govuk-link")
 
-      description.text() must include(messages("manage.submittedReturnsOverview.noReturns.info"))
-      link.text() must include(messages("manage.submittedReturnsOverview.noReturns.link"))
+      description.text() must include(
+        messages("manage.submittedReturnsOverview.noReturns.info")
+      )
+      link.text() must include(
+        messages("manage.submittedReturnsOverview.noReturns.link")
+      )
     }
 
     "must render headers correctly" in new Setup {
@@ -148,12 +159,20 @@ class SubmittedReturnsViewSpec
       val doc: Document = htmlDoc(html)
 
       val headers: Elements =
-        doc.select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
+        doc.select(
+          "thead.govuk-table__head tr.govuk-table__row th.govuk-table__header"
+        )
 
       headers.size() mustBe 3
-      headers.get(0).text() mustBe messages("manage.submittedReturnsOverview.summary.purchaser")
-      headers.get(1).text() mustBe messages("manage.submittedReturnsOverview.summary.address")
-      headers.get(2).text() mustBe messages("manage.submittedReturnsOverview.summary.utrn")
+      headers.get(0).text() mustBe messages(
+        "manage.submittedReturnsOverview.summary.purchaser"
+      )
+      headers.get(1).text() mustBe messages(
+        "manage.submittedReturnsOverview.summary.address"
+      )
+      headers.get(2).text() mustBe messages(
+        "manage.submittedReturnsOverview.summary.utrn"
+      )
     }
 
     "render the page with paginated submitted returns and pagination info" in new Setup {
@@ -163,7 +182,6 @@ class SubmittedReturnsViewSpec
       val returns = doc.select("td.govuk-table__cell")
       val paginationPages = doc.select("li.govuk-pagination__item")
       val paginationInfo = doc.select("p.govuk-body")
-
 
       paginationPages.size() mustBe 2
       paginationInfo.text() must include("Showing 1 to 10 of 18 records")
@@ -179,7 +197,6 @@ class SubmittedReturnsViewSpec
       val returns = doc.select("td.govuk-table__cell")
       val paginationPages = doc.select("li.govuk-pagination__item")
       val paginationInfo = doc.select("p.govuk-body")
-
 
       paginationPages.size() mustBe 0
       paginationInfo.text() must include("")
