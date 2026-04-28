@@ -16,7 +16,14 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalTo, get, post, stubFor, urlPathEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{
+  aResponse,
+  equalTo,
+  get,
+  post,
+  stubFor,
+  urlPathEqualTo
+}
 import itutil.ApplicationWithWiremock
 import models.UserAnswers
 import models.manage.{SdltReturnRecordRequest, SdltReturnRecordResponse}
@@ -29,11 +36,12 @@ import play.api.test.FakeRequest
 import play.api.http.Status.*
 import uk.gov.hmrc.http.HeaderCarrier
 
-class StampDutyLandTaxConnectorISpec extends AnyWordSpec
-  with Matchers
-  with ScalaFutures
-  with IntegrationPatience
-  with ApplicationWithWiremock {
+class StampDutyLandTaxConnectorISpec
+    extends AnyWordSpec
+    with Matchers
+    with ScalaFutures
+    with IntegrationPatience
+    with ApplicationWithWiremock {
 
   private val storn = "STN001"
 
@@ -51,7 +59,8 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
 
   "getSdltOrganisation" should {
 
-    val getSdltOrganisationUrl = s"/stamp-duty-land-tax/manage-agents/get-sdlt-organisation"
+    val getSdltOrganisationUrl =
+      s"/stamp-duty-land-tax/manage-agents/get-sdlt-organisation"
 
     "return SdltOrganisationResponse when BE returns OK with valid JSON" in {
       val validJson =
@@ -86,7 +95,8 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
           )
       )
 
-      val result: SdltOrganisationResponse = connector.getSdltOrganisation.futureValue
+      val result: SdltOrganisationResponse =
+        connector.getSdltOrganisation.futureValue
 
       result.storn mustBe "STN001"
       result.version mustBe Some("1")
@@ -177,7 +187,8 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
         status = Some("PENDING"),
         deletionFlag = false,
         pageType = Some("IN-PROGRESS"),
-        pageNumber = Some("1"))
+        pageNumber = Some("1")
+      )
 
       val result: SdltReturnRecordResponse =
         connector.getReturns(dataRequest).futureValue
@@ -193,7 +204,8 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
         status = Some("PENDING"),
         deletionFlag = false,
         pageType = Some("IN-PROGRESS"),
-        pageNumber = Some("1"))
+        pageNumber = Some("1")
+      )
 
       stubFor(
         post(urlPathEqualTo(getReturnsUrl))
@@ -226,7 +238,8 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
         status = Some("PENDING"),
         deletionFlag = false,
         pageType = Some("IN-PROGRESS"),
-        pageNumber = Some("1"))
+        pageNumber = Some("1")
+      )
 
       val ex = intercept[Exception] {
         connector.getReturns(dataRequest).futureValue
