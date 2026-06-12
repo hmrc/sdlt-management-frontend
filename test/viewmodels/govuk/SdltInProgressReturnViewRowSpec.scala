@@ -119,14 +119,14 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
 
   "Response model conversion" - {
     "empty response return empty list" in {
-      when(appConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(appConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
       val result: List[SdltReturnViewRow] = convertToViewRows(responseWithEmptySummary.returnSummaryList, appConfig)
       result mustBe empty
     }
 
 
     "response with some data return expected view model" in {
-      when(appConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(appConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
       val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS, 1, appConfig)
         .asInstanceOf[SdltInProgressReturnViewModel]
       resultViewModel.rows must contain theSameElementsAs expectedDataRows
