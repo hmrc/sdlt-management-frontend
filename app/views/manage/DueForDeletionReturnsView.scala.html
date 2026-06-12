@@ -39,7 +39,7 @@
     @govukTable(Table(
         rows = viewModel.inProgressViewModel.rows.map { currentRow =>
             Seq(
-                TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#")) ),
+                TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = currentRow.redirectUrl)) ),
                 TableRow(content = Text( currentRow.address ))
             )
         },

@@ -166,12 +166,10 @@ object SdltReturnViewRow  {
   }
   
   def buildRedirectUrl(returnReference:String, status:UniversalStatus, appConfig:FrontendAppConfig):String = {
-    status match  {
-      case STARTED => appConfig.inProgressReturnURL(returnReference)
-      case _ => "#"
+     appConfig.returnTaskListUrl(returnReference)
     }
   }
-}
+
 
 object SdltReturnsViewModel {
   private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)

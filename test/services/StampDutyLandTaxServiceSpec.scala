@@ -53,7 +53,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "merge ACCEPTED and STARTED IN-PROGRESS returns" in {
       val (service, connector) = newService()
 
-      when(appConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(appConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
 
       val acceptedSummary = ReturnSummary(
         returnReference = "001",
@@ -82,7 +82,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           purchaserName  = "Accepted Buyer",
           status         = ACCEPTED,
           utrn           = "UTRN-ACC-001",
-          redirectUrl    = "#"
+          redirectUrl    = "redirectUrl"
         ),
         SdltReturnViewRow(
           address        = "2 Pending Street",
@@ -177,7 +177,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           purchaserName  = "Submitted Buyer",
           status         = SUBMITTED,
           agentReference = "Submitted Agent",
-          redirectUrl    = "#"
+          redirectUrl    = "redirectUrl"
         ),
         SdltReturnViewRow(
           address        = "4 NoReceipt Street",
@@ -185,7 +185,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           purchaserName  = "No Receipt Buyer",
           status         = SUBMITTED_NO_RECEIPT,
           agentReference = "NoReceipt Agent",
-          redirectUrl    = "#"
+          redirectUrl    = "redirectUrl"
         )
       )
 
@@ -269,7 +269,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           purchaserName  = "Delete Buyer",
           address        = "5 Delete Street",
           agentReference = "Delete Agent",
-          redirectUrl    = "#"
+          redirectUrl    = "redirectUrl"
         )
       )
 

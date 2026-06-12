@@ -53,26 +53,17 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
 
   private val mockAppConfig = mock[FrontendAppConfig]
 
-  private val generatedUniversalStatusExceptSTARTED: Gen[UniversalStatus] =
-    Gen.oneOf(VALIDATED, PENDING, ACCEPTED, SUBMITTED, SUBMITTED_NO_RECEIPT, DEPARTMENTAL_ERROR, FATAL_ERROR)
+  private val generatedUniversalStatus: Gen[UniversalStatus] =
+    Gen.oneOf(STARTED, ACCEPTED, VALIDATED, PENDING, SUBMITTED, SUBMITTED_NO_RECEIPT, DEPARTMENTAL_ERROR, FATAL_ERROR)
 
   "SdltReturnViewRow.convertToViewRows" should {
-
-    "build inProgressReturnUrl from returnReference when status is `STARTED`" in {
-      val returnReference: String = "12345"
-      val status: UniversalStatus = STARTED
-
-      when(mockAppConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
-      val result = SdltReturnViewRow.buildRedirectUrl(returnReference, status, mockAppConfig)
-      result mustBe "redirectUrl"
-    }
-    "build `#` as URL from returnReference when Universal Status is not `STARTED`" in {
-      forAll(generatedUniversalStatusExceptSTARTED) {
+    "build `returnTaskListUrl` from returnReference for all Universal Status" in {
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
+      forAll(generatedUniversalStatus) {
         status => {
           val returnReference: String = "12345"
-
           val result = SdltReturnViewRow.buildRedirectUrl(returnReference, status, mockAppConfig)
-          result mustBe "#"
+          result mustBe "redirectUrl"
         }
       }
 
@@ -98,7 +89,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
         )
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
       val rows = SdltReturnViewRow.convertToViewRows(input, mockAppConfig)
 
       rows.size mustBe 2
@@ -108,7 +99,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
       first.address mustBe "1 Example Street"
       first.utrn mustBe "UTRN-001"
       first.agentReference mustBe "Agent One"
-      first.redirectUrl mustBe "#"
+      first.redirectUrl mustBe "redirectUrl"
       first.status mustBe SUBMITTED
 
       val second = rows(1)
@@ -159,7 +150,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
         utrn = "UTRN-SUB-001"
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
 
       val response = SdltReturnRecordResponse(
         returnSummaryCount = 3,
@@ -209,7 +200,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
         returnSummaryList = List(submitted, submittedNoReceipt, started)
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
 
       val result = SdltReturnsViewModel
         .convertToViewModel(response, SUBMITTED_SUBMITTED_RETURNS, 1, mockAppConfig)
@@ -243,7 +234,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
         returnSummaryList = List(submitted, submittedNoReceipt)
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
 
       val result = SdltReturnsViewModel
         .convertToViewModel(response, SUBMITTED_NO_RECEIPT_RETURNS, 1, mockAppConfig)
@@ -279,7 +270,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
         returnSummaryList = List(first, second)
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
 
       val result = SdltReturnsViewModel
         .convertToViewModel(response, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, 1, mockAppConfig)
@@ -323,7 +314,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
         returnSummaryList = List(first, second, third)
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
 
       val result = SdltReturnsViewModel
         .convertToViewModel(response, SUBMITTED_RETURNS_DUE_FOR_DELETION, 1, mockAppConfig)
