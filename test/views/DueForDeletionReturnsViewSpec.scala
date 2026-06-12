@@ -22,6 +22,7 @@ import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_R
 import models.responses.UniversalStatus.{ACCEPTED, SUBMITTED}
 import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltReturnViewRow, SdltSubmittedDueForDeletionReturnViewModel}
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -40,6 +41,8 @@ class DueForDeletionReturnsViewSpec
 
   trait Setup extends PaginationHelper {
 
+    val inProgressReturnRedirectUrl:String = "inProgressRedirectUrl"
+
     val nonPaginatedInProgressRows: List[SdltReturnViewRow] =
       (1 to 3).toList.map { i =>
         SdltReturnViewRow(
@@ -48,7 +51,7 @@ class DueForDeletionReturnsViewSpec
           utrn = "",
           agentReference = "",
           status = ACCEPTED,
-          redirectUrl = "#"
+          redirectUrl = "inProgressRedirectUrl"
         )
       }
 
@@ -72,7 +75,7 @@ class DueForDeletionReturnsViewSpec
           utrn = "",
           agentReference = "",
           status = ACCEPTED,
-          redirectUrl = "#"
+          redirectUrl = "inProgressRedirectUrl"
         )
       }
 
@@ -205,6 +208,10 @@ class DueForDeletionReturnsViewSpec
       val paginationPages = doc.select("li.govuk-pagination__item")
       val paginationInfo = doc.select("p.govuk-body")
 
+      val purchaserLink = doc.select("#in-progress tbody tr").first().select("a.govuk-link").first()
+      purchaserLink.text() mustBe "InProgress Purchaser 1"
+      purchaserLink.attr("href") mustBe "inProgressRedirectUrl"
+
       paginationPages.size() mustBe 0
       paginationInfo.text() mustNot include("Showing 1 to 10 of 23 records")
     }
@@ -245,6 +252,11 @@ class DueForDeletionReturnsViewSpec
       val paginationPages = doc.select("li.govuk-pagination__item")
       val paginationInfo = doc.select("p.govuk-body")
 
+      val purchaserLink = doc.select("#in-progress tbody tr").first().select("a.govuk-link").first()
+
+      purchaserLink.text() mustBe "InProgress Purchaser 1"
+      purchaserLink.attr("href") mustBe "inProgressRedirectUrl"
+
       paginationPages.size() mustBe 6
       paginationInfo.text().split("Showing 1 to 10 of 23 records").length - 1 mustBe 2
 
@@ -284,6 +296,10 @@ class DueForDeletionReturnsViewSpec
       val inProgressRowsEls =
         doc.select("#in-progress")
           .select("tbody.govuk-table__body tr.govuk-table__row")
+
+      val purchaserLink = doc.select("#in-progress tbody tr").first().select("a.govuk-link").first()
+      purchaserLink.text() mustBe "InProgress Purchaser 1"
+      purchaserLink.attr("href") mustBe "inProgressRedirectUrl"
 
       inProgressRowsEls.size() mustBe nonPaginatedInProgressRows.size
 
@@ -372,6 +388,10 @@ class DueForDeletionReturnsViewSpec
 
       val paginationPages = doc.select("li.govuk-pagination__item")
       val paginationInfo = doc.select("p.govuk-body")
+
+      val purchaserLink = doc.select("#in-progress tbody tr").first().select("a.govuk-link").first()
+      purchaserLink.text() mustBe "InProgress Purchaser 1"
+      purchaserLink.attr("href") mustBe "inProgressRedirectUrl"
 
       paginationPages.size() mustBe 3
       paginationInfo.text() must include("Showing 1 to 10 of 23 records")
@@ -463,6 +483,10 @@ class DueForDeletionReturnsViewSpec
       val paginationLabel = doc.select("li.govuk-pagination__item a.govuk-link").get(1)
       val paginationInfo = doc.select("p.govuk-body")
 
+      val purchaserLink = doc.select("#in-progress tbody tr").first().select("a.govuk-link").first()
+      purchaserLink.text() mustBe "InProgress Purchaser 1"
+      purchaserLink.attr("href") mustBe "inProgressRedirectUrl"
+
       paginationPages.size() mustBe 3
       paginationLabel.attr("href") must include("submittedIndex=2")
       paginationLabel.attr("href") mustNot include("inProgressIndex=2")
@@ -508,6 +532,10 @@ class DueForDeletionReturnsViewSpec
       val paginationPages = doc.select("li.govuk-pagination__item")
       val paginationLabel = doc.select("li.govuk-pagination__item a.govuk-link").get(1)
       val paginationInfo = doc.select("p.govuk-body")
+
+      val purchaserLink = doc.select("#in-progress tbody tr").last().select("a.govuk-link").last()
+      purchaserLink.text() mustBe "InProgress Purchaser 23"
+      purchaserLink.attr("href") mustBe "inProgressRedirectUrl"
 
       paginationPages.size() mustBe 3
       paginationLabel.attr("href") must include("inProgressIndex=2")

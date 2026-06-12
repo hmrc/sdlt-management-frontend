@@ -114,7 +114,7 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
 
   val expectedDataRows: List[SdltReturnViewRow] = List(
     SdltReturnViewRow("Address003", "", "Name003", STARTED, utrn = "UTRN003", redirectUrl = "redirectUrl"),
-    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED, utrn = "UTRN005", redirectUrl = "#")
+    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED, utrn = "UTRN005", redirectUrl = "redirectUrl")
   )
 
   "Response model conversion" - {

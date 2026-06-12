@@ -167,7 +167,7 @@ object SdltReturnViewRow  {
   
   def buildRedirectUrl(returnReference:String, status:UniversalStatus, appConfig:FrontendAppConfig):String = {
     status match  {
-      case STARTED => appConfig.inProgressReturnURL(returnReference)
+      case STARTED | ACCEPTED => appConfig.inProgressReturnURL(returnReference)
       case _ => "#"
     }
   }

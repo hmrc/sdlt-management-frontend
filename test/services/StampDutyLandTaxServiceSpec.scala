@@ -82,7 +82,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           purchaserName  = "Accepted Buyer",
           status         = ACCEPTED,
           utrn           = "UTRN-ACC-001",
-          redirectUrl    = "#"
+          redirectUrl    = "redirectUrl"
         ),
         SdltReturnViewRow(
           address        = "2 Pending Street",

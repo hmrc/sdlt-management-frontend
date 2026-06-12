@@ -54,7 +54,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
   private val mockAppConfig = mock[FrontendAppConfig]
 
   private val generatedUniversalStatusExceptSTARTED: Gen[UniversalStatus] =
-    Gen.oneOf(VALIDATED, PENDING, ACCEPTED, SUBMITTED, SUBMITTED_NO_RECEIPT, DEPARTMENTAL_ERROR, FATAL_ERROR)
+    Gen.oneOf(VALIDATED, PENDING, SUBMITTED, SUBMITTED_NO_RECEIPT, DEPARTMENTAL_ERROR, FATAL_ERROR)
 
   "SdltReturnViewRow.convertToViewRows" should {
 
@@ -66,7 +66,15 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
       val result = SdltReturnViewRow.buildRedirectUrl(returnReference, status, mockAppConfig)
       result mustBe "redirectUrl"
     }
-    "build `#` as URL from returnReference when Universal Status is not `STARTED`" in {
+    "build inProgressReturnUrl from returnReference when status is `ACCEPTED`" in {
+      val returnReference: String = "12345"
+      val status: UniversalStatus = ACCEPTED
+
+      when(mockAppConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      val result = SdltReturnViewRow.buildRedirectUrl(returnReference, status, mockAppConfig)
+      result mustBe "redirectUrl"
+    }
+    "build `#` as URL from returnReference when Universal Status is not `STARTED` or `ACCEPTED` " in {
       forAll(generatedUniversalStatusExceptSTARTED) {
         status => {
           val returnReference: String = "12345"
