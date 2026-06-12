@@ -57,7 +57,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val startNewReturnUrl: String =
     s"$filingServiceBaseUrl/stamp-duty-land-tax-filing"
 
-  def inProgressReturnURL(returnReference: String): String =
+  def returnTaskListURL(returnReference: String): String =
     s"$filingServiceBaseUrl/stamp-duty-land-tax-filing/returnTaskList?returnId=$returnReference"
 
   val exitSurveyUrl: String = s"$feedbackFrontend/feedback/stamp-duty-land-tax"

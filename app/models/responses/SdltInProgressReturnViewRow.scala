@@ -221,8 +221,9 @@ object SdltReturnViewRow {
       appConfig: FrontendAppConfig
   ): String = {
     status match {
-      case STARTED => appConfig.inProgressReturnURL(returnReference)
-      case _       => "#"
+      case STARTED | ACCEPTED =>
+        appConfig.returnTaskListURL(returnReference)
+      case _ => "#"
     }
   }
 }

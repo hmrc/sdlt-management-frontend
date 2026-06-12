@@ -71,7 +71,7 @@ class StampDutyLandTaxServiceSpec
     "merge ACCEPTED and STARTED IN-PROGRESS returns" in {
       val (service, connector) = newService()
 
-      when(appConfig.inProgressReturnURL(any[String])).thenReturn("redirectUrl")
+      when(appConfig.returnTaskListURL(any[String])).thenReturn("redirectUrl")
 
       val acceptedSummary = ReturnSummary(
         returnReference = "001",
@@ -100,7 +100,7 @@ class StampDutyLandTaxServiceSpec
           purchaserName = "Accepted Buyer",
           status = ACCEPTED,
           utrn = "UTRN-ACC-001",
-          redirectUrl = "#"
+          redirectUrl = "redirectUrl"
         ),
         SdltReturnViewRow(
           address = "2 Pending Street",

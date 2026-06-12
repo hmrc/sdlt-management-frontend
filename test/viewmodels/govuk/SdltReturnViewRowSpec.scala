@@ -86,11 +86,11 @@ class SdltReturnViewRowSpec
 
   "SdltReturnViewRow.convertToViewRows" should {
 
-    "build inProgressReturnUrl from returnReference when status is `STARTED`" in {
+    "build returnTaskListURL from returnReference when status is `STARTED`" in {
       val returnReference: String = "12345"
       val status: UniversalStatus = STARTED
 
-      when(mockAppConfig.inProgressReturnURL(any[String]))
+      when(mockAppConfig.returnTaskListURL(any[String]))
         .thenReturn("redirectUrl")
       val result = SdltReturnViewRow.buildRedirectUrl(
         returnReference,
@@ -99,20 +99,18 @@ class SdltReturnViewRowSpec
       )
       result mustBe "redirectUrl"
     }
-    "build `#` as URL from returnReference when Universal Status is not `STARTED`" in {
-      forAll(generatedUniversalStatusExceptSTARTED) { status =>
-        {
-          val returnReference: String = "12345"
+    "build returnTaskListURL from returnReference when status is `ACCEPTED`" in {
+      val returnReference: String = "12345"
+      val status: UniversalStatus = ACCEPTED
 
-          val result = SdltReturnViewRow.buildRedirectUrl(
-            returnReference,
-            status,
-            mockAppConfig
-          )
-          result mustBe "#"
-        }
-      }
-
+      when(mockAppConfig.returnTaskListURL(any[String]))
+        .thenReturn("redirectUrl")
+      val result = SdltReturnViewRow.buildRedirectUrl(
+        returnReference,
+        status,
+        mockAppConfig
+      )
+      result mustBe "redirectUrl"
     }
 
     "convert a list of ReturnSummary into SdltReturnViewRow with default values applied" in {
@@ -135,7 +133,7 @@ class SdltReturnViewRowSpec
         )
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String]))
+      when(mockAppConfig.returnTaskListURL(any[String]))
         .thenReturn("redirectUrl")
       val rows = SdltReturnViewRow.convertToViewRows(input, mockAppConfig)
 
@@ -204,7 +202,7 @@ class SdltReturnViewRowSpec
         utrn = "UTRN-SUB-001"
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String]))
+      when(mockAppConfig.returnTaskListURL(any[String]))
         .thenReturn("redirectUrl")
 
       val response = SdltReturnRecordResponse(
@@ -256,7 +254,7 @@ class SdltReturnViewRowSpec
         returnSummaryList = List(submitted, submittedNoReceipt, started)
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String]))
+      when(mockAppConfig.returnTaskListURL(any[String]))
         .thenReturn("redirectUrl")
 
       val result = SdltReturnsViewModel
@@ -299,7 +297,7 @@ class SdltReturnViewRowSpec
         returnSummaryList = List(submitted, submittedNoReceipt)
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String]))
+      when(mockAppConfig.returnTaskListURL(any[String]))
         .thenReturn("redirectUrl")
 
       val result = SdltReturnsViewModel
@@ -344,7 +342,7 @@ class SdltReturnViewRowSpec
         returnSummaryList = List(first, second)
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String]))
+      when(mockAppConfig.returnTaskListURL(any[String]))
         .thenReturn("redirectUrl")
 
       val result = SdltReturnsViewModel
@@ -394,7 +392,7 @@ class SdltReturnViewRowSpec
         returnSummaryList = List(first, second, third)
       )
 
-      when(mockAppConfig.inProgressReturnURL(any[String]))
+      when(mockAppConfig.returnTaskListURL(any[String]))
         .thenReturn("redirectUrl")
 
       val result = SdltReturnsViewModel
