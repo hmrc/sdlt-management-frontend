@@ -34,7 +34,7 @@
     @govukTable(Table(
         rows = viewModel.rows.map{ currentRow =>
             Seq(
-                TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "#") )),
+                TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = "currentRow.redirectUrl") )),
                 TableRow(content = Text( currentRow.address )),
                 TableRow(content = Text( currentRow.utrn ))
             )
