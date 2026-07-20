@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import models.SdltReturnTypes.*
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltInProgressReturnViewModel, SdltReturnViewRow, SdltReturnsViewModel, SdltSubmittedDueForDeletionReturnViewModel, SdltSubmittedReturnViewModel, UniversalStatus}
-import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT, VALIDATED, PENDING,DEPARTMENTAL_ERROR,FATAL_ERROR}
+import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT, VALIDATED, PENDING, DEPARTMENTAL_ERROR, FATAL_ERROR}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalacheck.Gen
@@ -44,7 +44,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
     ReturnSummary(
       returnReference = reference,
       utrn = Some(utrn),
-      status = status,
+      status = Some(status),
       dateSubmitted = Some(LocalDate.parse("2025-10-25")),
       purchaserName = purchaserName,
       address = address,
@@ -121,6 +121,26 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
       rows.size mustBe 1
       rows.head.utrn mustBe "UTRN-001"
     }
+
+    "map a return with no status at all to IN_PROGRESS" in {
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
+
+      val noStatus = ReturnSummary(
+        returnReference = "RET-003",
+        utrn            = None,
+        status          = None,
+        dateSubmitted   = None,
+        purchaserName   = "No Status Buyer",
+        address         = "3 Example Street",
+        agentReference  = None
+      )
+
+      val rows = SdltReturnViewRow.convertToViewRows(List(noStatus), mockAppConfig)
+
+      rows.size mustBe 1
+      rows.head.status mustBe UniversalStatus.IN_PROGRESS
+      rows.head.utrn mustBe ""
+    }
   }
 
   "SdltReturnsViewModel.convertToViewModel for IN_PROGRESS_RETURNS" should {
@@ -165,6 +185,28 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
       result.totalRowCount mustBe 3
       result.rows.map(_.status).toSet mustBe Set(ACCEPTED, STARTED)
       result.rows.exists(_.purchaserName == "Submitted Buyer") mustBe false
+    }
+
+    "keep the errored (DEPARTMENTAL_ERROR / FATAL_ERROR) and no-status rows too" in {
+      val started            = summary("RET-001", "STARTED", "Started Buyer", "1 Street", "UTRN-STA-001")
+      val departmentalError  = summary("RET-002", "DEPARTMENTAL_ERROR", "Dept Error Buyer", "2 Street", "UTRN-DEP-001")
+      val fatalError         = summary("RET-003", "FATAL_ERROR", "Fatal Error Buyer", "3 Street", "UTRN-FAT-001")
+      val submitted          = summary("RET-004", "SUBMITTED", "Submitted Buyer", "4 Street", "UTRN-SUB-001")
+      val noStatus           = ReturnSummary("RET-005", None, None, None, "No Status Buyer", "5 Street", None)
+
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
+
+      val response = SdltReturnRecordResponse(
+        returnSummaryCount = 5,
+        returnSummaryList = List(started, departmentalError, fatalError, submitted, noStatus)
+      )
+
+      val result = SdltReturnsViewModel
+        .convertToViewModel(response, IN_PROGRESS_RETURNS, 1, mockAppConfig)
+        .asInstanceOf[SdltInProgressReturnViewModel]
+
+      result.rows.map(_.status).toSet mustBe Set(STARTED, DEPARTMENTAL_ERROR, FATAL_ERROR, UniversalStatus.IN_PROGRESS)
+      result.rows.exists(_.status == SUBMITTED) mustBe false
     }
   }
 

@@ -33,7 +33,7 @@ object SdltReturnRecordResponse {
 case class ReturnSummary(
                           returnReference : String,             // p_return_infos.return_resource_ref  (NOT optional)
                           utrn            : Option[String],     // p_return_infos.utrn                 (null for IN-PROGRESS)
-                          status          : String,             // p_return_infos.status
+                          status          : Option[String] = None,             // p_return_infos.status
                           dateSubmitted   : Option[LocalDate],  // p_return_infos.submitted_date       (null for IN-PROGRESS)
                           purchaserName   : String,             // p_return_infos.name
                           address         : String,             // p_return_infos.address

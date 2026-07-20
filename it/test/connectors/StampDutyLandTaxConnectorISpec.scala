@@ -184,7 +184,7 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
 
       result.returnSummaryCount mustBe 2
       result.returnSummaryList.length mustBe 2
-      result.returnSummaryList.head.status mustBe "PENDING"
+      result.returnSummaryList.head.status mustBe Some("PENDING")
     }
 
     "fail when BE returns OK with invalid JSON" in {

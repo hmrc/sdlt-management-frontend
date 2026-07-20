@@ -27,6 +27,7 @@ enum UniversalStatus:
   case SUBMITTED_NO_RECEIPT
   case DEPARTMENTAL_ERROR
   case FATAL_ERROR
+  case IN_PROGRESS
 
 
 object UniversalStatus {
@@ -34,6 +35,7 @@ object UniversalStatus {
   def fromString(in: String): Either[String, UniversalStatus] = {
     in.toUpperCase() match {
       case "STARTED" => Right(UniversalStatus.STARTED)
+      case "IN_PROGRESS" => Right(UniversalStatus.IN_PROGRESS)
       case "VALIDATED" => Right(UniversalStatus.VALIDATED)
       case "ACCEPTED" => Right(UniversalStatus.ACCEPTED)
       case "PENDING" => Right(UniversalStatus.PENDING)
