@@ -58,7 +58,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val acceptedSummary = ReturnSummary(
         returnReference = "001",
         utrn           = Some("UTRN-ACC-001"),
-        status         = "ACCEPTED",
+        status         = Some("ACCEPTED"),
         dateSubmitted  = Some(LocalDate.parse("2025-10-20")),
         purchaserName  = "Accepted Buyer",
         address        = "1 Accepted Street",
@@ -68,7 +68,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val pendingSummary = ReturnSummary(
         returnReference = "002",
         utrn           = Some("UTRN-PEN-001"),
-        status         = "STARTED",
+        status         = Some("STARTED"),
         dateSubmitted  = Some(LocalDate.parse("2025-10-21")),
         purchaserName  = "Pending Buyer",
         address        = "2 Pending Street",
@@ -135,7 +135,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val submitted = ReturnSummary(
         returnReference = "001",
         utrn           = Some("UTRN-SUB-001"),
-        status         = "SUBMITTED",
+        status         = Some("SUBMITTED"),
         dateSubmitted  = Some(LocalDate.parse("2025-10-22")),
         purchaserName  = "Submitted Buyer",
         address        = "3 Submitted Street",
@@ -145,7 +145,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
       val submittedNoReceipt = ReturnSummary(
         returnReference = "002",
         utrn           = Some("UTRN-SNR-001"),
-        status         = "SUBMITTED_NO_RECEIPT",
+        status         = Some("SUBMITTED_NO_RECEIPT"),
         dateSubmitted  = Some(LocalDate.parse("2025-10-23")),
         purchaserName  = "No Receipt Buyer",
         address        = "4 NoReceipt Street",
@@ -236,7 +236,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         ReturnSummary(
           returnReference = "001",
           utrn           = Some("UTRN-DEL-001"),
-          status         = "SUBMITTED",
+          status         = Some("SUBMITTED"),
           dateSubmitted  = Some(LocalDate.parse("2025-10-24")),
           purchaserName  = "Delete Buyer",
           address        = "5 Delete Street",
@@ -287,7 +287,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
         ReturnSummary(
           returnReference = "002",
           utrn           = Some("UTRN-DEL-002"),
-          status         = "IN-PROGRESS",
+          status         = Some("IN-PROGRESS"),
           dateSubmitted  = Some(LocalDate.parse("2025-10-24")),
           purchaserName  = "In Progress Buyer",
           address        = "6 Delete Street",

@@ -19,7 +19,7 @@ package models.responses
 import config.FrontendAppConfig
 import models.SdltReturnTypes
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
-import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
+import models.responses.UniversalStatus.{ACCEPTED, DEPARTMENTAL_ERROR, FATAL_ERROR, IN_PROGRESS, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.Pagination
 import utils.LoggerUtil.logError
@@ -145,34 +145,51 @@ object SdltReturnViewRow  {
       for {
         rec <- returnsList
       } yield {
-        fromString(rec.status) match {
-          case Right(status) =>
+        val rawStatus: Option[String] = rec.status.map(_.trim).filter(_.nonEmpty)
+
+        rawStatus match {
+          case None =>
             Some(
               SdltReturnViewRow(
                 address = rec.address,
-                agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
+                agentReference = rec.agentReference.getOrElse(""),
                 purchaserName = rec.purchaserName,
-                status = status,
+                status = IN_PROGRESS,
                 utrn = rec.utrn.getOrElse(""),
-                redirectUrl = buildRedirectUrl(rec.returnReference, status, appConfig)
+                redirectUrl = buildRedirectUrl(rec.returnReference, IN_PROGRESS, appConfig)
               )
             )
-          case Left(ex) =>
-            logError(s"[SdltReturnViewRow][convertToViewRows] - conversion from: ${rec} failure: $ex")
-            None
+          case Some(statusString) =>
+            fromString(statusString) match {
+              case Right(status) =>
+                Some(
+                  SdltReturnViewRow(
+                    address = rec.address,
+                    agentReference = rec.agentReference.getOrElse(""), // default agent ref to empty
+                    purchaserName = rec.purchaserName,
+                    status = status,
+                    utrn = rec.utrn.getOrElse(""),
+                    redirectUrl = buildRedirectUrl(rec.returnReference, status, appConfig)
+                  )
+                )
+              case Left(ex) =>
+                logError(s"[SdltReturnViewRow][convertToViewRows] - conversion from: ${rec} failure: $ex")
+                None
+            }
         }
       }
     }.flatten
   }
-  
+
   def buildRedirectUrl(returnReference:String, status:UniversalStatus, appConfig:FrontendAppConfig):String = {
-     appConfig.returnTaskListUrl(returnReference)
-    }
+    appConfig.returnTaskListUrl(returnReference)
   }
+}
 
 
 object SdltReturnsViewModel {
-  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(STARTED, ACCEPTED)
+
+  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(IN_PROGRESS, STARTED, ACCEPTED, DEPARTMENTAL_ERROR, FATAL_ERROR)
   private val submittedReturnsStatuses: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
 
   def convertToViewModel(response: SdltReturnRecordResponse,

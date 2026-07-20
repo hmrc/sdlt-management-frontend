@@ -16,9 +16,7 @@
 
 @import models.responses.SdltReturnViewRow
 @import models.responses.SdltInProgressReturnViewModel
-@import models.responses.UniversalStatus
-@import models.responses.UniversalStatus.ACCEPTED
-@import models.responses.UniversalStatus.STARTED
+@import models.manage.SubmissionState
 @import config.FrontendAppConfig
 
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
@@ -32,7 +30,7 @@
         govukDetails: GovukDetails,
         govukPagination: GovukPagination,
         config:FrontendAppConfig,
-        govukTag: GovukTag
+        statusTag: Statustag
 )
 
 @(viewModel: SdltInProgressReturnViewModel)(implicit request: Request[_], messages: Messages)
@@ -44,32 +42,23 @@
 }
 
 @renderTable() = {
-    @govukTable(Table(
-        rows = viewModel.rows.map { currentRow =>
-            Seq(
-                TableRow(
-                    content = HtmlContent(purchaserNameLink(currentRow)),
-                ),
-                TableRow(
-                    content = Text( currentRow.address )
-                ),
-                TableRow(
-                    content = Text( currentRow.agentReference )
-                ),
-                TableRow(
-                    content = HtmlContent(
-                        currentRow.status match {
-                            case STARTED =>
-                                govukTag.apply( TagViewModel(Text( messages("manageReturns.inProgressReturns.status.inprogress") )).blue()  )
-                            case ACCEPTED =>
-                                govukTag.apply( TagViewModel(Text( messages("manageReturns.inProgressReturns.status.awaiting") )).grey()  )
-                            case _ => // SHOULD NOT HAPPEN
-                                govukTag.apply( TagViewModel(Text( "" )).grey()  )
-                        }
-                    )
-                )
+@govukTable(Table(
+    rows = viewModel.rows.map { currentRow =>
+        Seq(
+            TableRow(
+                content = HtmlContent(purchaserNameLink(currentRow)),
+            ),
+            TableRow(
+                content = Text( currentRow.address )
+            ),
+            TableRow(
+                content = Text( currentRow.agentReference )
+            ),
+            TableRow(
+                content = HtmlContent(statusTag(SubmissionState.fromUniversalStatus(currentRow.status)))
             )
-        }
+        )
+    }
     ,
     head = Some(Seq(
         HeadCell(
@@ -86,7 +75,7 @@
             attributes = Map("style" -> "width:110px")
         )
     )),
-    ))
+))
 }
 
 @layout(pageTitle = titleNoForm(messages("manageReturns.inProgressReturns.title"))) {
@@ -104,41 +93,41 @@
 
     } else if ( viewModel.pagination().isEmpty){
 
-        @hmrcPageHeading(PageHeading(
-            text           = messages("manageReturns.inProgressReturns.SomeReturns"),
-            section        = Some(messages("manageReturns.inProgressReturns.span.manage")),
-            headingClasses = Some("govuk-heading-l"),
-            captionClasses = Some("govuk-caption-l")
-        ))
-        @p("manageReturns.inProgressReturns.description")
+    @hmrcPageHeading(PageHeading(
+        text           = messages("manageReturns.inProgressReturns.SomeReturns"),
+        section        = Some(messages("manageReturns.inProgressReturns.span.manage")),
+        headingClasses = Some("govuk-heading-l"),
+        captionClasses = Some("govuk-caption-l")
+    ))
+    @p("manageReturns.inProgressReturns.description")
 
-        @govukDetails(Details(
-            summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
-            content = Text(messages("manageReturns.inProgressReturns.details.content"))
-        ))
+    @govukDetails(Details(
+        summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
+        content = Text(messages("manageReturns.inProgressReturns.details.content"))
+    ))
 
-        @renderTable()
+    @renderTable()
 
     } else {
 
-        @hmrcPageHeading(PageHeading(
-            text           = messages("manageReturns.inProgressReturns.SomeReturns"),
-            section        = Some(messages("manageReturns.inProgressReturns.span.manage")),
-            headingClasses = Some("govuk-heading-l"),
-            captionClasses = Some("govuk-caption-l")
-        ))
-        @p("manageReturns.inProgressReturns.description")
+    @hmrcPageHeading(PageHeading(
+        text           = messages("manageReturns.inProgressReturns.SomeReturns"),
+        section        = Some(messages("manageReturns.inProgressReturns.span.manage")),
+        headingClasses = Some("govuk-heading-l"),
+        captionClasses = Some("govuk-caption-l")
+    ))
+    @p("manageReturns.inProgressReturns.description")
 
-        @govukDetails(Details(
-            summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
-            content = Text(messages("manageReturns.inProgressReturns.details.content"))
-        ))
+    @govukDetails(Details(
+        summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
+        content = Text(messages("manageReturns.inProgressReturns.details.content"))
+    ))
 
-        @viewModel.paginationInfoText().map(p(_))
+    @viewModel.paginationInfoText().map(p(_))
 
-        @renderTable()
+    @renderTable()
 
-        @viewModel.pagination.map(govukPagination(_))
+    @viewModel.pagination.map(govukPagination(_))
 
     }
 
