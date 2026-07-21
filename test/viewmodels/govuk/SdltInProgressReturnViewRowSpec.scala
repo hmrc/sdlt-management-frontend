@@ -23,7 +23,7 @@ import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow}
 import models.responses.SdltReturnViewRow.convertToViewRows
 import models.responses.SdltReturnsViewModel.*
-import models.responses.UniversalStatus.{ACCEPTED, DEPARTMENTAL_ERROR, FATAL_ERROR, IN_PROGRESS, STARTED}
+import models.responses.UniversalStatus.{ACCEPTED, DEPARTMENTAL_ERROR, FATAL_ERROR, IN_PROGRESS}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.OptionValues
@@ -45,7 +45,6 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
   val responseWithData: SdltReturnRecordResponse = SdltReturnRecordResponse(
     returnSummaryCount = 0,
     returnSummaryList = List(
-      // No status at all -> the TRUE in-progress return (kept, shown as IN_PROGRESS)
       ReturnSummary(
         returnReference = "000",
         utrn            = None,
@@ -55,7 +54,6 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address         = "Address000",
         agentReference  = Some("AgentRef000")
       ),
-      // PENDING / VALIDATED are not in the in-progress set -> excluded
       ReturnSummary(
         returnReference = "001",
         utrn            = Some("UTRN001"),
@@ -74,7 +72,6 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address         = "Address002",
         agentReference  = Some("AgentRef002")
       ),
-      // STARTED -> kept
       ReturnSummary(
         returnReference = "003",
         utrn            = Some("UTRN003"),
@@ -84,7 +81,6 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address         = "Address003",
         agentReference  = None
       ),
-      // SUBMITTED -> excluded from in-progress
       ReturnSummary(
         returnReference = "004",
         utrn            = Some("UTRN004"),
@@ -94,7 +90,6 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address         = "Address004",
         agentReference  = Some("AgentRef004")
       ),
-      // ACCEPTED -> kept
       ReturnSummary(
         returnReference = "005",
         utrn            = Some("UTRN005"),
@@ -104,7 +99,6 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address         = "Address005",
         agentReference  = Some("AgentRef005")
       ),
-      // DEPARTMENTAL_ERROR -> kept (errored, shown so the filer can see it failed)
       ReturnSummary(
         returnReference = "006",
         utrn            = Some("UTRN006"),
@@ -114,7 +108,6 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
         address         = "Address006",
         agentReference  = Some("AgentRef006")
       ),
-      // FATAL_ERROR -> kept
       ReturnSummary(
         returnReference = "007",
         utrn            = Some("UTRN007"),
@@ -127,11 +120,15 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
     )
   )
 
-  // Only the in-progress statuses survive the filter: IN_PROGRESS (no status), STARTED,
-  // ACCEPTED, DEPARTMENTAL_ERROR, FATAL_ERROR. PENDING / VALIDATED / SUBMITTED are dropped.
+  // fromString maps STARTED/VALIDATED -> IN_PROGRESS and PENDING -> ACCEPTED; SUBMITTED is
+  // filtered out of the in-progress list. So the in-progress rows are:
+  //   000 no-status -> IN_PROGRESS, 001 PENDING -> ACCEPTED, 002 VALIDATED -> IN_PROGRESS,
+  //   003 STARTED -> IN_PROGRESS, 005 ACCEPTED, 006 DEPARTMENTAL_ERROR, 007 FATAL_ERROR
   val expectedDataRows: List[SdltReturnViewRow] = List(
     SdltReturnViewRow("Address000", "AgentRef000", "Name000", IN_PROGRESS,        utrn = "",        redirectUrl = "redirectUrl"),
-    SdltReturnViewRow("Address003", "",            "Name003", STARTED,            utrn = "UTRN003", redirectUrl = "redirectUrl"),
+    SdltReturnViewRow("Address001", "",            "Name001", ACCEPTED,           utrn = "UTRN001", redirectUrl = "redirectUrl"),
+    SdltReturnViewRow("Address002", "AgentRef002", "Name002", IN_PROGRESS,        utrn = "UTRN002", redirectUrl = "redirectUrl"),
+    SdltReturnViewRow("Address003", "",            "Name003", IN_PROGRESS,        utrn = "UTRN003", redirectUrl = "redirectUrl"),
     SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED,           utrn = "UTRN005", redirectUrl = "redirectUrl"),
     SdltReturnViewRow("Address006", "AgentRef006", "Name006", DEPARTMENTAL_ERROR, utrn = "UTRN006", redirectUrl = "redirectUrl"),
     SdltReturnViewRow("Address007", "AgentRef007", "Name007", FATAL_ERROR,        utrn = "UTRN007", redirectUrl = "redirectUrl")

@@ -34,11 +34,11 @@ object UniversalStatus {
 
   def fromString(in: String): Either[String, UniversalStatus] = {
     in.toUpperCase() match {
-      case "STARTED" => Right(UniversalStatus.STARTED)
-      case "IN_PROGRESS" => Right(UniversalStatus.IN_PROGRESS)
-      case "VALIDATED" => Right(UniversalStatus.VALIDATED)
+      case "STARTED" => Right(UniversalStatus.IN_PROGRESS)
+      case "IN_PROGRESS" => Right(UniversalStatus.IN_PROGRESS)    
+      case "VALIDATED" => Right(UniversalStatus.IN_PROGRESS)
       case "ACCEPTED" => Right(UniversalStatus.ACCEPTED)
-      case "PENDING" => Right(UniversalStatus.PENDING)
+      case "PENDING" => Right(UniversalStatus.ACCEPTED)
       case "SUBMITTED" => Right(UniversalStatus.SUBMITTED)
       case "SUBMITTED_NO_RECEIPT" => Right(UniversalStatus.SUBMITTED_NO_RECEIPT)
       case "DEPARTMENTAL_ERROR" => Right(UniversalStatus.DEPARTMENTAL_ERROR)

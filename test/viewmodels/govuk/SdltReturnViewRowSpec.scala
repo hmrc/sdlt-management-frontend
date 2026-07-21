@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import models.SdltReturnTypes.*
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
 import models.responses.{SdltInProgressDueForDeletionReturnViewModel, SdltInProgressReturnViewModel, SdltReturnViewRow, SdltReturnsViewModel, SdltSubmittedDueForDeletionReturnViewModel, SdltSubmittedReturnViewModel, UniversalStatus}
-import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT, VALIDATED, PENDING, DEPARTMENTAL_ERROR, FATAL_ERROR}
+import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT, VALIDATED, PENDING, DEPARTMENTAL_ERROR, FATAL_ERROR, IN_PROGRESS}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalacheck.Gen
@@ -108,7 +108,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
       second.utrn mustBe "UTRN-002"
       second.agentReference mustBe ""
       second.redirectUrl mustBe "redirectUrl"
-      second.status mustBe STARTED
+      second.status mustBe IN_PROGRESS   // "STARTED" now maps to IN_PROGRESS
     }
 
     "drop records with an unknown status" in {
@@ -145,7 +145,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
 
   "SdltReturnsViewModel.convertToViewModel for IN_PROGRESS_RETURNS" should {
 
-    "keep only STARTED and ACCEPTED rows and preserve total count" in {
+    "keep only IN_PROGRESS and ACCEPTED rows and preserve total count" in {
       val inProgressAccepted = summary(
         reference = "RET-001",
         status = "ACCEPTED",
@@ -183,7 +183,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
 
       result.extractType mustBe IN_PROGRESS_RETURNS
       result.totalRowCount mustBe 3
-      result.rows.map(_.status).toSet mustBe Set(ACCEPTED, STARTED)
+      result.rows.map(_.status).toSet mustBe Set(ACCEPTED, IN_PROGRESS)
       result.rows.exists(_.purchaserName == "Submitted Buyer") mustBe false
     }
 
@@ -205,7 +205,8 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
         .convertToViewModel(response, IN_PROGRESS_RETURNS, 1, mockAppConfig)
         .asInstanceOf[SdltInProgressReturnViewModel]
 
-      result.rows.map(_.status).toSet mustBe Set(STARTED, DEPARTMENTAL_ERROR, FATAL_ERROR, UniversalStatus.IN_PROGRESS)
+      // started (STARTED) and noStatus both resolve to IN_PROGRESS
+      result.rows.map(_.status).toSet mustBe Set(DEPARTMENTAL_ERROR, FATAL_ERROR, IN_PROGRESS)
       result.rows.exists(_.status == SUBMITTED) mustBe false
     }
   }
@@ -251,7 +252,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
       result.extractType mustBe SUBMITTED_SUBMITTED_RETURNS
       result.totalRowCount mustBe 3
       result.rows.map(_.status).toSet mustBe Set(SUBMITTED, SUBMITTED_NO_RECEIPT)
-      result.rows.exists(_.status == STARTED) mustBe false
+      result.rows.exists(_.status == IN_PROGRESS) mustBe false
     }
 
     "behave the same way for SUBMITTED_NO_RECEIPT_RETURNS extract type" in {
