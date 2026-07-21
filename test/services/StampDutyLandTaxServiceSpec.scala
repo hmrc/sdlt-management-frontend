@@ -23,7 +23,7 @@ import models.manage.{ReturnSummary, SdltReturnRecordRequest, SdltReturnRecordRe
 import models.organisation.{CreatedAgent, SdltOrganisationResponse}
 import models.requests.DataRequest
 import models.responses.*
-import models.responses.UniversalStatus.{ACCEPTED, STARTED, SUBMITTED, SUBMITTED_NO_RECEIPT}
+import models.responses.UniversalStatus.{ACCEPTED, IN_PROGRESS, SUBMITTED, SUBMITTED_NO_RECEIPT}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
@@ -88,7 +88,7 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
           address        = "2 Pending Street",
           agentReference = "Pending Agent",
           purchaserName  = "Pending Buyer",
-          status         = STARTED,
+          status         = IN_PROGRESS,   // "STARTED" now maps to IN_PROGRESS via fromString
           utrn           = "UTRN-PEN-001",
           redirectUrl    = "redirectUrl"
         )
@@ -131,6 +131,8 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
 
     "merge SUBMITTED and SUBMITTED_NO_RECEIPT returns from a single connector call" in {
       val (service, connector) = newService()
+
+      when(appConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
 
       val submitted = ReturnSummary(
         returnReference = "001",
@@ -232,6 +234,8 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "call the connector with deletionFlag = true for SUBMITTED and return the response" in {
       val (service, connector) = newService()
 
+      when(appConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
+
       val submittedDeletionSummary =
         ReturnSummary(
           returnReference = "001",
@@ -283,11 +287,14 @@ class StampDutyLandTaxServiceSpec extends AnyWordSpec with ScalaFutures with Mat
     "call the connector with deletionFlag = true for IN-PROGRESS and return the response" in {
       val (service, connector) = newService()
 
+      when(appConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
+
+      // A true in-progress return has no status recorded (null in the DB) -> None here.
       val inProgressDeletionSummary =
         ReturnSummary(
           returnReference = "002",
           utrn           = Some("UTRN-DEL-002"),
-          status         = Some("IN-PROGRESS"),
+          status         = None,
           dateSubmitted  = Some(LocalDate.parse("2025-10-24")),
           purchaserName  = "In Progress Buyer",
           address        = "6 Delete Street",
