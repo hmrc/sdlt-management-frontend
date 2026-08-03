@@ -18,12 +18,12 @@ package viewmodels.govuk
 
 import config.FrontendAppConfig
 import forms.mappings.Mappings
-import models.SdltReturnTypes.IN_PROGRESS_RETURNS
+import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.{ReturnSummary, SdltReturnRecordResponse}
-import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow}
+import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow, SdltSubmittedReturnViewModel}
 import models.responses.SdltReturnViewRow.convertToViewRows
 import models.responses.SdltReturnsViewModel.*
-import models.responses.UniversalStatus.{ACCEPTED, DEPARTMENTAL_ERROR, FATAL_ERROR, IN_PROGRESS}
+import models.responses.UniversalStatus.{ACCEPTED, DEPARTMENTAL_ERROR, FATAL_ERROR, IN_PROGRESS, SUBMITTED}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.OptionValues
@@ -120,16 +120,23 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
     )
   )
 
-  // fromString maps STARTED/VALIDATED -> IN_PROGRESS and PENDING -> ACCEPTED; SUBMITTED is
-  // filtered out of the in-progress list. So the in-progress rows are:
+  // fromString maps STARTED/VALIDATED -> IN_PROGRESS and PENDING -> ACCEPTED.
+  // SUBMITTED, DEPARTMENTAL_ERROR and FATAL_ERROR are all filtered OUT of the in-progress
+  // list (errors now belong to the submitted list). So the in-progress rows are:
   //   000 no-status -> IN_PROGRESS, 001 PENDING -> ACCEPTED, 002 VALIDATED -> IN_PROGRESS,
-  //   003 STARTED -> IN_PROGRESS, 005 ACCEPTED, 006 DEPARTMENTAL_ERROR, 007 FATAL_ERROR
+  //   003 STARTED -> IN_PROGRESS, 005 ACCEPTED
   val expectedDataRows: List[SdltReturnViewRow] = List(
-    SdltReturnViewRow("Address000", "AgentRef000", "Name000", IN_PROGRESS,        utrn = "",        redirectUrl = "redirectUrl"),
-    SdltReturnViewRow("Address001", "",            "Name001", ACCEPTED,           utrn = "UTRN001", redirectUrl = "redirectUrl"),
-    SdltReturnViewRow("Address002", "AgentRef002", "Name002", IN_PROGRESS,        utrn = "UTRN002", redirectUrl = "redirectUrl"),
-    SdltReturnViewRow("Address003", "",            "Name003", IN_PROGRESS,        utrn = "UTRN003", redirectUrl = "redirectUrl"),
-    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED,           utrn = "UTRN005", redirectUrl = "redirectUrl"),
+    SdltReturnViewRow("Address000", "AgentRef000", "Name000", IN_PROGRESS, utrn = "",        redirectUrl = "redirectUrl"),
+    SdltReturnViewRow("Address001", "",            "Name001", ACCEPTED,    utrn = "UTRN001", redirectUrl = "redirectUrl"),
+    SdltReturnViewRow("Address002", "AgentRef002", "Name002", IN_PROGRESS, utrn = "UTRN002", redirectUrl = "redirectUrl"),
+    SdltReturnViewRow("Address003", "",            "Name003", IN_PROGRESS, utrn = "UTRN003", redirectUrl = "redirectUrl"),
+    SdltReturnViewRow("Address005", "AgentRef005", "Name005", ACCEPTED,    utrn = "UTRN005", redirectUrl = "redirectUrl")
+  )
+
+  // The submitted list now includes the errored returns alongside SUBMITTED:
+  //   004 SUBMITTED, 006 DEPARTMENTAL_ERROR, 007 FATAL_ERROR
+  val expectedSubmittedRows: List[SdltReturnViewRow] = List(
+    SdltReturnViewRow("Address004", "AgentRef004", "Name004", SUBMITTED,          utrn = "UTRN004", redirectUrl = "redirectUrl"),
     SdltReturnViewRow("Address006", "AgentRef006", "Name006", DEPARTMENTAL_ERROR, utrn = "UTRN006", redirectUrl = "redirectUrl"),
     SdltReturnViewRow("Address007", "AgentRef007", "Name007", FATAL_ERROR,        utrn = "UTRN007", redirectUrl = "redirectUrl")
   )
@@ -144,13 +151,23 @@ class SdltInProgressReturnViewRowSpec extends AnyFreeSpec with Matchers with Map
       result mustBe empty
     }
 
-    "response with data returns only the in-progress rows (incl. no-status and errored)" in {
+    "response with data returns only the in-progress rows (incl. no-status, excl. errored)" in {
       when(appConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
 
       val resultViewModel = convertToViewModel(responseWithData, IN_PROGRESS_RETURNS, 1, appConfig)
         .asInstanceOf[SdltInProgressReturnViewModel]
 
       resultViewModel.rows must contain theSameElementsAs expectedDataRows
+      resultViewModel.totalRowCount mustBe 0
+    }
+
+    "response with data returns the submitted rows incl. departmental/fatal errors" in {
+      when(appConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
+
+      val resultViewModel = convertToViewModel(responseWithData, SUBMITTED_SUBMITTED_RETURNS, 1, appConfig)
+        .asInstanceOf[SdltSubmittedReturnViewModel]
+
+      resultViewModel.rows must contain theSameElementsAs expectedSubmittedRows
       resultViewModel.totalRowCount mustBe 0
     }
   }

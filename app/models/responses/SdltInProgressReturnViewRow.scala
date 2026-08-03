@@ -189,8 +189,8 @@ object SdltReturnViewRow  {
 
 object SdltReturnsViewModel {
 
-  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(IN_PROGRESS, STARTED, ACCEPTED, DEPARTMENTAL_ERROR, FATAL_ERROR)
-  private val submittedReturnsStatuses: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT)
+  private val inProgressReturnStatuses: Seq[UniversalStatus] = Seq(IN_PROGRESS, STARTED, ACCEPTED)
+  private val submittedReturnsStatuses: Seq[UniversalStatus] = Seq(SUBMITTED, SUBMITTED_NO_RECEIPT, DEPARTMENTAL_ERROR, FATAL_ERROR)
 
   def convertToViewModel(response: SdltReturnRecordResponse,
                          extractType: SdltReturnTypes, selectedPageIndex: Int, appConfig: FrontendAppConfig): SdltReturnBaseViewModel = {

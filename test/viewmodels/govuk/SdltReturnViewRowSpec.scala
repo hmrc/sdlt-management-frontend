@@ -187,7 +187,7 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
       result.rows.exists(_.purchaserName == "Submitted Buyer") mustBe false
     }
 
-    "keep the errored (DEPARTMENTAL_ERROR / FATAL_ERROR) and no-status rows too" in {
+    "exclude the errored (DEPARTMENTAL_ERROR / FATAL_ERROR) and submitted rows, keeping no-status/started as IN_PROGRESS" in {
       val started            = summary("RET-001", "STARTED", "Started Buyer", "1 Street", "UTRN-STA-001")
       val departmentalError  = summary("RET-002", "DEPARTMENTAL_ERROR", "Dept Error Buyer", "2 Street", "UTRN-DEP-001")
       val fatalError         = summary("RET-003", "FATAL_ERROR", "Fatal Error Buyer", "3 Street", "UTRN-FAT-001")
@@ -205,8 +205,9 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
         .convertToViewModel(response, IN_PROGRESS_RETURNS, 1, mockAppConfig)
         .asInstanceOf[SdltInProgressReturnViewModel]
 
-      // started (STARTED) and noStatus both resolve to IN_PROGRESS
-      result.rows.map(_.status).toSet mustBe Set(DEPARTMENTAL_ERROR, FATAL_ERROR, IN_PROGRESS)
+      result.rows.map(_.status).toSet mustBe Set(IN_PROGRESS)
+      result.rows.size mustBe 2
+      result.rows.exists(r => r.status == DEPARTMENTAL_ERROR || r.status == FATAL_ERROR) mustBe false
       result.rows.exists(_.status == SUBMITTED) mustBe false
     }
   }
@@ -252,6 +253,27 @@ class SdltReturnViewRowSpec extends AnyWordSpec with Matchers with ScalaCheckPro
       result.extractType mustBe SUBMITTED_SUBMITTED_RETURNS
       result.totalRowCount mustBe 3
       result.rows.map(_.status).toSet mustBe Set(SUBMITTED, SUBMITTED_NO_RECEIPT)
+      result.rows.exists(_.status == IN_PROGRESS) mustBe false
+    }
+
+    "include DEPARTMENTAL_ERROR and FATAL_ERROR alongside submitted for SUBMITTED_SUBMITTED_RETURNS" in {
+      val submitted          = summary("RET-001", "SUBMITTED", "Submitted Buyer", "1 Street", "UTRN-SUB-001")
+      val departmentalError  = summary("RET-002", "DEPARTMENTAL_ERROR", "Dept Error Buyer", "2 Street", "UTRN-DEP-001")
+      val fatalError         = summary("RET-003", "FATAL_ERROR", "Fatal Error Buyer", "3 Street", "UTRN-FAT-001")
+      val started            = summary("RET-004", "STARTED", "Started Buyer", "4 Street", "UTRN-STA-001")
+
+      when(mockAppConfig.returnTaskListUrl(any[String])).thenReturn("redirectUrl")
+
+      val response = SdltReturnRecordResponse(
+        returnSummaryCount = 4,
+        returnSummaryList = List(submitted, departmentalError, fatalError, started)
+      )
+
+      val result = SdltReturnsViewModel
+        .convertToViewModel(response, SUBMITTED_SUBMITTED_RETURNS, 1, mockAppConfig)
+        .asInstanceOf[SdltSubmittedReturnViewModel]
+
+      result.rows.map(_.status).toSet mustBe Set(SUBMITTED, DEPARTMENTAL_ERROR, FATAL_ERROR)
       result.rows.exists(_.status == IN_PROGRESS) mustBe false
     }
 
