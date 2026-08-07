@@ -168,4 +168,3 @@ submission.state.inProgress = In progress
 submission.state.awaitingConfirmation = Awaiting confirmation
 submission.state.submitted = Submitted
 submission.state.submissionFailed = Submission failed
-submission.state.resubmit = Resubmit

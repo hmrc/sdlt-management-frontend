@@ -26,13 +26,13 @@
     submissionState match {
         case InProgress =>
             govukTag(Tag(messages("submission.state.inProgress")).blue())
-        case Resubmit =>
-            govukTag(Tag(messages("submission.state.resubmit")).orange())
         case AwaitingConfirmation =>
             govukTag(Tag(messages("submission.state.awaitingConfirmation")).grey())
         case Submitted =>
             govukTag(Tag(messages("submission.state.submitted")).green())
         case SubmissionFailed =>
             govukTag(Tag(messages("submission.state.submissionFailed")).red())
+        case _ =>
+            ""
     }
 }
