@@ -41,6 +41,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   lazy val govUKUrl: String                 = configuration.get[String]("urls.govUK")
   lazy val howToPayUrl: String              = configuration.get[String]("urls.howToPay")
   lazy val hmrcOnlineServiceDeskUrl: String = configuration.get[String]("urls.hmrcOnlineServiceDesk")
+  lazy val hmrcOnlineHelpDesk: String       = configuration.get[String]("urls.hmrcOnlineHelpDesk")
+  lazy val hmrcTaxServiceBusinessAccount: String       = configuration.get[String]("urls.hmrcTaxServiceBusinessAccount")
+  lazy val hmrcTaxServiceAddSdlt: String       = configuration.get[String]("urls.hmrcTaxServiceAddSdlt")
 
   private val agentServiceBaseUrl: String       = configuration.get[String]("stamp-duty-land-tax-agent.host")
   val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/manage-agents/start-add-agent"

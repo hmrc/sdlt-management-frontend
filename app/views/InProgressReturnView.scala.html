@@ -17,8 +17,9 @@
 @import models.responses.SdltReturnViewRow
 @import models.responses.SdltInProgressReturnViewModel
 @import models.manage.SubmissionState
+@import models.manage.SubmissionState._
 @import config.FrontendAppConfig
-
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
 
 @this(
@@ -33,7 +34,13 @@
         statusTag: Statustag
 )
 
+
 @(viewModel: SdltInProgressReturnViewModel)(implicit request: Request[_], messages: Messages)
+
+@detailsContent = {
+    @p(messages("management.statusTag.details.content.inProgress", statusTag(InProgress)))
+    @p(messages("management.statusTag.details.content.awaitingConfirmation", statusTag(AwaitingConfirmation)))
+}
 
 @purchaserNameLink(row: SdltReturnViewRow)  = {
     <p class="govuk-body">
@@ -62,16 +69,16 @@
     ,
     head = Some(Seq(
         HeadCell(
-            content = Text(messages("manageReturns.inProgressReturns.summary.purchaser"))
+            content = Text(messages("manageReturns.summary.purchaser"))
         ),
         HeadCell(
-            content = Text(messages("manageReturns.inProgressReturns.summary.address"))
+            content = Text(messages("manageReturns.summary.address"))
         ),
         HeadCell(
-            content = Text(messages("manageReturns.inProgressReturns.summary.agentsref"))
+            content = Text(messages("manageReturns.summary.agentsref"))
         ),
         HeadCell(
-            content = Text(messages("manageReturns.inProgressReturns.summary.status")),
+            content = Text(messages("manageReturns.summary.status")),
             attributes = Map("style" -> "width:110px")
         )
     )),
@@ -120,7 +127,9 @@
 
     @govukDetails(Details(
         summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
-        content = Text(messages("manageReturns.inProgressReturns.details.content"))
+        content = HtmlContent(
+            detailsContent
+        )
     ))
 
     @viewModel.paginationInfoText().map(p(_))

@@ -150,10 +150,11 @@ class SubmittedReturnsViewSpec
       val headers: Elements =
         doc.select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
 
-      headers.size() mustBe 3
-      headers.get(0).text() mustBe messages("manage.submittedReturnsOverview.summary.purchaser")
-      headers.get(1).text() mustBe messages("manage.submittedReturnsOverview.summary.address")
-      headers.get(2).text() mustBe messages("manage.submittedReturnsOverview.summary.utrn")
+      headers.size() mustBe 4
+      headers.get(0).text() mustBe messages("manageReturns.summary.purchaser")
+      headers.get(1).text() mustBe messages("manageReturns.summary.address")
+      headers.get(2).text() mustBe messages("manageReturns.summary.utrn")
+      headers.get(3).text() mustBe messages("manageReturns.summary.status")
     }
 
     "render the page with paginated submitted returns and pagination info" in new Setup {

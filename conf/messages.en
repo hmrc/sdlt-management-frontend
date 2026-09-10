@@ -41,17 +41,17 @@ journeyRecovery.startAgain.title = Sorry, there is a problem with the service
 journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
 journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
 
-accessDenied.title = Sorry, there is a problem with the service
-accessDenied.heading = Sorry, there is a problem with the service
-accessDenied.p1 = You do not have access to this service.
-accessDenied.link = Continue to your account
+accessDenied.title = You do not have access to Stamp Taxes Online
+accessDenied.heading = You do not have access to Stamp Taxes Online
+accessDenied.linkPrefixText = To file a Stamp Duty Land Tax (SDLT) return, you need to
+accessDenied.link = add this tax to your account.
 
 pageNotFound.title      = Page not found
 pageNotFound.heading    = Page not found
 pageNotFound.p1         = If you typed the web address, check it is correct.
 pageNotFound.p2         = If you pasted the web address, check you copied the entire address.
 pageNotFound.p3         = If the web address is correct or you selected a link or button, contact the
-pageNotFound.link       = HMRC Online Services Helpdesk
+pageNotFound.link       = HMRC Online Services Helpline (opens in new tab)
 pageNotFound.p4         = if you need to speak to someone.
 
 signedOut.title = For your security, we signed you out
@@ -61,13 +61,17 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
-systemError.title       = Sorry, there is a problem with this service
-systemError.heading     = Sorry, there is a problem with this service
-systemError.paragraph1  = Try again later or contact the
-systemError.link        = HMRC Online Services Helpdesk.
+systemError.title       = Sorry, there is a problem with the service
+systemError.heading     = Sorry, there is a problem with the service
+systemError.paragraph1  = Try again later.
+systemError.paragraph2  = We have not saved your answers for the section you were completing. When the service is available, you will have to start this section again.
+systemError.linkPrefix  = Contact the
+systemError.link        = Stamp Taxes Helpline (opens in new tab)
+systemError.linkUrl     = https://www.gov.uk/find-hmrc-contacts/stamp-duty-land-tax-general-enquiries
+systemError.linkSuffix  = if you have any questions.
 
-manage.unauthorised.org.title                 = Sorry, there is a problem with the service
-manage.unauthorised.org.heading               = Sorry, there is a problem with the service
+manage.unauthorised.org.title                 = Sorry, there is a problem with this service
+manage.unauthorised.org.heading               = Sorry, there is a problem with this service
 manage.unauthorised.org.paragraph             = Return to
 manage.unauthorised.org.link                  = SDLT homepage.
 
@@ -80,9 +84,10 @@ manage.unauthorised.org.standard.p1 = You’ve signed in with a standard organis
 manage.unauthorised.org.standard.p2 = Only Government Gateway accounts with an administrator role can register to use this service.
 manage.unauthorised.org.standard.guidance.link = Find out more about who can use this service
 
-manage.unauthorised.individual.title = Sorry, you are unable to use this service
-manage.unauthorised.individual.heading = Sorry, you are unable to use this service
+manage.unauthorised.individual.title = You are not authorised to use this service
+manage.unauthorised.individual.heading = You are not authorised to use this service
 manage.unauthorised.individual.p1 = You are signed in with an individual account. You need an organisation account to use this service.
+manage.unauthorised.individual.linkText = Continue to your account
 
 manage.unauthorised.agent.title = Sorry, you are unable to use this service
 manage.unauthorised.agent.heading = Sorry, you are unable to use this service
@@ -91,18 +96,22 @@ manage.unauthorised.agent.p1 = You are signed in with an agent account. You need
 manageReturns.inProgressReturns.title           = Returns in progress – Manage returns
 manageReturns.inProgressReturns.noReturns       = You have no returns in progress.
 manageReturns.inProgressReturns.SomeReturns     = Returns in progress
-manageReturns.inProgressReturns.description     = Select a return in progress to view the full details. In progress returns are automatically deleted after 90 days of inactivity. To keep a return active, select and view
+manageReturns.inProgressReturns.description     = Select a return in progress to view the full details. In progress returns are automatically deleted after 90 days of inactivity. To stop a return being deleted, select and view.
 manageReturns.inProgressReturns.startNewReturn  = Start a new return
-manageReturns.inProgressReturns.summary.purchaser   = Purchaser
-manageReturns.inProgressReturns.summary.address     = Property address
-manageReturns.inProgressReturns.summary.agentsref   = Agent’s reference
-manageReturns.inProgressReturns.summary.status      = Status
-manageReturns.inProgressReturns.details.summary       = What does ’Awaiting confirmation status’ mean?
-manageReturns.inProgressReturns.details.content       = HMRC is processing your return. Once complete, the status will change to ‘Submitted’.
 
-manageReturns.inProgressReturns.status.inprogress   = In progress
-manageReturns.inProgressReturns.status.awaiting     = Awaiting confirmation
-manageReturns.inProgressReturns.status.submitted    = Submitted
+manageReturns.summary.purchaser   = Purchaser
+manageReturns.summary.address     = Property address
+manageReturns.summary.agentsref   = Agent’s reference
+manageReturns.summary.utrn        = UTRN
+manageReturns.summary.status      = Status
+
+manageReturns.inProgressReturns.details.summary             = About your status
+management.statusTag.details.content.inProgress             = {0}: this return has been created but not sent to HMRC.
+management.statusTag.details.content.awaitingConfirmation   = {0}: this return has been sent to HMRC and is now being processed.
+management.statusTag.details.content.submitted              = {0}: this return has been successfully submitted to HMRC.
+management.statusTag.details.content.submittedNoReceipt     = {0}: this return has been successfully submitted to HMRC but there was a problem generating the submission receipt reference number.
+management.statusTag.details.content.submissionFailed       = {0}: this return was sent to HMRC but could not be submitted due to an error.
+
 manageReturns.inProgressReturns.paginationInfo      = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
 manageReturns.inProgressReturns.span.manage         = Manage returns
 
@@ -135,19 +144,16 @@ manage.submittedReturnsOverview.title = Submitted returns – Manage returns
 manage.submittedReturnsOverview.limitReached = Currently you cannot add any more returns as the limit of 25 returns has been reached. If you wish to add another return you will have to delete one of your existing returns.
 manage.submittedReturnsOverview.heading = Submitted returns
 manage.submittedReturnsOverview.caption = Manage returns
-manage.submittedReturnsOverview.nonZeroReturns.info = Select a submitted return to view the full details. Submitted returns are automatically deleted after 30 days of inactivity. To keep a return active, select and view.
+manage.submittedReturnsOverview.nonZeroReturns.info = Select a submitted return to view the full details. Submitted returns are automatically deleted after 30 days of inactivity. To stop a return being deleted, select and view.
 manage.submittedReturnsOverview.noReturns.info = You have no submitted returns.
 manage.submittedReturnsOverview.noReturns.link = Start a new return
 
 manage.submittedReturnsOverview.summaryInfo = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
-manage.submittedReturnsOverview.summary.purchaser   = Purchaser
-manage.submittedReturnsOverview.summary.address     = Property address
-manage.submittedReturnsOverview.summary.utrn        = UTRN
 
 manageReturns.dueDeletionReturns.heading = Returns due for deletion
 manageReturns.dueDeletionReturns.title = Returns due for deletion – Manage returns
 manageReturns.dueDeletionReturns.caption = Manage returns
-manageReturns.dueDeletionReturns.nonZeroReturns.info = Your returns will be deleted within the next 10 days. You will be unable to access them after that. To prevent a return from being deleted, select and view.
+manageReturns.dueDeletionReturns.nonZeroReturns.info = These returns will be deleted within the next 10 days. You will be unable to access them after that. To stop a return being deleted, select and view.
 manageReturns.dueDeletionReturns.noReturns.info = You have no returns due for deletion.
 manageReturns.dueDeletionReturns.noReturns.link = Start a new return
 
@@ -158,13 +164,11 @@ manageReturns.dueDeletionReturns.inProgressTab.noReturns.info   = You have no re
 manageReturns.dueDeletionReturns.inProgressTab.info             = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
 
 manageReturns.dueDeletionReturns.submittedTab.heading          = Submitted returns
-manageReturns.dueDeletionReturns.submittedTab.purchaser        = Purchaser
-manageReturns.dueDeletionReturns.submittedTab.address          = Property address
-manageReturns.dueDeletionReturns.submittedTab.utrn             = UTRN
 manageReturns.dueDeletionReturns.submittedTab.noReturns.info   = You have no submitted returns.
 manageReturns.dueDeletionReturns.submittedTab.info             = Showing <b>{0}</b> to <b>{1}</b> of <b>{2}</b> records
 
 submission.state.inProgress = In progress
 submission.state.awaitingConfirmation = Awaiting confirmation
 submission.state.submitted = Submitted
+submission.state.submittedNoReceipt = Submitted - no receipt
 submission.state.submissionFailed = Submission failed

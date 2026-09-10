@@ -18,18 +18,30 @@
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import models.responses.SdltDueForDeletionReturnViewModel
+@import models.manage.SubmissionState
+@import models.manage.SubmissionState._
 
 @this(
         layout: templates.Layout,
+        govukDetails: GovukDetails,
         govukTable: GovukTable,
         govukPagination: GovukPagination,
         govukTabs: GovukTabs,
         p: Paragraph,
         h2: components.H2,
         link: components.Link,
-        hmrcPageHeading: HmrcPageHeading
+        hmrcPageHeading: HmrcPageHeading,
+        statusTag: Statustag
 )
 @(viewModel: SdltDueForDeletionReturnViewModel, startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
+
+@detailsContent = {
+    @p(messages("management.statusTag.details.content.inProgress", statusTag(InProgress)))
+    @p(messages("management.statusTag.details.content.awaitingConfirmation", statusTag(AwaitingConfirmation)))
+    @p(messages("management.statusTag.details.content.submitted", statusTag(Submitted)))
+    @p(messages("management.statusTag.details.content.submittedNoReceipt", statusTag(SubmittedNoReceipt)))
+    @p(messages("management.statusTag.details.content.submissionFailed", statusTag(SubmissionFailed)))
+}
 
 @renderInProgressTable() = {
     @h2("manageReturns.dueDeletionReturns.inProgressTab.heading")
@@ -40,12 +52,18 @@
         rows = viewModel.inProgressViewModel.rows.map { currentRow =>
             Seq(
                 TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = currentRow.redirectUrl)) ),
-                TableRow(content = Text( currentRow.address ))
+                TableRow(content = Text( currentRow.address )),
+                TableRow(content = Text( currentRow.agentReference )),
+                TableRow(
+                    content = HtmlContent(statusTag(SubmissionState.fromUniversalStatus(currentRow.status)))
+                )
             )
         },
         head = Some(Seq(
-            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.purchaser"))),
-            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.inProgressTab.address")))
+            HeadCell(content = Text(messages("manageReturns.summary.purchaser"))),
+            HeadCell(content = Text(messages("manageReturns.summary.address"))),
+            HeadCell(content = Text(messages("manageReturns.summary.agentsref"))),
+            HeadCell(content = Text(messages("manageReturns.summary.status")))
         ))
     ))
     @{
@@ -65,13 +83,17 @@
             Seq(
                 TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = currentRow.redirectUrl) )),
                 TableRow(content = Text( currentRow.address )),
-                TableRow(content = Text( currentRow.utrn ))
+                TableRow(content = Text( currentRow.utrn )),
+                TableRow(
+                    content = HtmlContent(statusTag(SubmissionState.fromUniversalStatus(currentRow.status)))
+                )
             )
         },
         head = Some(Seq(
-            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.purchaser"))),
-            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.address"))),
-            HeadCell(content = Text(messages("manageReturns.dueDeletionReturns.submittedTab.utrn")))
+            HeadCell(content = Text(messages("manageReturns.summary.purchaser"))),
+            HeadCell(content = Text(messages("manageReturns.summary.address"))),
+            HeadCell(content = Text(messages("manageReturns.summary.utrn"))),
+            HeadCell(content = Text(messages("manageReturns.summary.status")))
         ))
     ))
     @{
@@ -100,6 +122,13 @@
     } else {
 
         @p("manageReturns.dueDeletionReturns.nonZeroReturns.info")
+
+        @govukDetails(Details(
+            summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
+            content = HtmlContent(
+                detailsContent
+            )
+        ))
 
         @govukTabs(Tabs(
             id = Some("updates-and-deadlines-tabs"),

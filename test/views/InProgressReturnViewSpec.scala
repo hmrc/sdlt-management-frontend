@@ -142,10 +142,10 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       val headers = doc.select("th.govuk-table__header")
 
       headers.size() mustBe 4
-      headers.text() must include(messages("manageReturns.inProgressReturns.summary.purchaser"))
-      headers.text() must include(messages("manageReturns.inProgressReturns.summary.address"))
-      headers.text() must include(messages("manageReturns.inProgressReturns.summary.agentsref"))
-      headers.text() must include(messages("manageReturns.inProgressReturns.summary.status"))
+      headers.text() must include(messages("manageReturns.summary.purchaser"))
+      headers.text() must include(messages("manageReturns.summary.address"))
+      headers.text() must include(messages("manageReturns.summary.agentsref"))
+      headers.text() must include(messages("manageReturns.summary.status"))
     }
 
     "render the page with description for populated model" in new Setup {

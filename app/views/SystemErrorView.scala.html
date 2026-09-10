@@ -16,12 +16,13 @@
 
 @import config.FrontendAppConfig
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
-@import views.html.components.Link
+@import views.html.components.{Link, Paragraph}
 
 @this(
         layout: templates.Layout,
         hmrcPageHeading: HmrcPageHeading,
-        link: Link
+        link: Link,
+        paragraph: Paragraph
 )
 
 @()(implicit request: RequestHeader,appConfig: FrontendAppConfig, messages: Messages )
@@ -34,10 +35,14 @@
         text           = messages("systemError.heading"),
         headingClasses = Some("govuk-heading-l")
     ))
+    @paragraph(messages("systemError.paragraph1"))
+    @paragraph(messages("systemError.paragraph2"))
 
     @link(
         linkTextKey   = "systemError.link",
-        linkUrl       = appConfig.hmrcOnlineServiceDeskUrl,
-        prefixTextKey = "systemError.paragraph1"
+        linkUrl       = appConfig.hmrcOnlineHelpDesk,
+        prefixTextKey = "systemError.linkPrefix",
+        suffixTextKey = "systemError.linkSuffix",
+        isNewTab      = true
     )
 }

@@ -22,6 +22,7 @@ enum SubmissionState:
   case InProgress
   case AwaitingConfirmation
   case Submitted
+  case SubmittedNoReceipt
   case SubmissionFailed
   case Resubmit
 
@@ -31,9 +32,10 @@ object SubmissionState:
 
   def fromUniversalStatus(status: UniversalStatus): SubmissionState =
     status match
-      case IN_PROGRESS                     => InProgress
-      case STARTED                         => Resubmit
-      case ACCEPTED                        => AwaitingConfirmation
-      case SUBMITTED | SUBMITTED_NO_RECEIPT => Submitted
+      case IN_PROGRESS                      => InProgress
+      case STARTED                          => Resubmit
+      case ACCEPTED                         => AwaitingConfirmation
+      case SUBMITTED                        => Submitted
+      case SUBMITTED_NO_RECEIPT             => SubmittedNoReceipt
       case DEPARTMENTAL_ERROR | FATAL_ERROR => SubmissionFailed
-      case _                               => InProgress
+      case _                                => InProgress

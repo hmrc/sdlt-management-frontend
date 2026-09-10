@@ -18,17 +18,27 @@
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import models.responses.SdltSubmittedReturnViewModel
+@import models.manage.SubmissionState
+@import models.manage.SubmissionState._
 
 
 @this(
         layout: templates.Layout,
+        govukDetails: GovukDetails,
         govukPagination: GovukPagination,
         govukTable: GovukTable,
         p: Paragraph,
         link: components.Link,
-        hmrcPageHeading: HmrcPageHeading
+        hmrcPageHeading: HmrcPageHeading,
+        statusTag: Statustag
 )
 @(viewModel: SdltSubmittedReturnViewModel, startNewReturnUrl: String)(implicit request: Request[_], messages: Messages)
+
+@detailsContent = {
+    @p(messages("management.statusTag.details.content.submitted", statusTag(Submitted)))
+    @p(messages("management.statusTag.details.content.submittedNoReceipt", statusTag(SubmittedNoReceipt)))
+    @p(messages("management.statusTag.details.content.submissionFailed", statusTag(SubmissionFailed)))
+}
 
 @renderTable() = {
     @govukTable(Table(
@@ -36,13 +46,20 @@
             Seq(
                 TableRow(content = HtmlContent( link( linkTextKey = currentRow.purchaserName, linkUrl = currentRow.redirectUrl) )),
                 TableRow(content = Text( currentRow.address )),
-                TableRow(content = Text( currentRow.utrn ))
+                TableRow(content = Text( currentRow.utrn )),
+                TableRow(
+                    content = HtmlContent(statusTag(SubmissionState.fromUniversalStatus(currentRow.status)))
+                )
             )
         },
         head = Some(Seq(
-            HeadCell(content = Text(messages("manage.submittedReturnsOverview.summary.purchaser"))),
-            HeadCell(content = Text(messages("manage.submittedReturnsOverview.summary.address"))),
-            HeadCell(content = Text(messages("manage.submittedReturnsOverview.summary.utrn")))
+            HeadCell(content = Text(messages("manageReturns.summary.purchaser"))),
+            HeadCell(content = Text(messages("manageReturns.summary.address"))),
+            HeadCell(content = Text(messages("manageReturns.summary.utrn"))),
+            HeadCell(
+                content = Text(messages("manageReturns.summary.status")),
+                attributes = Map("style" -> "width:110px")
+            )
         ))
     ))
 }
@@ -65,6 +82,12 @@
     } else {
 
         @p("manage.submittedReturnsOverview.nonZeroReturns.info")
+        @govukDetails(Details(
+            summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
+            content = HtmlContent(
+                detailsContent
+            )
+        ))
         @viewModel.paginationText().map(p(_))
         @renderTable()
         @viewModel.paginator().map(govukPagination(_))

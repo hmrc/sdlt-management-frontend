@@ -17,7 +17,10 @@
 package controllers.manage
 
 import base.SpecBase
+import config.FrontendAppConfig
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HttpVerbs.GET
@@ -25,12 +28,14 @@ import views.html.manage.UnauthorisedIndividualView
 
 class UnauthorisedIndividualAffinityControllerSpec extends SpecBase with MockitoSugar {
 
+  private val mockAppConfig = mock[FrontendAppConfig]
 
   "UnauthorisedIndividualAffinityController" - {
 
     "must return OK and the correct view for GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockAppConfig.hmrcTaxServiceBusinessAccount).thenReturn("https://tax.service.gov.uk/business-account")
 
       running(application) {
         val request = FakeRequest(GET, controllers.manage.routes.UnauthorisedIndividualAffinityController.onPageLoad().url)
@@ -41,7 +46,7 @@ class UnauthorisedIndividualAffinityControllerSpec extends SpecBase with Mockito
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view()(request, mockAppConfig, messages(application)).toString
 
       }
 
