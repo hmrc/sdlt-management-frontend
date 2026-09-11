@@ -47,7 +47,7 @@ class UnauthorisedIndividualViewSpec extends SpecBase with GuiceOneAppPerSuite w
 
       val paragraphs = doc.select("p.govuk-body")
 
-      paragraphs.size() mustBe 1
+      paragraphs.size() mustBe 2
       paragraphs.text() must include(messages("manage.unauthorised.individual.p1"))
     }
 

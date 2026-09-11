@@ -61,7 +61,7 @@ class SystemErrorViewSpec extends SpecBase with GuiceOneAppPerSuite with Mockito
 
       val paragraphs = doc.select("p.govuk-body")
 
-      paragraphs.size() mustBe 1
+      paragraphs.size() mustBe 3
       paragraphs.text() must include(messages("systemError.paragraph1"))
     }
 
@@ -69,7 +69,7 @@ class SystemErrorViewSpec extends SpecBase with GuiceOneAppPerSuite with Mockito
       val html = view()
       val doc = parseHtml(html)
       val link = doc.select("p.govuk-body a.govuk-link").attr("href")
-      link mustBe appConfig.hmrcOnlineServiceDeskUrl
+      link mustBe appConfig.hmrcOnlineHelpDesk
     }
 
   }

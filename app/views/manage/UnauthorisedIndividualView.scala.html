@@ -15,15 +15,17 @@
  *@
 
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcPageHeading, PageHeading}
-@import views.html.components.Paragraph
+@import views.html.components.{Paragraph, Link}
+@import config.FrontendAppConfig
 
 @this(
   layout: templates.Layout,
   hmrcPageHeading: HmrcPageHeading,
   paragraph: Paragraph,
+        link: Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@()(implicit request: RequestHeader, appConfig: FrontendAppConfig, messages: Messages)
 
 @layout(
   pageTitle = titleNoForm(messages("manage.unauthorised.individual.title")),
@@ -37,4 +39,9 @@
     ))
 
     @paragraph(messages("manage.unauthorised.individual.p1"))
+
+    @link(
+        linkTextKey  = "manage.unauthorised.individual.linkText",
+        linkUrl      = appConfig.hmrcTaxServiceBusinessAccount
+    )
 }

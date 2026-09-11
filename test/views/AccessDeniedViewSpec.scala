@@ -62,8 +62,8 @@ class AccessDeniedViewSpec extends SpecBase with GuiceOneAppPerSuite with Mockit
 
       val paragraphs = doc.select("p.govuk-body")
 
-      paragraphs.size() mustBe 2
-      paragraphs.text() must include(messages("accessDenied.p1"))
+      paragraphs.size() mustBe 1
+      paragraphs.text() must include(messages("accessDenied.linkPrefixText"))
       paragraphs.text() must include(messages("accessDenied.link"))
     }
 
@@ -71,7 +71,7 @@ class AccessDeniedViewSpec extends SpecBase with GuiceOneAppPerSuite with Mockit
       val html = view()
       val doc = parseHtml(html)
       val link = doc.select("p.govuk-body a.govuk-link").attr("href")
-      link mustBe appConfig.govUKUrl
+      link mustBe appConfig.hmrcTaxServiceAddSdlt
     }
 
   }

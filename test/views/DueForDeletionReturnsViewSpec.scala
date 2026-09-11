@@ -289,7 +289,7 @@ class DueForDeletionReturnsViewSpec
         doc.select("#in-progress")
           .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
 
-      inProgressHeaders.size() mustBe 2
+      inProgressHeaders.size() mustBe 4
       inProgressHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.purchaser")
       inProgressHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.address")
 
@@ -333,10 +333,10 @@ class DueForDeletionReturnsViewSpec
         doc.select("#submitted")
           .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
 
-      submittedHeaders.size() mustBe 3
-      submittedHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.purchaser")
-      submittedHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.address")
-      submittedHeaders.get(2).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.utrn")
+      submittedHeaders.size() mustBe 4
+      submittedHeaders.get(0).text() mustBe messages("manageReturns.summary.purchaser")
+      submittedHeaders.get(1).text() mustBe messages("manageReturns.summary.address")
+      submittedHeaders.get(2).text() mustBe messages("manageReturns.summary.utrn")
 
       val submittedRowsEls =
         doc.select("#submitted")
@@ -374,7 +374,7 @@ class DueForDeletionReturnsViewSpec
         doc.select("#in-progress")
           .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
 
-      inProgressHeaders.size() mustBe 2
+      inProgressHeaders.size() mustBe 4
       inProgressHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.purchaser")
       inProgressHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.inProgressTab.address")
 
@@ -424,10 +424,10 @@ class DueForDeletionReturnsViewSpec
         doc.select("#submitted")
           .select("thead.govuk-table__head tr.govuk-table__row th.govuk-table__header")
 
-      submittedHeaders.size() mustBe 3
-      submittedHeaders.get(0).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.purchaser")
-      submittedHeaders.get(1).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.address")
-      submittedHeaders.get(2).text() mustBe messages("manageReturns.dueDeletionReturns.submittedTab.utrn")
+      submittedHeaders.size() mustBe 4
+      submittedHeaders.get(0).text() mustBe messages("manageReturns.summary.purchaser")
+      submittedHeaders.get(1).text() mustBe messages("manageReturns.summary.address")
+      submittedHeaders.get(2).text() mustBe messages("manageReturns.summary.utrn")
 
       val submittedRowsEls =
         doc.select("#submitted")

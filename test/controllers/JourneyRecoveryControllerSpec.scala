@@ -17,72 +17,37 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
+import views.html.SystemErrorView
 
 class JourneyRecoveryControllerSpec extends SpecBase {
 
+  private val mockAppConfig = mock[FrontendAppConfig]
+
   "JourneyRecovery Controller" - {
 
-    "when a relative continue Url is supplied" - {
+    "must return OK and the continue view" in {
 
-      "must return OK and the continue view" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockAppConfig.hmrcOnlineHelpDesk)
+        .thenReturn("https://www.gov.uk/find-hmrc-contacts/stamp-duty-land-tax-general-enquiries")
 
-        val application = applicationBuilder(userAnswers = None).build()
+      running(application) {
+        val request = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad().url)
 
-        running(application) {
-          val continueUrl = RedirectUrl("/foo")
-          val request     = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
+        val result = route(application, request).value
 
-          val result = route(application, request).value
+        val view = application.injector.instanceOf[SystemErrorView]
 
-          val continueView = application.injector.instanceOf[JourneyRecoveryContinueView]
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual continueView(continueUrl.unsafeValue)(request, messages(application)).toString
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view()(request, mockAppConfig, messages(application)).toString
       }
     }
 
-    "when an absolute continue Url is supplied" - {
-
-      "must return OK and the start again view" in {
-
-        val application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
-          val continueUrl = RedirectUrl("https://foo.com")
-          val request     = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
-
-          val result = route(application, request).value
-
-          val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView()(request, messages(application)).toString
-        }
-      }
-    }
-
-    "when no continue Url is supplied" - {
-
-      "must return OK and the start again view" in {
-
-        val application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView()(request, messages(application)).toString
-        }
-      }
-    }
   }
 }

@@ -21,7 +21,6 @@
 @this(
 layout: templates.Layout,
 hmrcPageHeading: HmrcPageHeading,
-paragraph: Paragraph,
 link: Link
 )
 
@@ -37,9 +36,10 @@ link: Link
         text           = messages("accessDenied.heading"),
         headingClasses = Some("govuk-heading-l")
     ))
-    @paragraph(message = messages("accessDenied.p1"))
     @link(
+        prefixTextKey = "accessDenied.linkPrefixText",
+        linkFullStop = true,
         linkTextKey  = "accessDenied.link",
-        linkUrl      = appConfig.govUKUrl
+        linkUrl      = appConfig.hmrcTaxServiceAddSdlt
     )
 }

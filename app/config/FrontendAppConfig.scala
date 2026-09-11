@@ -27,6 +27,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val appName: String = configuration.get[String]("appName")
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
+  private val addTaxesHost = configuration.get[String]("add-taxes-frontend.host")
+  private val businessTaxAccount = configuration.get[String]("business-tax-account.host")
   private val contactFormServiceIdentifier = "sdlt-management-frontend"
 
   def feedbackUrl(implicit request: RequestHeader): String =
@@ -41,6 +43,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   lazy val govUKUrl: String                 = configuration.get[String]("urls.govUK")
   lazy val howToPayUrl: String              = configuration.get[String]("urls.howToPay")
   lazy val hmrcOnlineServiceDeskUrl: String = configuration.get[String]("urls.hmrcOnlineServiceDesk")
+  lazy val hmrcOnlineHelpDesk: String       = configuration.get[String]("urls.hmrcOnlineHelpDesk")
+  lazy val hmrcTaxServiceBusinessAccount: String       = s"$businessTaxAccount/business-account"
+  lazy val hmrcTaxServiceAddSdlt: String       = s"$addTaxesHost/business-account/add-tax/other/land/stamp-duty"
 
   private val agentServiceBaseUrl: String       = configuration.get[String]("stamp-duty-land-tax-agent.host")
   val startAddAgentUrl: String                  = s"$agentServiceBaseUrl/stamp-duty-land-tax-agent/manage-agents/start-add-agent"
