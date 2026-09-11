@@ -10,7 +10,7 @@ GET         /refresh-session                             controllers.KeepAliveCo
 
 GET         /there-is-a-problem                          controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
-GET         /no-access                                   controllers.AccessDeniedController.onPageLoad()
+GET         /access-denied                               controllers.AccessDeniedController.onPageLoad()
 
 GET         /page-not-found                              controllers.PageNotFoundController.onPageLoad()
 
@@ -26,12 +26,12 @@ GET         /manage-returns/returns-in-progress          controllers.manage.InPr
 GET         /manage-returns/submitted-returns            controllers.manage.SubmittedReturnsController.onPageLoad(paginationIndex: Option[Int])
 GET         /manage-returns/returns-due-for-deletion     controllers.manage.DueForDeletionReturnsController.onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int])
 
-GET         /problem-with-the-service                    controllers.SystemErrorController.onPageLoad()
+GET         /system-error/there-is-a-problem             controllers.SystemErrorController.onPageLoad()
 
 # auth routes
 GET         /manage/unauthorised/standard-user           controllers.manage.UnauthorisedWrongRoleController.onPageLoad()
 GET         /manage/unauthorised/organisation            controllers.manage.UnauthorisedOrganisationAffinityController.onPageLoad()
-GET         /user-not-authorised                         controllers.manage.UnauthorisedIndividualAffinityController.onPageLoad()
+GET         /manage/unauthorised/individual              controllers.manage.UnauthorisedIndividualAffinityController.onPageLoad()
 GET         /manage/unauthorised/agent                   controllers.manage.UnauthorisedAgentAffinityController.onPageLoad()
 
 GET         /manage/unauthorised                         controllers.UnauthorisedController.onPageLoad()
