@@ -33,7 +33,7 @@ class AccessDeniedControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-      when(mockAppConfig.hmrcTaxServiceAddSdlt).thenReturn("https://tax.service.gov.uk/business-account/add-tax/other/land/stamp-duty")
+      when(mockAppConfig.hmrcTaxServiceAddSdlt).thenReturn("http://localhost:9730/business-account/add-tax/other/land/stamp-duty")
 
       running(application) {
         val request = FakeRequest(GET, routes.AccessDeniedController.onPageLoad().url)

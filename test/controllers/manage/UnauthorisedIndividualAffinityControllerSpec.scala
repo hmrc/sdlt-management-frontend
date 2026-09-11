@@ -35,7 +35,7 @@ class UnauthorisedIndividualAffinityControllerSpec extends SpecBase with Mockito
     "must return OK and the correct view for GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-      when(mockAppConfig.hmrcTaxServiceBusinessAccount).thenReturn("https://tax.service.gov.uk/business-account")
+      when(mockAppConfig.hmrcTaxServiceBusinessAccount).thenReturn("http://localhost:9020/business-account")
 
       running(application) {
         val request = FakeRequest(GET, controllers.manage.routes.UnauthorisedIndividualAffinityController.onPageLoad().url)
@@ -49,7 +49,6 @@ class UnauthorisedIndividualAffinityControllerSpec extends SpecBase with Mockito
         contentAsString(result) mustEqual view()(request, mockAppConfig, messages(application)).toString
 
       }
-
     }
   }
 
