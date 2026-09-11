@@ -44,7 +44,6 @@ journeyRecovery.startAgain.guidance = [Add content to explain why the user needs
 accessDenied.title = You do not have access to Stamp Taxes Online
 accessDenied.heading = You do not have access to Stamp Taxes Online
 accessDenied.linkPrefixText = To file a Stamp Duty Land Tax (SDLT) return, you need to
-accessDenied.linkSuffixText =.
 accessDenied.link = add this tax to your account
 
 pageNotFound.title      = Page not found

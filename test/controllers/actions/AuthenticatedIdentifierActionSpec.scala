@@ -277,7 +277,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase {
 
     "no enrolment is found" - {
 
-      "must redirect to no access" in new Fixture {
+      "must redirect to access denied" in new Fixture {
         val enrolments = Enrolments(Set(Enrolment("nonMatching")))
         when(mockAuthConnector.authorise[RetrievalsType](any(), any())(any(), any()))
           .thenReturn(
@@ -291,7 +291,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase {
           val result = controller.onPageLoad()(FakeRequest())
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe ("/stamp-duty-land-tax-management/no-access")
+          redirectLocation(result).value mustBe ("/stamp-duty-land-tax-management/access-denied")
         }
       }
     }
