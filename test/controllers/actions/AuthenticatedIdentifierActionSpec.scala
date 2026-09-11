@@ -291,7 +291,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase {
           val result = controller.onPageLoad()(FakeRequest())
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe ("/stamp-duty-land-tax-management/access-denied")
+          redirectLocation(result).value mustBe ("/stamp-duty-land-tax-management/no-access")
         }
       }
     }
