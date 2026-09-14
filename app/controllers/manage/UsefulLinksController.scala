@@ -16,11 +16,12 @@
 
 package controllers.manage
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.UsefulLinksView
+import views.html.manage.UsefulLinksView
 
 import javax.inject.Inject
 
@@ -32,7 +33,7 @@ class UsefulLinksController @Inject()(
                                        stornRequiredAction: StornRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: UsefulLinksView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                     )(implicit appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction) {
     implicit request =>
