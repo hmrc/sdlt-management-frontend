@@ -109,11 +109,10 @@ class AtAGlanceViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSu
 
       val titles = doc.select("h2.govuk-heading-m")
 
-      titles.size() mustBe 4
+      titles.size() mustBe 3
       titles.text() must include(messages("manage.homepage.manageReturns.title"))
       titles.text() must include(messages("manage.homepage.manageAgents.title"))
       titles.text() must include(messages("manage.homepage.helpAndContact.title"))
-      titles.text() must include(messages("manage.homepage.feedback.title"))
     }
 
     "render the page with title links to each service" in new Setup {
@@ -128,10 +127,9 @@ class AtAGlanceViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSu
       link must include(messages("manage.homepage.manageReturns.startNewReturn"))
       link must include(messages("manage.homepage.manageAgents.agentDetails.withNum", 18))
       link must include(messages("manage.homepage.manageAgents.addNewAgent"))
-      link must include(messages("manage.homepage.helpAndContact.help"))
       link must include(messages("manage.homepage.helpAndContact.contactHMRC"))
+      link must include(messages("manage.homepage.helpAndContact.howToPay"))
       link must include(messages("manage.homepage.helpAndContact.usefulLinks"))
-      link must include(messages("manage.homepage.feedback.leaveFeedback"))
     }
   }
 }

@@ -122,17 +122,14 @@ manage.homepage.manageReturns.returnsDueForDeletion.withNum = Returns due for de
 manage.homepage.manageReturns.startNewReturn = Start a new return
 
 manage.homepage.manageAgents.title = Manage agents
-manage.homepage.manageAgents.agentDetails.withNum = Agent details ({0})
+manage.homepage.manageAgents.agentDetails.withNum = Agent overview ({0})
 manage.homepage.manageAgents.addNewAgent = Add a new agent
 
 manage.homepage.helpAndContact.title = Help and contact
-manage.homepage.helpAndContact.help = Help
 manage.homepage.helpAndContact.contactHMRC = Contact HMRC
 manage.homepage.helpAndContact.howToPay = How to pay
 manage.homepage.helpAndContact.usefulLinks = Useful links
 
-manage.homepage.feedback.title = Feedback
-manage.homepage.feedback.leaveFeedback = Leave feedback (opens in new tab)
 manage.submittedReturnsOverview.title = Submitted returns – Manage returns
 manage.submittedReturnsOverview.limitReached = Currently you cannot add any more returns as the limit of 25 returns has been reached. If you wish to add another return you will have to delete one of your existing returns.
 manage.submittedReturnsOverview.heading = Submitted returns
@@ -165,3 +162,14 @@ submission.state.awaitingConfirmation = Awaiting confirmation
 submission.state.submitted = Submitted
 submission.state.submittedNoReceipt = Submitted - no receipt
 submission.state.submissionFailed = Submission failed
+
+usefulLinks.title = Useful links - Manage your Stamp Taxes
+usefulLinks.heading = Useful links
+usefulLinks.link.sdltOnline = SDLT online filing information (opens in new tab)
+usefulLinks.link.sublease = Sublease schedules (opens in new tab)
+usefulLinks.link.sdlt1 = SDLT1 guidance notes (opens in new tab)
+usefulLinks.link.sdlt4 = SDLT4 guidance notes (opens in new tab)
+usefulLinks.link.sdltManual = SDLT Manual (opens in new tab)
+usefulLinks.link.rates = Rates and allowances (opens in new tab)
+usefulLinks.link.valuation = Valuation Office Agency (opens in new tab)
+usefulLinks.link.thirdParty = List of available third party suppliers to submit and SDLT return (opens in new tab)
