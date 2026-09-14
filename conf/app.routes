@@ -21,6 +21,8 @@ GET         /account/sign-out                            controllers.auth.AuthCo
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
 GET         /manage-your-stamp-taxes                     controllers.manage.AtAGlanceController.onPageLoad()
+GET         /manage-your-stamp-taxes/useful-links        controllers.manage.UsefulLinksController.onPageLoad()
+
 
 GET         /manage-returns/returns-in-progress          controllers.manage.InProgressReturnsController.onPageLoad(index: Option[Int])
 GET         /manage-returns/submitted-returns            controllers.manage.SubmittedReturnsController.onPageLoad(paginationIndex: Option[Int])

@@ -19,14 +19,13 @@ package models.manage
 import config.FrontendAppConfig
 import controllers.manage.routes.{DueForDeletionReturnsController, InProgressReturnsController, SubmittedReturnsController}
 import models.responses.*
-import viewmodels.manage.{AgentDetailsViewModel, FeedbackViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
+import viewmodels.manage.{AgentDetailsViewModel, HelpAndContactViewModel, ReturnsManagementViewModel}
 
 case class AtAGlanceViewModel(
                                storn: String,
                                returns: ReturnsManagementViewModel,
                                agentDetails: AgentDetailsViewModel,
-                               helpAndContact: HelpAndContactViewModel,
-                               feedback: FeedbackViewModel
+                               helpAndContact: HelpAndContactViewModel
                              )
 
 object AtAGlanceViewModel {
@@ -57,14 +56,9 @@ object AtAGlanceViewModel {
         ),
       helpAndContact =
         HelpAndContactViewModel(
-          helpUrl = "#",
-          contactUrl = "#",
+          contactUrl = appConfig.contactHmrcUrl,
           howToPayUrl = appConfig.howToPayUrl,
-          usefulLinksUrl = "#"
-        ),
-      feedback =
-        FeedbackViewModel(
-          feedbackUrl = appConfig.exitSurveyUrl
+          usefulLinksUrl = controllers.manage.routes.UsefulLinksController.onPageLoad().url
         )
     )
 }

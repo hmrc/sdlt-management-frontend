@@ -17,7 +17,6 @@
 package viewmodels.manage
 
 case class HelpAndContactViewModel(
-                                  helpUrl: String,
                                   contactUrl: String,
                                   howToPayUrl: String,
                                   usefulLinksUrl: String

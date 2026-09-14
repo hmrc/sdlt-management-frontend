@@ -64,18 +64,10 @@
     card(
         messages("manage.homepage.helpAndContact.title"),
         Seq(
-            messages("manage.homepage.helpAndContact.help") -> viewModel.helpAndContact.helpUrl,
             messages("manage.homepage.helpAndContact.contactHMRC") -> viewModel.helpAndContact.contactUrl,
             messages("manage.homepage.helpAndContact.howToPay") -> viewModel.helpAndContact.howToPayUrl,
             messages("manage.homepage.helpAndContact.usefulLinks") -> viewModel.helpAndContact.usefulLinksUrl
         )
-    ),
-    card(
-        messages("manage.homepage.feedback.title"),
-        Seq(
-            messages("manage.homepage.feedback.leaveFeedback") -> viewModel.feedback.feedbackUrl,
-        ),
-        isNewTab = true
     )
 )
 }
