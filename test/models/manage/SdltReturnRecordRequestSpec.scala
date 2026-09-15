@@ -20,8 +20,6 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
-import java.time.LocalDate
-
 class SdltReturnRecordRequestSpec extends AnyFreeSpec with Matchers {
 
 

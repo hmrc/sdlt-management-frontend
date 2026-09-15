@@ -20,8 +20,6 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
-import java.time.LocalDate
-
 class SdltOrganisationResponseSpec extends AnyFreeSpec with Matchers {
 
   val createdAgent = CreatedAgent("storn", Some("agentId"), "name", Some("houseNumber"), "address1", Some("address2"), Some("address3"), Some("address4"), Some("postcode"), Some("phone"), Some("email"), Some("dxAddress"), "agentResourceReference")

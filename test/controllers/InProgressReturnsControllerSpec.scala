@@ -17,7 +17,6 @@
 package controllers
 
 import base.SpecBase
-import config.FrontendAppConfig
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION}
 import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow, UniversalStatus}
 import org.mockito.ArgumentMatchers.any

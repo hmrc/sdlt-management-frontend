@@ -21,9 +21,9 @@ import config.FrontendAppConfig
 import controllers.actions.TestAuthRetrievals.Ops
 import controllers.routes
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.Application
+import play.api.{Application, Logger}
 import play.api.inject.bind
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
@@ -31,7 +31,6 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core.retrieve.~
-import play.api.Logger
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
