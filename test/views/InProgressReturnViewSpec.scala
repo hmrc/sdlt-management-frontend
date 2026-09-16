@@ -19,7 +19,6 @@ package views
 import base.SpecBase
 import config.FrontendAppConfig
 import models.SdltReturnTypes.IN_PROGRESS_RETURNS
-import models.manage.SubmissionState.{AwaitingConfirmation, InProgress}
 import models.responses.UniversalStatus.{ACCEPTED, STARTED}
 import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow}
 import org.jsoup.Jsoup
@@ -29,7 +28,7 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import views.html.{InProgressReturnView, Statustag}
+import views.html.InProgressReturnView
 
 class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
 

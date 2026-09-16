@@ -18,7 +18,7 @@ package utils
 
 import org.slf4j.{Logger, LoggerFactory}
 import play.api.mvc.Request
-import play.api.{LoggerLike, Logging, MarkerContext}
+import play.api.{LoggerLike, MarkerContext}
 import uk.gov.hmrc.http.{HeaderNames, HttpResponse, SessionKeys}
 
 trait LoggingUtil extends LoggerLike {

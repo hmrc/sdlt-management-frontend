@@ -16,10 +16,8 @@
 
 package utils
 
-import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
-import utils.LoggingUtil
 
 trait PaginationHelper extends LoggingUtil {
 
