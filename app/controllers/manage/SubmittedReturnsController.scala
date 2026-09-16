@@ -55,7 +55,7 @@ class SubmittedReturnsController @Inject()(
                 infoLog(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
                 Ok( view(viewModel, appConfig.startNewReturnUrl) )
               case Left(error) =>
-                infoLog(s"[InProgressReturnsController][onPageLoad] - other error: $error")
+                errorLog(s"[InProgressReturnsController][onPageLoad] - other error: $error")
                 Redirect(JourneyRecoveryController.onPageLoad())
             }
           } recover {
