@@ -31,6 +31,12 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   private val businessTaxAccount = configuration.get[String]("business-tax-account.host")
   private val contactFormServiceIdentifier = "sdlt-management-frontend"
 
+  def userResearchBannerEnabled: Boolean =
+    configuration.get[Boolean]("features.user-research-banner")
+
+  def userResearchBannerUrl: String =
+    configuration.get[String]("urls.user-research-banner")
+
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
