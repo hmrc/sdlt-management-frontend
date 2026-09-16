@@ -22,15 +22,13 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import controllers.routes.{JourneyRecoveryController, SystemErrorController}
-import play.api.Logging
-
 import javax.inject.{Inject, Singleton}
 import utils.PaginationHelper
 import services.StampDutyLandTaxService
 import views.html.manage.SubmittedReturnsView
 import models.SdltReturnTypes.SUBMITTED_SUBMITTED_RETURNS
 import models.responses.SdltSubmittedReturnViewModel
-import utils.LoggerUtil.{logError, logInfo}
+import utils.LoggingUtil
 
 import scala.concurrent.ExecutionContext
 
@@ -43,7 +41,7 @@ class SubmittedReturnsController @Inject()(
                                             requireData: DataRequiredAction,
                                             stornRequiredAction: StornRequiredAction,
                                             view: SubmittedReturnsView
-                                          )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
+                                          )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with PaginationHelper with LoggingUtil {
 
 
   def onPageLoad(paginationIndex: Option[Int]): Action[AnyContent] =
@@ -54,15 +52,15 @@ class SubmittedReturnsController @Inject()(
           .map { viewModel =>
             viewModel.validatePageIndex(paginationIndex, viewModel.totalRowCount) match {
               case Right(selectedPageIndex) =>
-                logInfo(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
+                infoLog(s"[SubmittedReturnsController][onPageLoad] - rows on page: ${paginationIndex} - ${viewModel.rows.length}")
                 Ok( view(viewModel, appConfig.startNewReturnUrl) )
               case Left(error) =>
-                logError(s"[InProgressReturnsController][onPageLoad] - other error: $error")
+                infoLog(s"[InProgressReturnsController][onPageLoad] - other error: $error")
                 Redirect(JourneyRecoveryController.onPageLoad())
             }
           } recover {
           case ex =>
-            logError(s"[SubmittedReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}")
+            errorLog(s"[SubmittedReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}")
             Redirect(SystemErrorController.onPageLoad())
         }
       }

@@ -19,6 +19,7 @@ package views
 import base.SpecBase
 import config.FrontendAppConfig
 import models.SdltReturnTypes.IN_PROGRESS_RETURNS
+import models.manage.SubmissionState.{AwaitingConfirmation, InProgress}
 import models.responses.UniversalStatus.{ACCEPTED, STARTED}
 import models.responses.{SdltInProgressReturnViewModel, SdltReturnViewRow}
 import org.jsoup.Jsoup
@@ -28,7 +29,7 @@ import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import views.html.InProgressReturnView
+import views.html.{InProgressReturnView, Statustag}
 
 class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with MockitoSugar {
 
@@ -132,7 +133,8 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       val details = doc.select("details.govuk-details")
 
       details.text() must include(messages("manageReturns.inProgressReturns.details.summary"))
-      details.text() must include(messages("manageReturns.inProgressReturns.details.content"))
+      details.text() must include("In progress : this return has been created but not sent to HMRC.")
+      details.text() must include("Awaiting confirmation : this return has been sent to HMRC and is now being processed.")
     }
 
     "render the page with each table header" in new Setup {

@@ -19,9 +19,9 @@ package utils
 import play.api.Logging
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
-import utils.LoggerUtil.logWarn
+import utils.LoggingUtil
 
-trait PaginationHelper extends Logging {
+trait PaginationHelper extends LoggingUtil {
 
   private val ROWS_ON_PAGE = 10
   private val DEFAULT_PAGE_INDEX = 1
@@ -155,7 +155,7 @@ trait PaginationHelper extends Logging {
         Some((rows, pagination, paginationText))
 
       case Left(error) =>
-        logWarn(s"[getPaginationWithInfoText] Invalid page index '$paginationIndex' for $totalRowCount rows: ${error.getMessage}.")
+        logger.warn(s"[getPaginationWithInfoText] Invalid page index '$paginationIndex' for $totalRowCount rows: ${error.getMessage}.")
         None
     }
   }

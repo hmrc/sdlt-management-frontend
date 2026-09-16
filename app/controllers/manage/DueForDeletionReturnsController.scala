@@ -21,12 +21,11 @@ import controllers.actions.*
 import controllers.routes.SystemErrorController
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION}
 import models.responses.{SdltDueForDeletionReturnViewModel, SdltInProgressDueForDeletionReturnViewModel, SdltSubmittedDueForDeletionReturnViewModel}
-import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.LoggerUtil.{logError, logInfo}
+import utils.LoggingUtil
 import utils.PaginationHelper
 import views.html.manage.DueForDeletionReturnsView
 
@@ -42,11 +41,11 @@ class DueForDeletionReturnsController @Inject()(
                                                  requireData: DataRequiredAction,
                                                  stornRequiredAction: StornRequiredAction,
                                                  view: DueForDeletionReturnsView
-                                               )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging with PaginationHelper {
+                                               )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with PaginationHelper with LoggingUtil {
 
   def onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int]): Action[AnyContent] =
     (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
-      logInfo(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
+      infoLog(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
 
       (for {
         inProgressDueForDeletionViewModel <- stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressDueForDeletionReturnViewModel](
@@ -68,7 +67,7 @@ class DueForDeletionReturnsController @Inject()(
         Ok(view(viewModel, appConfig.startNewReturnUrl))
       }) recover {
         case ex =>
-          logError(s"[DueForDeletionReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}")
+          errorLog(s"[DueForDeletionReturnsController][onPageLoad] Unexpected failure: ${ex.getMessage}")
           Redirect(SystemErrorController.onPageLoad())
       }
     }

@@ -21,7 +21,6 @@ import controllers.actions.*
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.AtAGlanceViewModel
 import models.responses.*
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.StampDutyLandTaxService
@@ -30,6 +29,7 @@ import views.html.manage.AtAGlanceView
 import controllers.routes.SystemErrorController
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+import utils.LoggingUtil
 
 @Singleton
 class AtAGlanceController@Inject()(
@@ -41,7 +41,7 @@ class AtAGlanceController@Inject()(
                                     view: AtAGlanceView,
                                     requireData: DataRequiredAction,
                                     stornRequiredAction: StornRequiredAction,
-                                  )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with Logging {
+                                  )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with LoggingUtil {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
@@ -70,7 +70,7 @@ class AtAGlanceController@Inject()(
       ))
     }) recover {
         case ex =>
-          logger.error("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
+          errorLog("[AgentOverviewController][onPageLoad] Unexpected failure", ex)
           Redirect(SystemErrorController.onPageLoad())
     }
   }
