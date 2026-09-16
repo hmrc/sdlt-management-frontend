@@ -132,7 +132,8 @@ class InProgressReturnViewSpec extends SpecBase with GuiceOneAppPerSuite with Mo
       val details = doc.select("details.govuk-details")
 
       details.text() must include(messages("manageReturns.inProgressReturns.details.summary"))
-      details.text() must include(messages("manageReturns.inProgressReturns.details.content"))
+      details.text() must include("In progress : this return has been created but not sent to HMRC.")
+      details.text() must include("Awaiting confirmation : this return has been sent to HMRC and is now being processed.")
     }
 
     "render the page with each table header" in new Setup {

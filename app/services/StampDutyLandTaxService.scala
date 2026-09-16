@@ -23,16 +23,15 @@ import models.manage.SdltReturnRecordRequest
 import models.requests.DataRequest
 import models.responses.SdltReturnsViewModel.convertToViewModel
 import models.responses.SdltReturnBaseViewModel
-import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.LoggerUtil.logInfo
+import utils.LoggingUtil
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLandTaxConnector)
-                                       (implicit executionContext: ExecutionContext, appConfig:FrontendAppConfig) extends Logging {
+                                       (implicit executionContext: ExecutionContext, appConfig:FrontendAppConfig) extends LoggingUtil {
 
   /*
   Unified way to extract returns from DB and convert returns to viewModel
@@ -46,11 +45,11 @@ class StampDutyLandTaxService @Inject()(stampDutyLandTaxConnector: StampDutyLand
         storn = storn,
         extractType = extractType,
         pageIndex = pageIndex)
-    logInfo(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - GENERIC::RETURNS_DATA_REQUEST:: $dataRequest")
+    logger.info(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - GENERIC::RETURNS_DATA_REQUEST:: $dataRequest")
     for {
       dataResponse <- stampDutyLandTaxConnector.getReturns(dataRequest)
     } yield {
-      logInfo(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - ${storn}::" +
+      logger.info(s"[StampDutyLandTaxService][getReturnsByTypeViewModel] - ${storn}::" +
         s"response r/count: ${dataResponse.returnSummaryCount} :: ${dataResponse.returnSummaryList.length}")
       val viewModel = convertToViewModel(dataResponse, extractType, pageIndex.getOrElse(1), appConfig)
       viewModel.asInstanceOf[ViewModel]

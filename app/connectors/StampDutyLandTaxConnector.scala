@@ -19,7 +19,6 @@ package connectors
 import models.manage.{SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.SdltOrganisationResponse
 import models.requests.DataRequest
-import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -27,7 +26,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.LoggerUtil.logError
+import utils.LoggingUtil
 
 import scala.util.control.NonFatal
 import java.net.URL
@@ -36,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
                                           config: ServicesConfig)
-                                         (implicit ec: ExecutionContext) extends Logging {
+                                         (implicit ec: ExecutionContext) extends LoggingUtil {
 
   private val base = config.baseUrl("stamp-duty-land-tax")
 
@@ -56,7 +55,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
       }
       .recoverWith {
         case NonFatal(e) =>
-          logError(s"[StampDutyLandTaxConnector][getSdltOrganisation] failed for storn ${request.storn}: ${e.getMessage}")
+          errorLog(s"[StampDutyLandTaxConnector][getSdltOrganisation] failed for storn ${request.storn}: ${e.getMessage}")
           Future.failed(e)
       }
 
@@ -73,7 +72,7 @@ class StampDutyLandTaxConnector @Inject()(http: HttpClientV2,
       }
       .recoverWith {
         case NonFatal(e) =>
-          logError(s"[StampDutyLandTaxConnector][getReturns] failed for storn ${request.storn}: ${e.getMessage}")
+          logger.error(s"[StampDutyLandTaxConnector][getReturns] failed for storn")
           Future.failed(e)
       }
 }

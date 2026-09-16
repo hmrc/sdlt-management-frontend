@@ -19,7 +19,6 @@ package controllers.actions
 import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
-import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
@@ -30,7 +29,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.LoggerUtil.logError
+import utils.LoggingUtil
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,7 +40,7 @@ class AuthenticatedIdentifierAction @Inject()(
                                                config: FrontendAppConfig,
                                                val parser: BodyParsers.Default
                                              )
-                                             (implicit val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions with Logging {
+                                             (implicit val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions with LoggingUtil {
 
   override def invokeBlock[A](request: Request[A],
                               block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
@@ -99,7 +98,7 @@ class AuthenticatedIdentifierAction @Inject()(
   private val orgEnrolment: String = "IR-SDLT-ORG"
   private val agentEnrolment: String = "IR-SDLT-AGENT"
 
-  private val enrolementStornExtractor: Enrolment => Option[String] = (enrolment: Enrolment) =>
+  private val enrolmentStornExtractor: Enrolment => Option[String] = (enrolment: Enrolment) =>
     enrolment.identifiers
       .find(id => id.key == "STORN")
       .map(_.value)
@@ -108,18 +107,18 @@ class AuthenticatedIdentifierAction @Inject()(
   private def checkEnrolments[A](enrolments: Set[Enrolment]): Option[String] =
     enrolments.find(enrolment => Set(orgEnrolment, agentEnrolment).contains(enrolment.key)) match {
       case Some(enrolment) =>
-        (enrolementStornExtractor(enrolment), enrolment.state.toLowerCase()) match {
+        (enrolmentStornExtractor(enrolment), enrolment.state.toLowerCase()) match {
           case (Some(storn), "activated" | "notyetactivated") =>
             Some(storn)
           case (Some(_), _) =>
-            logError("[AuthenticatedIdentifierAction][checkEnrolments] - Inactive enrolment")
+            logger.error("[AuthenticatedIdentifierAction][checkEnrolments] - Inactive enrolment")
             None
           case _ =>
-            logError("[AuthenticatedIdentifierAction][checkEnrolments] - Unable to retrieve sdlt enrolments")
+            logger.error("[AuthenticatedIdentifierAction][checkEnrolments] - Unable to retrieve sdlt enrolments")
             None
         }
       case _ =>
-        logError("[AuthenticatedIdentifierAction][checkEnrolments] - enrolment not found")
+        logger.error("[AuthenticatedIdentifierAction][checkEnrolments] - enrolment not found")
         None
     }
 

@@ -110,7 +110,9 @@
 
     @govukDetails(Details(
         summary = Text(messages("manageReturns.inProgressReturns.details.summary")),
-        content = Text(messages("manageReturns.inProgressReturns.details.content"))
+        content = HtmlContent(
+            detailsContent
+        )
     ))
 
     @renderTable()
