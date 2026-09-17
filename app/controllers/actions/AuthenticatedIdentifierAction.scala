@@ -23,8 +23,6 @@ import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
-import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
-import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
@@ -46,10 +44,8 @@ class AuthenticatedIdentifierAction @Inject()(
                               block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    val defaultPredicate: Predicate = AuthProviders(GovernmentGateway)
 
-    // We expect one to one mapping between AffinityGroup and corresponding Enrolment
-    authorised(defaultPredicate)
+    authorised()
       .retrieve(
         Retrievals.internalId and
           Retrievals.allEnrolments and
@@ -61,23 +57,23 @@ class AuthenticatedIdentifierAction @Inject()(
         case Some(internalId) ~ Enrolments(enrolments) ~ Some(Agent) ~ Some(User) if enrolments.exists(_.key == agentEnrolment) =>
           handleValidEnrolments(block)(request, internalId, enrolments)
         case Some(_) ~ _ ~ Some(Organisation|Agent) ~ Some(Assistant) => // Not sure if this is really applicable anymore
-          logger.error("[AuthenticatedIdentifierAction][authorised] - [Organisation|Agent]: Assistant login attempt")
+          logger.debug("[AuthenticatedIdentifierAction][unauthorised] - [Organisation|Agent]: Assistant login attempt")
           Future.successful(
             Redirect(controllers.manage.routes.UnauthorisedWrongRoleController.onPageLoad()))
         case Some(_) ~ _ ~ Some(Individual) ~ _ =>
-          logger.error("[AuthenticatedIdentifierAction][authorised] - Individual login attempt")
+          logger.debug("[AuthenticatedIdentifierAction][unauthorised] - Individual login attempt")
           Future.successful(
             Redirect(controllers.manage.routes.UnauthorisedIndividualAffinityController.onPageLoad()))
         case _ =>
-          logger.error("[AuthenticatedIdentifierAction][authorised] - authentication failure")
+          logger.debug("[AuthenticatedIdentifierAction][unauthorised] - authentication failure")
           Future.successful(
             Redirect(routes.AccessDeniedController.onPageLoad()))
       } recover {
       case _: NoActiveSession =>
-        logger.error("[AuthenticatedIdentifierAction][authorised] - recover::NoActiveSession")
+        logger.debug("[AuthenticatedIdentifierAction][unauthorised] - recover::NoActiveSession")
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>
-        logger.error("[AuthenticatedIdentifierAction][authorised] - recover::AuthorisationException")
+        logger.debug("[AuthenticatedIdentifierAction][unauthorised] - recover::AuthorisationException")
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }
@@ -111,14 +107,14 @@ class AuthenticatedIdentifierAction @Inject()(
           case (Some(storn), "activated" | "notyetactivated") =>
             Some(storn)
           case (Some(_), _) =>
-            logger.error("[AuthenticatedIdentifierAction][checkEnrolments] - Inactive enrolment")
+            logger.debug("[AuthenticatedIdentifierAction][checkEnrolments] - Inactive enrolment")
             None
           case _ =>
-            logger.error("[AuthenticatedIdentifierAction][checkEnrolments] - Unable to retrieve sdlt enrolments")
+            logger.debug("[AuthenticatedIdentifierAction][checkEnrolments] - Unable to retrieve sdlt enrolments")
             None
         }
       case _ =>
-        logger.error("[AuthenticatedIdentifierAction][checkEnrolments] - enrolment not found")
+        logger.debug("[AuthenticatedIdentifierAction][checkEnrolments] - enrolment not found")
         None
     }
 
