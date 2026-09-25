@@ -27,7 +27,7 @@ class PaginationHelperSpec extends AnyFreeSpec with Matchers with SpecBase{
 
   trait Fixture extends PaginationHelper {
     val urlSelector: Int => String = (pageIndex: Int) => controllers.manage.routes.InProgressReturnsController.onPageLoad(Some(pageIndex)).url
-    val application: Application = applicationBuilder(userAnswers = None).build()
+    val application: Application = applicationBuilder().build()
     val paginationIndexSelectedMidPage: Int = 5
     val paginationIndexSelectedFirstPage: Int = 1
   }

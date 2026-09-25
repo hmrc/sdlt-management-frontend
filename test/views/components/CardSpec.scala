@@ -84,7 +84,7 @@ class CardSpec extends SpecBase with Matchers {
 
   trait Setup {
 
-    val app: Application = applicationBuilder(userAnswers = None).build()
+    val app: Application = applicationBuilder().build()
 
     val title: String = "testTitle"
     val testLinks: Seq[(String, String)] = Seq(("link text", "/test-link"))

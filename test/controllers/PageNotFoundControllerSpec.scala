@@ -31,7 +31,7 @@ class PageNotFoundControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder().build()
       when(mockAppConfig.hmrcOnlineServiceDeskUrl).thenReturn("https://www.gov.uk")
 
       running(application) {
