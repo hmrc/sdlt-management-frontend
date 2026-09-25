@@ -34,7 +34,7 @@ class UnauthorisedIndividualAffinityControllerSpec extends SpecBase with Mockito
 
     "must return OK and the correct view for GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder().build()
       when(mockAppConfig.hmrcTaxServiceBusinessAccount).thenReturn("http://localhost:9020/business-account")
 
       running(application) {

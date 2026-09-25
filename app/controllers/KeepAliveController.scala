@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.IdentifierAction
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -26,10 +26,9 @@ import scala.concurrent.Future
 class KeepAliveController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,
                                      identify: IdentifierAction,
-                                     getData: DataRetrievalAction,
                                    ) extends FrontendBaseController {
 
-  def keepAlive(): Action[AnyContent] = (identify andThen getData).async {
+  def keepAlive(): Action[AnyContent] = identify.async {
       Future.successful(Ok)
   }
 }

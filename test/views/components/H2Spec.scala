@@ -58,7 +58,7 @@ class H2Spec extends SpecBase with Matchers{
 
   trait Setup {
 
-    val app: Application = applicationBuilder(userAnswers = None).build()
+    val app: Application = applicationBuilder().build()
 
     val view: H2 = views.html.components.H2()
 

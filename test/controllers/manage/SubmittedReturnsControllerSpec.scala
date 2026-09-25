@@ -42,7 +42,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
     val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
 
     val application: Application =
-      applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      applicationBuilder()
         .overrides(bind[StampDutyLandTaxService].toInstance(mockService))
         .build()
 

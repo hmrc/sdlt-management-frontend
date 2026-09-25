@@ -17,8 +17,6 @@
 package controllers
 
 import base.SpecBase
-//import org.mockito.ArgumentMatchers.any
-//import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -30,7 +28,7 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK" in {
         val application =
-          applicationBuilder(None)
+          applicationBuilder()
             .build()
 
         running(application) {

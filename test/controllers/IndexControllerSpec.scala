@@ -17,15 +17,10 @@
 package controllers
 
 import base.SpecBase
-//import models.UserAnswers
-//import org.mockito.ArgumentMatchers.{any, argThat}
-//import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-//import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 
-//import scala.concurrent.Future
 
 class IndexControllerSpec extends SpecBase with MockitoSugar {
 
@@ -34,7 +29,7 @@ class IndexControllerSpec extends SpecBase with MockitoSugar {
     "onPageLoad" - {
       "must redirect to the Landing page" in {
 
-        val application = applicationBuilder(userAnswers = None)
+        val application = applicationBuilder( )
           .build()
 
         running(application) {

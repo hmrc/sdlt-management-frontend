@@ -32,7 +32,7 @@ class AccessDeniedControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder().build()
       when(mockAppConfig.hmrcTaxServiceAddSdlt).thenReturn("http://localhost:9730/business-account/add-tax/other/land/stamp-duty")
 
       running(application) {

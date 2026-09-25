@@ -96,7 +96,7 @@ class LinkSpec extends SpecBase with Matchers {
   }
   trait Setup {
 
-    val app: Application = applicationBuilder(userAnswers = None).build()
+    val app: Application = applicationBuilder().build()
 
     val linkText:String = "LinkText"
     val linkTextUrl: String = "https://www.gov.uk/find-hmrc-contacts/technical-support-with-hmrc-online-services"
