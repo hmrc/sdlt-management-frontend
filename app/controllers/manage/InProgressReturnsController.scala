@@ -16,7 +16,7 @@
 
 package controllers.manage
 
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, StornRequiredAction}
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction, SplitterAction, StornRequiredAction}
 import controllers.routes.{JourneyRecoveryController, SystemErrorController}
 import models.SdltReturnTypes.*
 import models.requests.DataRequest
@@ -37,13 +37,14 @@ class InProgressReturnsController @Inject()(
                                              val controllerComponents: MessagesControllerComponents,
                                              stampDutyLandTaxService: StampDutyLandTaxService,
                                              identify: IdentifierAction,
+                                             splitterAction: SplitterAction,
                                              getData: DataRetrievalAction,
                                              requireData: DataRequiredAction,
                                              stornRequiredAction: StornRequiredAction,
                                              view: InProgressReturnView
                                            )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with LoggingUtil {
 
-  private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen getData andThen requireData andThen stornRequiredAction
+  private lazy val authActions: ActionBuilder[DataRequest, AnyContent] = identify andThen splitterAction andThen getData andThen requireData andThen stornRequiredAction
 
   def onPageLoad(index: Option[Int]): Action[AnyContent] = authActions.async { implicit request =>
     stampDutyLandTaxService.getReturnsByTypeViewModel[SdltInProgressReturnViewModel](request.storn, IN_PROGRESS_RETURNS, index)

@@ -37,13 +37,14 @@ class AtAGlanceController@Inject()(
                                     val controllerComponents: MessagesControllerComponents,
                                     stampDutyLandTaxService: StampDutyLandTaxService,
                                     identify: IdentifierAction,
+                                    splitterAction: SplitterAction,
                                     getData: DataRetrievalAction,
                                     view: AtAGlanceView,
                                     requireData: DataRequiredAction,
                                     stornRequiredAction: StornRequiredAction,
                                   )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with LoggingUtil {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen splitterAction andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
 
     (for {
       agentsCount                     <- stampDutyLandTaxService

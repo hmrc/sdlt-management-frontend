@@ -53,9 +53,9 @@ class AuthenticatedIdentifierAction @Inject()(
           Retrievals.credentialRole
       ) {
         case Some(internalId) ~ Enrolments(enrolments) ~ Some(Organisation) ~ Some(User) if enrolments.exists(_.key == orgEnrolment) =>
-          handleValidEnrolments(block)(request, internalId, enrolments)
+          handleValidEnrolments(block)(request, internalId, enrolments, Organisation)
         case Some(internalId) ~ Enrolments(enrolments) ~ Some(Agent) ~ Some(User) if enrolments.exists(_.key == agentEnrolment) =>
-          handleValidEnrolments(block)(request, internalId, enrolments)
+          handleValidEnrolments(block)(request, internalId, enrolments, Agent)
         case Some(_) ~ _ ~ Some(Organisation|Agent) ~ Some(Assistant) => // Not sure if this is really applicable anymore
           logger.debug("[AuthenticatedIdentifierAction][unauthorised] - [Organisation|Agent]: Assistant login attempt")
           Future.successful(
@@ -79,10 +79,10 @@ class AuthenticatedIdentifierAction @Inject()(
   }
 
   private def handleValidEnrolments[A](block: IdentifierRequest[A] => Future[Result])
-                                       (request: Request[A], internalId: String, enrolments: Set[Enrolment]) = {
+                                       (request: Request[A], internalId: String, enrolments: Set[Enrolment], affinityGroup: AffinityGroup) = {
     checkEnrolments(enrolments)
       .map { storn =>
-        block(IdentifierRequest(request, internalId, storn))
+        block(IdentifierRequest(request, internalId, storn, affinityGroup))
       }
       .getOrElse(
         Future.successful(

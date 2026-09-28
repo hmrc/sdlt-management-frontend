@@ -28,6 +28,7 @@ import javax.inject.Inject
 class UsefulLinksController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: IdentifierAction,
+                                       splitterAction: SplitterAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        stornRequiredAction: StornRequiredAction,
@@ -35,7 +36,7 @@ class UsefulLinksController @Inject()(
                                        view: UsefulLinksView
                                      )(implicit appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData andThen stornRequiredAction) {
+  def onPageLoad: Action[AnyContent] = (identify andThen splitterAction andThen getData andThen requireData andThen stornRequiredAction) {
     implicit request =>
       Ok(view())
   }

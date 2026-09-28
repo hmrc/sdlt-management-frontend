@@ -37,6 +37,7 @@ class SubmittedReturnsController @Inject()(
                                             val controllerComponents: MessagesControllerComponents,
                                             stampDutyLandTaxService: StampDutyLandTaxService,
                                             identify: IdentifierAction,
+                                            splitterAction: SplitterAction,
                                             getData: DataRetrievalAction,
                                             requireData: DataRequiredAction,
                                             stornRequiredAction: StornRequiredAction,
@@ -45,7 +46,7 @@ class SubmittedReturnsController @Inject()(
 
 
   def onPageLoad(paginationIndex: Option[Int]): Action[AnyContent] =
-    (identify andThen getData andThen requireData andThen stornRequiredAction)
+    (identify andThen splitterAction andThen getData andThen requireData andThen stornRequiredAction)
       .async { implicit request =>
         stampDutyLandTaxService
           .getReturnsByTypeViewModel[SdltSubmittedReturnViewModel](request.storn, SUBMITTED_SUBMITTED_RETURNS, paginationIndex)
