@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.IdentifierAction
+import controllers.actions.{IdentifierAction, SplitterAction}
 import models.{NormalMode, UserAnswers}
 import navigation.Navigator
 import play.api.i18n.I18nSupport
@@ -33,13 +33,14 @@ import scala.concurrent.{ExecutionContext, Future}
 class IndexController @Inject()(
                                  val controllerComponents: MessagesControllerComponents,
                                  identify: IdentifierAction,
+                                 splitterAction: SplitterAction,
                                  sessionRepository: SessionRepository,
                                  navigator: Navigator
                                )(implicit ec: ExecutionContext)
   extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen splitterAction).async { implicit request =>
 
     val userAnswers = UserAnswers(id = request.userId)
 

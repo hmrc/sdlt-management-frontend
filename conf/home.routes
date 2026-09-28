@@ -1,0 +1,3 @@
+# microservice specific routes
+
+GET        /*path                                         controllers.home.HomeController.landingPage(path: String)
