@@ -20,6 +20,7 @@ import base.SpecBase
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.AffinityGroup
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -36,7 +37,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         val action = new Harness()
         val request = FakeRequest()
 
-        val result = action.callTransform(IdentifierRequest(request, "id", "STN001")).futureValue
+        val result = action.callTransform(IdentifierRequest(request, "id", "STN001", AffinityGroup.Organisation)).futureValue
 
         result mustBe OptionalDataRequest(request, "id", "STN001")
       }

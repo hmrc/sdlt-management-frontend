@@ -1,3 +1,4 @@
 # Add all the application routes to the app.routes file
 ->         /stamp-duty-land-tax-management  app.Routes
+->         /stamp-taxes                     home.Routes
 ->         /                                health.Routes
