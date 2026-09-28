@@ -78,5 +78,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+
+  lazy val useRateLimitedAllowList: Boolean = configuration.get[Boolean]("splitter.trafficSplitEnabled")
+  lazy val splitterServiceName: String      = configuration.get[String]("splitter.serviceName")
+  lazy val splitterAllowListName: String    = configuration.get[String]("splitter.allowListName")
+  lazy val legacySdltServiceUrl: String     = configuration.get[String]("urls.legacySdltServiceUrl")
 }
 
