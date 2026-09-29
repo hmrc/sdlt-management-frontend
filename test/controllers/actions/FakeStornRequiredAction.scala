@@ -17,7 +17,6 @@
 package controllers.actions
 
 import models.requests.DataRequest
-import pages.manage.StornPage
 import play.api.mvc.Result
 
 import javax.inject.Inject
@@ -27,10 +26,9 @@ class FakeStornRequiredAction @Inject()
   (implicit val executionContext: ExecutionContext)  extends StornRequiredAction {
 
   override protected def refine[A](request: DataRequest[A]): Future[Either[Result, DataRequest[A]]] =
-    request.userAnswers.get(StornPage) match {
-      case Some(storn) =>
-        Future.successful(Right(request))
-      case None =>
-        Future.successful(Right(request.copy(storn = "STN001")))
+    if (request.storn.nonEmpty) {
+      Future.successful(Right(request))
+    } else {
+      Future.successful(Right(request.copy(storn = "STN001")))
     }
 }

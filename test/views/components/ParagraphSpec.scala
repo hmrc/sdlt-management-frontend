@@ -54,7 +54,7 @@ class ParagraphSpec extends SpecBase with Matchers {
 
   trait Setup {
 
-    val app: Application = applicationBuilder(userAnswers = None).build()
+    val app: Application = applicationBuilder().build()
 
     val view: Paragraph = views.html.components.Paragraph()
 

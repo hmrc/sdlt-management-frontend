@@ -32,7 +32,7 @@ class JourneyRecoveryControllerSpec extends SpecBase {
 
     "must return OK and the continue view" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder().build()
       when(mockAppConfig.hmrcOnlineHelpDesk)
         .thenReturn("https://www.gov.uk/find-hmrc-contacts/stamp-duty-land-tax-general-enquiries")
 

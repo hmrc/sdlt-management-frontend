@@ -18,7 +18,6 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalTo, get, post, stubFor, urlPathEqualTo}
 import itutil.ApplicationWithWiremock
-import models.UserAnswers
 import models.manage.{SdltReturnRecordRequest, SdltReturnRecordResponse}
 import models.organisation.SdltOrganisationResponse
 import models.requests.DataRequest
@@ -42,7 +41,6 @@ class StampDutyLandTaxConnectorISpec extends AnyWordSpec
   implicit val request: DataRequest[_] = DataRequest(
     request = FakeRequest(),
     userId = "some-id",
-    userAnswers = UserAnswers(id = "id"),
     storn = storn
   )
 

@@ -41,7 +41,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase {
   trait Fixture {
     val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
-    val application: Application = applicationBuilder(userAnswers = None)
+    val application: Application = applicationBuilder()
       .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
       .build()
 

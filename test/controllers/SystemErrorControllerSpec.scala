@@ -31,7 +31,7 @@ class SystemErrorControllerSpec extends SpecBase with MockitoSugar {
 
     "SystemErrorController " - {
       "must return Ok and correct view for Get" in {
-        val app = applicationBuilder(Some(emptyUserAnswers)).build()
+        val app = applicationBuilder().build()
 
         when(mockAppConfig.hmrcOnlineServiceDeskUrl)
           .thenReturn("https://www.gov.uk")

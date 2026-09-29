@@ -42,7 +42,7 @@ class DueForDeletionReturnsControllerSpec
     val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
 
     def app: Application =
-      applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      applicationBuilder()
         .overrides(
           bind[StampDutyLandTaxService].toInstance(mockService)
         )

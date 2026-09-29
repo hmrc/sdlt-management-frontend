@@ -32,7 +32,7 @@ class UsefulLinksControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder().build()
       when(mockAppConfig.sdltOnlineUrl).thenReturn("https://www.gov.uk/guidance/stamp-duty-land-tax-online-and-paper-returns")
       when(mockAppConfig.subleaseUrl).thenReturn("https://www.gov.uk/hmrc-internal-manuals/stamp-duty-land-tax-manual/sdltm62045")
       when(mockAppConfig.sdlt1Url).thenReturn("https://www.gov.uk/government/publications/sdlt-guide-for-completing-paper-sdlt1-return")

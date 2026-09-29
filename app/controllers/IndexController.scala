@@ -17,35 +17,27 @@
 package controllers
 
 import controllers.actions.IdentifierAction
-import models.{NormalMode, UserAnswers}
+import models.NormalMode
 import navigation.Navigator
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import javax.inject.Singleton
-import pages.manage.{AtAGlancePage, StornPage}
+import pages.manage.AtAGlancePage
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
 class IndexController @Inject()(
                                  val controllerComponents: MessagesControllerComponents,
                                  identify: IdentifierAction,
-                                 sessionRepository: SessionRepository,
                                  navigator: Navigator
-                               )(implicit ec: ExecutionContext)
+                               )
   extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
-
-    val userAnswers = UserAnswers(id = request.userId)
-
-    for {
-      updatedAnswers <- Future.fromTry(userAnswers.set(StornPage, request.storn))
-      _              <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(AtAGlancePage, NormalMode, userAnswers))
+      Future.successful(Redirect(navigator.nextPage(AtAGlancePage, NormalMode)))
   }
 }

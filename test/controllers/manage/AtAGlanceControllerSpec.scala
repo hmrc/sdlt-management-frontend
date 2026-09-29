@@ -31,7 +31,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.StampDutyLandTaxService
 import views.html.manage.AtAGlanceView
-import controllers.routes.{SystemErrorController}
+import controllers.routes.SystemErrorController
 import scala.concurrent.Future
 
 class AtAGlanceControllerSpec
@@ -42,7 +42,7 @@ class AtAGlanceControllerSpec
     val mockService: StampDutyLandTaxService = mock[StampDutyLandTaxService]
 
     def application: Application =
-      applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      applicationBuilder()
         .overrides(
           bind[StampDutyLandTaxService].toInstance(mockService)
         )
