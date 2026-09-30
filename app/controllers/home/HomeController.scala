@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.home
 
+import javax.inject.Singleton
 import controllers.actions.{IdentifierAction, SplitterAction}
-import models.NormalMode
-import navigation.Navigator
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import javax.inject.Singleton
-import pages.manage.AtAGlancePage
 
 import javax.inject.Inject
-import scala.concurrent.Future
 
 @Singleton
-class IndexController @Inject()(
-                                 val controllerComponents: MessagesControllerComponents,
-                                 identify: IdentifierAction,
-                                 splitterAction: SplitterAction,
-                                 navigator: Navigator
-                               )
-  extends FrontendBaseController
-    with I18nSupport {
+class HomeController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  identifyUser: IdentifierAction,
+  splitterAction: SplitterAction
+)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen splitterAction).async { implicit request =>
-      Future.successful(Redirect(navigator.nextPage(AtAGlancePage, NormalMode)))
+  def landingPage(path: String): Action[AnyContent] = identifyUser.andThen(splitterAction) { _ =>
+    Redirect(controllers.routes.IndexController.onPageLoad())
   }
 }

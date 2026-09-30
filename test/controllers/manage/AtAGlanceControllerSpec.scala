@@ -18,6 +18,7 @@ package controllers.manage
 
 import base.SpecBase
 import config.FrontendAppConfig
+import connectors.RateLimitedAllowListConnector
 import controllers.manage.routes.*
 import models.SdltReturnTypes.{IN_PROGRESS_RETURNS, IN_PROGRESS_RETURNS_DUE_FOR_DELETION, SUBMITTED_RETURNS_DUE_FOR_DELETION, SUBMITTED_SUBMITTED_RETURNS}
 import models.manage.AtAGlanceViewModel
@@ -132,6 +133,34 @@ class AtAGlanceControllerSpec
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_SUBMITTED_RETURNS), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(SUBMITTED_RETURNS_DUE_FOR_DELETION), any())(any())
         verify(mockService, times(1)).getReturnsByTypeViewModel(any(), eqTo(IN_PROGRESS_RETURNS_DUE_FOR_DELETION), any())(any())
+      }
+    }
+
+    "redirect to legacy sdlt service url when the user is not allowed" in new Fixture {
+      val mockRateLimitedAllowListConnector = mock[RateLimitedAllowListConnector]
+
+      when(mockRateLimitedAllowListConnector.checkAllowList(eqTo("beta-test"), eqTo("STN001"))(using any()))
+        .thenReturn(Future.successful(false))
+
+      val splitApplication: Application =
+        applicationBuilder()
+          .configure(
+            "splitter.trafficSplitEnabled" -> true,
+            "splitter.allowListName"       -> "beta-test",
+            "urls.legacySdltServiceUrl"    -> "http://localhost:9020/stamp-taxes"
+          )
+          .overrides(
+            bind[StampDutyLandTaxService].toInstance(mockService),
+            bind[RateLimitedAllowListConnector].toInstance(mockRateLimitedAllowListConnector)
+          )
+          .build()
+
+      running(splitApplication) {
+        val request = FakeRequest(GET, AtAGlanceController.onPageLoad().url)
+        val result  = route(splitApplication, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual "http://localhost:9020/stamp-taxes/org/STN001"
       }
     }
 

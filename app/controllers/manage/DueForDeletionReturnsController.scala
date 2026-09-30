@@ -37,6 +37,7 @@ class DueForDeletionReturnsController @Inject()(
                                                  val controllerComponents: MessagesControllerComponents,
                                                  stampDutyLandTaxService: StampDutyLandTaxService,
                                                  identify: IdentifierAction,
+                                                 splitterAction: SplitterAction,
                                                  getData: DataRetrievalAction,
                                                  requireData: DataRequiredAction,
                                                  stornRequiredAction: StornRequiredAction,
@@ -44,7 +45,7 @@ class DueForDeletionReturnsController @Inject()(
                                                )(implicit executionContext: ExecutionContext, appConfig: FrontendAppConfig) extends FrontendBaseController with I18nSupport with PaginationHelper with LoggingUtil {
 
   def onPageLoad(inProgressIndex: Option[Int], submittedIndex: Option[Int]): Action[AnyContent] =
-    (identify andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
+    (identify andThen splitterAction andThen getData andThen requireData andThen stornRequiredAction).async { implicit request =>
       infoLog(s"[DueForDeletionReturnsController][onPageLoad] :: ${inProgressIndex} - ${submittedIndex}")
 
       (for {
